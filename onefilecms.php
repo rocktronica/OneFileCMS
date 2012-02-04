@@ -1,8 +1,8 @@
 <?php
 
-//	OneFileCMS - http://onefilecms.com/
+// OneFileCMS - http://onefilecms.com/
 
-//	CONFIGURATION INFO
+// CONFIGURATION INFO
 $config_username = "username";
 $config_password = "password";
 $config_hint = "";
@@ -201,7 +201,7 @@ if (isset($_FILES['upload_filename']['name']) && $_SESSION['onefilecms_valid'] =
 
 <?php if (isset($message)) {?><div id="message"><p><?php echo $message; ?></p></div><?php };
 
-//	COPY FILE
+// COPY FILE
 if ($page == "copy") { 
 	$extension = strrchr($filename, ".");
 	$slug = substr($filename, 0, strlen($filename) - strlen($extension));
@@ -287,7 +287,7 @@ if ($page == "edit") { ?>
 	<div style="clear:both;"></div>
 <?php };
 
-//	INDEX
+// INDEX
 if ($page == "index") { $varvar = "";
 	if (isset($_GET["i"])) { $varvar = $_GET["i"]."/"; } ?> 
 	<h2><?php echo basename(getcwd())."/".$varvar;?></h2>
@@ -295,7 +295,7 @@ if ($page == "index") { $varvar = "";
 		<?php if ((isset($_GET["i"])) and ($_GET["i"] !== "")) { ?>
 			<a href="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?i=<?php echo substr($_GET["i"],0,strpos($_GET["i"],"/")); ?>" class="folder">.. /</a>
 		<?php }
-		files = glob($varvar."*",GLOB_ONLYDIR);
+		$files = glob($varvar."*",GLOB_ONLYDIR);
 		sort($files);
 		foreach ($files as $file) { ?>
 			<a href="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?i=<?php echo $file; ?>" class="folder"><?php echo basename($file); ?></a>
@@ -486,33 +486,37 @@ if ($page == "upload") {
 
 </div>
 
-<script src="http://www.google.com/jsapi" type="text/javascript"></script>
-<script type="text/javascript">google.load("jquery", "1"); google.load("swfobject", "2.2");</script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 <script type="text/javascript">
-//<![CDATA[
-$(document).ready(function(){
 
-if ( $("#message").length > 0 ) { $("#message").animate({opacity: 1.0}, 3000).fadeOut(); };
-$(".button:visible:enabled:first").focus();
-$(".textinput:visible:enabled:first").focus();
-$(".page_edit .textinput").bind("change keyup", function (e) {
-	key = e.which+" ";
-	badkeys = "224 16 17 18 37 38 39 40 ";
-	if ((badkeys.indexOf(key) == "-1") && ($("#save_file").val() !== "Save!")) {
-		$("#save_file").val("Save!");
-		document.title = document.title + " *";
-		$(".page_edit h2").append(" *");
-	}
-});
-$(".page_edit form").submit(function() { $("#save_file").val("Save"); });
-window.onbeforeunload = function () {
-	if ($("#save_file").val() == "Save!") {
-		return "Any changes you've made will be lost!";
-	}
-};
+	$.fn.ready(function(){
+	
+		var $message = $("#message"),
+		    $save_file = $("#save_file");
+		if ( $message.length > 0 ) { $message.animate({opacity: 1.0}, 3000).fadeOut(); };
+		
+		$(".button:visible:enabled:first").focus();
+		$(".textinput:visible:enabled:first").focus();
+		
+		$(".page_edit .textinput").bind("change keyup", function (e) {
+			key = e.which+" ";
+			badkeys = "224 16 17 18 37 38 39 40 ";
+			if ((badkeys.indexOf(key) == "-1") && ($save_file.val() !== "Save!")) {
+				$save_file.val("Save!");
+				document.title = document.title + " *";
+				$(".page_edit h2").append(" *");
+			}
+		});
+		
+		$(".page_edit form").submit(function() { $save_file.val("Save"); });
+		window.onbeforeunload = function () {
+			if ($save_file.val() == "Save!") {
+				return "Any changes you've made will be lost!";
+			}
+		};
+	
+	});
 
-});
-//]]>
 </script>
 
 </body>
