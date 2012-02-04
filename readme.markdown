@@ -2,6 +2,8 @@
 
 ## Yeah, it's exactly what you think.
 
+![OneFileCMS](http://onefilecms.com/images/screenshots/branded_index.jpg)
+
 OneFileCMS is just that. It's a flat, light, one file CMS (Content Management System) entirely contained in an easy-to-implement, highly customizable, database-less PHP script.
 
 Coupling a utilitarian code editor with all the basic necessities of an FTP application, OneFileCMS can maintain a whole website completely in-browser without any external programs.
