@@ -20,6 +20,8 @@ Coupling a utilitarian code editor with all the basic necessities of an FTP appl
 
 ## Installation
 
+Download [this file](https://raw.github.com/rocktronica/OneFileCMS/master/onefilecms.php).
+
 Your username and password are inlined. Edit them to something less obvious.
 
     // CONFIGURATION INFO
@@ -29,6 +31,8 @@ Your username and password are inlined. Edit them to something less obvious.
 Optional variables thereafter: password hint, title, footer text, filetypes to disable, and filenames to ignore
 
 You can also change the name of the file to something else. Be careful making it a folder's default file; your server may get stuck in redirects.
+
+Upload!
 
 Depending on how your webspace is set up, you may also have to modify the file permissions of your site's folders to allow OneFileCMS to modify and create files. ([More about that here.](http://catcode.com/teachmod/)) Make sure onefilecms.php and its parent folder are allowed to execute, with CHMOD at 777 and 755. Check with your host if you're not sure.
 
@@ -98,7 +102,6 @@ It isn't entirely necessary, but it does nice little progressive enhancements li
 ### 1.0 (9/5/09)
 
 - Launch!
-
 
 ## Requirements
 
