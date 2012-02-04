@@ -8,6 +8,8 @@ OneFileCMS is just that. It's a flat, light, one file CMS (Content Management Sy
 
 Coupling a utilitarian code editor with all the basic necessities of an FTP application, OneFileCMS can maintain a whole website completely in-browser without any external programs.
 
+**Demo**: [http://php.opensourcecms.com/scripts/details.php?scriptid=340](http://php.opensourcecms.com/scripts/details.php?scriptid=340)
+
 ## Features
  
 - Validating, semantic, and commented markup. Tested in FF, Safari, and IE7/IE8.
