@@ -38,7 +38,7 @@ You can also change the name of the file to something else. Be careful making it
 
 Upload!
 
-Depending on how your webspace is set up, you may also have to modify the file permissions of your site's folders to allow OneFileCMS to modify and create files. ([More about that here.](http://catcode.com/teachmod/)) Make sure onefilecms.php and its parent folder are allowed to execute, with CHMOD at 777 and 755. Check with your host if you're not sure.
+Depending on how your stack is set up, you may also have to modify the file permissions of your site's folders to allow OneFileCMS to modify and create files. ([More about that here.](http://catcode.com/teachmod/)) Make sure onefilecms.php and its parent folder are allowed to execute, with CHMOD at 777 or 755. Check with your host if you're not sure, and be aware of any inherent security concerns.
 
 ## FAQ
 
@@ -51,6 +51,16 @@ Just because I don't want to do it, though, doesn't mean it's impossible. About 
     // EDIT
 
 This is the edit page code. Its textareas can be modified to work with whatever editor you like. If the editor is initiated via jQuery, you can call it in the jQ code in the footer.
+
+### I found something that could be better. Can I suggest it to you?
+
+Yes, of course, you can!
+
+I may not have the bandwidth to implement every feature, but I'll do what I can. If it's urgent, contact me.
+
+Otherwise, try [forking the file and submitting your changes to me](https://github.com/blog/844-forking-with-the-edit-button).
+
+Everything's welcome!
 
 ### This is basically just a file manager with a text editor. Why is it being called a Content Management System?
 
