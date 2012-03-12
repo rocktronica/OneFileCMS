@@ -80,6 +80,10 @@ It isn't entirely necessary, but it does nice little progressive enhancements li
 
 ## Updates
 
+### 1.1.5
+
+- Fixed a disallowed redirect vulnerability
+
 ### 1.1.4
 
 - JavaScript cleanup and jQuery upgrade
