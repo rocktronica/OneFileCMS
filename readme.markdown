@@ -72,7 +72,7 @@ Maybe later!
 
 ### Can I have more than one username/password?
 
-The reason there isn't default support for multiple users is that all of their info will have to be stored together, more or less in plain text, at the top of onefilecms.php. Giving people different usernames and passwords then is sort of futile, since everyone who can log in can view onefilecms's source and config variables. (This answer kind of ignores MD5 hashes but is valid for most considerations.)
+The reason there isn't default support for multiple users is that all of their info will have to be stored together, more or less in plain text, at the top of onefilecms.php. Giving people different usernames and passwords then is sort of futile, since everyone who can log in can view onefilecms's source and config variables. (This answer kind of ignores MD5 hashes but is valid for most considerations.) 
 
 ### Is the JavaScript at the end of file really needed? When I remove it, everything works fine.
 
@@ -82,7 +82,7 @@ It isn't entirely necessary, but it does nice little progressive enhancements li
 
 ### 1.1.5
 
-- Fixed a disallowed redirect vulnerability
+- Fixed a disallowed redirect vulnerability<br />Many thanks to Abhi M Balakrishnan from [OWASP Mantra Team](http://www.getmantra.com/) for his help
 
 ### 1.1.4
 
