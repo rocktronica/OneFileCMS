@@ -296,11 +296,46 @@ if ($page == "edit") { ?>
 // INDEX
 if ($page == "index") { $varvar = "";
 	if (isset($_GET["i"])) { $varvar = $_GET["i"]."/"; } ?> 
-	<h2><?php echo basename(getcwd())."/".$varvar;?></h2>
+
+	 <?php //*** Display current path & link each directory level **************
+
+	$full_path = basename(getcwd()).'/'.$_GET["i"];
+	$path_levels = explode("/",$full_path);
+	$levels = count($path_levels);
+
+	//First item is root of website.
+	if ($varvar == "") { 
+		echo '<h2>', $path_levels[0];	 //if at root, no need for link.
+	}else{
+		echo '<h2><a href="', $_SERVER["SCRIPT_NAME"], '" class="path">', $path_levels[0], ' </a>/';
+	}//end if
+
+	$current_path = "";
+	for ($x=1; $x < $levels-1; $x++){
+		if ($x != 1){$current_path .= '/';}
+		$current_path = $current_path.$path_levels[$x];
+		echo '<a href="',  $_SERVER["SCRIPT_NAME"],  '?i=',  $current_path,  '" class="path"> ';
+		echo $path_levels[$x],  ' </a>/';
+	}//end for
+
+	//last item is current dir. No link needed.
+	echo ' '.$path_levels[$x].' /</h2>'; 
+	//******* End display current path ... ***********************************?>
+
 	<p class="index_folders">
-		<?php if ((isset($_GET["i"])) and ($_GET["i"] !== "")) { ?>
-			<a href="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?i=<?php echo substr($_GET["i"],0,strpos($_GET["i"],"/")); ?>" class="folder">.. /</a>
-		<?php }
+
+		<?php
+		// *** "../" link for parent directory *******
+		$newpath = dirname($varvar);
+		if ( $varvar == "") {
+			echo ''; //If $varvar is blank, already at base directory, so "../" is not needed.
+		}elseif ($newpath == ".") { // "." == base directory
+			echo '<a href="'.$_SERVER["SCRIPT_NAME"].'" class="folder"><b>.. /</b></a>';
+		}else{
+			echo '<a href="'.$_SERVER["SCRIPT_NAME"].'?i='.$newpath.'" class="folder"><b>.. /</b></a>';
+		}
+		// *** end "../" link for parent directory ***
+
 		$files = glob($varvar."*",GLOB_ONLYDIR);
 		sort($files);
 		foreach ($files as $file) { ?>
