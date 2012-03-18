@@ -1,0 +1,293 @@
+/* --- reset --- */
+
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,
+cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,dl,dt,dd,ol,ul,li,
+fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{border:0;outline:0;font-weight:inherit;font-style:inherit;font-size:100%;font-family:inherit;vertical-align:baseline;margin:0;padding:0;}
+:focus{outline:0;}
+ol,ul{list-style:none;}
+table{border-collapse:separate;border-spacing:0;}
+caption,th,td{text-align:left;font-weight:400;}
+blockquote:before,blockquote:after,q:before,q:after{content:"";}
+blockquote,q{quotes:"" "";}
+div{position: relative;}
+h1,h2,h3,h4,h5,h6{font-weight: bold;}
+
+body {
+	font-size: 12px;
+	line-height: 1;
+	background: #d5d0cc url("/images/background.jpg") top center no-repeat;
+	font-family: Century Gothic, Apple Gothic, sans-serif;
+	color: #0F0901;
+}
+
+/* --- layout --- */
+
+.container {
+	width: 800px;
+	padding: 0 10px;
+	margin: 20px auto;
+}
+
+.header {
+	margin-bottom: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #807568;
+	color: #676767;
+	position: relative;
+}
+
+.footer {
+	margin-top: 10px;
+	padding-top: 10px;
+	border-top: 1px solid #807568;
+	clear: both;
+}
+
+/* --- general formatting --- */
+
+h2, h3, p, ul { margin-bottom: 10px; }
+p, li {line-height: 1.4em; }
+form p { margin-bottom: 5px; }
+a { color: #774200; text-decoration: none; }
+a:hover { color: #976322; }
+a:hover { color: #995400; }
+h2 { font-size: 20px; }
+h3 { font-size: 18px; margin-top: 15px; }
+em, i { font-style: italic; }
+strong { font-weight: bold; }
+
+label {
+	font-size: 14px;
+	font-style: italic;
+	width: 110px;
+	display: inline-block;
+}
+
+pre {
+	background: white;
+	border: 1px solid #807568;
+	line-height: 1.25em;
+	overflow: auto
+	overflow-Y: hidden;
+	padding: 10px;
+	margin: 5px 0 10px 0;
+	overflow: hidden;
+}
+
+.page_login label {
+	display: block;
+	margin-bottom: 2px;
+}
+
+.alignleft {
+	margin: 0 10px 10px 0;
+	float: left;
+}
+
+.left70 {
+	width: 70px;
+	display: inline-block;
+}
+
+#message {
+	margin-bottom: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #807568;
+}
+
+#message p {
+	margin: 0;
+	padding: 5px 5px 5px 30px;
+	border: 1px solid #807568;
+	background: #fff000 url("http://onefilecms.com/images/silk_error.png") 10px 5px no-repeat;
+}
+
+/* --- INDEX --- */
+
+.index { width: 810px; }
+
+.index li {
+	margin: 0 10px 10px 0;
+	width: 192.5px;
+	float: left;
+	position: relative;
+}
+
+.index a {
+	height: 28px;
+	display: block;
+	padding: 7px 5px 7px 35px;
+	border: 1px solid #807568;
+	text-decoration: none;
+	background: white url("http://onefilecms.com/images/silk_file.png") 10px 10px no-repeat;
+	overflow: hidden;
+	line-height: 1em;
+}
+
+
+.index a.css { background: white url("http://onefilecms.com/images/silk_css.png") 10px 10px no-repeat; }
+.index a.img { background: white url("http://onefilecms.com/images/silk_image.png") 10px 10px no-repeat; }
+.index a.php { background: white url("http://onefilecms.com/images/silk_php.png") 10px 10px no-repeat; }
+
+.index a:hover {
+	background-color: #fffbce;
+	border: 1px solid #969376;
+}
+
+.index .meta {
+	font-size: 11px;
+	height: 25px;
+	margin-top: 3px;
+	overflow: hidden;
+	line-height: 1.1em;
+}
+
+.index_folders a {
+	display: inline-block;
+	font-size: 16px;
+	margin-right: 15px;
+	padding-left: 21px;
+	display: inline-block;
+	background: url("http://onefilecms.com/images/silk_folder.png") no-repeat;
+}
+
+/* --- list view --- */
+
+ul.list {
+	width: 100%;
+	margin-bottom: 31px;
+}
+
+ul.index.list * {
+	width: auto;
+	height: auto;
+	padding: 0;
+	margin: 0;
+	display: visible;
+	line-height: 21px;
+}
+
+ul.index.list li {
+	float: none;
+	clear: both;
+}
+
+ul.index.list li a {
+	display: block;
+	float: left;
+	background-color: transparent;
+	background-position: top left;
+	border: none;
+	width: 200px;
+	text-indent: 26px;
+}
+
+ul.list .meta {
+	display: block;
+	float: left;
+	height: auto;
+}
+
+ul.list .meta br { display: none; }
+
+ul.list .meta span {
+	display: block;
+	float: left;
+	width: 200px;
+}
+
+
+.front_links { clear: both; }
+
+.front_links a {
+	font-size: 16px;
+	margin-right: 15px;
+	padding-left: 21px;
+	height: 16px;
+	display: inline-block;
+}
+
+.front_links a.settings { background: url("http://onefilecms.com/images/silk_settings.png") no-repeat; }
+.front_links a.new { background: url("http://onefilecms.com/images/silk_new.png") no-repeat; }
+.front_links a.newfolder { background: url("http://onefilecms.com/images/silk_newfolder.png") no-repeat; }
+.front_links a.deletefolder { background: url("http://onefilecms.com/images/silk_deletefolder.png") no-repeat; }
+.front_links a.renamefolder { background: url("http://onefilecms.com/images/silk_renamefolder.png") no-repeat; }
+.front_links a.upload { background: url("http://onefilecms.com/images/silk_upload.png") no-repeat; }
+.front_links a.other { background: url("http://onefilecms.com/images/silk_other.png") no-repeat; }
+
+form .meta { z-index: -1; }
+
+.textinput {
+	border: 1px solid #807568;
+	padding: 2px;
+	width: 350px;
+}
+
+textarea.textinput {
+	width: 794px;
+	height: 550px;
+}
+
+textarea.disabled { height: 50px; }
+
+.buttons_right { float: right;}
+.buttons_right .button { margin-left: 7px; }
+.buttons_left { float: left;}
+.buttons_left .button { margin-right: 7px; }
+
+.button {
+	border: 1px solid #807568;
+	padding: 2px 10px;
+	background-color: #d4d4d4;
+	cursor: pointer;
+	font-size: 14px;
+	font-family: Century Gothic, Apple Gothic, sans-serif;
+}
+
+.button:hover { background-color: #eaeaea; }
+.button[disabled]:hover { background-color: #d4d4d4; }
+
+/* --- header --- */
+
+h1 a {
+	font-size: 28px;
+	text-decoration: none;
+	color: #0F0901;
+}
+
+h1 a.onefilecms {
+	background: url("http://onefilecms.com/images/logo.gif") top left no-repeat;
+	width: 208px;
+	height: 29px;
+	display: block;
+	text-indent: -2000px;
+}
+
+h1 a:visited { color: #0F0901; }
+
+.nav {
+	position: absolute;
+	bottom: 12px;
+	right: 0;
+	font-size: 14px;
+}
+
+.nav a {
+	font-weight: bold;
+	text-decoration: none;
+}
+
+/* --- edit --- */
+
+a.back {
+	float: right;
+	margin-top: -24px;
+	font-size: 16px;
+}
+
+/* --- log in --- */
+
+.page_login .container, .page_logout .container {
+	width: 356px;
+	margin-top: 60px;
+}
