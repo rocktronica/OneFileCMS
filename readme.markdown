@@ -78,7 +78,12 @@ The reason there isn't default support for multiple users is that all of their i
 
 It isn't entirely necessary, but it does nice little progressive enhancements like warn if you try to leave w/o saving and stuff like that. Feel free to take it out if you're trying to trim down your figure.
 
-## Updates
+## Change Log
+
+### 1.1.6
+
+- Breadcrumb navigation (courtesy of [Self-Evident](https://github.com/Self-Evident/)), CSS file and some minor changes to it<br />
+  Installation is still as usual, but, now, if you have _onefilecms.css_ in the same folder as _onefilecms.php_, it'll be linked instead of the normal [http://onefilecms.com/style.css](http://onefilecms.com/style.css).
 
 ### 1.1.5
 
