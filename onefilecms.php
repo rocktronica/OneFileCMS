@@ -11,7 +11,7 @@ $config_footer = date("Y")." <a href='http://onefilecms.com/'>OneFileCMS</a>.";
 $config_disabled = "bmp,ico,gif,jpg,png,psd,zip";
 $config_excluded = "onefilecms.php,favicon,.htaccess";
 
-$version = "1.1.5"; // ONEFILECMS_BEGIN
+$version = "1.1.6"; // ONEFILECMS_BEGIN
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
 
@@ -184,7 +184,13 @@ if (isset($_FILES['upload_filename']['name']) && $_SESSION['onefilecms_valid'] =
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="robots" content="noindex">
 <title><?php echo $config_title; ?> - <?php echo $pagetitle; ?></title>
-<link href="http://onefilecms.com/style.css" type="text/css" rel="stylesheet" media="screen" />
+<link href="<?php 
+	if (file_exists("onefilecms.css")) {
+		echo "onefilecms.css";
+	} else {
+		echo "http://onefilecms.com/style.css";
+	}
+?>" type="text/css" rel="stylesheet" media="screen" />
 </head>
 
 <body class="page_<?php echo $page; ?>">
@@ -296,11 +302,26 @@ if ($page == "edit") { ?>
 // INDEX
 if ($page == "index") { $varvar = "";
 	if (isset($_GET["i"])) { $varvar = $_GET["i"]."/"; } ?> 
-	<h2><?php echo basename(getcwd())."/".$varvar;?></h2>
+	<h2><?php $full_path = basename(getcwd()).'/'.$_GET["i"];
+		$path_levels = explode("/",$full_path);
+		$levels = count($path_levels);
+		if ($varvar == "") { 
+			echo $path_levels[0]; // if at root, no need for link.
+		} else {
+			echo '<a href="'.$_SERVER["SCRIPT_NAME"].'" class="path">'.$path_levels[0].'</a> / ';
+		}
+		$current_path = "";
+		for ($x=1; $x < $levels-1; $x++) {
+			if ($x !== 1){ $current_path .= ' / '; }
+			$current_path = $current_path.$path_levels[$x];
+			echo '<a href="',  $_SERVER["SCRIPT_NAME"],  '?i=',  $current_path,  '" class="path">';
+			echo $path_levels[$x],  '</a> / ';
+		}
+		echo $path_levels[$x].' /'; // last item is current dir. No link needed.
+	?></h2>
+
 	<p class="index_folders">
-		<?php if ((isset($_GET["i"])) and ($_GET["i"] !== "")) { ?>
-			<a href="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?i=<?php echo substr($_GET["i"],0,strpos($_GET["i"],"/")); ?>" class="folder">.. /</a>
-		<?php }
+		<?php
 		$files = glob($varvar."*",GLOB_ONLYDIR);
 		sort($files);
 		foreach ($files as $file) { ?>
@@ -347,16 +368,11 @@ if ($page == "index") { $varvar = "";
 		} ?>
 	</ul>
 	<p class="front_links">
-		<a href="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?p=new&amp;i=<?php echo $varvar; 
-		?>" class="new">New File</a>
-		<a href="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?p=folder&amp;i=<?php echo $varvar; 
-		?>" class="newfolder">New Folder</a><?php if ($varvar !== "") { ?>
-		<a href="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?p=deletefolder&amp;i=<?php echo 
-		$varvar; ?>" class="deletefolder">Delete Folder</a>
-		<a href="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?p=renamefolder&amp;i=<?php echo 
-		$varvar; ?>" class="renamefolder">Rename Folder</a><?php } ?>
-		<a href="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?p=upload&amp;i=<?php echo $varvar; 
-		?>" class="upload">Upload File</a>
+		<a href="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?p=new&amp;i=<?php echo $varvar; ?>" class="new">New File</a>
+		<a href="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?p=folder&amp;i=<?php echo $varvar; ?>" class="newfolder">New Folder</a><?php if ($varvar !== "") { ?>
+		<a href="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?p=deletefolder&amp;i=<?php echo $varvar; ?>" class="deletefolder">Delete Folder</a>
+		<a href="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?p=renamefolder&amp;i=<?php echo $varvar; ?>" class="renamefolder">Rename Folder</a><?php } ?>
+		<a href="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?p=upload&amp;i=<?php echo $varvar; ?>" class="upload">Upload File</a>
 		<a href="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?p=other" class="other">Other</a>
 	</p>
 <?php };
@@ -365,14 +381,15 @@ if ($page == "index") { $varvar = "";
 if ($page == "login") { ?>
 	<h2>Log In</h2>
 	<form method="post" action="<?php echo $_SERVER["SCRIPT_NAME"]; ?>">
-		<p><label for="onefilecms_username">Username:</label>
-		<input type="text" name="onefilecms_username" id="onefilecms_username" 
-		class="textinput" /></p>
-		<p><label for="onefilecms_password">Password:</label><input 
-		type="password" name="onefilecms_password" id="onefilecms_password" 
-		class="textinput" /></p>
-		<?php if ($config_hint !== "") { ?><p><i>Hint:</i> <?php echo 
-		$config_hint; ?></p><?php } ?>
+		<p>
+			<label for="onefilecms_username">Username:</label>
+			<input type="text" name="onefilecms_username" id="onefilecms_username" class="textinput" />
+		</p>
+		<p>
+			<label for="onefilecms_password">Password:</label>
+			<input type="password" name="onefilecms_password" id="onefilecms_password" class="textinput" />
+		</p>
+		<?php if ($config_hint !== "") { ?><p><i>Hint:</i> <?php echo $config_hint; ?></p><?php } ?>
 		<p><input type="submit" class="button" value="Enter" /></p>
 	</form>
 <?php };
@@ -392,9 +409,10 @@ if ($page == "new") {
 		<form method="post" id="new" action="<?php echo
 		$_SERVER["SCRIPT_NAME"].substr_replace($varvar,"",-1); ?>">
 			<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
-			<p><label for="new_filename">New filename: </label>
-			<input type="text" name="new_filename" id="new_filename" 
-			class="textinput" value="<?php echo $_GET["i"]; ?>" /></p>
+			<p>
+				<label for="new_filename">New filename: </label>
+				<input type="text" name="new_filename" id="new_filename" class="textinput" value="<?php echo $_GET["i"]; ?>" />
+			</p>
 			<p><input type="submit" class="button" value="Create" /></p>
 		</form>
 <?php };
@@ -407,9 +425,10 @@ if ($page == "folder") {
 	<p>Existing folders with the same name will not be overwritten.</p>
 	<form method="post" action="<?php echo $_SERVER["SCRIPT_NAME"].substr_replace($varvar,"",-1); ?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
-		<p><label for="new_folder">Folder name: </label>
-		<input type="text" name="new_folder" id="new_folder" 
-		class="textinput" value="<?php echo $_GET["i"]; ?>" /></p>
+		<p>
+			<label for="new_folder">Folder name: </label>
+			<input type="text" name="new_folder" id="new_folder" class="textinput" value="<?php echo $_GET["i"]; ?>" />
+		</p>
 		<p><input type="submit" class="button" value="Create" /></p>
 	</form>
 <?php };
@@ -442,12 +461,15 @@ if ($page == "rename") {
 	"<i>foldername/filename.txt</i>." The folder must already exist.</p>
 	<form method="post" action="<?php echo $_SERVER["SCRIPT_NAME"].$varvar;	?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
-		<p><label>Old filename:</label><input type="hidden" name="old_filename" 
-		value="<?php echo $filename; ?>" /><input type="text" name="dummy" 
-		value="<?php echo $filename; ?>" class="textinput" disabled="disabled" /></p>
-		<p><label for="rename_filename">New filename:</label><input type="text" 
-		name="rename_filename" id="rename_filename" class="textinput" 
-		value="<?php echo $filename; ?>" /></p>
+		<p>
+			<label>Old filename:</label>
+			<input type="hidden" name="old_filename" value="<?php echo $filename; ?>" />
+			<input type="text" name="dummy" value="<?php echo $filename; ?>" class="textinput" disabled="disabled" />
+		</p>
+		<p>
+			<label for="rename_filename">New filename:</label>
+			<input type="text" name="rename_filename" id="rename_filename" class="textinput" value="<?php echo $filename; ?>" />
+		</p>
 		<p><input type="submit" class="button" value="Rename" /></p>
 	</form>
 <?php };
@@ -458,12 +480,14 @@ if ($page == "renamefolder") {
 	<h2>Rename Folder &ldquo;<?php echo $_GET["i"]; ?>&rdquo;</h2>
 	<form method="post" action="<?php echo $_SERVER["SCRIPT_NAME"].$varvar; ?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
-		<p><label>Old name:</label><input type="hidden" name="old_foldername" 
-		value="<?php echo $_GET["i"]; ?>" /><input type="text" name="dummy" 
-		value="<?php echo $_GET["i"]; ?>" class="textinput" disabled="disabled" /></p>
-		<p><label for="rename_foldername">New name:</label><input type="text" 
-		name="rename_foldername" id="rename_foldername" class="textinput" 
-		value="<?php echo $_GET["i"]; ?>" /></p>
+		<p>
+			<label>Old name:</label><input type="hidden" name="old_foldername" value="<?php echo $_GET["i"]; ?>" />
+			<input type="text" name="dummy" value="<?php echo $_GET["i"]; ?>" class="textinput" disabled="disabled" />
+		</p>
+		<p>
+			<label for="rename_foldername">New name:</label>
+			<input type="text" name="rename_foldername" id="rename_foldername" class="textinput" value="<?php echo $_GET["i"]; ?>" />
+		</p>
 		<p><input type="submit" class="button" value="Rename"></p>
 	</form>
 <?php };
@@ -476,11 +500,14 @@ if ($page == "upload") {
 	$_SERVER["SCRIPT_NAME"].substr_replace($varvar,"",-1); ?>" method="post">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
 		<input type="hidden" name="MAX_FILE_SIZE" value="100000" />
-		<p><label for="upload_destination">Destination:</label><input type="text" 
-		name="upload_destination" value="<?php echo $_GET["i"]; ?>" 
-		class="textinput" /></p>
-		<p><label for="upload_filename">File:</label>
-		<input name="upload_filename" type="file" /></p>
+		<p>
+			<label for="upload_destination">Destination:</label>
+			<input type="text" name="upload_destination" value="<?php echo $_GET["i"]; ?>" class="textinput" />
+		</p>
+		<p>
+			<label for="upload_filename">File:</label>
+			<input name="upload_filename" type="file" />
+		</p>
 		<p><input type="submit" class="button" value="Upload" /></p>
 	</form>
 <?php } ?>
