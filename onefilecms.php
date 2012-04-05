@@ -308,16 +308,16 @@ if ($page == "index") { $varvar = "";
 		if ($varvar == "") { 
 			echo $path_levels[0]; // if at root, no need for link.
 		} else {
-			echo '<a href="'.$_SERVER["SCRIPT_NAME"].'" class="path">'.$path_levels[0].'</a> / ';
+			echo '<a href="'.$_SERVER["SCRIPT_NAME"].'" class="path"> '.$path_levels[0].' </a>/';
 		}
 		$current_path = "";
 		for ($x=1; $x < $levels-1; $x++) {
-			if ($x !== 1){ $current_path .= ' / '; }
+			if ($x !== 1){ $current_path .= '/'; }
 			$current_path = $current_path.$path_levels[$x];
-			echo '<a href="',  $_SERVER["SCRIPT_NAME"],  '?i=',  $current_path,  '" class="path">';
-			echo $path_levels[$x],  '</a> / ';
+			echo '<a href="'.$_SERVER["SCRIPT_NAME"].'?i='.$current_path.'" class="path"> ';
+			echo ' '.$path_levels[$x].' </a>/';
 		}
-		echo $path_levels[$x].' /'; // last item is current dir. No link needed.
+		echo ' '.$path_levels[$x].' /'; // last item is current dir. No link needed.
 	?></h2>
 
 	<p class="index_folders">
