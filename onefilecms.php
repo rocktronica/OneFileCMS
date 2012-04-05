@@ -10,7 +10,7 @@ $config_title = "OneFileCMS";
 $config_footer = date("Y")." <a href='http://onefilecms.com/'>OneFileCMS</a>.";
 $config_disabled = "bmp,ico,gif,jpg,png,psd,zip";
 $config_excluded = "onefilecms.php,favicon,.htaccess";
-
+$config_localcss = "onefilecms.css";
 $version = "1.1.6"; // ONEFILECMS_BEGIN
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
@@ -185,8 +185,8 @@ if (isset($_FILES['upload_filename']['name']) && $_SESSION['onefilecms_valid'] =
 <meta name="robots" content="noindex">
 <title><?php echo $config_title; ?> - <?php echo $pagetitle; ?></title>
 <link href="<?php 
-	if (file_exists("onefilecms.css")) {
-		echo "onefilecms.css";
+	if (file_exists($config_localcss)) {
+		echo $config_localcss;
 	} else {
 		echo "http://onefilecms.com/style.css";
 	}
