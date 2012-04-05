@@ -514,7 +514,7 @@ if ($page == "upload") {
 
 <div class="footer">
 	<p><?php echo $config_footer; if ($_SESSION['onefilecms_valid'] == "1") { ?> Rendered in <?php 
-	$endtime = getmicrotime(); echo round(($endtime-$starttime)*1000000); ?> milliseconds.<?php } ?></p>
+	$endtime = getmicrotime(); echo round(($endtime-$starttime)*1000000); ?> microseconds.<?php } ?></p>
 </div>
 
 </div>
