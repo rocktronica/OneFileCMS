@@ -292,3 +292,10 @@ a.back {
 	width: 356px;
 	margin-top: 60px;
 }
+
+
+/* --- path/to/current/index --- */
+
+.path { border: 1px solid  transparent; }
+	
+.path:hover { border: 1px solid #807568; background-color: #fffbce; }
