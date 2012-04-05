@@ -48,9 +48,9 @@ body {
 h2,h3,p,ul,table { margin-bottom: 10px; }
 p, li {line-height: 1.4em; }
 form p { margin-bottom: 5px; }
-a { color: #774200; text-decoration: none; }
+a { color: #774200; text-decoration: none; border: 1px solid  transparent; }
 a:hover { color: #976322; }
-a:hover { color: #995400; }
+a:hover { color: #995400; border: 1px solid #807568; background-color: #fffbce; }
 h2 { font-size: 20px; }
 h3 { font-size: 18px; margin-top: 15px; }
 em, i { font-style: italic; }
@@ -146,11 +146,11 @@ pre {
 	display: inline-block;
 	font-size: 16px;
 	margin-right: 15px;
-	padding-left: 21px;
+	padding: 2px 4px 2px 20px;/* padding-left: 21px;*/
 	display: inline-block;
-	background: url("http://onefilecms.com/images/silk_folder.png") no-repeat;
+	background: url("http://onefilecms.com/images/silk_folder.png") 0 2px no-repeat;
 }
-
+.index_folders a:hover { background-color: #fffbce; }
 /* --- list view --- */
 
 ul.list {
@@ -199,7 +199,7 @@ ul.list .meta span {
 
 .front_links { clear: both; }
 
-.front_links a {
+.front_links a { padding: 3px;
 	font-size: 16px;
 	margin-right: 15px;
 	padding-left: 21px;
@@ -207,14 +207,14 @@ ul.list .meta span {
 	display: inline-block;
 }
 
-.front_links a.settings { background: url("http://onefilecms.com/images/silk_settings.png") no-repeat; }
-.front_links a.new { background: url("http://onefilecms.com/images/silk_new.png") no-repeat; }
-.front_links a.newfolder { background: url("http://onefilecms.com/images/silk_newfolder.png") no-repeat; }
-.front_links a.deletefolder { background: url("http://onefilecms.com/images/silk_deletefolder.png") no-repeat; }
-.front_links a.renamefolder { background: url("http://onefilecms.com/images/silk_renamefolder.png") no-repeat; }
-.front_links a.upload { background: url("http://onefilecms.com/images/silk_upload.png") no-repeat; }
-.front_links a.other { background: url("http://onefilecms.com/images/silk_other.png") no-repeat; }
-
+.front_links a.settings { background: url("http://onefilecms.com/images/silk_settings.png") 0 3px no-repeat; }
+.front_links a.new { background: url("http://onefilecms.com/images/silk_new.png") 0 3px no-repeat; }
+.front_links a.newfolder { background: url("http://onefilecms.com/images/silk_newfolder.png") 0 2px no-repeat; }
+.front_links a.deletefolder { background: url("http://onefilecms.com/images/silk_deletefolder.png") 0 2px no-repeat; }
+.front_links a.renamefolder { background: url("http://onefilecms.com/images/silk_renamefolder.png") 0 2px no-repeat; }
+.front_links a.upload { background: url("http://onefilecms.com/images/silk_upload.png") 0 3px no-repeat; }
+.front_links a.other { background: url("http://onefilecms.com/images/silk_other.png") 0 3px no-repeat; }
+.front_links a:hover { border: 1px solid #807568; background-color: #fffbce; }
 form .meta { z-index: -1; }
 
 .textinput {
