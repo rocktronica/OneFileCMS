@@ -263,7 +263,7 @@ if ($page == "copy") {
 			<label for="copy_filename">New filename:</label>
 			<input type="text" name="copy_filename" id="copy_filename" class="textinput" value="<?php echo $slug."_".date("mdyHi").$extension; ?>" />
 		</p>
-		<p><input type="submit" class="button" value="Copy" /></p>
+		<p>	<?php Cancel_Submit_Buttons("Copy"); ?>	</p>
 	</form>
 <?php };
 
@@ -276,8 +276,8 @@ if ($page == "delete") {
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
 		<p>
 			<input type="hidden" name="delete_filename" value="<?php echo $filename; ?>" />
-			<input type="submit" class="button" name="delete_file" value="Yes" />
-			<input type="button" class="button" name="cancel" value="No" onclick="parent.location='<?php echo $_SERVER["SCRIPT_NAME"]; ?>'" />
+			<?php Cancel_Submit_Buttons("DELETE"); ?>
+
 		</p>
 	</form>
 <?php };
@@ -291,8 +291,8 @@ if ($page == "deletefolder") {
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
 		<p>
 			<input type="hidden" name="delete_foldername" value="<?php echo $_GET["i"]; ?>" />
-			<input type="submit" class="button" name="delete_folder" value="Yes" />
-			<input type="button" class="button" name="cancel" value="No" onclick="parent.location='<?php echo $_SERVER["SCRIPT_NAME"]."?i=".substr_replace($_GET["i"],"",-1); ?>'" />
+			<?php Cancel_Submit_Buttons("DELETE"); ?>
+
 		</p>
 	</form>
 <?php };
@@ -445,7 +445,7 @@ if ($page == "new") {
 				<label for="new_filename">New filename: </label>
 				<input type="text" name="new_filename" id="new_filename" class="textinput" value="<?php echo $_GET["i"]; ?>" />
 			</p>
-			<p><input type="submit" class="button" value="Create" /></p>
+			<p>	<?php Cancel_Submit_Buttons("Create"); ?> </p>
 		</form>
 <?php };
 
@@ -461,7 +461,7 @@ if ($page == "folder") {
 			<label for="new_folder">Folder name: </label>
 			<input type="text" name="new_folder" id="new_folder" class="textinput" value="<?php echo $_GET["i"]; ?>" />
 		</p>
-		<p><input type="submit" class="button" value="Create" /></p>
+		<p>	<?php Cancel_Submit_Buttons("Create"); ?> </p>
 	</form>
 <?php };
 
@@ -502,7 +502,7 @@ if ($page == "rename") {
 			<label for="rename_filename">New filename:</label>
 			<input type="text" name="rename_filename" id="rename_filename" class="textinput" value="<?php echo $filename; ?>" />
 		</p>
-		<p><input type="submit" class="button" value="Rename" /></p>
+		<p><?php Cancel_Submit_Buttons("Rename"); ?></p>
 	</form>
 <?php };
 
@@ -520,7 +520,7 @@ if ($page == "renamefolder") {
 			<label for="rename_foldername">New name:</label>
 			<input type="text" name="rename_foldername" id="rename_foldername" class="textinput" value="<?php echo $_GET["i"]; ?>" />
 		</p>
-		<p><input type="submit" class="button" value="Rename"></p>
+		<p><?php Cancel_Submit_Buttons("Rename"); ?></p>
 	</form>
 <?php };
 
@@ -540,7 +540,7 @@ if ($page == "upload") {
 			<label for="upload_filename">File:</label>
 			<input name="upload_filename" type="file" />
 		</p>
-		<p><input type="submit" class="button" value="Upload" /></p>
+		<p><?php Cancel_Submit_Buttons("Upload"); ?></p>
 	</form>
 <?php } ?>
 
