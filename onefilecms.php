@@ -10,7 +10,7 @@ $config_title = "OneFileCMS";
 $config_footer = date("Y")." <a href='http://onefilecms.com/'>OneFileCMS</a>.";
 $config_disabled = "bmp,ico,gif,jpg,png,psd,zip";
 $config_excluded = "onefilecms.php,favicon,.htaccess";
-$config_localcss = "onefilecms.css";
+$config_localcss = "onefilecms.css";   $ONESCRIPT = $_SERVER[’SCRIPT_NAME’];
 $version = "1.1.6"; // ONEFILECMS_BEGIN
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
@@ -21,7 +21,7 @@ $starttime = getmicrotime();
 
 
 /***********************************************************************/
-function Cancel_Submit_Buttons($submit_label) { 
+function Cancel_Submit_Buttons($button_label) { 
 	global $ONESCRIPT, $varvar;
 
 	// [Cancel] returns to either the current/path, or current/path/file
@@ -43,7 +43,7 @@ function Cancel_Submit_Buttons($submit_label) {
 ?>
 	<p>
 		<input type="button" class="button" name="cancel" value="Cancel" onclick="parent.location='<?php echo $ONESCRIPT.$ipath; ?>'"/>
-		<input type="submit" class="button" value="<?php echo $submit_label;?>" id="action" style="margin-left: 2.5em;">
+		<input type="submit" class="button" value="<?php echo $button_label;?>" id="action" style="margin-left: 2.5em;">
 	</p>
 <?php }
 /**********************************************************************/
