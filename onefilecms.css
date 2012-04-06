@@ -146,7 +146,7 @@ pre {
 	display: inline-block;
 	font-size: 16px;
 	margin-right: 15px;
-	padding: 2px 4px 2px 20px;/* padding-left: 21px;*/
+	padding: 2px 4px 2px 20px;
 	display: inline-block;
 	background: url("http://onefilecms.com/images/silk_folder.png") 0 2px no-repeat;
 }
@@ -280,11 +280,11 @@ h1 a:visited { color: #0F0901; }
 
 /* --- edit --- */
 
-a.back {
-	float: right;
-	margin-top: -24px;
-	font-size: 16px;
-}
+#edit_header {float: left;}
+
+.close {float: right;}
+
+
 
 /* --- log in --- */
 

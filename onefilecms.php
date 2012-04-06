@@ -267,9 +267,9 @@ if ($page == "deletefolder") {
 
 // EDIT
 if ($page == "edit") { ?>
-	<h2>Edit &ldquo;<a href="<?php echo $filename; ?>"><?php echo $filename; ?></a>&rdquo;</h2>
-	<a href="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?i=<?php echo substr($_GET["f"],0,strrpos($_GET["f"],"/")); ?>" class="back">Back</a>
+	<h2 id="edit_header">Edit &ldquo;<a href="<?php echo $filename; ?>"><?php echo $filename; ?></a>&rdquo;</h2>
 	<form method="post" action="<?php echo $_SERVER["SCRIPT_NAME"]; ?>?f=<?php echo $filename; ?>">
+	<input type="button" class="button close" name="close" value="Close" onclick="parent.location='<?php echo $ONESCRIPT.'?i='.substr($_GET["f"],0,strrpos($_GET["f"],"/")); ?>'" />
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
 		<?php $lfile = strtolower($filename);
 		if (strpos($config_disabled,end(explode(".", $lfile)))) { ?>
@@ -290,8 +290,8 @@ if ($page == "edit") { ?>
 			<input type="button" class="button" name="rename_file" value="Rename/Move" onclick="parent.location='<?php echo $_SERVER["SCRIPT_NAME"]; ?>?r=<?php echo $filename; ?>'" />
 			<input type="button" class="button" name="delete_file" value="Delete" onclick="parent.location='<?php echo $_SERVER["SCRIPT_NAME"]; ?>?d=<?php echo $filename; ?>'" />
 			<input type="button" class="button" name="copy_file" value="Copy" onclick="parent.location='<?php echo $_SERVER["SCRIPT_NAME"]; ?>?c=<?php echo $filename; ?>'" />
-		</p>
-		<div class="meta">
+			<input type="button" class="button" name="close" value="Close" onclick="parent.location='<?php echo $ONESCRIPT.'?i='.substr($_GET["f"],0,strrpos($_GET["f"],"/")); ?>'" />
+		</p><div class="meta">
 			<p><i>File Size:</i> <?php echo round(filesize($filename)/1000,2); ?> kb - 
 			<i>Last Updated:</i> <?php echo date("n/j/y g:ia", filemtime($filename)); ?></p>
 		</div>
