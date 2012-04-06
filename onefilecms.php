@@ -18,6 +18,38 @@ if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please
 function getmicrotime() { list($usec, $sec) = explode(" ", microtime()); return ((float)$usec + (float)$sec); }
 $starttime = getmicrotime();
 
+
+
+/***********************************************************************/
+function Cancel_Submit_Buttons($submit_label) { 
+	global $ONESCRIPT, $varvar;
+
+	// [Cancel] returns to either the current/path, or current/path/file
+	if (isset($_GET["i"])){
+		$ipath = '?i='.rtrim($_GET["i"],"/");
+		
+	}else if   ( isset($_GET["c"]) ) {
+		$ipath = '?f='.$_GET["c"];
+		
+	}else if   ( isset($_GET["d"]) ) {
+		$ipath = '?f='.$_GET["d"];
+
+	}else if   ( isset($_GET["r"]) ) {
+		$ipath = '?f='.$_GET["r"];
+		
+	}else{
+		$ipath = rtrim($varvar,"/");
+	}//end if
+?>
+	<p>
+		<input type="button" class="button" name="cancel" value="Cancel" onclick="parent.location='<?php echo $ONESCRIPT.$ipath; ?>'"/>
+		<input type="submit" class="button" value="<?php echo $submit_label;?>" id="action" style="margin-left: 2.5em;">
+	</p>
+<?php }
+/**********************************************************************/
+
+
+
 session_start();
 if (isset($_POST["onefilecms_username"])) { $_SESSION['onefilecms_username'] = $_POST["onefilecms_username"]; }
 if (isset($_POST["onefilecms_password"])) { $_SESSION['onefilecms_password'] = $_POST["onefilecms_password"]; }
