@@ -273,11 +273,11 @@ h1 a:visited { color: #0F0901; }
 	font-size: 14px;
 }
 
-.nav a {
+.nav a { border: 1px solid transparent;
 	font-weight: bold;
-	text-decoration: none;
+	text-decoration: none; 	padding: .2em .5em .2em .5em ;
 }
-
+.nav a:hover { color: #995400; border: 1px solid #807568; background-color: #fffbce; }
 /* --- edit --- */
 
 #edit_header {float: left;}
