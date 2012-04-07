@@ -62,10 +62,8 @@ if (($_SESSION['onefilecms_username'] == $config_username) and ($_SESSION['onefi
 	$page = "login";
 }
 
-
 global $pagetitle; $pagetitle = "/";
 if ((isset($_GET["i"])) && ($_GET["i"] !== "")) { $pagetitle = "/".$_GET["i"]."/"; }
-
 if (isset($_GET["p"])) {
 	// redirect on invalid page attempts
 	$page = $_GET["p"];
@@ -76,6 +74,8 @@ if (isset($_GET["p"])) {
 		$page = "index";
 	}
 }
+if ( ($page == "login") and ($_SESSION['onefilecms_valid']) ) {$page = "index"; header("Location: ".$ONESCRIPT);};
+
 if ($_GET["p"] == "other") {$pagetitle = "Other"; }
 if ($_GET["p"] == "login") {$pagetitle = "Log In"; }
 if ($_GET["p"] == "logout") {$pagetitle = "Log Out"; $_SESSION['onefilecms_valid'] = "0"; session_destroy(); }
