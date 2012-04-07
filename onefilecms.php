@@ -51,21 +51,21 @@ function Cancel_Submit_Buttons($button_label) {
 
 
 session_start();
+global $page; $page = "index";
+
 if (isset($_POST["onefilecms_username"])) { $_SESSION['onefilecms_username'] = $_POST["onefilecms_username"]; }
 if (isset($_POST["onefilecms_password"])) { $_SESSION['onefilecms_password'] = $_POST["onefilecms_password"]; }
 if (($_SESSION['onefilecms_username'] == $config_username) and ($_SESSION['onefilecms_password'] == $config_password || md5($_SESSION['onefilecms_password']) == $config_password)) {
 	$_SESSION['onefilecms_valid'] = "1";
 } else {
 	$_SESSION['onefilecms_valid'] = "0";
-	if ($_GET["p"] !== "login") {
-		header("Location: ".$_SERVER["php_self"]."?p=login");
-		exit("Invalid session. <a href='".$_SERVER["php_self"]."?p=login'>Please log in</a>.");
-	}
+	$page = "login";
 }
+
 
 global $pagetitle; $pagetitle = "/";
 if ((isset($_GET["i"])) && ($_GET["i"] !== "")) { $pagetitle = "/".$_GET["i"]."/"; }
-global $page; $page = "index";
+
 if (isset($_GET["p"])) {
 	// redirect on invalid page attempts
 	$page = $_GET["p"];
