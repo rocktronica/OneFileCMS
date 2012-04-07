@@ -10,7 +10,7 @@ $config_title = "OneFileCMS";
 $config_footer = date("Y")." <a href='http://onefilecms.com/'>OneFileCMS</a>.";
 $config_disabled = "bmp,ico,gif,jpg,png,psd,zip";
 $config_excluded = "onefilecms.php,favicon,.htaccess";
-$config_localcss = "onefilecms.css";   $ONESCRIPT = $_SERVER[’SCRIPT_NAME’];
+$config_localcss = "onefilecms.css";   $ONESCRIPT = $_SERVER["SCRIPT_NAME"];
 $version = "1.1.6"; // ONEFILECMS_BEGIN
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
@@ -68,13 +68,13 @@ if ((isset($_GET["i"])) && ($_GET["i"] !== "")) { $pagetitle = "/".$_GET["i"]."/
 global $page; $page = "index";
 if (isset($_GET["p"])) {
 	// redirect on invalid page attempts
-	if (!in_array(strtolower($_GET["p"]), array(
-		"copy","delete","error","deletefolder","edit","folder","index","login","logout","new","other","rename","renamefolder","upload"
-	))) {
-		header("Location: /");
-		exit("Invalid parameter. <a href='".$_SERVER["SCRIPT_NAME"]."'>Continue</a>.");
-	}
 	$page = $_GET["p"];
+	if (!in_array(strtolower($_GET["p"]), array(
+		"copy","delete","error","deletefolder","edit","folder","index","login","logout","new","other","rename","renamefolder","upload"	)))
+	{
+		header("Location: ".$ONESCRIPT);
+		$page = "index";
+	}
 }
 if ($_GET["p"] == "other") {$pagetitle = "Other"; }
 if ($_GET["p"] == "login") {$pagetitle = "Log In"; }
