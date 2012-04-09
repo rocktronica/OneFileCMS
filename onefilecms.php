@@ -220,7 +220,7 @@ if (isset($_FILES['upload_filename']['name']) && $_SESSION['onefilecms_valid'] =
 	if (file_exists($config_localcss)) {
 		echo $config_localcss;
 	} else {
-		echo "http://onefilecms.com/style.css";
+		echo "http://self-evident.github.com/OneFileCMS/onefilecms.css";
 	}
 ?>" type="text/css" rel="stylesheet" media="screen" />
 </head>
@@ -400,11 +400,11 @@ if ($page == "index") { $varvar = "";
 		} ?>
 	</ul>
 	<p class="front_links">
+		<a href="<?php echo $ONESCRIPT; ?>?p=upload&amp;i=<?php echo $varvar; ?>" class="upload">Upload File</a>
 		<a href="<?php echo $ONESCRIPT; ?>?p=new&amp;i=<?php echo $varvar; ?>" class="new">New File</a>
 		<a href="<?php echo $ONESCRIPT; ?>?p=folder&amp;i=<?php echo $varvar; ?>" class="newfolder">New Folder</a><?php if ($varvar !== "") { ?>
 		<a href="<?php echo $ONESCRIPT; ?>?p=deletefolder&amp;i=<?php echo $varvar; ?>" class="deletefolder">Delete Folder</a>
 		<a href="<?php echo $ONESCRIPT; ?>?p=renamefolder&amp;i=<?php echo $varvar; ?>" class="renamefolder">Rename Folder</a><?php } ?>
-		<a href="<?php echo $ONESCRIPT; ?>?p=upload&amp;i=<?php echo $varvar; ?>" class="upload">Upload File</a>
 		<a href="<?php echo $ONESCRIPT; ?>?p=other" class="other">Other</a>
 	</p>
 <?php };
@@ -538,7 +538,7 @@ if ($page == "upload") {
 		</p>
 		<p>
 			<label for="upload_filename">File:</label>
-			<input name="upload_filename" type="file" />
+			<input name="upload_filename" type="file" size="93"/>
 		</p>
 		<p><?php Cancel_Submit_Buttons("Upload"); ?></p>
 	</form>
