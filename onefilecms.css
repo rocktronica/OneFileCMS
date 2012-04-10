@@ -289,9 +289,20 @@ h1 a:visited { color: #0F0901; }
 /* --- log in --- */
 
 .page_login .container, .page_logout .container {
-	width: 356px;
-	margin-top: 60px;
+	margin-top: 5em;
+	border    : 1px solid #807568;
+	padding   : 1em;
+	width     : 360px;
 }
+
+
+.login_input {
+	border  : 1px solid #807568;
+	padding : 2px 0px 2px 2px;
+	width   : 356px;
+	font    : 1.3em Courier;
+}
+
 
 
 /* --- path/to/current/index --- */

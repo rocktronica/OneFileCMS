@@ -410,14 +410,14 @@ if ($page == "login") { ?>
 	<form method="post" action="<?php echo $ONESCRIPT; ?>">
 		<p>
 			<label for="onefilecms_username">Username:</label>
-			<input type="text" name="onefilecms_username" id="onefilecms_username" class="textinput" />
+			<input type="text" name="onefilecms_username" id="onefilecms_username" class="login_input" />
 		</p>
 		<p>
 			<label for="onefilecms_password">Password:</label>
-			<input type="password" name="onefilecms_password" id="onefilecms_password" class="textinput" />
+			<input type="password" name="onefilecms_password" id="onefilecms_password" class="login_input" />
 		</p>
-		<?php if ($config_hint !== "") { ?><p><i>Hint:</i> <?php echo $config_hint; ?></p><?php } ?>
-		<p><input type="submit" class="button" value="Enter" /></p>
+			
+		<input type="submit" class="button" value="Enter" />
 	</form>
 <?php };
 
