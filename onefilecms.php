@@ -15,11 +15,6 @@ $version = "1.1.6"; // ONEFILECMS_BEGIN
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
 
-function getmicrotime() { list($usec, $sec) = explode(" ", microtime()); return ((float)$usec + (float)$sec); }
-$starttime = getmicrotime();
-
-
-
 /***********************************************************************/
 function Cancel_Submit_Buttons($button_label) { 
 	global $ONESCRIPT, $varvar;
@@ -545,8 +540,6 @@ if ($page == "upload") {
 <?php } ?>
 
 <div class="footer">
-	<p><?php echo $config_footer; if ($_SESSION['onefilecms_valid'] == "1") { ?> Rendered in <?php 
-	$endtime = getmicrotime(); echo round(($endtime-$starttime)*1000000); ?> microseconds.<?php } ?></p>
 </div>
 
 </div>
