@@ -1,20 +1,28 @@
 <?php
-
 // OneFileCMS - http://onefilecms.com/
+
+if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
 
 // CONFIGURATION INFO
 $version         = "1.1.7.BETA"; // ONEFILECMS_BEGIN
 $ONESCRIPT       = $_SERVER["SCRIPT_NAME"];
 $config_username = "username";
 $config_password = "password";
-$config_hint     = ""; //Not currently used
+//$config_hint     = ""; //Not currently used
 $config_title    = "OneFileCMS";
 $config_footer   = date("Y")." <a href='http://onefilecms.com/'>OneFileCMS</a>.";
 $config_disabled = "bmp,ico,gif,jpg,png,psd,zip";
 $config_excluded = "onefilecms.php,favicon,.htaccess";
-$config_localcss = "onefilecms.css";
+$config_csslocal  = "_onefilecms/onefilecms.css"; //Relative to site URL root. Don't use leading '/'.
+$config_csshosted = "http://self-evident.github.com/OneFileCMS/onefilecms.css";
 
-if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
+
+
+
+//Allows OneFileCMS.php to be started from any dir on the site.
+chdir($_SERVER["DOCUMENT_ROOT"]);
+
+
 
 /***********************************************************************/
 function Cancel_Submit_Buttons($button_label) { 
@@ -208,18 +216,24 @@ if (isset($_FILES['upload_filename']['name']) && $_SESSION['onefilecms_valid'] =
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
+
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="robots" content="noindex">
-<title><?php echo $config_title; ?> - <?php echo $pagetitle; ?></title>
-<link href="<?php 
-	if (file_exists($config_localcss)) {
-		echo $config_localcss;
-	} else {
-		echo "http://self-evident.github.com/OneFileCMS/onefilecms.css";
-	}
-?>" type="text/css" rel="stylesheet" media="screen" />
+
+<title><?php echo $config_title.' - '.$pagetitle; ?></title>
+
+<?php 
+$STYLE_SHEET = '/'.$config_csslocal;
+//Check for local style sheet
+if (!file_exists($config_csslocal)) { $STYLE_SHEET = $config_csshosted; }
+?>
+
+<link href="<?php echo $STYLE_SHEET;?>" type="text/css" rel="stylesheet" />
+
 </head>
+
 
 <body class="page_<?php echo $page; ?>">
 
