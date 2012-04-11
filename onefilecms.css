@@ -29,19 +29,22 @@ body {
 }
 
 .header {
-	margin-bottom: 10px;
-	padding-bottom: 10px;
-	border-bottom: 1px solid #807568;
+	margin-bottom: 1em; padding-bottom: .9em;
+	border-bottom: 1px solid #807568; /*using <hr>. Styles at bottom of this file*/
 	color: #676767;
 	position: relative;
 }
 
-.footer { /*
+
+#logo {font-family: 'Trebuchet MS', sans-serif; font-size:2.9em; font-weight: bold; color: black;}
+
+
+.footer { /************************
 	margin-top: 10px;
 	padding-top: 10px;
-	border-top: 0px solid #807568;
-	clear: both;  */
-}
+	border-top: 01px solid #807568;    /*using <hr>. Styles at bottom of this file
+	clear: both;  ****************/
+	}
 
 /* --- general formatting --- */
 
@@ -267,17 +270,25 @@ h1 a.onefilecms {
 h1 a:visited { color: #0F0901; }
 
 .nav {
-	position: absolute;
-	bottom: 12px;
-	right: 0;
-	font-size: 14px;
-}
+	float     : right;
+	display   : inline-block;
+	margin-top: 1.2em;
+	font-size :  1em;
+	}
 
-.nav a { border: 1px solid transparent;
-	font-weight: bold;
-	text-decoration: none; 	padding: .2em .5em .2em .5em ;
-}
-.nav a:hover { color: #995400; border: 1px solid #807568; background-color: #fffbce; }
+.nav a {
+	border: 1px solid transparent;
+	font-weight : bold;
+	padding     : .0em;
+	padding-top   : .2em;
+	padding-left  : .6em;
+	padding-right : .6em;
+	padding-bottom: .1em;
+	}
+
+.nav a:hover {border: 01px solid #807568;}
+
+
 /* --- edit --- */
 
 #edit_header {float: left;}
@@ -310,3 +321,19 @@ h1 a:visited { color: #0F0901; }
 .path { border: 1px solid  transparent; }
 	
 .path:hover { border: 1px solid #807568; background-color: #fffbce; }
+
+
+hr { 
+	line-height  : 0;
+	font-size    : 1px;
+	display : block;
+	position: relative;
+	padding : 0;
+	margin  : 8px auto;
+	width   : 100%;
+	clear   : both;
+	border  : none;
+	border-top   : 1px solid #807568;
+	Xborder-bottom: 1px solid #eee;
+	overflow: visible;
+	}

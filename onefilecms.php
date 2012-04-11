@@ -3,15 +3,16 @@
 // OneFileCMS - http://onefilecms.com/
 
 // CONFIGURATION INFO
+$version         = "1.1.7.BETA"; // ONEFILECMS_BEGIN
+$ONESCRIPT       = $_SERVER["SCRIPT_NAME"];
 $config_username = "username";
 $config_password = "password";
-$config_hint = "";
-$config_title = "OneFileCMS";
-$config_footer = date("Y")." <a href='http://onefilecms.com/'>OneFileCMS</a>.";
+$config_hint     = ""; //Not currently used
+$config_title    = "OneFileCMS";
+$config_footer   = date("Y")." <a href='http://onefilecms.com/'>OneFileCMS</a>.";
 $config_disabled = "bmp,ico,gif,jpg,png,psd,zip";
 $config_excluded = "onefilecms.php,favicon,.htaccess";
-$config_localcss = "onefilecms.css";   $ONESCRIPT = $_SERVER["SCRIPT_NAME"];
-$version = "1.1.6"; // ONEFILECMS_BEGIN
+$config_localcss = "onefilecms.css";
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
 
@@ -225,11 +226,10 @@ if (isset($_FILES['upload_filename']['name']) && $_SESSION['onefilecms_valid'] =
 <div class="container">
 
 <div class="header">
-	<h1><a href="<?php echo $ONESCRIPT; ?>" class="<?php echo 
-	strtolower(ereg_replace("[^A-Za-z0-9]", "", $config_title)); ?>"><?php echo $config_title; 
-	?></a></h1>
-	<?php if ((isset($_SESSION['onefilecms_valid'])) && ($_SESSION['onefilecms_valid'] == 
-	"1")) { ?>
+
+	<?php echo '<a href="', $ONESCRIPT, '" id="logo" >', $config_title; ?></a>
+
+	<?php if ((isset($_SESSION['onefilecms_valid'])) && ($_SESSION['onefilecms_valid'] == "1")) { ?>
 		<div class="nav">
 			<a href="/">Visit Site</a> | 
 			<a href="<?php echo $ONESCRIPT; ?>">Index</a> | 
@@ -237,6 +237,7 @@ if (isset($_FILES['upload_filename']['name']) && $_SESSION['onefilecms_valid'] =
 		</div>
 	<?php } ?>
 </div>
+
 
 <?php if (isset($message)) {?><div id="message"><p><?php echo $message; ?></p></div><?php };
 
@@ -463,18 +464,18 @@ if ($page == "folder") {
 // OTHER
 if ($page == "other") { ?>
 	<h2>Other</h2>
+
 	<h3>Check for Updates</h3>
-	<p>Future versions of OneFileCMS will have a one-click upgrade process. For now, though, you have to <a href="http://onefilecms.com/download.php?v=<?php echo $version; ?>">click this link</a>. You are using version <?php echo $version; ?>.</p>
+	<p>You are using version <?php echo $version; ?>.<br>
+	Future versions of OneFileCMS may have a one-click upgrade process. For now, though, you have to <a href="http://onefilecms.com/download.php?v=<?php echo $version; ?>">&gt;click this link&lt;</a>.</p>
+
 	<h3>Want some good Karma?</h3>
 	<p>Let people know you use OneFileCMS by putting this in your footer:</p>
-	<pre><code>This site powered by &#60;a href="http://onefilecms.com/"&#62;OneFileCMS&#60;/a&#62;.</code></pre>
+	<pre><code>This site managed with &#60;a href="http://onefilecms.com/"&#62;OneFileCMS&#60;/a&#62;.</code></pre>
+
 	<h3>Admin Link</h3>
 	<p>Add this to your footer (or something) for lazy/forgetful admins. They'll still have to know the username and password, of course.</p>
 	<pre><code>[&#60;a href="<?php echo $ONESCRIPT; ?>"&#62;Admin&#60;/a&#62;]</code></pre>
-	<?php if (strlen($config_password) != 32) { ?>
-		<h3>Password Hash</h3>
-		<p>By the way, MD5 hash of your currently configured password is: <em><?php echo md5($config_password) ?></em>
-	<?php } ?>
 <?php };
 
 // RENAME FILE
@@ -539,7 +540,7 @@ if ($page == "upload") {
 	</form>
 <?php } ?>
 
-<div class="footer">
+<div class="footer"> <hr>
 </div>
 
 </div>
@@ -551,7 +552,7 @@ if ($page == "upload") {
 	
 		var $message = $("#message"),
 		    $save_file = $("#save_file");
-		if ( $message.length > 0 ) { $message.animate({opacity: 1.0}, 3000).fadeOut(); };
+		//if ( $message.length > 0 ) { $message.animate({opacity: 1.0}, 3000).fadeOut(); };
 		
 		$(".button:visible:enabled:first").focus();
 		$(".textinput:visible:enabled:first").focus();
