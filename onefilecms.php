@@ -12,7 +12,7 @@ $config_password  = "password";
 $config_title     = "OneFileCMS";
 $config_footer    = date("Y")." <a href='http://onefilecms.com/'>OneFileCMS</a>.";
 $config_disabled  = "bmp,ico,gif,jpg,png,psd,zip,exe,swf";
-$config_excluded  = "onefilecms.php,favicon,.htaccess";
+$config_excluded  = ""; //files to exclude from directory listings
 $config_LOCAL     = "_onefilecms/";  //local directory for icons, .css, .js, etc...
 $config_csslocal  = $config_LOCAL."onefilecms.css"; //Relative to site URL root. Don't use leading '/'.
 $config_csshosted = "http://self-evident.github.com/OneFileCMS/onefilecms.css";
@@ -104,7 +104,7 @@ if (isset($_POST["copy_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_P
 	$old_filename = $_POST["old_filename"];
 	$filename = $_POST["copy_filename"];
 	copy($old_filename, $filename);
-	$message = $old_filename." copied successfully to ".$filename.".";
+	$message = '<b>'.$old_filename."</b> copied successfully to <b>".$filename."</b>.";
 }
 
 
@@ -118,7 +118,7 @@ if (isset($_GET["d"])) {
 if (isset($_POST["delete_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$filename = $_POST["delete_filename"];
 	unlink($filename);
-	$message = $filename." successfully deleted.";
+	$message = '<b>'.$filename."</b> successfully deleted.";
 }
 
 
@@ -130,7 +130,7 @@ if ($_GET["p"] == "deletefolder") {
 if (isset($_POST["delete_foldername"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$foldername = $_POST["delete_foldername"];
 	if (@rmdir($foldername)) {
-		$message = $foldername." successfully deleted.";
+		$message = '<b>'.$foldername."</b> successfully deleted.";
 	} else {
 		$message = "That folder is not empty.";
 	}
@@ -147,7 +147,7 @@ if (isset($_POST["filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["
 		fwrite($fp, $content);
 		fclose($fp);
 	}
-	$message = $filename." saved successfully.";
+	$message = '<b>'.$filename."</b> saved successfully.";
 }
 if (isset($_GET["f"])) {
 	$filename = stripslashes($_GET["f"]);
@@ -174,11 +174,11 @@ if ($_GET["p"] == "new") {$pagetitle = "New File"; }
 if (isset($_POST["new_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$filename = $_POST["new_filename"];
 	if (file_exists($filename)) {
-		$message = $filename." not created. A file with that name already exists.";
+		$message = '<b>'.$filename."</b> not created. A file with that name already exists.";
 	} else {
 		$handle = fopen($filename, 'w') or die("can't open file");
 		fclose($handle);
-		$message = $filename." created successfully.";
+		$message = '<b>'.$filename."</b> created successfully.";
 	}
 }
 
@@ -190,7 +190,7 @@ if (isset($_POST["new_folder"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST
 	$foldername = $_POST["new_folder"];
 	if (!is_dir($foldername)) {
 		mkdir($foldername);
-		$message = $foldername." created successfully.";
+		$message = '<b>'.$foldername."</b> created successfully.";
 	} else {
 		$message = "A folder by that name already exists.";
 	}
@@ -208,7 +208,7 @@ if (isset($_POST["rename_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $
 	$old_filename = $_POST["old_filename"];
 	$filename = $_POST["rename_filename"];
 	rename($old_filename, $filename);
-	$message = $old_filename." successfully renamed to ".$filename.".";
+	$message = '<b>'.$old_filename."</b> successfully renamed to <b>".$filename."</b>.";
 }
 
 
@@ -219,7 +219,7 @@ if (isset($_POST["rename_foldername"]) && $_SESSION['onefilecms_valid'] = "1" &&
 	$old_foldername = $_POST["old_foldername"];
 	$foldername = $_POST["rename_foldername"];
 	if (rename($old_foldername, $foldername)) {
-		$message = $old_foldername." unsuccessfully renamed to ".$foldername.".";
+		$message = '<b>'.$old_foldername."</b> unsuccessfully renamed to <b>".$foldername."</b>.";
 	} else {
 		$message = "There was an error. Try again and/or contact your admin.";
 	}
@@ -234,11 +234,12 @@ if (isset($_FILES['upload_filename']['name']) && $_SESSION['onefilecms_valid'] =
 	$destination = $_POST["upload_destination"];
 	if(move_uploaded_file($_FILES['upload_filename']['tmp_name'],
 	$destination.basename($filename))) {
-		$message = basename($filename)." uploaded successfully to ".$destination.".";
+		$message = '<b>'.basename($filename)."</b> uploaded successfully to <b>".$destination."</b>.";
 	} else{
 		$message = "There was an error. Try again and/or contact your admin.";
 	}
 }
+
 
 
 //******************************************************************************
@@ -281,7 +282,7 @@ if (!file_exists($config_csslocal)) { $STYLE_SHEET = $config_csshosted; }
 </div>
 
 
-<?php if (isset($message)) {?><div id="message"><p><?php echo $message; ?></p></div><?php };
+<?php if (isset($message)) { echo '<div id="message"><p>'.$message.'</p></div>'; };
 
 
 
@@ -290,7 +291,7 @@ if ($page == "copy") {
 	$extension = strrchr($filename, ".");
 	$slug = substr($filename, 0, strlen($filename) - strlen($extension));
 	$varvar = "?i=".substr($_GET["c"],0,strrpos($_GET["c"],"/")); ?>
-	<h2>Copy &ldquo;<a href="<?php echo $filename; ?>"><?php echo $filename; ?></a>&rdquo;</h2>
+	<h2>Copy &ldquo;<a href="/<?php echo $filename; ?> "> <?php echo $filename; ?> </a> &rdquo;</h2>
 	<p>Existing files with the same filename are automatically overwritten... Be careful!</p>
 	<form method="post" id="new" action="<?php echo $ONESCRIPT.$varvar; ?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
@@ -312,8 +313,10 @@ if ($page == "copy") {
 // DELETE FILE *****************************************************************
 if ($page == "delete") {
 	$varvar = "?i=".substr($_GET["d"],0,strrpos($_GET["d"],"/")); ?>
-	<h2>Delete &ldquo;<a href="<?php echo $filename; ?>"><?php echo $filename; ?></a>&rdquo;</h2>
+	<h2>Delete &ldquo;<a href="/<?php echo $filename; ?> " >
+	<?php echo $filename; ?></a>&rdquo;</h2>
 	<p>Are you sure?</p>
+
 	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
 		<p>
@@ -345,8 +348,12 @@ if ($page == "deletefolder") {
 
 // EDIT ************************************************************************
 if ($page == "edit") { ?>
-	<h2 id="edit_header">Edit &ldquo;<a href="<?php echo $filename; ?>"><?php echo $filename; ?></a>&rdquo;</h2>
-	<form method="post" action="<?php echo $ONESCRIPT; ?>?f=<?php echo $filename; ?>">
+	<h2 id="edit_header">Edit &ldquo;
+	<a href="/<?php echo $filename; ?>" >
+	<?php echo $filename; ?>
+	</a>&rdquo;</h2>
+
+	<form method="post" action="<?php echo $ONESCRIPT.'?f='.$filename; ?>">
 	<input type="button" class="button close" name="close" value="Close" onclick="parent.location='<?php echo $ONESCRIPT.'?i='.substr($_GET["f"],0,strrpos($_GET["f"],"/")); ?>'" />
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
 		<?php $lfile = strtolower($filename);
@@ -365,10 +372,10 @@ if ($page == "edit") { ?>
 			<p class="buttons_right">
 				<input type="submit" class="button" name="save_file" id="save_file" value="Save" />
 		<?php } ?>
-			<input type="button" class="button" name="rename_file" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT; ?>?r=<?php echo $filename; ?>'" />
-			<input type="button" class="button" name="delete_file" value="Delete" onclick="parent.location='<?php echo $ONESCRIPT; ?>?d=<?php echo $filename; ?>'" />
-			<input type="button" class="button" name="copy_file" value="Copy" onclick="parent.location='<?php echo $ONESCRIPT; ?>?c=<?php echo $filename; ?>'" />
-			<input type="button" class="button" name="close" value="Close" onclick="parent.location='<?php echo $ONESCRIPT.'?i='.substr($_GET["f"],0,strrpos($_GET["f"],"/")); ?>'" />
+			<input type="button" class="button" name="rename_file" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.'?r='.$filename; ?>'" />
+			<input type="button" class="button" name="delete_file" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.'?d='.$filename; ?>'" />
+			<input type="button" class="button" name="copy_file"   value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.'?c='.$filename; ?>'" />
+			<input type="button" class="button" name="close"       value="Close"       onclick="parent.location='<?php echo $ONESCRIPT.'?i='.substr($_GET["f"],0,strrpos($_GET["f"],"/")); ?>'" />
 		</p><div class="meta">
 			<p><i>File Size:</i> <?php echo round(filesize($filename)/1000,2); ?> kb - 
 			<i>Last Updated:</i> <?php echo date("n/j/y g:ia", filemtime($filename)); ?></p>
@@ -408,8 +415,8 @@ if ($page == "index") { $varvar = "";
 		$files = glob($varvar."*",GLOB_ONLYDIR);
 		sort($files);
 		foreach ($files as $file) { ?>
-			<a href="<?php echo $ONESCRIPT; ?>?i=<?php echo $file; ?>" class="folder"><?php echo basename($file); ?></a>
-		<?php } ?>
+			<a href="<?php echo $ONESCRIPT.'?i='.$file.'" class="folder">'.basename($file).'</a>';
+		} ?>
 	</p>
 	
 	
@@ -439,25 +446,29 @@ if ($page == "index") { $varvar = "";
 				if (strrpos($lfile,".css")) { $file_class = "css"; };
 				if (strrpos($lfile,".php")) { $file_class = "php"; }; ?>
 					<li>
-						<a href="<?php echo $ONESCRIPT; ?>?f=<?php 
-						echo $file; ?>" class="<?php echo $file_class ?>"><?php 
+						<a href="<?php echo $ONESCRIPT.'?f='.$file.'" class=" '.$file_class.'">';
 						echo basename($file); ?></a>
 						<div class="meta">
-							<span><i>File Size:</i> <?php echo 
-							round(filesize($file)/1000,2);?> kb<br /></span>
-							<span><i>Last Updated:</i> <?php echo 
-							date("n/j/y g:ia", filemtime($file)); ?></span>
+							<span><i>File Size:</i>
+							<?php echo round(filesize($file)/1000,2);?> kb<br /></span>
+							<span><i>Last Updated:</i>
+							<?php echo date("n/j/y g:ia", filemtime($file)); ?></span>
 						</div>
 					</li>
 			<?php }
 		} ?>
 	</ul>
 	<p class="front_links">
-		<a href="<?php echo $ONESCRIPT; ?>?p=upload&amp;i=<?php echo $varvar; ?>" class="upload">Upload File</a>
-		<a href="<?php echo $ONESCRIPT; ?>?p=new&amp;i=<?php echo $varvar; ?>" class="new">New File</a>
-		<a href="<?php echo $ONESCRIPT; ?>?p=folder&amp;i=<?php echo $varvar; ?>" class="newfolder">New Folder</a><?php if ($varvar !== "") { ?>
-		<a href="<?php echo $ONESCRIPT; ?>?p=deletefolder&amp;i=<?php echo $varvar; ?>" class="deletefolder">Delete Folder</a>
-		<a href="<?php echo $ONESCRIPT; ?>?p=renamefolder&amp;i=<?php echo $varvar; ?>" class="renamefolder">Rename Folder</a><?php } ?>
+		<a href="<?php echo $ONESCRIPT.'?p=upload&amp;i='.$varvar; ?>" class="upload">Upload File</a>
+		<a href="<?php echo $ONESCRIPT.'?p=new&amp;i='.$varvar; ?>"    class="new">New File</a>
+		<a href="<?php echo $ONESCRIPT.'?p=folder&amp;i='.$varvar; ?>" class="newfolder">
+		New Folder</a>
+		<?php if ($varvar !== "") { ?>
+			<a href="<?php echo $ONESCRIPT.'?p=deletefolder&amp;i='.$varvar; ?>" class="deletefolder">
+			Delete Folder</a>
+			<a href="<?php echo $ONESCRIPT.'?p=renamefolder&amp;i='.$varvar; ?>" class="renamefolder">
+			Rename Folder</a>
+		<?php } ?>
 		<a href="<?php echo $ONESCRIPT; ?>?p=other" class="other">Other</a>
 	</p>
 <?php };
@@ -534,7 +545,8 @@ if ($page == "other") { ?>
 
 	<h3>Check for Updates</h3>
 	<p>You are using version <?php echo $version; ?>.<br>
-	Future versions of OneFileCMS may have a one-click upgrade process. For now, though, you have to <a href="http://onefilecms.com/download.php?v=<?php echo $version; ?>">&gt;click this link&lt;</a>.</p>
+	Future versions of OneFileCMS may have a one-click upgrade process.
+	For now, though,<a href="https://github.com/Self-Evident/OneFileCMS">&gt;check here&lt;</a> for current versions.</p>
 
 	<h3>Want some good Karma?</h3>
 	<p>Let people know you use OneFileCMS by putting this in your footer:</p>
@@ -550,7 +562,7 @@ if ($page == "other") { ?>
 // RENAME FILE *****************************************************************
 if ($page == "rename") {
 	$varvar = "?i=".substr($_GET["r"],0,strrpos($_GET["r"],"/")); ?>
-	<h2>Rename &ldquo;<a href="<?php echo $filename; ?>"><?php echo $filename; 
+	<h2>Rename &ldquo;<a href="/<?php echo $filename; ?>"><?php echo $filename; 
 	?></a>&rdquo;</h2>
 	<p>Existing files with the same filename are automatically overwritten... Be 
 	careful!</p>
@@ -632,6 +644,7 @@ if (!file_exists($config_JQlocal)) { $JQUERY = $config_JQhosted; }
 	
 		var $message = $("#message"),
 		    $save_file = $("#save_file");
+		//This line fades out the message after specified time (3000 = 3 seconds)
 		//if ( $message.length > 0 ) { $message.animate({opacity: 1.0}, 3000).fadeOut(); };
 		
 		$(".button:visible:enabled:first").focus();
