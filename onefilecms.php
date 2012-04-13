@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - http://onefilecms.com/
-
-
+// 
+// For license & copyright info, see OneFileCMS.License.BSD.txt
 
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
@@ -639,7 +639,7 @@ if ($page == "upload") {
 <?php } ?>
 
 <div class="footer"> <hr>
-
+(Icons courtesy of <a href="http://www.famfamfam.com/lab/icons/silk/" target="_BLANK">FAMFAMFAM</a>)
 </div>
 
 </div>
