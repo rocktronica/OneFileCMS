@@ -1,6 +1,9 @@
 <?php
 // OneFileCMS - http://onefilecms.com/
 
+
+
+
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
 
 // CONFIGURATION INFO
@@ -17,8 +20,8 @@ $config_LOCAL     = "_onefilecms/";  //local directory for icons, .css, .js, etc
 $config_csslocal  = $config_LOCAL."onefilecms.css"; //Relative to site URL root. Don't use leading '/'.
 $config_csshosted = "http://self-evident.github.com/OneFileCMS/onefilecms.css";
 $config_JQlocal   = $config_LOCAL."jquery.min.js";
-$config_JQhosted  = "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js";
-
+$config_JQhosted  = "http://code.jquery.com/jquery-1.7.2.min.js";
+//$config_JQhosted  = "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js";
 
 //Allows OneFileCMS.php to be started from any dir on the site.
 chdir($_SERVER["DOCUMENT_ROOT"]);
@@ -263,13 +266,11 @@ if (!file_exists($config_csslocal)) { $STYLE_SHEET = $config_csshosted; }
 
 </head>
 
-
 <body class="page_<?php echo $page; ?>">
 
 <div class="container">
 
 <div class="header">
-
 	<?php echo '<a href="', $ONESCRIPT, '" id="logo" >', $config_title; ?></a>
 
 	<?php if ((isset($_SESSION['onefilecms_valid'])) && ($_SESSION['onefilecms_valid'] == "1")) { ?>
@@ -280,6 +281,7 @@ if (!file_exists($config_csslocal)) { $STYLE_SHEET = $config_csshosted; }
 		</div>
 	<?php } ?>
 </div>
+
 
 
 <?php if (isset($message)) { echo '<div id="message"><p>'.$message.'</p></div>'; };
@@ -387,39 +389,48 @@ if ($page == "edit") { ?>
 
 
 // INDEX ***********************************************************************
-if ($page == "index") { $varvar = "";
-	if (isset($_GET["i"])) { $varvar = $_GET["i"]."/"; } ?>
+if ($page == "index") {
+	$varvar = "";
+	if (isset($_GET["i"])) { $varvar = $_GET["i"]."/"; }
 
-	<!-- docroot/path/current/index -->
-	<h2><?php $full_path = basename(getcwd()).'/'.$_GET["i"];
+ 	// Current path. ie: docroot/current/path/ 
+	// Each level is a link to that level.
+	echo '<h2>';
+		$full_path = basename(getcwd());
+		if (isset($_GET["i"])) { $full_path = basename(getcwd()).'/'.$_GET["i"]; }
+
 		$path_levels = explode("/",$full_path);
-		$levels = count($path_levels);
-		if ($varvar == "") { 
-			echo $path_levels[0]; // if at root, no need for link.
+		$levels = count($path_levels); //If levels=3, indexes = 0, 1, 2  etc...
+
+		//docroot folder of site
+		if ($_GET["i"] == "") { 
+			echo $path_levels[0].' /'; // if at root, no need for link.
 		} else {
 			echo '<a href="'.$ONESCRIPT.'" class="path"> '.$path_levels[0].' </a>/';
 		}
-		$current_path = "";
-		for ($x=1; $x < $levels-1; $x++) {
+
+		//Remainder of current/path
+		for ($x=1; $x < $levels; $x++) {
 			if ($x !== 1){ $current_path .= '/'; }
 			$current_path = $current_path.$path_levels[$x];
 			echo '<a href="'.$ONESCRIPT.'?i='.$current_path.'" class="path"> ';
-			echo ' '.$path_levels[$x].' </a>/';
+			echo ' '.$path_levels[$x]." </a>/";
 		}
-		echo ' '.$path_levels[$x].' /'; // last item is current dir. No link needed.
 	?></h2>
 
 
+	<!--===== List folders/sub-directores =====-->
 	<p class="index_folders">
 		<?php
 		$files = glob($varvar."*",GLOB_ONLYDIR);
 		sort($files);
-		foreach ($files as $file) { ?>
-			<a href="<?php echo $ONESCRIPT.'?i='.$file.'" class="folder">'.basename($file).'</a>';
+		foreach ($files as $file) {
+			echo '<a href="'.$ONESCRIPT.'?i='.$file.'" class="folder">'.basename($file).'</a>';
 		} ?>
 	</p>
 	
-	
+
+	<!--============= List files ==============-->
 	<div style="clear:both;"></div>
 	<ul class="index <?php echo $_COOKIE['index_display']; ?>">
 		<?php $files = glob($varvar."{,.}*", GLOB_BRACE); sort($files);
@@ -458,6 +469,8 @@ if ($page == "index") { $varvar = "";
 			<?php }
 		} ?>
 	</ul>
+
+	<!--=== Upload/New/Rename/Copy/etc... links ===-->
 	<p class="front_links">
 		<a href="<?php echo $ONESCRIPT.'?p=upload&amp;i='.$varvar; ?>" class="upload">Upload File</a>
 		<a href="<?php echo $ONESCRIPT.'?p=new&amp;i='.$varvar; ?>"    class="new">New File</a>
@@ -626,6 +639,7 @@ if ($page == "upload") {
 <?php } ?>
 
 <div class="footer"> <hr>
+
 </div>
 
 </div>
