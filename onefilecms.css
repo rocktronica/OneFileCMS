@@ -1,5 +1,5 @@
 /* OneFileCMS - http://onefilecms.com/
- * 
+ * Version 1.1.7 
  * For license & copyright info, see OneFileCMS.License.BSD.txt 
  */ 
 
@@ -44,17 +44,17 @@ body {
 #logo {font-family: 'Trebuchet MS', sans-serif; font-size:2.9em; font-weight: bold; color: black;}
 
 
-.footer { /************************
+.footer {
+	color: #777;
+	/*****************
 	margin-top: 10px;
 	padding-top: 10px;
 	border-top: 01px solid #807568;    /*using <hr>. Styles at bottom of this file
-	clear: both;  ****************/
+	clear: both;
+	*****************/
 	}
 
-
-
-
-
+.footer a{ color: rgb(157, 124, 83);}  /*rgb(157, 124, 83)*/
 
 
 /* --- general formatting --- */

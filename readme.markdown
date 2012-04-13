@@ -80,6 +80,10 @@ It isn't entirely necessary, but it does nice little progressive enhancements li
 
 ## Change Log
 
+### 1.1.7
+
+- Added [Cancel] button to most screens. Numerous minor UI & code tweaks/improvements.  Changed where .css is hosted (may change back later).  Removed "Rendered in (microseconds)...".  Added license info & copyright notice.
+
 ### 1.1.6
 
 - Breadcrumb navigation (courtesy of [Self-Evident](https://github.com/Self-Evident/)), CSS file and some minor changes to it<br />

@@ -1,13 +1,13 @@
 <?php
 // OneFileCMS - http://onefilecms.com/
-// 
+// Version 1.1.7 
 // For license & copyright info, see OneFileCMS.License.BSD.txt
 
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
 
 // CONFIGURATION INFO
-$version          = "1.1.7.BETA"; // ONEFILECMS_BEGIN
+$version          = "1.1.7"; // ONEFILECMS_BEGIN
 $ONESCRIPT        = $_SERVER["SCRIPT_NAME"];
 $config_username  = "username";
 $config_password  = "password";
@@ -637,6 +637,8 @@ if ($page == "upload") {
 		<p><?php Cancel_Submit_Buttons("Upload"); ?></p>
 	</form>
 <?php } ?>
+
+
 
 <div class="footer"> <hr>
 (Icons courtesy of <a href="http://www.famfamfam.com/lab/icons/silk/" target="_BLANK">FAMFAMFAM</a>)
