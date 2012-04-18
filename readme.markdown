@@ -143,3 +143,16 @@ Written in PHP, XHTML, CSS, and [jQuery](http://jquery.com/). Icons by [famfamfa
 Available under the MIT and BSD license.
 
 To report a bug or request a feature, please file an issue via Github. Forks encouraged!
+
+##Needed/potential/upcoming improvements
+
+- Prompt to prevent automatic overwrite when uploading or renaming files.
+- Check size of file to upload, verify under max post/upload limits.
+- Option to switch between original OneFileCMS view and a common list view.
+  (in the works)
+- Embed css and remove or swtich to svg icons to create a true "OneFileCMS"
+  (in the works)
+- Remove use of jquery.
+  Used to detect if file being edited, set focus form fields, (more?)
+  (in the works)
+- Multiple login names
