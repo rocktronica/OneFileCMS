@@ -29,31 +29,34 @@ chdir($_SERVER["DOCUMENT_ROOT"]);
 
 
 //******************************************************************************
+// Functions
+
+function Close_Button($classes) {
+	echo '<input type="button" class="button '.$classes.'" name="close" value="Close" onclick="parent.location=\'';
+	echo $ONESCRIPT.'?i='.substr($_GET["f"],0,strrpos($_GET["f"],"/")).'\'" />';
+}
+
+
 function Cancel_Submit_Buttons($button_label) { 
 	global $ONESCRIPT, $varvar;
 
 	// [Cancel] returns to either the current/path, or current/path/file
-	if (isset($_GET["i"])){
-		$ipath = '?i='.rtrim($_GET["i"],"/");
-		
-	}else if   ( isset($_GET["c"]) ) {
-		$ipath = '?f='.$_GET["c"];
-		
-	}else if   ( isset($_GET["d"]) ) {
-		$ipath = '?f='.$_GET["d"];
+	if (isset($_GET["i"])){ $ipath = '?i='.rtrim($_GET["i"],"/"); }
+		else if ( isset($_GET["c"]) ) { $ipath = '?f='.$_GET["c"]; }
+		else if ( isset($_GET["d"]) ) { $ipath = '?f='.$_GET["d"]; }
+		else if ( isset($_GET["r"]) ) { $ipath = '?f='.$_GET["r"]; }
+		else{                           $ipath = rtrim($varvar,"/");
+	}//end if/else if
 
-	}else if   ( isset($_GET["r"]) ) {
-		$ipath = '?f='.$_GET["r"];
-		
-	}else{
-		$ipath = rtrim($varvar,"/");
-	}//end if
-?>
+	?>
 	<p>
 		<input type="button" class="button" name="cancel" value="Cancel" onclick="parent.location='<?php echo $ONESCRIPT.$ipath; ?>'"/>
-		<input type="submit" class="button" value="<?php echo $button_label;?>" id="action" style="margin-left: 2.5em;">
+		<input type="submit" class="button" value="<?php echo $button_label;?>" style="margin-left: 2.5em;">
 	</p>
-<?php }
+	<?php
+}// End Cancel_Submit_Buttons()
+
+// End of funtions *************************************************************
 
 
 
@@ -355,7 +358,7 @@ if ($page == "edit") { ?>
 	</a>&rdquo;</h2>
 
 	<form method="post" action="<?php echo $ONESCRIPT.'?f='.$filename; ?>">
-	<input type="button" class="button close" name="close" value="Close" onclick="parent.location='<?php echo $ONESCRIPT.'?i='.substr($_GET["f"],0,strrpos($_GET["f"],"/")); ?>'" />
+		<?php Close_Button("close"); ?>
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
 		<?php $lfile = strtolower($filename);
 		if (strpos($config_disabled,end(explode(".", $lfile)))) { ?>
@@ -376,10 +379,11 @@ if ($page == "edit") { ?>
 			<input type="button" class="button" name="rename_file" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.'?r='.$filename; ?>'" />
 			<input type="button" class="button" name="delete_file" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.'?d='.$filename; ?>'" />
 			<input type="button" class="button" name="copy_file"   value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.'?c='.$filename; ?>'" />
-			<input type="button" class="button" name="close"       value="Close"       onclick="parent.location='<?php echo $ONESCRIPT.'?i='.substr($_GET["f"],0,strrpos($_GET["f"],"/")); ?>'" />
+			<?php Close_Button(""); ?>
 		</p><div class="meta">
-			<p><i>File Size:</i> <?php echo round(filesize($filename)/1000,2); ?> kb - 
-			<i>Last Updated:</i> <?php echo date("n/j/y g:ia", filemtime($filename)); ?></p>
+			<p>File Size: <?php echo number_format(filesize($filename)); ?> &nbsp; &ndash; &nbsp;
+			   Updated: <?php echo date("Y-m-d\, h:ia", filemtime($filename)); ?>
+			</p>
 		</div>
 	</form>
 	<div style="clear:both;"></div>
@@ -424,10 +428,11 @@ if ($page == "index") {
 		$files = glob($varvar."*",GLOB_ONLYDIR);
 		sort($files);
 		foreach ($files as $file) {
-			echo '<a href="'.$ONESCRIPT.'?i='.$file.'" class="folder">'.basename($file).'</a>';
+			echo '<a href="'.$ONESCRIPT.'?i='.$file.'" class="folder">'.basename($file).' /</a>';
 		} ?>
 	</p>
 	
+
 
 	<!--============= List files ==============-->
 	<div style="clear:both;"></div>
