@@ -76,7 +76,7 @@ if (isset($_GET["p"])) {
 	// redirect on invalid page attempts
 	$page = $_GET["p"];
 	if (!in_array(strtolower($_GET["p"]), array(
-		"copy","delete","error","deletefolder","edit","folder","index","login","logout","new","other","rename","renamefolder","upload"	)))
+		"copy","delete","error","deletefolder","edit","folder","index","login","logout","new","rename","renamefolder","upload"	)))
 	{
 		header("Location: ".$ONESCRIPT);
 		$page = "index";
@@ -84,7 +84,6 @@ if (isset($_GET["p"])) {
 }
 if ( ($page == "login") and ($_SESSION['onefilecms_valid']) ) {$page = "index"; header("Location: ".$ONESCRIPT);};
 
-if ($_GET["p"] == "other") {$pagetitle = "Other"; }
 if ($_GET["p"] == "login") {$pagetitle = "Log In"; }
 if ($_GET["p"] == "logout") {$pagetitle = "Log Out"; $_SESSION['onefilecms_valid'] = "0"; session_destroy(); }
 if ($_GET["i"] == "") { unset($_GET["i"]); }
@@ -482,7 +481,6 @@ if ($page == "index") {
 			<a href="<?php echo $ONESCRIPT.'?p=renamefolder&amp;i='.$varvar; ?>" class="renamefolder">
 			Rename Folder</a>
 		<?php } ?>
-		<a href="<?php echo $ONESCRIPT; ?>?p=other" class="other">Other</a>
 	</p>
 <?php };
 
@@ -552,31 +550,12 @@ if ($page == "folder") {
 
 
 
-// OTHER ***********************************************************************
-if ($page == "other") { ?>
-	<h2>Other</h2>
-
-	<h3>Check for Updates</h3>
-	<p>You are using version <?php echo $version; ?>.<br>
-	Future versions of OneFileCMS may have a one-click upgrade process.
-	For now, though,<a href="https://github.com/Self-Evident/OneFileCMS">&gt;check here&lt;</a> for current versions.</p>
-
-	<h3>Want some good Karma?</h3>
-	<p>Let people know you use OneFileCMS by putting this in your footer:</p>
-	<pre><code>This site managed with &#60;a href="http://onefilecms.com/"&#62;OneFileCMS&#60;/a&#62;.</code></pre>
-
-	<h3>Admin Link</h3>
-	<p>Add this to your footer (or something) for lazy/forgetful admins. They'll still have to know the username and password, of course.</p>
-	<pre><code>[&#60;a href="<?php echo $ONESCRIPT; ?>"&#62;Admin&#60;/a&#62;]</code></pre>
-<?php };
-
-
 
 // RENAME FILE *****************************************************************
 if ($page == "rename") {
 	$varvar = "?i=".substr($_GET["r"],0,strrpos($_GET["r"],"/")); ?>
-	<h2>Rename &ldquo;<a href="/<?php echo $filename; ?>"><?php echo $filename; 
-	?></a>&rdquo;</h2>
+	<h2>Rename &ldquo;<a href="/<?php echo $filename; ?>">
+	<?php echo $filename; ?></a>&rdquo;</h2>
 	<p>Existing files with the same filename are automatically overwritten... Be 
 	careful!</p>
 	<p>To move a file, preface its name with the folder's name, as in 
@@ -622,8 +601,7 @@ if ($page == "renamefolder") {
 if ($page == "upload") {
 	$varvar = ""; if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; } ?>
 	<h2>Upload</h2>
-	<form enctype="multipart/form-data" action="<?php echo
-	$ONESCRIPT.substr_replace($varvar,"",-1); ?>" method="post">
+	<form enctype="multipart/form-data" action="<?php echo $ONESCRIPT.substr_replace($varvar,"",-1); ?>" method="post">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
 		<input type="hidden" name="MAX_FILE_SIZE" value="100000" />
 		<p>
