@@ -14,6 +14,7 @@ $config_password  = "password";
 //$config_hint     = ""; //Not currently used
 $config_title     = "OneFileCMS";
 $config_footer    = date("Y")." <a href='http://onefilecms.com/'>OneFileCMS</a>.";
+
 $config_disabled  = "bmp,ico,gif,jpg,png,psd,zip,exe,swf";
 $config_excluded  = ""; //files to exclude from directory listings
 $config_LOCAL     = "_onefilecms/";  //local directory for icons, .css, .js, etc...
@@ -436,7 +437,7 @@ if ($page == "index") {
 
 	<!--============= List files ==============-->
 	<div style="clear:both;"></div>
-	<ul class="index <?php echo $_COOKIE['index_display']; ?>">
+	<ul class="index">
 		<?php $files = glob($varvar."{,.}*", GLOB_BRACE); sort($files);
 		foreach ($files as $file) {
 			$excludeme = 0;
@@ -459,7 +460,10 @@ if ($page == "index") {
 					$file_class = "img";
 				};
 				if (strrpos($lfile,".css")) { $file_class = "css"; };
-				if (strrpos($lfile,".php")) { $file_class = "php"; }; ?>
+				if (strrpos($lfile,".php")) { $file_class = "php"; };
+				if (strrpos($lfile,".htm")) { $file_class = "htm"; };
+				if (strrpos($lfile,".html")) { $file_class = "htm"; };
+		?>
 					<li>
 						<a href="<?php echo $ONESCRIPT.'?f='.$file.'" class=" '.$file_class.'">';
 						echo basename($file); ?></a>
@@ -524,8 +528,7 @@ if ($page == "new") {
 	if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; }?>
 		<h2>New File</h2>
 		<p>Existing files with the same name will not be overwritten.</p>
-		<form method="post" id="new" action="<?php echo
-		$ONESCRIPT.substr_replace($varvar,"",-1); ?>">
+		<form method="post" id="new" action="<?php echo $ONESCRIPT.substr_replace($varvar,"",-1); ?>">
 			<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
 			<p>
 				<label for="new_filename">New filename: </label>
@@ -559,8 +562,7 @@ if ($page == "folder") {
 // RENAME FILE *****************************************************************
 if ($page == "rename") {
 	$varvar = "?i=".substr($_GET["r"],0,strrpos($_GET["r"],"/")); ?>
-	<h2>Rename &ldquo;<a href="/<?php echo $filename; ?>">
-	<?php echo $filename; ?></a>&rdquo;</h2>
+	<h2>Rename &ldquo;<a href="/<?php echo $filename; ?>">	<?php echo $filename; ?> </a>&rdquo;</h2>
 	<p>Existing files with the same filename are automatically overwritten... Be 
 	careful!</p>
 	<p>To move a file, preface its name with the folder's name, as in 
@@ -624,7 +626,7 @@ if ($page == "upload") {
 
 
 <div class="footer"> <hr>
-(Icons courtesy of <a href="http://www.famfamfam.com/lab/icons/silk/" target="_BLANK">FAMFAMFAM</a>)
+
 </div>
 
 </div>
@@ -643,6 +645,7 @@ if (!file_exists($config_JQlocal)) { $JQUERY = $config_JQhosted; }
 	
 		var $message = $("#message"),
 		    $save_file = $("#save_file");
+
 		//This line fades out the message after specified time (3000 = 3 seconds)
 		//if ( $message.length > 0 ) { $message.animate({opacity: 1.0}, 3000).fadeOut(); };
 		
