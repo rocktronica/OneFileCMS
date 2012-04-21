@@ -162,8 +162,8 @@ if (isset($_GET["f"])) {
 		$pagetitle = "Edit &ldquo;".$filename."&rdquo;";
 		$fp = @fopen($filename, "r");
 		if (filesize($filename) !== 0) {
-			$loadcontent = fread($fp, filesize($filename));
-			$loadcontent = htmlspecialchars($loadcontent);
+			$filecontent = fread($fp, filesize($filename));
+			$filecontent = htmlspecialchars($filecontent);
 		}
 		fclose($fp);
 	} else {
@@ -372,7 +372,7 @@ if ($page == "edit") { ?>
 		<?php } else { ?>
 			<p>
 				<input type="hidden" name="filename" id="filename" class="textinput" value="<?php echo $filename; ?>" />
-				<textarea name="content" class="textinput" cols="70" rows="25"><?php echo $loadcontent; ?></textarea>
+				<textarea name="content" class="textinput" cols="70" rows="25"><?php echo $filecontent; ?></textarea>
 			</p>
 			<p class="buttons_right">
 				<input type="submit" class="button" name="save_file" id="save_file" value="Save" />
