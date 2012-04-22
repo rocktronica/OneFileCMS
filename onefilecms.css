@@ -41,7 +41,7 @@ h1,h2,h3,h4,h5,h6{font-weight: bold;}
 
 body {
 	font-size: 1em;
-	background: #d5d0cc; background: cyan;
+	background: #d5d0cc;
 	font-family: sans-serif;
 	}
 
@@ -179,17 +179,18 @@ pre {
 	padding: 7px 5px 7px 35px;
 	border: 1px solid #807568;
 	text-decoration: none;
-	background: white url("http://self-evident.github.com/OneFileCMS/images/binary-3.png") 10px 10px no-repeat;
+	background: white url("http://self-evident.github.com/OneFileCMS/images/file-bin.png") 3px no-repeat;
 	overflow: hidden;
 	line-height: 1em;
 	}
 
-
-.index a.img { background: white url("http://self-evident.github.com/OneFileCMS/images/img-2.png")   10px 10px no-repeat; }
-.index a.txt { background: white url("http://self-evident.github.com/OneFileCMS/images/file-2.png")  10px 10px no-repeat; }
-.index a.css { background: white url("http://self-evident.github.com/OneFileCMS/images/file-2s.png") 10px 10px no-repeat; }
-.index a.php { background: white url("http://self-evident.github.com/OneFileCMS/images/file-2p.png") 10px 10px no-repeat; }
-.index a.htm { background: white url("http://self-evident.github.com/OneFileCMS/images/file-2h.png") 10px 10px no-repeat; }
+.index a.bin { background:white url("http://self-evident.github.com/OneFileCMS/images/file-bin.png") 3px no-repeat; }
+.index a.img { background:white url("http://self-evident.github.com/OneFileCMS/images/file-img.png") 3px no-repeat; }
+.index a.txt { background:white url("http://self-evident.github.com/OneFileCMS/images/file-txt.png") 3px no-repeat; }
+.index a.cfg { background:white url("http://self-evident.github.com/OneFileCMS/images/file-cfg.png") 3px no-repeat; }
+.index a.css { background:white url("http://self-evident.github.com/OneFileCMS/images/file-css.png") 3px no-repeat; }
+.index a.htm { background:white url("http://self-evident.github.com/OneFileCMS/images/file-htm.png") 3px no-repeat; }
+.index a.php { background:white url("http://self-evident.github.com/OneFileCMS/images/file-php.png") 3px no-repeat; }
 
 .index a:hover {
 	background-color: #fffbce;
@@ -222,18 +223,19 @@ table.index_T td {
 	padding: .2em 1em .3em 1.6em;
 	color: rgb(100,45,0);
 	border : none;
-	background : url("http://self-evident.github.com/OneFileCMS/images/binary-3.png") 3px no-repeat;
+	background : url("http://self-evident.github.com/OneFileCMS/images/file-bin.png") 3px no-repeat;
 	overflow   : hidden;
 	}
 
 /*	background : url("http://self-evident.github.com/OneFileCMS/images/silk_file.png") 4px no-repeat;*/
 
-.index_T a.txt { background: url("http://self-evident.github.com/OneFileCMS/images/file-2.png")  3px no-repeat; }
-.index_T a.htm { background: url("http://self-evident.github.com/OneFileCMS/images/file-2h.png") 3px no-repeat; }
-.index_T a.css { background: url("http://self-evident.github.com/OneFileCMS/images/file-2s.png") 3px no-repeat; }
-.index_T a.php { background: url("http://self-evident.github.com/OneFileCMS/images/file-2p.png") 3px no-repeat; }
-.index_T a.cnf { background: url("http://self-evident.github.com/OneFileCMS/images/file-2.png")  3px no-repeat; }
-.index_T a.img { background: url("http://self-evident.github.com/OneFileCMS/images/img-2.png")   3px no-repeat; }
+.index_T a.txt { background: url("http://self-evident.github.com/OneFileCMS/images/file-txt.png") 3px no-repeat; }
+.index_T a.htm { background: url("http://self-evident.github.com/OneFileCMS/images/file-htm.png") 3px no-repeat; }
+.index_T a.css { background: url("http://self-evident.github.com/OneFileCMS/images/file-css.png") 3px no-repeat; }
+.index_T a.php { background: url("http://self-evident.github.com/OneFileCMS/images/file-php.png") 3px no-repeat; }
+.index_T a.cfg { background: url("http://self-evident.github.com/OneFileCMS/images/file-cfg.png") 3px no-repeat; }
+.index_T a.img { background: url("http://self-evident.github.com/OneFileCMS/images/file-img.png") 3px no-repeat; }
+.index_T a.bin { background: url("http://self-evident.github.com/OneFileCMS/images/file-bin.png") 3px no-repeat; }
 
 .index_T a:hover { background-color: #FFF573; } /*#fffbce #969376; rgb(255,245,115);*/
 

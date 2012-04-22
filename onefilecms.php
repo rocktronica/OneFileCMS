@@ -1,25 +1,27 @@
 <?php
 // OneFileCMS - http://onefilecms.com/
-// Version 1.1.7 
 // For license & copyright info, see OneFileCMS.License.BSD.txt
+
+$version = "1.1.7";
 
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
 
-$CWD              = $CWD = str_replace("\\","/",getcwd());
-$DOC_ROOT         = $_SERVER["DOCUMENT_ROOT"];
+
+$ONESCRIPT = $_SERVER["SCRIPT_NAME"];
+$DOC_ROOT  = $_SERVER["DOCUMENT_ROOT"];
+$CWD       = str_replace("\\","/",getcwd());
+
 
 // CONFIGURATION INFO
-$version          = "1.1.7"; // ONEFILECMS_BEGIN
-$ONESCRIPT        = $_SERVER["SCRIPT_NAME"];
 $config_username  = "username";
 $config_password  = "password";
-//$config_hint     = ""; //Not currently used
 $config_title     = "OneFileCMS";
 $config_footer    = date("Y")." <a href='http://onefilecms.com/'>OneFileCMS</a>.";
 $config_editable  = "html,htm,php,css,txt,text,conf,ini,csv";
 $config_excluded  = ""; //files to exclude from directory listings
-
+$config_ftypes    = "jpg,gif,png,bmp,ico,txt,cvs,css,php,htm,html,cfg,conf"; //used to select file icon
+$config_fclass    = "img,img,img,img,img,txt,txt,css,php,htm,htm,cfg,cfg";   //used to select file icon
 $config_LOCAL     = "/onefilecms/";  //local directory for icons, .css, .js, etc...
 $config_csslocal  = "onefilecms.css";    //Relative to this file.
 //$config_csslocal  ="/onefilecms.css";  //Relative to site URL root.
@@ -27,6 +29,13 @@ $config_csshosted = "http://self-evident.github.com/OneFileCMS/onefilecms.css";
 $config_JQlocal   = "jquery.min.js";
 $config_JQhosted  = "http://code.jquery.com/jquery-1.7.2.min.js";
 //$config_JQhosted  = "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js";
+
+
+//Make arrays out of a couple $config_variables.  They are used in // Index
+//Above, however, it's easier to config/change a simple string.
+$ftypes   = (explode(",", strtolower($config_ftypes)));
+$fclasses = (explode(",", strtolower($config_fclass)));
+
 
 //Allows OneFileCMS.php to be started from any dir on the site.
 chdir($DOC_ROOT);
@@ -469,34 +478,29 @@ if ($page == "index") {
 					$excludeme = 1;
 				}
 			}
+			
 			if (!is_dir($file) && $excludeme == 0) {
+			
+				//Determine file type & set cooresponding class.
 				$file_class = "";
-				$lfile = strtolower($file);
-				if (
-					(strrpos(strtolower($lfile),".jpg")) || 
-					(strrpos($lfile,".gif")) || 
-					(strrpos($lfile,".png")) || 
-					(strrpos($lfile,".ico"))
-				) {
-					$file_class = "img";
-				};
-				if (strrpos($lfile,".css")) { $file_class = "css"; };
-				if (strrpos($lfile,".php")) { $file_class = "php"; };
-				if (strrpos($lfile,".htm")) { $file_class = "htm"; };
-				if (strrpos($lfile,".html")) { $file_class = "htm"; };
+				$ext = end( explode(".", strtolower($file)) );
+
+				for ($x=0; $x < count($ftypes); $x++ ){
+					if ($ext == $ftypes[$x]){ $file_class = $fclasses[$x]; } 
+				}
 		?>
 					<li>
 						<a href="<?php echo $ONESCRIPT.'?f='.$file.'" class=" '.$file_class.'">';
 						echo basename($file); ?></a>
 						<div class="meta">
 							<span><i>File Size:</i>
-							<?php echo round(filesize($file)/1000,2);?> kb<br /></span>
+							<?php echo number_format(filesize($file)).""; ?><br /></span>
 							<span><i>Last Updated:</i>
 							<?php echo date("n/j/y g:ia", filemtime($file)); ?></span>
 						</div>
 					</li>
-			<?php }
-		} ?>
+			<?php } ?>
+		<?php } ?>
 	</ul>
 
 	<!--=== Upload/New/Rename/Copy/etc... links ===-->
