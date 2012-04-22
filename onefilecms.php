@@ -6,6 +6,9 @@
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
 
+$CWD              = $CWD = str_replace("\\","/",getcwd());
+$DOC_ROOT         = $_SERVER["DOCUMENT_ROOT"];
+
 // CONFIGURATION INFO
 $version          = "1.1.7"; // ONEFILECMS_BEGIN
 $ONESCRIPT        = $_SERVER["SCRIPT_NAME"];
@@ -14,18 +17,19 @@ $config_password  = "password";
 //$config_hint     = ""; //Not currently used
 $config_title     = "OneFileCMS";
 $config_footer    = date("Y")." <a href='http://onefilecms.com/'>OneFileCMS</a>.";
-
 $config_disabled  = "bmp,ico,gif,jpg,png,psd,zip,exe,swf";
 $config_excluded  = ""; //files to exclude from directory listings
-$config_LOCAL     = "_onefilecms/";  //local directory for icons, .css, .js, etc...
-$config_csslocal  = $config_LOCAL."onefilecms.css"; //Relative to site URL root. Don't use leading '/'.
+
+$config_LOCAL     = "/onefilecms/";  //local directory for icons, .css, .js, etc...
+$config_csslocal  = "onefilecms.css";                 //Relative to this file.
+//$config_csslocal  = $config_LOCAL."onefilecms.css"; //Relative to site URL root.
 $config_csshosted = "http://self-evident.github.com/OneFileCMS/onefilecms.css";
-$config_JQlocal   = $config_LOCAL."jquery.min.js";
+$config_JQlocal   = "jquery.min.js";
 $config_JQhosted  = "http://code.jquery.com/jquery-1.7.2.min.js";
 //$config_JQhosted  = "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js";
 
 //Allows OneFileCMS.php to be started from any dir on the site.
-chdir($_SERVER["DOCUMENT_ROOT"]);
+chdir($DOC_ROOT);
 
 
 
@@ -259,11 +263,19 @@ if (isset($_FILES['upload_filename']['name']) && $_SESSION['onefilecms_valid'] =
 
 <title><?php echo $config_title.' - '.$pagetitle; ?></title>
 
-<?php 
-$STYLE_SHEET = '/'.$config_csslocal;
-//Check for local style sheet
-if (!file_exists($config_csslocal)) { $STYLE_SHEET = $config_csshosted; }
-?>
+
+<?php //*** Determine if using a local or a hosted style sheet ***
+
+$STYLE_SHEET = $config_csslocal;
+$ROOT = $DOC_ROOT; 
+
+// If csslocal has a leading /, assume it's location relative to $DOC_ROOT
+// If it has no leading /, assume it is relative to this file.
+if (substr($config_csslocal,0,1) != "/"){ $ROOT = $CWD.'/'; }
+
+//Check for local style sheet. If not found, use hosted copy.
+if (!file_exists($ROOT.$config_csslocal)) { $STYLE_SHEET = $config_csshosted; }
+//***************************************************************?>
 
 <link href="<?php echo $STYLE_SHEET;?>" type="text/css" rel="stylesheet" />
 
@@ -634,9 +646,9 @@ if ($page == "upload") {
 
 
 <?php //************************************************************************
-$JQUERY = '/'.$config_JQlocal;
 //Check for local copy of jquery
-if (!file_exists($config_JQlocal)) { $JQUERY = $config_JQhosted; }
+$JQUERY = $config_JQlocal;
+if (!file_exists($DOC_ROOT.$config_JQlocal)) { $JQUERY = $config_JQhosted; }
 ?>
 
 <script src="<?php echo $JQUERY; ?>"></script>
