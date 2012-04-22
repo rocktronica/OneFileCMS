@@ -17,12 +17,12 @@ $config_password  = "password";
 //$config_hint     = ""; //Not currently used
 $config_title     = "OneFileCMS";
 $config_footer    = date("Y")." <a href='http://onefilecms.com/'>OneFileCMS</a>.";
-$config_disabled  = "bmp,ico,gif,jpg,png,psd,zip,exe,swf";
+$config_editable  = "html,htm,php,css,txt,text,conf,ini,csv";
 $config_excluded  = ""; //files to exclude from directory listings
 
 $config_LOCAL     = "/onefilecms/";  //local directory for icons, .css, .js, etc...
-$config_csslocal  = "onefilecms.css";                 //Relative to this file.
-//$config_csslocal  = $config_LOCAL."onefilecms.css"; //Relative to site URL root.
+$config_csslocal  = "onefilecms.css";    //Relative to this file.
+//$config_csslocal  ="/onefilecms.css";  //Relative to site URL root.
 $config_csshosted = "http://self-evident.github.com/OneFileCMS/onefilecms.css";
 $config_JQlocal   = "jquery.min.js";
 $config_JQhosted  = "http://code.jquery.com/jquery-1.7.2.min.js";
@@ -149,6 +149,8 @@ if (isset($_POST["delete_foldername"]) && $_SESSION['onefilecms_valid'] = "1" &&
 
 
 // EDIT ************************************************************************
+
+//*** If on Edit page, and [Save] clicked:
 if (isset($_POST["filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$filename = $_POST["filename"];
 	$content = stripslashes($_POST["content"]);
@@ -158,7 +160,9 @@ if (isset($_POST["filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["
 		fclose($fp);
 	}
 	$message = '<b>'.$filename."</b> saved successfully.";
-}
+}//***
+
+//*** If in directory list, and a filename is clicked:
 if (isset($_GET["f"])) {
 	$filename = stripslashes($_GET["f"]);
 	if (file_exists($filename)) {
@@ -175,7 +179,7 @@ if (isset($_GET["f"])) {
 		unset ($filename);
 		$message = "File does not exist.";
 	}
-}
+}//***
 
 
 
@@ -252,6 +256,7 @@ if (isset($_FILES['upload_filename']['name']) && $_SESSION['onefilecms_valid'] =
 
 
 
+//******************************************************************************
 //******************************************************************************
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -365,23 +370,26 @@ if ($page == "deletefolder") {
 
 // EDIT ************************************************************************
 if ($page == "edit") { ?>
-	<h2 id="edit_header">Edit &ldquo;
-	<a href="/<?php echo $filename; ?>" >
-	<?php echo $filename; ?>
+	<h2 id="edit_header">Edit &ldquo;<a href="/<?php echo $filename; ?>" > 
+	 <?php echo $filename; ?> 
 	</a>&rdquo;</h2>
 
 	<form method="post" action="<?php echo $ONESCRIPT.'?f='.$filename; ?>">
 		<?php Close_Button("close"); ?>
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
-		<?php $lfile = strtolower($filename);
-		if (strpos($config_disabled,end(explode(".", $lfile)))) { ?>
+
+		<?php
+		$ext = end( explode(".", strtolower($filename)) );
+		if (strpos($config_editable,$ext) === false) { ?>
 			<p>
-				<textarea name="content" class="textinput disabled" cols="70" rows="25" disabled="disabled">Disabled.</textarea>
+				<textarea name="content" class="textinput disabled" cols="70" rows="25" disabled="disabled">Non-text or unkown file type. Edit disabled.
+				</textarea>
 			</p>
 			<p class="buttons_right">
 				<input type="submit" class="button" name="save_file" value="Save" 
 				disabled="disabled" />
 		<?php } else { ?>
+
 			<p>
 				<input type="hidden" name="filename" id="filename" class="textinput" value="<?php echo $filename; ?>" />
 				<textarea name="content" class="textinput" cols="70" rows="25"><?php echo $filecontent; ?></textarea>
@@ -389,11 +397,12 @@ if ($page == "edit") { ?>
 			<p class="buttons_right">
 				<input type="submit" class="button" name="save_file" id="save_file" value="Save" />
 		<?php } ?>
+
 			<input type="button" class="button" name="rename_file" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.'?r='.$filename; ?>'" />
 			<input type="button" class="button" name="delete_file" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.'?d='.$filename; ?>'" />
 			<input type="button" class="button" name="copy_file"   value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.'?c='.$filename; ?>'" />
 			<?php Close_Button(""); ?>
-		</p><div class="meta">
+			</p><div class="meta">
 			<p>File Size: <?php echo number_format(filesize($filename)); ?> &nbsp; &ndash; &nbsp;
 			   Updated: <?php echo date("Y-m-d\, h:ia", filemtime($filename)); ?>
 			</p>
