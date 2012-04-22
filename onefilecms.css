@@ -41,7 +41,7 @@ h1,h2,h3,h4,h5,h6{font-weight: bold;}
 
 body {
 	font-size: 1em;
-	background: #d5d0cc;
+	background: #d5d0cc; background: cyan;
 	font-family: sans-serif;
 	}
 
@@ -179,20 +179,63 @@ pre {
 	padding: 7px 5px 7px 35px;
 	border: 1px solid #807568;
 	text-decoration: none;
-	background: white url("http://self-evident.github.com/OneFileCMS/images/file-2.png") 10px 10px no-repeat;
+	background: white url("http://self-evident.github.com/OneFileCMS/images/binary-3.png") 10px 10px no-repeat;
 	overflow: hidden;
 	line-height: 1em;
 	}
 
 
+.index a.img { background: white url("http://self-evident.github.com/OneFileCMS/images/img-2.png")   10px 10px no-repeat; }
+.index a.txt { background: white url("http://self-evident.github.com/OneFileCMS/images/file-2.png")  10px 10px no-repeat; }
 .index a.css { background: white url("http://self-evident.github.com/OneFileCMS/images/file-2s.png") 10px 10px no-repeat; }
-.index a.img { background: white url("http://self-evident.github.com/OneFileCMS/images/img-2.png") 10px 10px no-repeat; }
 .index a.php { background: white url("http://self-evident.github.com/OneFileCMS/images/file-2p.png") 10px 10px no-repeat; }
+.index a.htm { background: white url("http://self-evident.github.com/OneFileCMS/images/file-2h.png") 10px 10px no-repeat; }
 
 .index a:hover {
 	background-color: #fffbce;
 	border: 1px solid #969376;
 	}
+
+
+/* --- INDEX directory listing, table format --- */
+table.index_T {
+	min-width: 30em;
+	font-size: .95em;
+	border-style: outset;
+	border-width: 1px;
+	border-color: #807568;
+	border-collapse: collapse;
+	margin-bottom: .7em;
+	background-color:white;
+	}
+	
+table.index_T td { 
+	border-width: 1px;
+	border-color: silver;
+	border-style: inset;
+	vertical-align:middle;
+	}
+
+.index_T a { 
+	height : 1em;
+	display: block;
+	padding: .2em 1em .3em 1.6em;
+	color: rgb(100,45,0);
+	border : none;
+	background : url("http://self-evident.github.com/OneFileCMS/images/binary-3.png") 3px no-repeat;
+	overflow   : hidden;
+	}
+
+/*	background : url("http://self-evident.github.com/OneFileCMS/images/silk_file.png") 4px no-repeat;*/
+
+.index_T a.txt { background: url("http://self-evident.github.com/OneFileCMS/images/file-2.png")  3px no-repeat; }
+.index_T a.htm { background: url("http://self-evident.github.com/OneFileCMS/images/file-2h.png") 3px no-repeat; }
+.index_T a.css { background: url("http://self-evident.github.com/OneFileCMS/images/file-2s.png") 3px no-repeat; }
+.index_T a.php { background: url("http://self-evident.github.com/OneFileCMS/images/file-2p.png") 3px no-repeat; }
+.index_T a.cnf { background: url("http://self-evident.github.com/OneFileCMS/images/file-2.png")  3px no-repeat; }
+.index_T a.img { background: url("http://self-evident.github.com/OneFileCMS/images/img-2.png")   3px no-repeat; }
+
+.index_T a:hover { background-color: #FFF573; } /*#fffbce #969376; rgb(255,245,115);*/
 
 
 /* File size & date */
