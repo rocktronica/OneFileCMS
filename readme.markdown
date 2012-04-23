@@ -80,6 +80,11 @@ It isn't entirely necessary, but it does nice little progressive enhancements li
 
 ## Change Log
 
+### 1.1.8  
+
+- Added a table list view option (default).  Either List or original "Block" view selectable with $VIEW_MODE variable. (On screen selection in the works)
+- (And, of course, numerous other code tweaks/improvements.
+
 ### 1.1.7
 
 - Added [Cancel] button to most screens. Numerous minor UI & code tweaks/improvements.  Changed where .css is hosted (may change back later).  Removed "Rendered in (microseconds)...".  Added license info & copyright notice.
