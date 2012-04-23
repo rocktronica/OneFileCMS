@@ -2,7 +2,7 @@
 // OneFileCMS - http://onefilecms.com/
 // For license & copyright info, see OneFileCMS.License.BSD.txt
 
-$version = "1.1.7";
+$version = "1.1.8";
 
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
@@ -30,6 +30,7 @@ $config_JQlocal   = "jquery.min.js";
 $config_JQhosted  = "http://code.jquery.com/jquery-1.7.2.min.js";
 //$config_JQhosted  = "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js";
 
+$VIEW_MODE        = "LIST"; // or BLOCK   (Actually, anything =/= BLOCK == LIST)
 
 //Make arrays out of a couple $config_variables.  They are used in // Index
 //Above, however, it's easier to config/change a simple string.
@@ -278,8 +279,7 @@ if (isset($_FILES['upload_filename']['name']) && $_SESSION['onefilecms_valid'] =
 <title><?php echo $config_title.' - '.$pagetitle; ?></title>
 
 
-<?php //*** Determine if using a local or a hosted style sheet ***
-
+<?php //*** local or a hosted style sheet? **********************
 $STYLE_SHEET = $config_csslocal;
 $ROOT = $DOC_ROOT; 
 
@@ -305,7 +305,6 @@ if (!file_exists($ROOT.$config_csslocal)) { $STYLE_SHEET = $config_csshosted; }
 	<?php if ((isset($_SESSION['onefilecms_valid'])) && ($_SESSION['onefilecms_valid'] == "1")) { ?>
 		<div class="nav">
 			<a href="/">Visit Site</a> | 
-			<a href="<?php echo $ONESCRIPT; ?>">Index</a> | 
 			<a href="<?php echo $ONESCRIPT; ?>?p=logout">Log Out</a>
 		</div>
 	<?php } ?>
@@ -465,13 +464,68 @@ if ($page == "index") {
 	
 
 
-	<!--============= List files ==============-->
+	<!--============== List files - BLOCK view ===============-->
+	<?php
+	function list_BLOCK_view() {
+	global $varvar, $config_excluded, $ftypes, $fclasses ; 
+	 ?>
 	<div style="clear:both;"></div>
 	<ul class="index">
 		<?php $files = glob($varvar."{,.}*", GLOB_BRACE); sort($files);
+
 		foreach ($files as $file) {
 			$excludeme = 0;
 			$config_excludeds = explode(",", $config_excluded);
+			foreach ($config_excludeds as $config_exclusion) {
+				if (strrpos(basename($file),$config_exclusion) !== False && 
+				strrpos(basename($file),$config_exclusion) !== "") { 
+					$excludeme = 1;
+				}
+			}
+			
+			if (!is_dir($file) && $excludeme == 0) {
+				//Determine file type & set cooresponding class.
+				$file_class = "";
+				$ext = end( explode(".", strtolower($file)) );
+
+				for ($x=0; $x < count($ftypes); $x++ ){
+					if ($ext == $ftypes[$x]){ $file_class = $fclasses[$x]; } 
+				}
+		?>
+					<li><?php //****** Actual file name & info ******/ ?>
+						<a href="<?php echo $ONESCRIPT.'?f='.$file.'" class=" '.$file_class.'">';
+						echo basename($file); ?></a>
+						<div class="meta">
+							<span><i>File Size:</i>
+							<?php echo number_format(filesize($file)).""; ?><br /></span>
+							<span><i>Last Updated:</i>
+							<?php echo date("n/j/y g:ia", filemtime($file)); ?></span>
+						</div>
+					</li>
+			<?php } ?>
+		<?php } ?>
+	</ul>
+	<?php }//end list_BLOCK_view() ?>
+
+
+
+
+	<?php //<!--======== List files in vertical table ========-->
+	function list_view() {
+	
+	global $varvar, $config_excluded, $ftypes, $fclasses ; 
+	
+	$files = glob($varvar."{,.}*", GLOB_BRACE);
+	sort($files);
+	$files_count = count($files);
+	$fc = 0;
+
+	echo '<table class="index_T">';
+		foreach ($files as $file) {
+			$fc++;
+			$excludeme = 0;
+			$config_excludeds = explode(",", $config_excluded);
+			
 			foreach ($config_excludeds as $config_exclusion) {
 				if (strrpos(basename($file),$config_exclusion) !== False && 
 				strrpos(basename($file),$config_exclusion) !== "") { 
@@ -489,19 +543,37 @@ if ($page == "index") {
 					if ($ext == $ftypes[$x]){ $file_class = $fclasses[$x]; } 
 				}
 		?>
-					<li>
-						<a href="<?php echo $ONESCRIPT.'?f='.$file.'" class=" '.$file_class.'">';
-						echo basename($file); ?></a>
-						<div class="meta">
-							<span><i>File Size:</i>
-							<?php echo number_format(filesize($file)).""; ?><br /></span>
-							<span><i>Last Updated:</i>
-							<?php echo date("n/j/y g:ia", filemtime($file)); ?></span>
-						</div>
-					</li>
-			<?php } ?>
-		<?php } ?>
-	</ul>
+					<tr>
+						<td>
+							<?php echo "<a href='", $ONESCRIPT,"?f=", $file, "'"; ?>
+							<?php echo "class='",  $file_class, "'>", basename($file), "</a>"; ?>
+						</td>
+						<td class="meta_size">
+							<?php echo number_format(filesize($file)).""; ?> B
+						</td>
+						<td class="meta_time">
+							<?php echo date("Y-m-d", filemtime($file)); ?> &nbsp;
+							<?php echo date("h:ia" , filemtime($file)); ?>
+						</td>
+					</tr>
+		<?php 
+			}//end if !is_dir
+		}//end foreach file
+		?>
+	</table>
+	<?php }//end list_view()
+	// <!--===== End of directory listing in vertical table =====-->
+	?>
+
+
+
+<?php 
+	if ($VIEW_MODE == "BLOCK"){ list_BLOCK_view(); }
+	else                      { list_view();       }
+ ?>
+
+
+
 
 	<!--=== Upload/New/Rename/Copy/etc... links ===-->
 	<p class="front_links">
