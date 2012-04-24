@@ -6,6 +6,7 @@
 
 /* #774200 #807568 #976322 #995400 #d4d4d4 #0F0901
    rgb(157, 124, 83) rgb(157, 124, 83)
+   rgb(255,250,150) #fffbce #969376 rgb(255,245,115)
  */
 
 /* --- reset --- */
@@ -83,7 +84,6 @@ body {
 	*****************/
 	}
 
-.footer a{ color: rgb(157, 124, 83);}  /*rgb(157, 124, 83)*/
 
 
 /* --- general formatting --- */
@@ -95,12 +95,9 @@ Xp, li {line-height: 1.4em; }
 form p { margin-bottom: 5px; }
 
 a { border: 1px solid transparent; color: rgb(100,45,0); text-decoration: none; }
+a:hover { border: 1px solid #807568; background-color: rgb(255,250,150); }
+a:focus { border: 1px solid #807568; background-color: rgb(255,250,150); }
 
-a:hover {
-	border: 1px solid #807568;
-	Xcolor: #995400;
-	background-color: #fffbce;
-	}
 
 h2 { font-size: 20px; }
 
@@ -147,10 +144,9 @@ pre {
 
 #message {
 	margin-bottom: .5em;
-	Xpadding-bottom: 10px;
-	Xborder-bottom : 1px solid #807568;
+	min-height: 1.7em;  /* Leaves space when on edit page with no message. */
 	}
-
+	
 #message p {
 	margin: 0;
 	padding: 5px 5px 5px 30px;
@@ -179,7 +175,7 @@ pre {
 	padding: 7px 5px 7px 35px;
 	border: 1px solid #807568;
 	text-decoration: none;
-	background: white url("http://self-evident.github.com/OneFileCMS/images/file-bin.png") 3px no-repeat;
+	background: #F8F8F8 url("http://self-evident.github.com/OneFileCMS/images/file-bin.png") 3px no-repeat;
 	overflow: hidden;
 	line-height: 1em;
 	}
@@ -192,10 +188,9 @@ pre {
 .index a.htm { background:white url("http://self-evident.github.com/OneFileCMS/images/file-htm.png") 3px no-repeat; }
 .index a.php { background:white url("http://self-evident.github.com/OneFileCMS/images/file-php.png") 3px no-repeat; }
 
-.index a:hover {
-	background-color: #fffbce;
-	border: 1px solid #969376;
-	}
+.index a:hover { background-color: rgb(255,250,150); }
+.index a:focus { background-color: rgb(255,250,150); }
+
 
 
 /* --- INDEX directory listing, table format --- */
@@ -207,21 +202,23 @@ table.index_T {
 	border-color: #807568;
 	border-collapse: collapse;
 	margin-bottom: .7em;
-	background-color:white;
+	background-color: #F8F8F8;
 	}
 	
+table.index_T  tr:hover { border: 1px solid #807568; }
+
 table.index_T td { 
-	border-width: 1px;
-	border-color: silver;
-	border-style: inset;
-	vertical-align:middle;
+	border-width  : 1px;
+	border-color  : silver;
+	border-style  : inset;
+	vertical-align: middle;
 	}
 
 .index_T a { 
 	height : 1em;
 	display: block;
 	padding: .2em 1em .3em 1.6em;
-	color: rgb(100,45,0);
+	color  : rgb(100,45,0);
 	border : none;
 	background : url("http://self-evident.github.com/OneFileCMS/images/file-bin.png") 3px no-repeat;
 	overflow   : hidden;
@@ -237,7 +234,9 @@ table.index_T td {
 .index_T a.img { background: url("http://self-evident.github.com/OneFileCMS/images/file-img.png") 3px no-repeat; }
 .index_T a.bin { background: url("http://self-evident.github.com/OneFileCMS/images/file-bin.png") 3px no-repeat; }
 
-.index_T a:hover { background-color: #FFF573; } /*#fffbce #969376; rgb(255,245,115);*/
+.index_T a:hover { background-color: rgb(255,250,150); }
+.index_T a:focus { background-color: rgb(255,250,150); }
+
 
 
 /* File size & date */
@@ -273,7 +272,7 @@ table.index_T td {
 	margin-bottom: .2em
 	}
 
-.index_folders a { Xborder: 1px solid black;
+.index_folders a {
 	display      : inline-block;
 	line-height  : 1.1em;
 	font-size    : 1em;
@@ -286,7 +285,9 @@ table.index_T td {
 	background : url("http://self-evident.github.com/OneFileCMS/images/folder-2.png") 4px 3px no-repeat;
 	}
 
-.index_folders a:hover { background-color: #fffbce; }
+.index_folders a:hover { background-color: rgb(255,250,150); }
+.index_folders a:focus { background-color: rgb(255,250,150); }
+
 
 
 /*  [Upload File] [New File] [New Folder] etc... */
@@ -309,7 +310,9 @@ table.index_T td {
 .front_links a.deletefolder { background: url("http://self-evident.github.com/OneFileCMS/images/folder-del-3.png")    1px 5px no-repeat; }
 .front_links a.settings     { background: url("http://self-evident.github.com/OneFileCMS/images/settings.png")        2px 3px no-repeat; }
 
-.front_links a:hover        { border: 1px solid #807568; background-color: #fffbce; }
+.front_links a:hover  { background-color: rgb(255,250,150); }
+.front_links a:focus  { background-color: rgb(255,250,150); }
+
 
 form .meta { z-index: -1; }
 
@@ -321,7 +324,8 @@ form .meta { z-index: -1; }
 	}
 
 textarea.textinput {
-	font  : 1em "Courier New", Courier, monospace;
+	border: 1px solid #999;
+	font  : .95em "Courier New", Courier, monospace;
 	margin: 0 0 .5em 0; /*T R B L*/
 	width : 99.5%;
 	height: 30em;
@@ -329,6 +333,13 @@ textarea.textinput {
 	}
 
 textarea.disabled { height: 50px; }
+
+textarea:focus { border: 1px solid #Faa; }
+
+
+input:focus { background-color: #fffbce; }
+/* input[type="button"]:focus { background-color: #fffbce; } */
+
 
 .buttons_right { float: right;}
 .buttons_right .button { margin-left: 7px; }
@@ -370,23 +381,8 @@ textarea.disabled { height: 50px; }
 	padding-bottom: .1em;
 	}
 
-.nav a:hover {border: 01px solid #807568;}
-
-
-h1 a {
-	font-size: 28px;
-	text-decoration: none;
-	color: #0F0901;
-	}
-
-h1 a.onefilecms {
-	width: 208px;
-	height: 29px;
-	display: block;
-	text-indent: -2000px;
-	}
-
-h1 a:visited { color: #0F0901; }
+.nav a:hover { border: 1px solid #807568; }
+.nav a:focus { border: 1px solid #807568; }
 
 
 
@@ -416,12 +412,6 @@ h1 a:visited { color: #0F0901; }
 }
 
 
-
-/* --- path/to/current/index --- */
-
-.path { border: 1px solid  transparent; }
-	
-.path:hover { border: 1px solid #807568; background-color: #fffbce; }
 
 
 /* --- --- --- */
