@@ -14,25 +14,22 @@ $CWD       = str_replace("\\","/",getcwd());
 
 
 // CONFIGURATION INFO
+$VIEW_MODE        = "LIST"; // or BLOCK   (Actually, anything =/= BLOCK == LIST)
 $config_username  = "username";
 $config_password  = "password";
 $config_title     = "OneFileCMS";
-$config_footer    = date("Y")." <a href='http://onefilecms.com/'>OneFileCMS</a>.";
-$config_editable  = "html,htm,php,css,txt,text,conf,ini,csv";
+
+$config_editable  = "html,htm,php,css,txt,text,cfg,conf,ini,csv";
 $config_excluded  = ""; //files to exclude from directory listings
-$config_ftypes    = "jpg,gif,png,bmp,ico,txt,cvs,css,php,htm,html,cfg,conf"; //used to select file icon
-$config_fclass    = "img,img,img,img,img,txt,txt,css,php,htm,htm,cfg,cfg";   //used to select file icon
 $config_LOCAL     = "/onefilecms/";  //local directory for icons, .css, .js, etc...
 $config_csslocal  = "onefilecms.css";    //Relative to this file.
 //$config_csslocal  ="/onefilecms.css";  //Relative to site URL root.
 $config_csshosted = "http://self-evident.github.com/OneFileCMS/onefilecms.css";
-$config_JQlocal   = "jquery.min.js";
-$config_JQhosted  = "http://code.jquery.com/jquery-1.7.2.min.js";
-//$config_JQhosted  = "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js";
 
-$VIEW_MODE        = "LIST"; // or BLOCK   (Actually, anything =/= BLOCK == LIST)
+$config_ftypes    = "jpg,gif,png,bmp,ico,txt,cvs,css,php,htm,html,cfg,conf"; //used to select file icon
+$config_fclass    = "img,img,img,img,img,txt,txt,css,php,htm,htm,cfg,cfg";   //used to select file icon
 
-//Make arrays out of a couple $config_variables.  They are used in // Index
+//Make arrays out of a couple $config_variables.  They are used in // Index .
 //Above, however, it's easier to config/change a simple string.
 $ftypes   = (explode(",", strtolower($config_ftypes)));
 $fclasses = (explode(",", strtolower($config_fclass)));
@@ -65,9 +62,10 @@ function Cancel_Submit_Buttons($button_label) {
 
 	?>
 	<p>
-		<input type="button" class="button" name="cancel" value="Cancel" onclick="parent.location='<?php echo $ONESCRIPT.$ipath; ?>'"/>
-		<input type="submit" class="button" value="<?php echo $button_label;?>" style="margin-left: 2.5em;">
+		<input type="button" class="button" id="cancel" name="cancel" value="Cancel" onclick="parent.location='<?php echo $ONESCRIPT.$ipath; ?>'"/>
+		<input type="submit" class="button" value="<?php echo $button_label;?>" style="margin-left: 1.3em;">
 	</p>
+	<script>document.getElementById('cancel').focus();</script>
 	<?php
 }// End Cancel_Submit_Buttons()
 
@@ -312,7 +310,11 @@ if (!file_exists($ROOT.$config_csslocal)) { $STYLE_SHEET = $config_csshosted; }
 
 
 
-<?php if (isset($message)) { echo '<div id="message"><p>'.$message.'</p></div>'; };
+<?php //********** Notification of action success or failure. **********
+if (isset($message)) { echo '<div id="message"><p>'.$message.'</p></div>'; };
+
+// On Edit page only, preserve vertical spacing for message even when not there.
+if (!isset($message) && ($page == "edit")) { echo '<div id="message"></div>'; };
 
 
 
@@ -378,12 +380,14 @@ if ($page == "deletefolder") {
 
 // EDIT ************************************************************************
 if ($page == "edit") { ?>
+
 	<h2 id="edit_header">Edit &ldquo;<a href="/<?php echo $filename; ?>" > 
 	 <?php echo $filename; ?> 
 	</a>&rdquo;</h2>
 
-	<form method="post" action="<?php echo $ONESCRIPT.'?f='.$filename; ?>">
+	<form id="edit_file" name="edit_file" method="post" action="<?php echo $ONESCRIPT.'?f='.$filename; ?>">
 		<?php Close_Button("close"); ?>
+		<script>document.edit_file.elements[0].focus();</script>
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
 
 		<?php
@@ -394,18 +398,17 @@ if ($page == "edit") { ?>
 				</textarea>
 			</p>
 			<p class="buttons_right">
-				<input type="submit" class="button" name="save_file" value="Save" 
-				disabled="disabled" />
+				<input type="submit" class="button" name="save_file" value="Save" disabled="disabled" />
 		<?php } else { ?>
 
 			<p>
 				<input type="hidden" name="filename" id="filename" class="textinput" value="<?php echo $filename; ?>" />
-				<textarea name="content" class="textinput" cols="70" rows="25"><?php echo $filecontent; ?></textarea>
+				<textarea id="file_content" onkeyup="Check_for_changes(event);" name="content" class="textinput" cols="70" rows="25"><?php echo $filecontent; ?></textarea>
 			</p>
 			<p class="buttons_right">
-				<input type="submit" class="button" name="save_file" id="save_file" value="Save" />
+				<input type="submit" class="button" name="save_file" id="save_file" value="Save"  onclick="submitted = true;" disabled="disabled" />
 		<?php } ?>
-
+			<input type="button" class="button" id="reset"  value="Reset - loose changes" onclick="Reset_File()" disabled="disabled" />
 			<input type="button" class="button" name="rename_file" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.'?r='.$filename; ?>'" />
 			<input type="button" class="button" name="delete_file" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.'?d='.$filename; ?>'" />
 			<input type="button" class="button" name="copy_file"   value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.'?c='.$filename; ?>'" />
@@ -417,11 +420,79 @@ if ($page == "edit") { ?>
 		</div>
 	</form>
 	<div style="clear:both;"></div>
-<?php };
 
 
 
-// INDEX ***********************************************************************
+	<!--========== Provide feedback re: unsaved changes ==========-->
+	<script>
+	var File_to_Edit = document.getElementById('file_content');
+	var start_value = File_to_Edit.value;
+	var submitted = false
+	var changed   = false;
+
+	document.getElementById('file_content').style.backgroundColor = "#efe";  //light green
+
+
+	function Reset_file_status_indicators() {
+		changed = false;
+		document.getElementById('file_content').style.backgroundColor = "#eFe";  //light green
+		document.getElementById('save_file').style.backgroundColor = "";
+		document.getElementById('save_file').disabled = "disabled";
+		document.getElementById('save_file').value = "Save";
+		document.getElementById('reset').disabled = "disabled";
+	}
+
+	window.onbeforeunload = function() {
+		if ( changed && !submitted) { 
+			//FF4+ Ingores the supplied msg below & only uses a system msg for the prompt.
+			return "You are about to leave this page -  unsaved changes will be lost!";
+		}
+	}
+
+	window.onunload = function() {
+		//without this, a browser back then forward would reload file with local/
+		// unsaved changes, but with a green b/g as tho that's the file's contents.
+		if (!submitted) { Reset_file_status_indicators(); }
+	}
+
+	function Check_for_changes(event){
+		var keycode=event.keyCode? event.keyCode : event.charCode;
+		changed = (File_to_Edit.value != start_value);
+		if (changed){
+			document.getElementById('message').innerHTML = " ";
+			document.getElementById('file_content').style.backgroundColor    = "#Fee";  //light red
+			document.getElementById('save_file').style.backgroundColor = "#Fee";  //light red
+			document.getElementById('save_file').disabled = "";
+			document.getElementById('reset').disabled = "";
+			document.getElementById('save_file').value = "SAVE";
+		}else{
+			Reset_file_status_indicators()
+		}
+	}
+
+	//Reset textarea value to when page was loaded.
+	//Used by [Reset] button, and when page unloads (browser back, etc). 
+	//Needed becuase if the page is reloaded (ctl-r, or browser back/forward, etc.), 
+	//the text stays changed, but "changed" gets set to false, which looses warning.
+	function Reset_File() {
+		if (changed) {
+			if ( !(confirm("! Reset file and loose unsaved changes? !")) ) { return; }
+		}
+		Reset_file_status_indicators();
+		File_to_Edit.value = start_value;
+		document.edit_file.elements[0].focus();
+	}
+	</script>
+
+<?php }; //End Edit page **************************************************** ?>
+
+
+
+
+
+
+
+<?php // INDEX *****************************************************************
 if ($page == "index") {
 	$varvar = "";
 	if (isset($_GET["i"])) { $varvar = $_GET["i"]."/"; }
@@ -505,8 +576,7 @@ if ($page == "index") {
 			<?php } ?>
 		<?php } ?>
 	</ul>
-	<?php }//end list_BLOCK_view() ?>
-
+	<?php }//end list_BLOCK_view() ===========================-->?>
 
 
 
@@ -534,15 +604,15 @@ if ($page == "index") {
 			}
 			
 			if (!is_dir($file) && $excludeme == 0) {
-			
+				
 				//Determine file type & set cooresponding class.
 				$file_class = "";
 				$ext = end( explode(".", strtolower($file)) );
-
+				
 				for ($x=0; $x < count($ftypes); $x++ ){
 					if ($ext == $ftypes[$x]){ $file_class = $fclasses[$x]; } 
 				}
-		?>
+	?>
 					<tr>
 						<td>
 							<?php echo "<a href='", $ONESCRIPT,"?f=", $file, "'"; ?>
@@ -567,11 +637,10 @@ if ($page == "index") {
 
 
 
-<?php 
-	if ($VIEW_MODE == "BLOCK"){ list_BLOCK_view(); }
-	else                      { list_view();       }
- ?>
-
+	<?php //<!-- Determine view mode, list files. ====================-->
+		if ($VIEW_MODE == "BLOCK"){ list_BLOCK_view(); }
+		else                      { list_view();       }
+	?>
 
 
 
@@ -589,6 +658,8 @@ if ($page == "index") {
 		<?php } ?>
 	</p>
 <?php };
+// End of Index (file listing) page ********************************************
+
 
 
 
@@ -607,7 +678,9 @@ if ($page == "login") { ?>
 			
 		<input type="submit" class="button" value="Enter" />
 	</form>
+	<script>document.getElementById('onefilecms_username').focus();</script>
 <?php };
+
 
 
 
@@ -616,6 +689,7 @@ if ($page == "logout") { ?>
 	<h2>Log Out</h2>
 	<p>You have successfully been logged out and may close this window.</p>
 <?php };
+
 
 
 
@@ -634,6 +708,7 @@ if ($page == "new") {
 			<p>	<?php Cancel_Submit_Buttons("Create"); ?> </p>
 		</form>
 <?php };
+
 
 
 
@@ -681,6 +756,7 @@ if ($page == "rename") {
 
 
 
+
 // RENAME FOLDER ***************************************************************
 if ($page == "renamefolder") {
 	$varvar = "?i=".substr($_GET["i"],0,strrpos(substr_replace($_GET["i"],"",-1),"/")); ?>
@@ -698,6 +774,7 @@ if ($page == "renamefolder") {
 		<p><?php Cancel_Submit_Buttons("Rename"); ?></p>
 	</form>
 <?php };
+
 
 
 
@@ -722,51 +799,15 @@ if ($page == "upload") {
 
 
 
-<div class="footer"> <hr>
+
+<div class="footer">
+	<hr>
+</div>
+
 
 </div>
 
-</div>
-
-
-
-<?php //************************************************************************
-//Check for local copy of jquery
-$JQUERY = $config_JQlocal;
-if (!file_exists($DOC_ROOT.$config_JQlocal)) { $JQUERY = $config_JQhosted; }
-?>
-
-<script src="<?php echo $JQUERY; ?>"></script>
-<script type="text/javascript">
-	$.fn.ready(function(){
-	
-		var $message = $("#message"),
-		    $save_file = $("#save_file");
-
-		//This line fades out the message after specified time (3000 = 3 seconds)
-		//if ( $message.length > 0 ) { $message.animate({opacity: 1.0}, 3000).fadeOut(); };
-		
-		$(".button:visible:enabled:first").focus();
-		$(".textinput:visible:enabled:first").focus();
-		
-		$(".page_edit .textinput").bind("change keyup", function (e) {
-			key = e.which+" ";
-			badkeys = "224 16 17 18 37 38 39 40 ";
-			if ((badkeys.indexOf(key) == "-1") && ($save_file.val() !== "Save!")) {
-				$save_file.val("Save!");
-				document.title = document.title + " *";
-				$(".page_edit h2").append(" *");
-			}
-		});
-		
-		$(".page_edit form").submit(function() { $save_file.val("Save"); });
-		window.onbeforeunload = function () {
-			if ($save_file.val() == "Save!") {
-				return "Any changes you've made will be lost!";
-			}
-		};
-	});
-</script>
 
 </body>
 </html>
+
