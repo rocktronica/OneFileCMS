@@ -2,55 +2,60 @@
 
 ## Yeah, it's exactly what you think.
 
-![OneFileCMS](http://onefilecms.com/images/screenshots/branded_index.jpg)
+Main screen:
+![OneFileCMS](http://self-evident.github.com/OneFileCMS/images/OneFileCMS_screenshot.png)
+
+Edit screen:
+![OneFileCMS](http://self-evident.github.com/OneFileCMS/images/OneFileCMS_screenshot_edit.png)
+
 
 OneFileCMS is just that. It's a flat, light, one file CMS (Content Management System) entirely contained in an easy-to-implement, highly customizable, database-less PHP script.
 
 Coupling a utilitarian code editor with all the basic necessities of an FTP application, OneFileCMS can maintain a whole website completely in-browser without any external programs.
 
-**Demo**: [http://php.opensourcecms.com/scripts/details.php?scriptid=340](http://php.opensourcecms.com/scripts/details.php?scriptid=340)
+## Demo
+
+- Just download & try the current version - it's one file!
 
 ## Features
  
-- Validating, semantic, and commented markup. Tested in FF, Safari, and IE7/IE8.
-- Possibly the easiest installation process ever
-- All the basic features of an FTP application like renaming, deleting, copying, and uploading<br />
+- All the basic features of an FTP application like renaming, deleting, copying, and uploading
   _(Of course, for more complex processes like batch renaming or mass uploads/deletions, you're going to want to break out an actual FTP program.)_
-- Gracefully degrading CSS and Javascript
-- 100% re-brandable with title/footer text stored in variables and a modifiable filename
-- Externally hosted CSS and images for smaller file size<br />
-  _(But you can switch it out to your own stylesheet if you need to!)_
 - Smart alert if you try to leave without saving your edits
+- Gracefully degrading CSS and Javascript
+- Easily re-brandable via the title text stored in a configurable variable, and a modifiable filename.
+- Externally hosted CSS and images.
+  _(Of course, you can switch it out to your own stylesheet if you need to!)_
+- Possibly the easiest installation process ever!
 
 ## Installation
 
-Download [this file](https://raw.github.com/rocktronica/OneFileCMS/master/onefilecms.php).
+1) Download [this file](https://raw.github.com/Self-Evident/OneFileCMS/master/onefilecms.php).
 
-Your username and password are inlined. Edit them to something less obvious.
+
+2) Set your username and password - edit them to something less obvious.
 
     // CONFIGURATION INFO
     $config_username = "username";
     $config_password = "password";
 
-Optional variables thereafter: password hint, title, footer text, filetypes to disable, and filenames to ignore
-
-You can also change the name of the file to something else. Be careful making it a folder's default file; your server may get stuck in redirects.
-
-Upload!
+3) Upload!
 
 Depending on how your stack is set up, you may also have to modify the file permissions of your site's folders to allow OneFileCMS to modify and create files. ([More about that here.](http://catcode.com/teachmod/)) Make sure onefilecms.php and its parent folder are allowed to execute, with CHMOD at 777 or 755. Check with your host if you're not sure, and be aware of any inherent security concerns.
+
+You can also change the name of OneFileCMS.php to something else. _(Be careful making it a folder's default file: your server may get stuck in redirects.)_
 
 ## FAQ
 
 ### Where's the WYSIWYG? What about syntax highlighting?
 
-WYSWIWYG editors have been requested but probably won’t ever come standard, as they’d bloat the system out and/or make it more than one file, sort of defeating the novelty. Plus, if you’re working in PHP or non-HTML code, they're generally more hindrance than anything else.
+WYSWIWYG editors have been requested, but probably won’t ever come standard, as they’d bloat the system out and/or make it more than one file, sort of defeating the point of OneFileCMS. Plus, if you’re working in PHP or non-HTML code, they're generally more of a hindrance than anything else.
 
-Just because I don't want to do it, though, doesn't mean it's impossible. About halfway through, look for this line (If you're searching for it, it's the second instance):
+Just because I don't want to do it, though, doesn't mean it's impossible.  Look for the second instance of this line:
 
     // EDIT
 
-This is the edit page code. Its textareas can be modified to work with whatever editor you like. If the editor is initiated via jQuery, you can call it in the jQ code in the footer.
+This is the edit page code. Its textarea can be modified to work with whatever editor you like. 
 
 ### I found something that could be better. Can I suggest it to you?
 
@@ -64,21 +69,26 @@ Everything's welcome!
 
 ### This is basically just a file manager with a text editor. Why is it being called a Content Management System?
 
-Because "OneFileFileManagerTextEditor" doesn't quite have the same ring to it, duh.
+Because "OneFileFileManagerTextEditor" just doesn't have the same ring to it...
 
 ### Multi-Language Support?
 
-Maybe later!
+Probably not.
 
 ### Can I have more than one username/password?
 
 The reason there isn't default support for multiple users is that all of their info will have to be stored together, more or less in plain text, at the top of onefilecms.php. Giving people different usernames and passwords then is sort of futile, since everyone who can log in can view onefilecms's source and config variables. (This answer kind of ignores MD5 hashes but is valid for most considerations.) 
 
-### Is the JavaScript at the end of file really needed? When I remove it, everything works fine.
+### Is the JavaScript in the middle of the file really needed? When I remove it, everything seems to work fine.
 
-It isn't entirely necessary, but it does nice little progressive enhancements like warn if you try to leave w/o saving and stuff like that. Feel free to take it out if you're trying to trim down your figure.
+It isn't entirely necessary, but it does provide nice enhancements, like warning you if you try to leave without saving changes, and stuff like that. 
 
 ## Change Log
+
+### 1.1.9
+
+- Improved Edit page & screen feedback of file state (changed/unchanged).
+- Removed use of jquery in move towards a true "OneFileCMS".
 
 ### 1.1.8  
 
@@ -137,27 +147,25 @@ It isn't entirely necessary, but it does nice little progressive enhancements li
 
 ## Requirements
 
-- UNIX/Linux host, Apache
 - PHP5 (PHP4 untested)
 - File permission privileges
 
 ## Credit, License, Et Cetera
 
-Written in PHP, XHTML, CSS, and [jQuery](http://jquery.com/). Icons by [famfamfam](http://www.famfamfam.com/).
+Written in PHP, JavaScript, XHTML and CSS.
 
 Available under the MIT and BSD license.
+
+Icons for versions thru 1.1.6 by [famfamfam](http://www.famfamfam.com/).
 
 To report a bug or request a feature, please file an issue via Github. Forks encouraged!
 
 ##Needed/potential/upcoming improvements
 
 - Prompt to prevent automatic overwrite when uploading or renaming files.
-- Check size of file to upload, verify under max post/upload limits.
 - Option to switch between original OneFileCMS view and a common list view.
-  (in the works)
+  Currently accomplished with a config variable. Working on a 
 - Embed css and remove or swtich to svg icons to create a true "OneFileCMS"
   (in the works)
-- Remove use of jquery.
-  Used to detect if file being edited, set focus form fields, (more?)
-  (in the works)
-- Multiple login names
+- Check size of file to upload, verify under max post/upload limits.
+- Multiple login names?
