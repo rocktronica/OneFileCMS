@@ -2,37 +2,38 @@
 // OneFileCMS - http://onefilecms.com/
 // For license & copyright info, see OneFileCMS.License.BSD.txt
 
-$version = "1.1.9";
+$version = "1.2.0";
 
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
 
 
-$ONESCRIPT = $_SERVER["SCRIPT_NAME"];
-$DOC_ROOT  = $_SERVER["DOCUMENT_ROOT"];
-$CWD       = str_replace("\\","/",getcwd());
-
-
-// CONFIGURATION INFO
+// CONFIGURABLE INFO
 $VIEW_MODE        = "LIST"; // or BLOCK   (Actually, anything =/= BLOCK == LIST)
 $config_username  = "username";
 $config_password  = "password";
 $config_title     = "OneFileCMS";
 
-$config_editable  = "html,htm,php,css,txt,text,cfg,conf,ini,csv";
-$config_excluded  = ""; //files to exclude from directory listings
 $config_LOCAL     = "/onefilecms/";  //local directory for icons, .css, .js, etc...
 $config_csslocal  = "onefilecms.css";    //Relative to this file.
 //$config_csslocal  ="/onefilecms.css";  //Relative to site URL root.
 $config_csshosted = "http://self-evident.github.com/OneFileCMS/onefilecms.css";
 
+$config_editable  = "html,htm,php,css,txt,text,cfg,conf,ini,csv";
+$config_excluded  = ""; //files to exclude from directory listings
 $config_ftypes    = "jpg,gif,png,bmp,ico,txt,cvs,css,php,htm,html,cfg,conf"; //used to select file icon
 $config_fclass    = "img,img,img,img,img,txt,txt,css,php,htm,htm,cfg,cfg";   //used to select file icon
+// END CONFIGURABLE INFO
 
 //Make arrays out of a couple $config_variables.  They are used in // Index .
 //Above, however, it's easier to config/change a simple string.
 $ftypes   = (explode(",", strtolower($config_ftypes)));
 $fclasses = (explode(",", strtolower($config_fclass)));
+
+
+$ONESCRIPT = $_SERVER["SCRIPT_NAME"];
+$DOC_ROOT  = $_SERVER["DOCUMENT_ROOT"];
+$CWD       = str_replace("\\","/",getcwd());
 
 
 //Allows OneFileCMS.php to be started from any dir on the site.
@@ -45,7 +46,7 @@ chdir($DOC_ROOT);
 
 function Close_Button($classes) {
 	echo '<input type="button" class="button '.$classes.'" name="close" value="Close" onclick="parent.location=\'';
-	echo $ONESCRIPT.'?i='.substr($_GET["f"],0,strrpos($_GET["f"],"/")).'\'" />';
+	echo $ONESCRIPT.'?i='.substr($_GET["f"],0,strrpos($_GET["f"],"/")).'\'">';
 }
 
 
@@ -62,7 +63,7 @@ function Cancel_Submit_Buttons($button_label) {
 
 	?>
 	<p>
-		<input type="button" class="button" id="cancel" name="cancel" value="Cancel" onclick="parent.location='<?php echo $ONESCRIPT.$ipath; ?>'"/>
+		<input type="button" class="button" id="cancel" name="cancel" value="Cancel" onclick="parent.location='<?php echo $ONESCRIPT.$ipath; ?>'">
 		<input type="submit" class="button" value="<?php echo $button_label;?>" style="margin-left: 1.3em;">
 	</p>
 	<script>document.getElementById('cancel').focus();</script>
@@ -264,14 +265,18 @@ if (isset($_FILES['upload_filename']['name']) && $_SESSION['onefilecms_valid'] =
 
 
 
+
+
 //******************************************************************************
 //******************************************************************************
-?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+?><!DOCTYPE html>
+<!-- DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"-->
+
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
 
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="robots" content="noindex">
 
 <title><?php echo $config_title.' - '.$pagetitle; ?></title>
@@ -289,7 +294,60 @@ if (substr($config_csslocal,0,1) != "/"){ $ROOT = $CWD.'/'; }
 if (!file_exists($ROOT.$config_csslocal)) { $STYLE_SHEET = $config_csshosted; }
 //***************************************************************?>
 
-<link href="<?php echo $STYLE_SHEET;?>" type="text/css" rel="stylesheet" />
+<link href="<?php echo $STYLE_SHEET;?>" type="text/css" rel="stylesheet">
+
+
+
+
+
+<?php //===================================================================== ?>
+<?php if ( ($page == "index") || ($page == "edit") ) { //load script ?>
+
+<script>//Dispaly file's timestamp in user's local time 
+
+function pad(num){ 
+	if ( num < 10 ){ num = "0" + num; }
+	return num
+}
+
+
+function FileTimeStamp(php_filemtime, show_offset){
+
+	//php's filemtime returns seconds, javascript's date() uses milliseconds.
+	var FileMTime = php_filemtime * 1000; 
+
+	var TIMESTAMP  = new Date(FileMTime);
+	var YEAR  = TIMESTAMP.getFullYear();
+	var	MONTH = pad(TIMESTAMP.getMonth() + 1);
+	var DATE  = pad(TIMESTAMP.getDate());
+	var HOURS = TIMESTAMP.getHours();
+	var MINS  = pad(TIMESTAMP.getMinutes());
+	var SECS  = pad(TIMESTAMP.getSeconds());
+
+	if( HOURS < 12){ AMPM = "am"; }
+	else           { AMPM = "pm"; HOURS = HOURS - 12; }
+	HOURS = pad(HOURS);
+
+	var GMT_offset = -(TIMESTAMP.getTimezoneOffset()); //Yes, I know - seems wrong, but it's works.
+
+	if (GMT_offset < 0) { NEG=-1; SIGN="-"; } else { NEG=1; SIGN="+"; } 
+
+	var offset_HOURS = Math.floor(NEG*GMT_offset/60);
+	var offset_MINS  = pad( NEG * GMT_offset % 60 );
+	var offset_FULL  = "UTC " + SIGN + offset_HOURS + ":" + offset_MINS;
+
+	if (show_offset){ var DATETIME = YEAR+"-"+MONTH+"-"+DATE+" &nbsp;"+HOURS+":"+MINS+" "+AMPM+" ("+offset_FULL+")"; }
+	else            { var DATETIME = YEAR+"-"+MONTH+"-"+DATE+" &nbsp;"+HOURS+":"+MINS+" "+AMPM; }
+	
+	document.write( DATETIME );
+
+}//end FileTimeStamp(php_filemtime)
+</script>
+<?php }//end if (index or edit), load script ================================ ?>
+
+
+
+
 
 </head>
 
@@ -298,7 +356,7 @@ if (!file_exists($ROOT.$config_csslocal)) { $STYLE_SHEET = $config_csshosted; }
 <div class="container">
 
 <div class="header">
-	<?php echo '<a href="', $ONESCRIPT, '" id="logo" >', $config_title; ?></a>
+	<?php echo '<a href="', $ONESCRIPT, '" id="logo">', $config_title; ?></a>
 
 	<?php if ((isset($_SESSION['onefilecms_valid'])) && ($_SESSION['onefilecms_valid'] == "1")) { ?>
 		<div class="nav">
@@ -310,11 +368,19 @@ if (!file_exists($ROOT.$config_csslocal)) { $STYLE_SHEET = $config_csshosted; }
 
 
 
-<?php //********** Notification of action success or failure. **********
-if (isset($message)) { echo '<div id="message"><p>'.$message.'</p></div>'; };
 
-// On Edit page only, preserve vertical spacing for message even when not there.
+<?php //********** Notification of action success or failure. **********
+if (isset($message)) { ?>
+	<div id="message"><p><?php echo $message ;?>
+	<!-- [X] to dismiss message box -->	
+	<span><a href='<?php echo $ONESCRIPT.'?f='.$_GET["f"]; ?>'
+	onclick='document.getElementById("message").innerHTML = " ";return false'>
+	[X]</a></span></p></div>
+<?php }
+
+// On Edit page only, preserve vertical spacing for message even when empty.
 if (!isset($message) && ($page == "edit")) { echo '<div id="message"></div>'; };
+
 
 
 
@@ -326,15 +392,15 @@ if ($page == "copy") {
 	<h2>Copy &ldquo;<a href="/<?php echo $filename; ?> "> <?php echo $filename; ?> </a> &rdquo;</h2>
 	<p>Existing files with the same filename are automatically overwritten... Be careful!</p>
 	<form method="post" id="new" action="<?php echo $ONESCRIPT.$varvar; ?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
+		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<p>
 			<label>Old filename:</label>
-			<input type="hidden" name="old_filename" value="<?php echo $filename; ?>" />
-			<input type="text" name="dummy" value="<?php echo $filename; ?>" class="textinput" disabled="disabled" />
+			<input type="hidden" name="old_filename" value="<?php echo $filename; ?>">
+			<input type="text" name="dummy" value="<?php echo $filename; ?>" class="textinput" disabled="disabled">
 		</p>
 		<p>
 			<label for="copy_filename">New filename:</label>
-			<input type="text" name="copy_filename" id="copy_filename" class="textinput" value="<?php echo $slug."_".date("mdyHi").$extension; ?>" />
+			<input type="text" name="copy_filename" id="copy_filename" class="textinput" value="<?php echo $slug."_".date("mdyHi").$extension; ?>">
 		</p>
 		<p>	<?php Cancel_Submit_Buttons("Copy"); ?>	</p>
 	</form>
@@ -345,14 +411,14 @@ if ($page == "copy") {
 // DELETE FILE *****************************************************************
 if ($page == "delete") {
 	$varvar = "?i=".substr($_GET["d"],0,strrpos($_GET["d"],"/")); ?>
-	<h2>Delete &ldquo;<a href="/<?php echo $filename; ?> " >
+	<h2>Delete &ldquo;<a href="/<?php echo $filename; ?> ">
 	<?php echo $filename; ?></a>&rdquo;</h2>
 	<p>Are you sure?</p>
 
 	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
+		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<p>
-			<input type="hidden" name="delete_filename" value="<?php echo $filename; ?>" />
+			<input type="hidden" name="delete_filename" value="<?php echo $filename; ?>">
 			<?php Cancel_Submit_Buttons("DELETE"); ?>
 
 		</p>
@@ -367,9 +433,9 @@ if ($page == "deletefolder") {
 	<h2>Delete Folder &ldquo;<?php echo $_GET["i"]; ?>&rdquo;</h2>
 	<p>Folders have to be empty before they can be deleted.</p>
 	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
+		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<p>
-			<input type="hidden" name="delete_foldername" value="<?php echo $_GET["i"]; ?>" />
+			<input type="hidden" name="delete_foldername" value="<?php echo $_GET["i"]; ?>">
 			<?php Cancel_Submit_Buttons("DELETE"); ?>
 
 		</p>
@@ -381,14 +447,21 @@ if ($page == "deletefolder") {
 // EDIT ************************************************************************
 if ($page == "edit") { ?>
 
-	<h2 id="edit_header">Edit &ldquo;<a href="/<?php echo $filename; ?>" > 
-	 <?php echo $filename; ?> 
+	<h2 id="edit_header">Edit &ldquo;<a href="/<?php echo $filename; ?>"> 
+	<?php echo $filename; ?> 
 	</a>&rdquo;</h2>
 
-	<form id="edit_file" name="edit_file" method="post" action="<?php echo $ONESCRIPT.'?f='.$filename; ?>">
+	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.'?f='.$filename; ?>">
+
+		<p id="file_meta">
+		<span class="meta_size">Size<b>: </b> <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; &nbsp; 
+		<span class="meta_time">Updated<b>: </b><script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1);</script></span><br>
+	
+		</p>
+
 		<?php Close_Button("close"); ?>
-		<script>document.edit_file.elements[0].focus();</script>
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
+		<script>document.edit_form.elements[0].focus();</script>
+		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 
 		<?php
 		$ext = end( explode(".", strtolower($filename)) );
@@ -398,77 +471,117 @@ if ($page == "edit") { ?>
 				</textarea>
 			</p>
 			<p class="buttons_right">
-				<input type="submit" class="button" name="save_file" value="Save" disabled="disabled" />
+				<input type="submit" class="button" name="save_file" value="Save" disabled="disabled">
+				<input type="button" class="button" id="reset"  value="Reset - loose changes" disabled="disabled">
 		<?php } else { ?>
 
 			<p>
-				<input type="hidden" name="filename" id="filename" class="textinput" value="<?php echo $filename; ?>" />
+				<input type="hidden" name="filename" id="filename" class="textinput" value="<?php echo $filename; ?>">
 				<textarea id="file_content" onkeyup="Check_for_changes(event);" name="content" class="textinput" cols="70" rows="25"><?php echo $filecontent; ?></textarea>
 			</p>
 			<p class="buttons_right">
-				<input type="submit" class="button" name="save_file" id="save_file" value="Save"  onclick="submitted = true;" disabled="disabled" />
+				<input type="submit" class="button" name="save_file" id="save_file" value="Save"  onclick="submitted = true;"  disabled="disabled">
+				<input type="button" class="button" id="reset"  value="Reset - loose changes" onclick="Reset_File()"  disabled="disabled">
 		<?php } ?>
-			<input type="button" class="button" id="reset"  value="Reset - loose changes" onclick="Reset_File()" disabled="disabled" />
-			<input type="button" class="button" name="rename_file" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.'?r='.$filename; ?>'" />
-			<input type="button" class="button" name="delete_file" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.'?d='.$filename; ?>'" />
-			<input type="button" class="button" name="copy_file"   value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.'?c='.$filename; ?>'" />
+		
+			<input type="button" class="button" name="rename_file" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.'?r='.$filename; ?>'">
+			<input type="button" class="button" name="delete_file" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.'?d='.$filename; ?>'">
+			<input type="button" class="button" name="copy_file"   value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.'?c='.$filename; ?>'">
 			<?php Close_Button(""); ?>
-			</p><div class="meta">
-			<p>File Size: <?php echo number_format(filesize($filename)); ?> &nbsp; &ndash; &nbsp;
-			   Updated: <?php echo date("Y-m-d\, h:ia", filemtime($filename)); ?>
 			</p>
-		</div>
 	</form>
 	<div style="clear:both;"></div>
+	<div id="edit_note">
+	NOTE: On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser's [Reload].
+	</div>
 
 
 
-	<!--========== Provide feedback re: unsaved changes ==========-->
+	<!--======== Provide feedback re: unsaved changes ========-->
 	<script>
-	var File_to_Edit = document.getElementById('file_content');
-	var start_value = File_to_Edit.value;
-	var submitted = false
-	var changed   = false;
+	    
+	var File_textarea    = document.getElementById('file_content');
+	var Save_File_button = document.getElementById('save_file');
+	var Reset_button     = document.getElementById('reset');
 
-	document.getElementById('file_content').style.backgroundColor = "#efe";  //light green
+	var start_value = File_textarea.value;
+	var submitted   = false
+	var changed     = false;
+
+
+
+	// The following events only apply when the element is active.
+	// [Save] is disabled unless there are changes to the open file.
+	Save_File_button.onfocus = function() {Save_File_button.style.backgroundColor = "rgb(255,250,150)";}
+	Save_File_button.onblur  = function() {Save_File_button.style.backgroundColor ="#Fee";}
+	Save_File_button.onmouseover = function() {Save_File_button.style.backgroundColor = "rgb(255,250,150)";}
+	Save_File_button.onmouseout  = function() {Save_File_button.style.backgroundColor = "#Fee";}
+
 
 
 	function Reset_file_status_indicators() {
 		changed = false;
-		document.getElementById('file_content').style.backgroundColor = "#eFe";  //light green
-		document.getElementById('save_file').style.backgroundColor = "";
-		document.getElementById('save_file').disabled = "disabled";
-		document.getElementById('save_file').value = "Save";
-		document.getElementById('reset').disabled = "disabled";
+		File_textarea.style.backgroundColor = "#eFe";  //light green
+		Save_File_button.style.backgroundColor = "";
+		Save_File_button.style.borderColor = "";
+		Save_File_button.style.borderWidth = "1px";
+		Save_File_button.disabled = "disabled";
+		Save_File_button.value = "Save";
+		Reset_button.disabled = "disabled";
+		File_textarea.focus();
 	}
+
 
 	window.onbeforeunload = function() {
 		if ( changed && !submitted) { 
 			//FF4+ Ingores the supplied msg below & only uses a system msg for the prompt.
-			return "You are about to leave this page -  unsaved changes will be lost!";
+			return "               Unsaved changes will be lost!";
 		}
 	}
+
 
 	window.onunload = function() {
 		//without this, a browser back then forward would reload file with local/
 		// unsaved changes, but with a green b/g as tho that's the file's contents.
-		if (!submitted) { Reset_file_status_indicators(); }
+		if (!submitted) {
+			File_textarea.value = start_value;
+			Reset_file_status_indicators();
+		}
 	}
+
+
+	//With selStart & selEnd == 0, moves cursor to start of text field.
+	function setSelRange(inputEl, selStart, selEnd) { 
+		if (inputEl.setSelectionRange) { 
+			inputEl.focus(); 
+			inputEl.setSelectionRange(selStart, selEnd); 
+		} else if (inputEl.createTextRange) { 
+			var range = inputEl.createTextRange(); 
+			range.collapse(true); 
+			range.moveEnd('character', selEnd); 
+			range.moveStart('character', selStart); 
+			range.select(); 
+		} 
+	}
+
 
 	function Check_for_changes(event){
 		var keycode=event.keyCode? event.keyCode : event.charCode;
-		changed = (File_to_Edit.value != start_value);
+		changed = (File_textarea.value != start_value);
 		if (changed){
-			document.getElementById('message').innerHTML = " ";
-			document.getElementById('file_content').style.backgroundColor    = "#Fee";  //light red
-			document.getElementById('save_file').style.backgroundColor = "#Fee";  //light red
-			document.getElementById('save_file').disabled = "";
-			document.getElementById('reset').disabled = "";
-			document.getElementById('save_file').value = "SAVE";
+			document.getElementById('message').innerHTML = " "; // Must have a space, or it won't clear the msg.
+			File_textarea.style.backgroundColor = "#Fee";  //light red
+			Save_File_button.style.backgroundColor ="#Fee";
+			Save_File_button.style.borderColor = "#F44";   //less light red
+			Save_File_button.style.borderWidth = "1px";
+			Save_File_button.disabled = "";
+			Reset_button.disabled = "";
+			Save_File_button.value = "SAVE CHANGES!";
 		}else{
 			Reset_file_status_indicators()
 		}
 	}
+
 
 	//Reset textarea value to when page was loaded.
 	//Used by [Reset] button, and when page unloads (browser back, etc). 
@@ -476,16 +589,18 @@ if ($page == "edit") { ?>
 	//the text stays changed, but "changed" gets set to false, which looses warning.
 	function Reset_File() {
 		if (changed) {
-			if ( !(confirm("! Reset file and loose unsaved changes? !")) ) { return; }
+			if ( !(confirm("Reset file and loose unsaved changes?")) ) { return; }
 		}
+		File_textarea.value = start_value;
 		Reset_file_status_indicators();
-		File_to_Edit.value = start_value;
-		document.edit_file.elements[0].focus();
+		setSelRange(File_textarea, 0, 0) //MOve cursor to start of textarea.
 	}
+	
+	
+	Reset_file_status_indicators()
 	</script>
 
 <?php }; //End Edit page **************************************************** ?>
-
 
 
 
@@ -527,7 +642,7 @@ if ($page == "index") {
 	<p class="index_folders">
 		<?php
 		$files = glob($varvar."*",GLOB_ONLYDIR);
-		sort($files);
+		natcasesort($files);
 		foreach ($files as $file) {
 			echo '<a href="'.$ONESCRIPT.'?i='.$file.'" class="folder">'.basename($file).' /</a>';
 		} ?>
@@ -537,16 +652,19 @@ if ($page == "index") {
 
 	<!--============== List files - BLOCK view ===============-->
 	<?php
-	function list_BLOCK_view() {
+	function BLOCK_view() {
 	global $varvar, $config_excluded, $ftypes, $fclasses ; 
 	 ?>
 	<div style="clear:both;"></div>
 	<ul class="index">
-		<?php $files = glob($varvar."{,.}*", GLOB_BRACE); sort($files);
+		<?php
+		$files = glob($varvar."{,.}*", GLOB_BRACE);
+		natcasesort($files); //sort w/o regard to case.
 
 		foreach ($files as $file) {
 			$excludeme = 0;
 			$config_excludeds = explode(",", $config_excluded);
+
 			foreach ($config_excludeds as $config_exclusion) {
 				if (strrpos(basename($file),$config_exclusion) !== False && 
 				strrpos(basename($file),$config_exclusion) !== "") { 
@@ -567,16 +685,16 @@ if ($page == "index") {
 						<a href="<?php echo $ONESCRIPT.'?f='.$file.'" class=" '.$file_class.'">';
 						echo basename($file); ?></a>
 						<div class="meta">
-							<span><i>File Size:</i>
-							<?php echo number_format(filesize($file)).""; ?><br /></span>
-							<span><i>Last Updated:</i>
-							<?php echo date("n/j/y g:ia", filemtime($file)); ?></span>
+							<span><i>File Size:</i> 
+							<?php echo number_format(filesize($file)); ?><br></span>
+							<span><i>Updated:</i> 
+							<script>FileTimeStamp(<?php echo filemtime($file); ?>);</script></span>
 						</div>
 					</li>
 			<?php } ?>
 		<?php } ?>
 	</ul>
-	<?php }//end list_BLOCK_view() ===========================-->?>
+	<?php }//end BLOCK_view() ===========================-->?>
 
 
 
@@ -586,9 +704,7 @@ if ($page == "index") {
 	global $varvar, $config_excluded, $ftypes, $fclasses ; 
 	
 	$files = glob($varvar."{,.}*", GLOB_BRACE);
-	sort($files);
-	$files_count = count($files);
-	$fc = 0;
+	natcasesort($files);
 
 	echo '<table class="index_T">';
 		foreach ($files as $file) {
@@ -618,12 +734,11 @@ if ($page == "index") {
 							<?php echo "<a href='", $ONESCRIPT,"?f=", $file, "'"; ?>
 							<?php echo "class='",  $file_class, "'>", basename($file), "</a>"; ?>
 						</td>
-						<td class="meta_size">
+						<td class="meta_size">&nbsp;
 							<?php echo number_format(filesize($file)).""; ?> B
 						</td>
-						<td class="meta_time">
-							<?php echo date("Y-m-d", filemtime($file)); ?> &nbsp;
-							<?php echo date("h:ia" , filemtime($file)); ?>
+						<td class="meta_time"> &nbsp;
+							<script>FileTimeStamp(<?php echo filemtime($file); ?>);</script>
 						</td>
 					</tr>
 		<?php 
@@ -638,8 +753,8 @@ if ($page == "index") {
 
 
 	<?php //<!-- Determine view mode, list files. ====================-->
-		if ($VIEW_MODE == "BLOCK"){ list_BLOCK_view(); }
-		else                      { list_view();       }
+		if ($VIEW_MODE == "BLOCK"){ BLOCK_view(); }
+		else                      { list_view();  }
 	?>
 
 
@@ -669,14 +784,14 @@ if ($page == "login") { ?>
 	<form method="post" action="<?php echo $ONESCRIPT; ?>">
 		<p>
 			<label for="onefilecms_username">Username:</label>
-			<input type="text" name="onefilecms_username" id="onefilecms_username" class="login_input" />
+			<input type="text" name="onefilecms_username" id="onefilecms_username" class="login_input">
 		</p>
 		<p>
 			<label for="onefilecms_password">Password:</label>
-			<input type="password" name="onefilecms_password" id="onefilecms_password" class="login_input" />
+			<input type="password" name="onefilecms_password" id="onefilecms_password" class="login_input">
 		</p>
 			
-		<input type="submit" class="button" value="Enter" />
+		<input type="submit" class="button" value="Enter">
 	</form>
 	<script>document.getElementById('onefilecms_username').focus();</script>
 <?php };
@@ -700,10 +815,10 @@ if ($page == "new") {
 		<h2>New File</h2>
 		<p>Existing files with the same name will not be overwritten.</p>
 		<form method="post" id="new" action="<?php echo $ONESCRIPT.substr_replace($varvar,"",-1); ?>">
-			<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
+			<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 			<p>
 				<label for="new_filename">New filename: </label>
-				<input type="text" name="new_filename" id="new_filename" class="textinput" value="<?php echo $_GET["i"]; ?>" />
+				<input type="text" name="new_filename" id="new_filename" class="textinput" value="<?php echo $_GET["i"]; ?>">
 			</p>
 			<p>	<?php Cancel_Submit_Buttons("Create"); ?> </p>
 		</form>
@@ -719,10 +834,10 @@ if ($page == "folder") {
 	<h2>New Folder</h2>
 	<p>Existing folders with the same name will not be overwritten.</p>
 	<form method="post" action="<?php echo $ONESCRIPT.substr_replace($varvar,"",-1); ?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
+		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<p>
 			<label for="new_folder">Folder name: </label>
-			<input type="text" name="new_folder" id="new_folder" class="textinput" value="<?php echo $_GET["i"]; ?>" />
+			<input type="text" name="new_folder" id="new_folder" class="textinput" value="<?php echo $_GET["i"]; ?>">
 		</p>
 		<p>	<?php Cancel_Submit_Buttons("Create"); ?> </p>
 	</form>
@@ -740,15 +855,15 @@ if ($page == "rename") {
 	<p>To move a file, preface its name with the folder's name, as in 
 	"<i>foldername/filename.txt</i>." The folder must already exist.</p>
 	<form method="post" action="<?php echo $ONESCRIPT.$varvar;	?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
+		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<p>
 			<label>Old filename:</label>
-			<input type="hidden" name="old_filename" value="<?php echo $filename; ?>" />
-			<input type="text" name="dummy" value="<?php echo $filename; ?>" class="textinput" disabled="disabled" />
+			<input type="hidden" name="old_filename" value="<?php echo $filename; ?>">
+			<input type="text" name="dummy" value="<?php echo $filename; ?>" class="textinput" disabled="disabled">
 		</p>
 		<p>
 			<label for="rename_filename">New filename:</label>
-			<input type="text" name="rename_filename" id="rename_filename" class="textinput" value="<?php echo $filename; ?>" />
+			<input type="text" name="rename_filename" id="rename_filename" class="textinput" value="<?php echo $filename; ?>">
 		</p>
 		<p><?php Cancel_Submit_Buttons("Rename"); ?></p>
 	</form>
@@ -762,14 +877,14 @@ if ($page == "renamefolder") {
 	$varvar = "?i=".substr($_GET["i"],0,strrpos(substr_replace($_GET["i"],"",-1),"/")); ?>
 	<h2>Rename Folder &ldquo;<?php echo $_GET["i"]; ?>&rdquo;</h2>
 	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
+		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<p>
-			<label>Old name:</label><input type="hidden" name="old_foldername" value="<?php echo $_GET["i"]; ?>" />
-			<input type="text" name="dummy" value="<?php echo $_GET["i"]; ?>" class="textinput" disabled="disabled" />
+			<label>Old name:</label><input type="hidden" name="old_foldername" value="<?php echo $_GET["i"]; ?>">
+			<input type="text" name="dummy" value="<?php echo $_GET["i"]; ?>" class="textinput" disabled="disabled">
 		</p>
 		<p>
 			<label for="rename_foldername">New name:</label>
-			<input type="text" name="rename_foldername" id="rename_foldername" class="textinput" value="<?php echo $_GET["i"]; ?>" />
+			<input type="text" name="rename_foldername" id="rename_foldername" class="textinput" value="<?php echo $_GET["i"]; ?>">
 		</p>
 		<p><?php Cancel_Submit_Buttons("Rename"); ?></p>
 	</form>
@@ -783,15 +898,15 @@ if ($page == "upload") {
 	$varvar = ""; if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; } ?>
 	<h2>Upload</h2>
 	<form enctype="multipart/form-data" action="<?php echo $ONESCRIPT.substr_replace($varvar,"",-1); ?>" method="post">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>" />
-		<input type="hidden" name="MAX_FILE_SIZE" value="100000" />
+		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
+		<input type="hidden" name="MAX_FILE_SIZE" value="100000">
 		<p>
 			<label for="upload_destination">Destination:</label>
-			<input type="text" name="upload_destination" value="<?php echo $_GET["i"]; ?>" class="textinput" />
+			<input type="text" name="upload_destination" value="<?php echo $_GET["i"]; ?>" class="textinput">
 		</p>
 		<p>
 			<label for="upload_filename">File:</label>
-			<input name="upload_filename" type="file" size="93"/>
+			<input name="upload_filename" type="file" size="93">
 		</p>
 		<p><?php Cancel_Submit_Buttons("Upload"); ?></p>
 	</form>

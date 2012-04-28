@@ -4,10 +4,12 @@
  */ 
 
 
-/* #774200 #807568 #976322 #995400 #d4d4d4 #0F0901
+/* #774200 #807568 #976322 #995400 #d4d4d4 #0F0901 #eaeaea rgb(255,250,150)
    rgb(157, 124, 83) rgb(157, 124, 83)
-   rgb(255,250,150) #fffbce #969376 rgb(255,245,115)
+   rgb(255,250,150) rgb(255,250,150) #969376 rgb(255,245,115)
  */
+
+
 
 /* --- reset --- */
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,
@@ -25,6 +27,25 @@ fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td
 	vertical-align: baseline;
 	}
 
+
+
+
+/* --- general formatting --- */
+
+body {
+	font-size: 1em;
+	background: #d5d0cc;
+	font-family: sans-serif;
+	}
+
+h2,h3,p,ul,table { margin-bottom: 10px; }
+
+em, i { font-style: italic; }
+
+strong { font-weight: bold; }
+
+li {line-height: 1.4em; }
+
 :focus{outline:0;}
 
 ol,ul{list-style:none;}
@@ -39,12 +60,38 @@ blockquote,q{quotes:"" "";}
 div{position: relative;}
 
 h1,h2,h3,h4,h5,h6{font-weight: bold;}
+h2 { font-size: 20px; }
+h3 { font-size: 18px; margin-top: 15px; }
+h4 { font-size: 1.3em; margin-bottom: .2em; font-weight: normal;}
 
-body {
-	font-size: 1em;
-	background: #d5d0cc;
-	font-family: sans-serif;
+a { border: 1px solid transparent; color: rgb(100,45,0); text-decoration: none; }
+a:hover { border: 1px solid #807568; background-color: rgb(255,250,150); }
+a:focus { border: 1px solid #807568; background-color: rgb(255,250,150); }
+
+form p { margin-bottom: 5px; }
+
+
+label {
+	display: inline-block;
+	width  : 7em;
+	font-size : 14px;
+	font-style: italic;
 	}
+
+
+pre {
+	background: white;
+	border: 1px solid #807568;
+	line-height: 1.25em;
+	overflow: auto
+	overflow-Y: hidden;
+	padding: 10px;
+	margin: 5px 0 10px 0;
+	overflow: hidden;
+	}
+
+
+
 
 
 /* --- layout --- */
@@ -86,47 +133,6 @@ body {
 
 
 
-/* --- general formatting --- */
-
-h2,h3,p,ul,table { margin-bottom: 10px; }
-
-Xp, li {line-height: 1.4em; }
-
-form p { margin-bottom: 5px; }
-
-a { border: 1px solid transparent; color: rgb(100,45,0); text-decoration: none; }
-a:hover { border: 1px solid #807568; background-color: rgb(255,250,150); }
-a:focus { border: 1px solid #807568; background-color: rgb(255,250,150); }
-
-
-h2 { font-size: 20px; }
-
-h3 { font-size: 18px; margin-top: 15px; }
-
-h4 { font-size: 1.3em; margin-bottom: .2em; font-weight: normal;}
-
-em, i { font-style: italic; }
-
-strong { font-weight: bold; }
-
-label {
-	display: inline-block;
-	width  : 7em;
-	font-size : 14px;
-	font-style: italic;
-	}
-
-pre {
-	background: white;
-	border: 1px solid #807568;
-	line-height: 1.25em;
-	overflow: auto
-	overflow-Y: hidden;
-	padding: 10px;
-	margin: 5px 0 10px 0;
-	overflow: hidden;
-	}
-
 .page_login label {
 	display: block;
 	margin-bottom: 2px;
@@ -143,19 +149,22 @@ pre {
 	}
 
 #message {
-	margin-bottom: .5em;
-	min-height: 1.7em;  /* Leaves space when on edit page with no message. */
+	min-height: 1.7em; /* Leave space when message is blank. Used by Edit page */
 	}
-	
+
 #message p {
 	margin: 0;
-	padding: 5px 5px 5px 30px;
+	padding: 4px 0px 4px .5em;
 	border: 1px solid #807568;
 	font-family: Lucida Console, "Courier New" ;
 	font-size: .95em;
 	line-height: 1em;
 	background: #fff000;
 	}
+
+#message span { float: right; }
+
+#message a { padding: 4px 1px 4px 1px; border-right: none; } /*T R B L*/
 
 
 /* --- INDEX --- */
@@ -164,13 +173,13 @@ pre {
 
 .index li {
 	margin: 0 10px 10px 0;
-	width: 192.5px;
+	width: 260px;
 	float: left;
 	position: relative;
 	}
 
 .index a {
-	height: 28px;
+	height: 20px;
 	display: block;
 	padding: 7px 5px 7px 35px;
 	border: 1px solid #807568;
@@ -242,26 +251,28 @@ table.index_T td {
 /* File size & date */
 
 .meta_size {
-	Xwidth         : 9em;
-	padding-left  :  1em;
+	min-width     : 6em;
 	padding-right : .5em;
 	text-align    : right;
-    font-size     : .8em; color: #333;
+	font-family   : courier;
+    font-size     : .9em;
+	color         : #333;
 	}
 
 .meta_time {
-	width         : 12em;
+	width         : 13em;
 	padding-right : .5em;
 	text-align    : right;
-	font-size     : .8em; color: #333;
+	font-family   : courier;
+	font-size     : .9em;
+	color         : #333;
 	}
 
 
 .index .meta {
-	font-size: 11px;
+	font-size: .9em;
 	height: 25px;
 	margin-top: 3px;
-	overflow: hidden;
 	line-height: 1.1em;
 	}
 
@@ -337,8 +348,10 @@ textarea.disabled { height: 50px; }
 textarea:focus { border: 1px solid #Faa; }
 
 
-input:focus { background-color: #fffbce; }
-/* input[type="button"]:focus { background-color: #fffbce; } */
+input:focus { background-color: rgb(255,250,150); }
+/* input[type="button"]:focus { background-color: rgb(255,250,150); } */
+
+input:hover { background-color: rgb(255,250,150); }
 
 
 .buttons_right { float: right;}
@@ -355,8 +368,14 @@ input:focus { background-color: #fffbce; }
 	font-family: sans-serif;
 	}
 
-.button:hover { background-color: #eaeaea; }
+.Xbutton:hover { background-color: rgb(255,250,150); } 
 .button[disabled]:hover { background-color: #d4d4d4; }
+
+/*
+#Xsave_file         { border: 1px solid red; }
+#save_file a:hover { background-color: rgb(255,250,150); border: 1px solid red; }
+#save_file a:focus { background-color: rgb(255,250,150); border: 1px solid red; }
+*/
 
 
 #action {color: white; background-color: rgb(235,70,70); font-weight: 700;}
@@ -388,11 +407,17 @@ input:focus { background-color: #fffbce; }
 
 /* --- edit --- */
 
-#edit_header {float: left;}
+#edit_header  {margin: 0;}
 
-.close {float: right;}
+#edit_form    {margin: 0;}
 
+#file_content {height: 24em; }
 
+#file_meta	  {float: left;  margin-top: .5em; width: 700px; border: 0px solid red; }
+
+.close        {float: right; margin-bottom: .5em;}
+
+#edit_note    {font-size: .8em; color: #444 ;margin-top: 1em;}
 
 /* --- log in --- */
 
@@ -410,7 +435,6 @@ input:focus { background-color: #fffbce; }
 	width   : 356px;
 	font    : 1em Courier;
 }
-
 
 
 

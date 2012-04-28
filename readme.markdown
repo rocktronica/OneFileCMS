@@ -85,6 +85,14 @@ It isn't entirely necessary, but it does provide nice enhancements, like warning
 
 ## Change Log
 
+### 1.2.0
+
+- List of files now sorted alphabetically, without regard to case.
+- Further improved Edit page & screen feedback of file state (changed/unchanged).
+- Added [X] dismiss button on message box
+- File date shown on Index & Edit pages is now in user's local time.
+- Moved from xhtml to html syntax & doctype.
+
 ### 1.1.9
 
 - Improved Edit page & screen feedback of file state (changed/unchanged).
@@ -152,7 +160,7 @@ It isn't entirely necessary, but it does provide nice enhancements, like warning
 
 ## Credit, License, Et Cetera
 
-Written in PHP, JavaScript, XHTML and CSS.
+Written in PHP, JavaScript, HTML and CSS.
 
 Available under the MIT and BSD license.
 
@@ -162,9 +170,10 @@ To report a bug or request a feature, please file an issue via Github. Forks enc
 
 ##Needed/potential/upcoming improvements
 
+- With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
 - Prompt to prevent automatic overwrite when uploading or renaming files.
-- Option to switch between original OneFileCMS view and a common list view.
-  Currently accomplished with a config variable. Working on a 
+- Clickable option to switch between original OneFileCMS view and a common list view.
+  (Currently accomplished with a config variable.)
 - Embed css and remove or swtich to svg icons to create a true "OneFileCMS"
   (in the works)
 - Check size of file to upload, verify under max post/upload limits.
