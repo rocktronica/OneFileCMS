@@ -14,21 +14,23 @@ $config_username  = "username";
 $config_password  = "password";
 $config_title     = "OneFileCMS";
 
-$config_LOCAL     = "/onefilecms/";  //local directory for icons, .css, .js, etc...
+$config_LOCAL     = "/onefilecms/";      //local directory for icons, .css, .js, etc...
 $config_csslocal  = "onefilecms.css";    //Relative to this file.
 //$config_csslocal  ="/onefilecms.css";  //Relative to site URL root.
 $config_csshosted = "http://self-evident.github.com/OneFileCMS/onefilecms.css";
 
-$config_editable  = "html,htm,php,css,txt,text,cfg,conf,ini,csv";
+$config_editable  = "html,htm,php,css,txt,text,cfg,conf,ini,csv,svg";
 $config_excluded  = ""; //files to exclude from directory listings
-$config_ftypes    = "jpg,gif,png,bmp,ico,txt,cvs,css,php,htm,html,cfg,conf"; //used to select file icon
-$config_fclass    = "img,img,img,img,img,txt,txt,css,php,htm,htm,cfg,cfg";   //used to select file icon
+$config_itypes    = "jpg,gif,png,bmp,ico";  // Can be displayed on edit page.
+$config_ftypes    = "jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,htm,html,cfg,conf"; //used to select file icon
+$config_fclass    = "img,img,img,img,img,svg,txt,txt,css,php,htm,htm,cfg,cfg";   //used to select file icon
 // END CONFIGURABLE INFO
 
 //Make arrays out of a couple $config_variables.  They are used in // Index .
 //Above, however, it's easier to config/change a simple string.
 $ftypes   = (explode(",", strtolower($config_ftypes)));
 $fclasses = (explode(",", strtolower($config_fclass)));
+$itypes   = (explode(",", strtolower($config_itypes)));
 
 
 $ONESCRIPT = $_SERVER["SCRIPT_NAME"];
@@ -47,7 +49,8 @@ chdir($DOC_ROOT);
 function Close_Button($classes) {
 	echo '<input type="button" class="button '.$classes.'" name="close" value="Close" onclick="parent.location=\'';
 	echo $ONESCRIPT.'?i='.substr($_GET["f"],0,strrpos($_GET["f"],"/")).'\'">';
-}
+	?><script>document.edit_form.elements[0].focus();</script><?php // focus on [Close]
+}// End Close_Button()
 
 
 function Cancel_Submit_Buttons($button_label) { 
@@ -420,7 +423,6 @@ if ($page == "delete") {
 		<p>
 			<input type="hidden" name="delete_filename" value="<?php echo $filename; ?>">
 			<?php Cancel_Submit_Buttons("DELETE"); ?>
-
 		</p>
 	</form>
 <?php };
@@ -437,7 +439,6 @@ if ($page == "deletefolder") {
 		<p>
 			<input type="hidden" name="delete_foldername" value="<?php echo $_GET["i"]; ?>">
 			<?php Cancel_Submit_Buttons("DELETE"); ?>
-
 		</p>
 	</form>
 <?php };
@@ -445,56 +446,53 @@ if ($page == "deletefolder") {
 
 
 // EDIT ************************************************************************
-if ($page == "edit") { ?>
+if ($page == "edit") {
 
+	$ext = end( explode(".", strtolower($filename)) );
+ ?>
 	<h2 id="edit_header">Edit &ldquo;<a href="/<?php echo $filename; ?>"> 
 	<?php echo $filename; ?> 
 	</a>&rdquo;</h2>
 
 	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.'?f='.$filename; ?>">
 
-		<p id="file_meta">
+		<p class="file_meta">
 		<span class="meta_size">Size<b>: </b> <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; &nbsp; 
 		<span class="meta_time">Updated<b>: </b><script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1);</script></span><br>
-	
 		</p>
 
 		<?php Close_Button("close"); ?>
-		<script>document.edit_form.elements[0].focus();</script>
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 
 		<?php
-		$ext = end( explode(".", strtolower($filename)) );
 		if (strpos($config_editable,$ext) === false) { ?>
 			<p>
 				<textarea name="content" class="textinput disabled" cols="70" rows="25" disabled="disabled">Non-text or unkown file type. Edit disabled.
 				</textarea>
 			</p>
-			<p class="buttons_right">
-				<input type="submit" class="button" name="save_file" value="Save" disabled="disabled">
-				<input type="button" class="button" id="reset"  value="Reset - loose changes" disabled="disabled">
 		<?php } else { ?>
-
 			<p>
 				<input type="hidden" name="filename" id="filename" class="textinput" value="<?php echo $filename; ?>">
 				<textarea id="file_content" onkeyup="Check_for_changes(event);" name="content" class="textinput" cols="70" rows="25"><?php echo $filecontent; ?></textarea>
 			</p>
-			<p class="buttons_right">
-				<input type="submit" class="button" name="save_file" id="save_file" value="Save"  onclick="submitted = true;"  disabled="disabled">
-				<input type="button" class="button" id="reset"  value="Reset - loose changes" onclick="Reset_File()"  disabled="disabled">
-		<?php } ?>
-		
-			<input type="button" class="button" name="rename_file" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.'?r='.$filename; ?>'">
-			<input type="button" class="button" name="delete_file" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.'?d='.$filename; ?>'">
-			<input type="button" class="button" name="copy_file"   value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.'?c='.$filename; ?>'">
-			<?php Close_Button(""); ?>
-			</p>
+		<?php } ?>	
+
+		<p class="buttons_right">
+		<input type="submit" class="button" name="save_file" id="save_file" value="Save"  onclick="submitted = true;"  disabled="disabled">
+		<input type="button" class="button" id="reset"  value="Reset - loose changes" onclick="Reset_File()"  disabled="disabled">
+		<input type="button" class="button" name="rename_file" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.'?r='.$filename; ?>'">
+		<input type="button" class="button" name="delete_file" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.'?d='.$filename; ?>'">
+		<input type="button" class="button" name="copy_file"   value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.'?c='.$filename; ?>'">
+		<?php Close_Button(""); ?>
+		</p>
 	</form>
 	<div style="clear:both;"></div>
-	<div id="edit_note">
-	NOTE: On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser's [Reload].
-	</div>
 
+	<?php if (strpos($config_editable,$ext) !== false) { ?>
+		<div id="edit_note">
+		NOTE: On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser's [Reload].
+		</div>
+	<?php } ?>
 
 
 	<!--======== Provide feedback re: unsaved changes ========-->
@@ -528,7 +526,7 @@ if ($page == "edit") { ?>
 		Save_File_button.disabled = "disabled";
 		Save_File_button.value = "Save";
 		Reset_button.disabled = "disabled";
-		File_textarea.focus();
+		//File_textarea.focus();
 	}
 
 
@@ -734,10 +732,10 @@ if ($page == "index") {
 							<?php echo "<a href='", $ONESCRIPT,"?f=", $file, "'"; ?>
 							<?php echo "class='",  $file_class, "'>", basename($file), "</a>"; ?>
 						</td>
-						<td class="meta_size">&nbsp;
+						<td class="meta_T meta_size">&nbsp;
 							<?php echo number_format(filesize($file)).""; ?> B
 						</td>
-						<td class="meta_time"> &nbsp;
+						<td class="meta_T meta_time"> &nbsp;
 							<script>FileTimeStamp(<?php echo filemtime($file); ?>);</script>
 						</td>
 					</tr>
