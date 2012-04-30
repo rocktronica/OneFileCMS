@@ -1,3 +1,22 @@
+# NOTICE - SECURITY HOLE!
+
+## April 30, 2012
+
+## Versions affected
+
+- 1.1.7 and newer.  Version 1.1.6 is believed to be safe.
+
+## Brief description:
+
+- No login required if a file and path is known.
+  EX:  http:// yourdomain.com/onefilecms.php?f=some/path/to/file.txt
+
+- File edit, rename, move, and copy still work in this way, without login.
+
+## Cause
+- Me. I just noticed the problem.  Some edit between 1.1.6 and now introduced the hole.
+
+
 # OneFileCMS
 
 ## Yeah, it's exactly what you think.
