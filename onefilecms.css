@@ -1,5 +1,5 @@
 /* OneFileCMS - http://onefilecms.com/
- * Version 1.1.7 
+ * Version 1.2.1
  * For license & copyright info, see OneFileCMS.License.BSD.txt 
  */ 
 
@@ -409,9 +409,9 @@ input:hover { background-color: rgb(255,250,150); }
 
 #edit_form    {margin: 0;}
 
-#file_content {height: 24em; }
+#file_content {height: 24em;}
 
-.file_meta	  {float: left;  margin-top: .5em;}
+.file_meta	  {float: left;  margin-top: .5em; font-size: .9em; color: #333; font-family: courier;}
 
 .close        {float: right; margin-bottom: .5em;}
 

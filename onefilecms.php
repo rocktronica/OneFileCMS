@@ -2,7 +2,7 @@
 // OneFileCMS - http://onefilecms.com/
 // For license & copyright info, see OneFileCMS.License.BSD.txt
 
-$version = "1.2.0";
+$version = "1.2.1";
 
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
@@ -88,6 +88,12 @@ if (($_SESSION['onefilecms_username'] == $config_username) and ($_SESSION['onefi
 } else {
 	$_SESSION['onefilecms_valid'] = "0";
 	$page = "login";
+	$_GET["p"] = "login";
+	unset($_GET["c"]);
+	unset($_GET["d"]);
+	unset($_GET["f"]);
+	unset($_GET["i"]);
+	unset($_GET["r"]);
 }
 
 global $pagetitle; $pagetitle = "/";
