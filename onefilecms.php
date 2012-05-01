@@ -2,7 +2,7 @@
 // OneFileCMS - http://onefilecms.com/
 // For license & copyright info, see OneFileCMS.License.BSD.txt
 
-$version = "1.2.1";
+$version = "1.2.2";
 
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
@@ -43,13 +43,74 @@ chdir($DOC_ROOT);
 
 
 
+
 //******************************************************************************
-// Functions
+session_start();
+global $page; $page = "index";
+
+if (isset($_POST["onefilecms_username"])) { $_SESSION['onefilecms_username'] = $_POST["onefilecms_username"]; }
+if (isset($_POST["onefilecms_password"])) { $_SESSION['onefilecms_password'] = $_POST["onefilecms_password"]; }
+
+if (($_SESSION['onefilecms_username'] == $config_username) and ($_SESSION['onefilecms_password'] == $config_password || md5($_SESSION['onefilecms_password']) == $config_password)) {
+	$_SESSION['onefilecms_valid'] = "1";
+} else {
+	$_SESSION['onefilecms_valid'] = "0";
+	$page = "login";
+	$_GET["p"] = "login";
+	unset($_GET["c"]);
+	unset($_GET["d"]);
+	unset($_GET["f"]);
+	unset($_GET["i"]);
+	unset($_GET["r"]);
+}
+
+global $pagetitle; $pagetitle = "/";
+if ((isset($_GET["i"])) && ($_GET["i"] !== "")) { $pagetitle = "/".$_GET["i"]."/"; }
+
+if (isset($_GET["p"])) {
+	// redirect on invalid page attempts
+	$page = $_GET["p"];
+	if (!in_array(strtolower($_GET["p"]), array(
+		"copy","delete","error","deletefolder","edit","folder","index","login","logout","new","rename","renamefolder","upload"	)))
+	{
+		header("Location: ".$ONESCRIPT);
+		$page = "index";
+	}
+}
+
+if ( ($page == "login") and ($_SESSION['onefilecms_valid']) ) {$page = "index"; header("Location: ".$ONESCRIPT);};
+
+if ($_GET["p"] == "login") { $pagetitle = "Log In"; }
+
+if ($_GET["p"] == "logout") {
+	$page = "login";
+	$pagetitle = "Log Out";
+	$_SESSION['onefilecms_valid'] = "0";
+	session_destroy();
+	$message = 'You have successfully logged out.';
+}
+
+if ($_GET["i"] == "") { unset($_GET["i"]); }
+// End session startup**********************************************************
+
+
+
+
+// entitize get params *********************************************************
+foreach ($_GET as $name => $value) {
+	$_GET[$name] = htmlentities($value);
+}
+
+
+
+
+//******************************************************************************
+// Misc Functions
 
 function Close_Button($classes) {
 	echo '<input type="button" class="button '.$classes.'" name="close" value="Close" onclick="parent.location=\'';
 	echo $ONESCRIPT.'?i='.substr($_GET["f"],0,strrpos($_GET["f"],"/")).'\'">';
-	?><script>document.edit_form.elements[0].focus();</script><?php // focus on [Close]
+	?><script>document.edit_form.elements[1].focus();</script><?php // focus on [Close]
 }// End Close_Button()
 
 
@@ -73,53 +134,9 @@ function Cancel_Submit_Buttons($button_label) {
 	<?php
 }// End Cancel_Submit_Buttons()
 
-// End of funtions *************************************************************
+// End of misc funtions ********************************************************
 
 
-
-//******************************************************************************
-session_start();
-global $page; $page = "index";
-
-if (isset($_POST["onefilecms_username"])) { $_SESSION['onefilecms_username'] = $_POST["onefilecms_username"]; }
-if (isset($_POST["onefilecms_password"])) { $_SESSION['onefilecms_password'] = $_POST["onefilecms_password"]; }
-if (($_SESSION['onefilecms_username'] == $config_username) and ($_SESSION['onefilecms_password'] == $config_password || md5($_SESSION['onefilecms_password']) == $config_password)) {
-	$_SESSION['onefilecms_valid'] = "1";
-} else {
-	$_SESSION['onefilecms_valid'] = "0";
-	$page = "login";
-	$_GET["p"] = "login";
-	unset($_GET["c"]);
-	unset($_GET["d"]);
-	unset($_GET["f"]);
-	unset($_GET["i"]);
-	unset($_GET["r"]);
-}
-
-global $pagetitle; $pagetitle = "/";
-if ((isset($_GET["i"])) && ($_GET["i"] !== "")) { $pagetitle = "/".$_GET["i"]."/"; }
-if (isset($_GET["p"])) {
-	// redirect on invalid page attempts
-	$page = $_GET["p"];
-	if (!in_array(strtolower($_GET["p"]), array(
-		"copy","delete","error","deletefolder","edit","folder","index","login","logout","new","rename","renamefolder","upload"	)))
-	{
-		header("Location: ".$ONESCRIPT);
-		$page = "index";
-	}
-}
-if ( ($page == "login") and ($_SESSION['onefilecms_valid']) ) {$page = "index"; header("Location: ".$ONESCRIPT);};
-
-if ($_GET["p"] == "login") {$pagetitle = "Log In"; }
-if ($_GET["p"] == "logout") {$pagetitle = "Log Out"; $_SESSION['onefilecms_valid'] = "0"; session_destroy(); }
-if ($_GET["i"] == "") { unset($_GET["i"]); }
-
-
-
-// entitize get params *********************************************************
-foreach ($_GET as $name => $value) {
-	$_GET[$name] = htmlentities($value);
-}
 
 
 
@@ -185,7 +202,7 @@ if (isset($_GET["f"])) {
 	$filename = stripslashes($_GET["f"]);
 	if (file_exists($filename)) {
 		$page = "edit";
-		$pagetitle = "Edit &ldquo;".$filename."&rdquo;";
+		$pagetitle = "View/Edit &ldquo;".$filename."&rdquo;";
 		$fp = @fopen($filename, "r");
 		if (filesize($filename) !== 0) {
 			$filecontent = fread($fp, filesize($filename));
@@ -447,7 +464,7 @@ if ($page == "deletefolder") {
 			<?php Cancel_Submit_Buttons("DELETE"); ?>
 		</p>
 	</form>
-<?php };
+<?php }; 
 
 
 
@@ -455,8 +472,38 @@ if ($page == "deletefolder") {
 if ($page == "edit") {
 
 	$ext = end( explode(".", strtolower($filename)) );
- ?>
-	<h2 id="edit_header">Edit &ldquo;<a href="/<?php echo $filename; ?>"> 
+
+
+	function show_image(){ //************************
+		global $CWD, $filename;
+		$IMG = $filename;
+		//$IMG = $DOC_ROOT.$_GET[f];
+		$img_info = getimagesize($IMG);
+		$MAX_IMG_W   = 800;   // width of display area in OneFileCMS
+		$MAX_IMG_H   = 1000;  // I don't know, it just looks reasonable.
+
+		$W=0; $H=1;
+		$SCALE=1; $TOOWIDE = 0; $TOOHIGH = 0;
+		if ($img_info[$W] > $MAX_IMG_W) { $TOOWIDE = ( $MAX_IMG_W/$img_info[$W] );}
+		if ($img_info[$H] > $MAX_IMG_H) { $TOOHIGH = ( $MAX_IMG_H/$img_info[$H] );}
+
+		if ($TOOHIGH || $TOOWIDE) {
+			if     (!$TOOWIDE)           {$SCALE = $TOOHIGH;}
+			elseif (!$TOOHIGH)           {$SCALE = $TOOWIDE;}
+			elseif ($TOOHIGH > $TOOWIDE) {$SCALE = $TOOWIDE;}
+			else                         {$SCALE = $TOOHIGH;}
+		}
+
+		echo '<p class="file_meta">'.$img_info[3];
+		echo ' (Image shown at ~'. round($SCALE*100) .'% of full size.)</p>';
+		echo '<div style="clear:both;"></div>';
+		echo '<a href="/' . $IMG . '">';
+		echo '<img src="/'.$IMG.'"  height="'.$img_info[$H]*$SCALE.'"></a>';
+	}// end show_image() ****************************
+?>
+
+
+	<h2 id="edit_header">File: &ldquo;<a href="/<?php echo $filename; ?>"> 
 	<?php echo $filename; ?> 
 	</a>&rdquo;</h2>
 
@@ -466,23 +513,26 @@ if ($page == "edit") {
 		<span class="meta_size">Size<b>: </b> <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; &nbsp; 
 		<span class="meta_time">Updated<b>: </b><script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1);</script></span><br>
 		</p>
-
-		<?php Close_Button("close"); ?>
+		
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-
-		<?php
-		if (strpos($config_editable,$ext) === false) { ?>
-			<p>
+		<?php Close_Button("close"); ?><div style="clear:both;"></div>
+		
+		<?php function show_textarea(){ global $filename, $filecontent, $ext, $config_editable;
+			if (strpos($config_editable,$ext) === false) {
+			?>	<p>
 				<textarea name="content" class="textinput disabled" cols="70" rows="25" disabled="disabled">Non-text or unkown file type. Edit disabled.
 				</textarea>
-			</p>
-		<?php } else { ?>
-			<p>
+				</p>
+			<?php } else { ?>
+				<p>
 				<input type="hidden" name="filename" id="filename" class="textinput" value="<?php echo $filename; ?>">
 				<textarea id="file_content" onkeyup="Check_for_changes(event);" name="content" class="textinput" cols="70" rows="25"><?php echo $filecontent; ?></textarea>
-			</p>
-		<?php } ?>	
-
+				</p>
+			<?php } //end if-else?>	
+		<?php  } //show_textarea() ?>
+		
+		<?php if (strpos($config_itypes,$ext) === false) { show_textarea(); } ?>
+		
 		<p class="buttons_right">
 		<input type="submit" class="button" name="save_file" id="save_file" value="Save"  onclick="submitted = true;"  disabled="disabled">
 		<input type="button" class="button" id="reset"  value="Reset - loose changes" onclick="Reset_File()"  disabled="disabled">
@@ -494,6 +544,8 @@ if ($page == "edit") {
 	</form>
 	<div style="clear:both;"></div>
 
+	<?php if (strpos($config_itypes,$ext) !== false) { show_image(); } ?>
+
 	<?php if (strpos($config_editable,$ext) !== false) { ?>
 		<div id="edit_note">
 		NOTE: On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser's [Reload].
@@ -501,6 +553,7 @@ if ($page == "edit") {
 	<?php } ?>
 
 
+	<?php if (strpos($config_editable,$ext) !== false) { //if editable file...?>
 	<!--======== Provide feedback re: unsaved changes ========-->
 	<script>
 	    
@@ -603,15 +656,16 @@ if ($page == "edit") {
 	
 	Reset_file_status_indicators()
 	</script>
+	<?php } //end if editable, include this <script>...</script>
 
-<?php }; //End Edit page **************************************************** ?>
-
-
-
+}; //End Edit page *************************************************************
 
 
 
-<?php // INDEX *****************************************************************
+
+
+
+// INDEX ***********************************************************************
 if ($page == "index") {
 	$varvar = "";
 	if (isset($_GET["i"])) { $varvar = $_GET["i"]."/"; }
@@ -654,8 +708,8 @@ if ($page == "index") {
 	
 
 
-	<!--============== List files - BLOCK view ===============-->
-	<?php
+
+	<?php // <!--============== List files - BLOCK view ===============-->
 	function BLOCK_view() {
 	global $varvar, $config_excluded, $ftypes, $fclasses ; 
 	 ?>
@@ -698,7 +752,7 @@ if ($page == "index") {
 			<?php } ?>
 		<?php } ?>
 	</ul>
-	<?php }//end BLOCK_view() ===========================-->?>
+	<?php }//end BLOCK_view() ==============================-->?>
 
 
 
@@ -750,8 +804,7 @@ if ($page == "index") {
 		}//end foreach file
 		?>
 	</table>
-	<?php }//end list_view()
-	// <!--===== End of directory listing in vertical table =====-->
+	<?php }//end list_view() =================================-->
 	?>
 
 
@@ -776,8 +829,16 @@ if ($page == "index") {
 			Rename Folder</a>
 		<?php } ?>
 	</p>
-<?php };
-// End of Index (file listing) page ********************************************
+
+<?php }; // End of Index (file listing) page ***********************************
+
+
+
+
+// LOG OUT *********************************************************************
+if ($page == "logout") {
+	$page = "login"; 
+}
 
 
 
@@ -800,14 +861,6 @@ if ($page == "login") { ?>
 	<script>document.getElementById('onefilecms_username').focus();</script>
 <?php };
 
-
-
-
-// LOG OUT *********************************************************************
-if ($page == "logout") { ?>
-	<h2>Log Out</h2>
-	<p>You have successfully been logged out and may close this window.</p>
-<?php };
 
 
 
