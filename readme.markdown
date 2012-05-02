@@ -1,22 +1,28 @@
 # NOTICE - SECURITY HOLE! (Fixed in version 1.2.1)
 
-## April 30, 2012
+### April 30, 2012
 
 ## Versions affected
 
 - 1.1.7 thru 1.2.0
-- Versions 1.1.6 and 1.2.1 + are believed to be safe.
+
+## Versions *Un* affected / fixed
+
+- Version 1.1.6
+- Versions 1.2.1 and newer
 
 ## Brief description:
 
 - No login required if a file and path is known.
   EX:  http:// yourdomain.com/onefilecms.php?f=some/path/to/file.txt
 
-- File edit, rename, move, and copy still work in this way, without login.
+- File edit, rename, move, and copy work in this way, without login.
 
 ## Cause
-- Me. I just noticed the problem.  Some edit between 1.1.6 and now introduced the hole.
 
+- Me. I just noticed the problem.  Some edit after 1.1.6 introduced the hole.
+
+--------------------------------------------------------------------------------
 
 # OneFileCMS
 
@@ -39,7 +45,7 @@ Coupling a utilitarian code editor with all the basic necessities of an FTP appl
 
 ## Features
  
-- All the basic features of an FTP application like renaming, deleting, copying, and uploading
+- All the basic features of an FTP application like renaming, deleting, copying, and uploading  
   _(Of course, for more complex processes like batch renaming or mass uploads/deletions, you're going to want to break out an actual FTP program.)_
 - Smart alert if you try to leave without saving your edits
 - Gracefully degrading CSS and Javascript
