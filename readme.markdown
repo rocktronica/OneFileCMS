@@ -5,7 +5,7 @@
 ## Versions affected
 
 - 1.1.7 thru 1.2.0
-- Versions 1.1.6 and 1.2.1 are believed to be safe.
+- Versions 1.1.6 and 1.2.1 + are believed to be safe.
 
 ## Brief description:
 
@@ -104,6 +104,11 @@ The reason there isn't default support for multiple users is that all of their i
 It isn't entirely necessary, but it does provide nice enhancements, like warning you if you try to leave without saving changes, and stuff like that. 
 
 ## Change Log
+
+### 1.2.2
+
+- On "Edit" page, images are now displayed directly, instead of a disabled textarea.
+- Logout page replaced with standard "alert" message on login screen.
 
 ### 1.2.1
 

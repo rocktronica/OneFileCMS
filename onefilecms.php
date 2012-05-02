@@ -19,12 +19,17 @@ $config_csslocal  = "onefilecms.css";    //Relative to this file.
 //$config_csslocal  ="/onefilecms.css";  //Relative to site URL root.
 $config_csshosted = "http://self-evident.github.com/OneFileCMS/onefilecms.css";
 
+$MAX_IMG_W   = 810;   // Max width to display images. (page container = 810)
+$MAX_IMG_H   = 1000;  // Max height.  I don't know, it just looks reasonable.
+
 $config_editable  = "html,htm,php,css,txt,text,cfg,conf,ini,csv,svg";
 $config_excluded  = ""; //files to exclude from directory listings
 $config_itypes    = "jpg,gif,png,bmp,ico";  // Can be displayed on edit page.
 $config_ftypes    = "jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,htm,html,cfg,conf"; //used to select file icon
 $config_fclass    = "img,img,img,img,img,svg,txt,txt,css,php,htm,htm,cfg,cfg";   //used to select file icon
 // END CONFIGURABLE INFO
+
+
 
 //Make arrays out of a couple $config_variables.  They are used in // Index .
 //Above, however, it's easier to config/change a simple string.
@@ -142,7 +147,7 @@ function Cancel_Submit_Buttons($button_label) {
 
 // COPY FILE *******************************************************************
 if (isset($_GET["c"])) {
-	$filename = $_GET["c"]; $pagetitle = "Copy &ldquo;".$filename."&rdquo;";  $page = "copy";
+	$page = "copy"; $filename = $_GET["c"]; $pagetitle = "Copy &ldquo;".$filename."&rdquo;";
 }
 
 if (isset($_POST["copy_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
@@ -156,10 +161,9 @@ if (isset($_POST["copy_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_P
 
 // DELETE FILE *****************************************************************
 if (isset($_GET["d"])) {
-	$filename = $_GET["d"];
-	$pagetitle = "Delete &ldquo;".$filename."&rdquo;";
-	$page = "delete";
+	$page = "delete"; $filename = $_GET["d"]; $pagetitle = "Delete &ldquo;".$filename."&rdquo;";
 }
+
 if (isset($_POST["delete_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$filename = $_POST["delete_filename"];
 	unlink($filename);
@@ -317,7 +321,7 @@ $ROOT = $DOC_ROOT;
 if (substr($config_csslocal,0,1) != "/"){ $ROOT = $CWD.'/'; }
 
 //Check for local style sheet. If not found, use hosted copy.
-if (!file_exists($ROOT.$config_csslocal)) { $STYLE_SHEET = $config_csshosted; }
+if (!file_exists($ROOT.$config_csslocal) || is_dir($ROOT.$config_csslocal)) { $STYLE_SHEET = $config_csshosted; }
 //***************************************************************?>
 
 <link href="<?php echo $STYLE_SHEET;?>" type="text/css" rel="stylesheet">
@@ -475,15 +479,13 @@ if ($page == "edit") {
 
 
 	function show_image(){ //************************
-		global $CWD, $filename;
+		global $filename, $MAX_IMG_W, $MAX_IMG_H;
+		
 		$IMG = $filename;
-		//$IMG = $DOC_ROOT.$_GET[f];
 		$img_info = getimagesize($IMG);
-		$MAX_IMG_W   = 800;   // width of display area in OneFileCMS
-		$MAX_IMG_H   = 1000;  // I don't know, it just looks reasonable.
 
 		$W=0; $H=1;
-		$SCALE=1; $TOOWIDE = 0; $TOOHIGH = 0;
+		$SCALE = 1; $TOOWIDE = 0; $TOOHIGH = 0;
 		if ($img_info[$W] > $MAX_IMG_W) { $TOOWIDE = ( $MAX_IMG_W/$img_info[$W] );}
 		if ($img_info[$H] > $MAX_IMG_H) { $TOOHIGH = ( $MAX_IMG_H/$img_info[$H] );}
 
@@ -799,12 +801,12 @@ if ($page == "index") {
 							<script>FileTimeStamp(<?php echo filemtime($file); ?>);</script>
 						</td>
 					</tr>
-		<?php 
+	<?php 
 			}//end if !is_dir
 		}//end foreach file
-		?>
-	</table>
-	<?php }//end list_view() =================================-->
+	echo '</table>';
+	
+	}//end list_view() =================================-->
 	?>
 
 
@@ -820,8 +822,7 @@ if ($page == "index") {
 	<p class="front_links">
 		<a href="<?php echo $ONESCRIPT.'?p=upload&amp;i='.$varvar; ?>" class="upload">Upload File</a>
 		<a href="<?php echo $ONESCRIPT.'?p=new&amp;i='.$varvar; ?>"    class="new">New File</a>
-		<a href="<?php echo $ONESCRIPT.'?p=folder&amp;i='.$varvar; ?>" class="newfolder">
-		New Folder</a>
+		<a href="<?php echo $ONESCRIPT.'?p=folder&amp;i='.$varvar; ?>" class="newfolder">New Folder</a>
 		<?php if ($varvar !== "") { ?>
 			<a href="<?php echo $ONESCRIPT.'?p=deletefolder&amp;i='.$varvar; ?>" class="deletefolder">
 			Delete Folder</a>
@@ -973,7 +974,7 @@ if ($page == "upload") {
 
 
 <div class="footer">
-	<hr>
+	<hr><br><br>
 </div>
 
 
