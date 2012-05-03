@@ -1,5 +1,5 @@
 /* OneFileCMS - http://onefilecms.com/
- * Version 1.2.1
+ * Version 1.2.3
  * For license & copyright info, see OneFileCMS.License.BSD.txt 
  */ 
 
@@ -32,11 +32,7 @@ fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td
 
 /* --- general formatting --- */
 
-body {
-	font-size: 1em;
-	background: #d5d0cc;
-	font-family: sans-serif;
-	}
+body { font-size: 1em; background: #d5d0cc; font-family: sans-serif; }
 
 h2,h3,p,ul,table { margin-bottom: 10px; }
 
@@ -249,13 +245,9 @@ table.index_T td {
 
 /* File size & date */
 
-.meta_size {
-	min-width     : 6em;
-	}
+.meta_size { min-width: 6em; }
 
-.meta_time {
-	width         : 13em;
-	}
+.meta_time { width    : 13em;}
 
 .meta {
 	height        : 25px;
@@ -282,15 +274,13 @@ table.index_T td {
 	}
 
 .index_folders a {
+	Xborder       : 1px solid gray;
 	display      : inline-block;
 	line-height  : 1.1em;
 	font-size    : 1em;
 	margin-right : .6em;
-	padding      : 2px 4px 2px 20px;
-	padding-left : 25px;
-	padding-right:  .5em;
-	padding-top  : .1em;
-	padding-bottom : .1em;
+	margin-bottom: .3em;
+	padding      : .1em .4em .1em 25px; /*TRBL*/
 	background : url("http://self-evident.github.com/OneFileCMS/images/folder-2.png") 4px 3px no-repeat;
 	}
 
@@ -352,22 +342,22 @@ input:focus { background-color: rgb(255,250,150); }
 input:hover { background-color: rgb(255,250,150); }
 
 
-.buttons_right { float: right;}
+.buttons_right         { float: right; }
 .buttons_right .button { margin-left: 7px; }
-.buttons_left { float: left;}
-.buttons_left .button { margin-right: 7px; }
+.buttons_left          { float: left; }
+.buttons_left  .button { margin-right: 7px; }
 
 .button {
 	border: 1px solid #807568;
 	padding: 4px 10px;
 	background-color: #d4d4d4;
 	cursor: pointer;
-	font-size: 14px;
+	font-size: .9em;
 	font-family: sans-serif;
 	}
 
 .Xbutton:hover { background-color: rgb(255,250,150); } 
-.button[disabled]:hover { background-color: #d4d4d4; }
+.button[disabled]:hover { background-color: #d4d4d4; cursor:default }
 
 /*
 #Xsave_file         { border: 1px solid red; }
