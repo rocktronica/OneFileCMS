@@ -1,6 +1,6 @@
-# NOTICE - SECURITY HOLE! (Fixed in version 1.2.1)
-
 ### April 30, 2012
+
+# NOTICE - SECURITY HOLE! (Fixed in version 1.2.1)
 
 ## Versions affected
 
@@ -110,6 +110,11 @@ The reason there isn't default support for multiple users is that all of their i
 It isn't entirely necessary, but it does provide nice enhancements, like warning you if you try to leave without saving changes, and stuff like that. 
 
 ## Change Log
+
+### 1.2.3
+
+- Fixed check for local css. If not found, loads hosted copy. 
+  (This will soon be a moot point...)
 
 ### 1.2.2
 
