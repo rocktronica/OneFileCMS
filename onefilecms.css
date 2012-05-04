@@ -116,33 +116,17 @@ pre {
 	}
 
 
-.footer {
-	color: #777;
-	font-size: .7em;
-	/*****************
-	margin-top: 10px;
-	padding-top: 10px;
-	border-top: 01px solid #807568;    /*using <hr>. Styles at bottom of this file
-	clear: both;
-	*****************/
-	}
+.footer { color: #777; font-size: .7em; }
 
 
-.page_login label {
-	display: block;
-	margin-bottom: 2px;
-	}
+.page_login label { display: block; margin-bottom: 2px; }
 
 
-.alignleft {
-	margin: 0 10px 10px 0;
-	float: left;
-	}
+.alignleft { margin: 0 10px 10px 0; float: left; }
 
 
-#message {
-	min-height: 1.7em; /* Leave space when message is blank. Used by Edit page */
-	}
+/* Leave space when message is blank. Used by Edit page */
+#message { min-height: 1.7em; }
 
 #message p {
 	margin: 0;
@@ -268,10 +252,7 @@ table.index_T td {
 	}
 
 
-.index_folders {
-	min-height: 1.4em; 
-	margin-bottom: .2em
-	}
+.index_folders { min-height: 1.4em;  margin-bottom: .2em; }
 
 .index_folders a {
 	Xborder       : 1px solid gray;
@@ -414,7 +395,7 @@ input:hover { background-color: rgb(255,250,150); }
 	border    : 1px solid #807568;
 	padding   : 1em;
 	width     : 360px;
-}
+	}
 
 
 .login_input {
@@ -422,7 +403,7 @@ input:hover { background-color: rgb(255,250,150); }
 	padding : 2px 0px 2px 2px;
 	width   : 356px;
 	font    : 1em Courier;
-}
+	}
 
 
 
