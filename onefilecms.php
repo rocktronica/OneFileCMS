@@ -2,7 +2,7 @@
 // OneFileCMS - http://onefilecms.com/
 // For license & copyright info, see OneFileCMS.License.BSD.txt
 
-$version = "1.2.3";
+$version = "1.2.4";
 
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
@@ -52,6 +52,7 @@ chdir($DOC_ROOT);
 //******************************************************************************
 session_start();
 global $page; $page = "index";
+global $pagetitle; $pagetitle = $_SERVER['SERVER_NAME'];
 
 if (isset($_POST["onefilecms_username"])) { $_SESSION['onefilecms_username'] = $_POST["onefilecms_username"]; }
 if (isset($_POST["onefilecms_password"])) { $_SESSION['onefilecms_password'] = $_POST["onefilecms_password"]; }
@@ -69,21 +70,29 @@ if (($_SESSION['onefilecms_username'] == $config_username) and ($_SESSION['onefi
 	unset($_GET["r"]);
 }
 
-global $pagetitle; $pagetitle = "/";
-if ((isset($_GET["i"])) && ($_GET["i"] !== "")) { $pagetitle = "/".$_GET["i"]."/"; }
-
 if (isset($_GET["p"])) {
 	// redirect on invalid page attempts
 	$page = $_GET["p"];
 	if (!in_array(strtolower($_GET["p"]), array(
-		"copy","delete","error","deletefolder","edit","folder","index","login","logout","new","rename","renamefolder","upload"	)))
+		"copy","delete","deletefolder","edit","folder","index","login","logout","new","rename","renamefolder","upload"	)))
 	{
 		header("Location: ".$ONESCRIPT);
 		$page = "index";
 	}
 }
 
-if ( ($page == "login") and ($_SESSION['onefilecms_valid']) ) {$page = "index"; header("Location: ".$ONESCRIPT);};
+//Check if "i" path exists & trim trailing slashes ///
+if (isset($_GET["i"])) {
+	$_GET["i"] = rtrim($_GET["i"],"/");
+	if (!file_exists($_GET["i"])) { $message = "Does not exist: ".$_GET["i"]; unset($_GET['p']);}
+	while (!is_dir($_GET["i"])) { $_GET["i"] = dirname($_GET["i"]); }
+	if ($_GET["i"] == '.') {unset($_GET["i"]);}
+}
+
+if ( ($page == "login") and ($_SESSION['onefilecms_valid']) ) {	
+	$page = "index";
+	header("Location: ".$ONESCRIPT);
+}
 
 if ($_GET["p"] == "login") { $pagetitle = "Log In"; }
 
@@ -101,10 +110,8 @@ if ($_GET["i"] == "") { unset($_GET["i"]); }
 
 
 
-// entitize get params *********************************************************
-foreach ($_GET as $name => $value) {
-	$_GET[$name] = htmlentities($value);
-}
+// entitize $_GET params *******************************************************
+foreach ($_GET as $name => $value) { $_GET[$name] = htmlentities($value); }
 
 
 
@@ -112,23 +119,23 @@ foreach ($_GET as $name => $value) {
 //******************************************************************************
 // Misc Functions
 
-function Close_Button($classes) {
+
+function Close_Button($classes) { //********************
 	echo '<input type="button" class="button '.$classes.'" name="close" value="Close" onclick="parent.location=\'';
 	echo $ONESCRIPT.'?i='.substr($_GET["f"],0,strrpos($_GET["f"],"/")).'\'">';
 	?><script>document.edit_form.elements[1].focus();</script><?php // focus on [Close]
-}// End Close_Button()
+}// End Close_Button() //*******************************
 
 
-function Cancel_Submit_Buttons($button_label) { 
+function Cancel_Submit_Buttons($button_label) { //******
 	global $ONESCRIPT, $varvar;
 
 	// [Cancel] returns to either the current/path, or current/path/file
-	if (isset($_GET["i"])){ $ipath = '?i='.rtrim($_GET["i"],"/"); }
-		else if ( isset($_GET["c"]) ) { $ipath = '?f='.$_GET["c"]; }
-		else if ( isset($_GET["d"]) ) { $ipath = '?f='.$_GET["d"]; }
-		else if ( isset($_GET["r"]) ) { $ipath = '?f='.$_GET["r"]; }
-		else{                           $ipath = rtrim($varvar,"/");
-	}//end if/else if
+	if      ( isset($_GET["c"]) ) { $ipath = '?f='.$_GET["c"]; }
+	else if ( isset($_GET["d"]) ) { $ipath = '?f='.$_GET["d"]; }
+	else if ( isset($_GET["r"]) ) { $ipath = '?f='.$_GET["r"]; }
+	else if	( isset($_GET["i"]) ) { $ipath = '?i='.rtrim($_GET["i"],"/"); }
+	else    {                       $ipath = rtrim($varvar,"/"); }//end if/else
 
 	?>
 	<p>
@@ -137,7 +144,54 @@ function Cancel_Submit_Buttons($button_label) {
 	</p>
 	<script>document.getElementById('cancel').focus();</script>
 	<?php
-}// End Cancel_Submit_Buttons()
+}// End Cancel_Submit_Buttons() //**********************
+
+
+function message_box() { //*****************************
+	global $message, $page, $ONESCRIPT;
+
+	if (isset($message)) {
+	?>
+		<div id="message"><p>
+		<!-- [X] to dismiss message box -->	
+		<span><a href='<?php echo $ONESCRIPT.'?f='.$_GET["f"]; ?>'
+		onclick='document.getElementById("message").innerHTML = " ";return false'>
+		[X]</a>
+		</span>
+		<?php echo $message.PHP_EOL ;?>
+		</p></div>
+	<?php } else {
+		// On Edit page only, preserve vertical spacing for message even when empty.
+		if ($page == "edit") { echo '<div id="message"></div>';}
+	} //end isset($message)
+} //end message_box()  *********************************
+
+
+function show_image(){ //************************
+	global $filename, $MAX_IMG_W, $MAX_IMG_H;
+	
+	$IMG = $filename;
+	$img_info = getimagesize($IMG);
+
+	$W=0; $H=1;
+	$SCALE = 1; $TOOWIDE = 0; $TOOHIGH = 0;
+	if ($img_info[$W] > $MAX_IMG_W) { $TOOWIDE = ( $MAX_IMG_W/$img_info[$W] );}
+	if ($img_info[$H] > $MAX_IMG_H) { $TOOHIGH = ( $MAX_IMG_H/$img_info[$H] );}
+	
+	if ($TOOHIGH || $TOOWIDE) {
+		if     (!$TOOWIDE)           {$SCALE = $TOOHIGH;}
+		elseif (!$TOOHIGH)           {$SCALE = $TOOWIDE;}
+		elseif ($TOOHIGH > $TOOWIDE) {$SCALE = $TOOWIDE;}
+		else                         {$SCALE = $TOOHIGH;}
+	}
+
+	echo '<p class="file_meta">';
+	echo 'Image shown at ~'. round($SCALE*100) .'% of full size ('.$img_info[3].').</p>';
+	echo '<div style="clear:both;"></div>';
+	echo '<a href="/' . $IMG . '">';
+	echo '<img src="/'.$IMG.'"  height="'.$img_info[$H]*$SCALE.'"></a>';
+}// end show_image() ****************************
+
 
 // End of misc funtions ********************************************************
 
@@ -147,41 +201,41 @@ function Cancel_Submit_Buttons($button_label) {
 
 // COPY FILE *******************************************************************
 if (isset($_GET["c"])) {
-	$page = "copy"; $filename = $_GET["c"]; $pagetitle = "Copy &ldquo;".$filename."&rdquo;";
+	$page = "copy"; $filename = $_GET["c"]; $pagetitle = "Copy";
 }
 
 if (isset($_POST["copy_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$old_filename = $_POST["old_filename"];
 	$filename = $_POST["copy_filename"];
 	copy($old_filename, $filename);
-	$message = '<b>'.$old_filename."</b> copied successfully to <b>".$filename."</b>.";
+	$message = '<b>"'.$old_filename.'"</b> copied successfully to <b>"'.$filename.'"</b>.';
 }
 
 
 
 // DELETE FILE *****************************************************************
 if (isset($_GET["d"])) {
-	$page = "delete"; $filename = $_GET["d"]; $pagetitle = "Delete &ldquo;".$filename."&rdquo;";
+	$page = "delete"; $filename = $_GET["d"]; $pagetitle = "Delete";
 }
 
 if (isset($_POST["delete_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$filename = $_POST["delete_filename"];
 	unlink($filename);
-	$message = '<b>'.$filename."</b> successfully deleted.";
+	$message = '<b>"'.$filename.'"</b> successfully deleted.';
 }
 
 
 
 // DELETE FOLDER ***************************************************************
 if ($_GET["p"] == "deletefolder") {
-	$pagetitle = "Delete Folder &ldquo;".$_GET["i"]."&rdquo;";
+	$pagetitle = "Delete Folder";
 }
 if (isset($_POST["delete_foldername"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$foldername = $_POST["delete_foldername"];
 	if (@rmdir($foldername)) {
-		$message = '<b>'.$foldername."</b> successfully deleted.";
+		$message = '<b>"'.$foldername.'"</b> successfully deleted.';
 	} else {
-		$message = "That folder is not empty.";
+		$message = '<b>(!) "'.$foldername.'"</b> is not empty, or other error occurred.';
 	}
 }
 
@@ -198,7 +252,7 @@ if (isset($_POST["filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["
 		fwrite($fp, $content);
 		fclose($fp);
 	}
-	$message = '<b>'.$filename."</b> saved successfully.";
+	$message = '<b>"'.$filename.'"</b> saved successfully.';
 }//***
 
 //*** If in directory list, and a filename is clicked:
@@ -206,7 +260,7 @@ if (isset($_GET["f"])) {
 	$filename = stripslashes($_GET["f"]);
 	if (file_exists($filename)) {
 		$page = "edit";
-		$pagetitle = "View/Edit &ldquo;".$filename."&rdquo;";
+		$pagetitle = "Edit/View File";
 		$fp = @fopen($filename, "r");
 		if (filesize($filename) !== 0) {
 			$filecontent = fread($fp, filesize($filename));
@@ -214,9 +268,9 @@ if (isset($_GET["f"])) {
 		}
 		fclose($fp);
 	} else {
-		$page = "error";
+		$page = "index";
+		$message = '<b>"'.$filename.'"</b> does not exist.';
 		unset ($filename);
-		$message = "File does not exist.";
 	}
 }//***
 
@@ -227,11 +281,12 @@ if ($_GET["p"] == "new") {$pagetitle = "New File"; }
 if (isset($_POST["new_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$filename = $_POST["new_filename"];
 	if (file_exists($filename)) {
-		$message = '<b>'.$filename."</b> not created. A file with that name already exists.";
+		$message = '<b>"'.$filename.'"</b> not created. A file with that name already exists.';
 	} else {
 		$handle = fopen($filename, 'w') or die("can't open file");
 		fclose($handle);
-		$message = '<b>'.$filename."</b> created successfully.";
+		$message = '<b>"'.$filename.'"</b> created successfully.';
+		$_GET["i"] = dirname($filename); //return to file's directory.
 	}
 }
 
@@ -243,9 +298,10 @@ if (isset($_POST["new_folder"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST
 	$foldername = $_POST["new_folder"];
 	if (!is_dir($foldername)) {
 		mkdir($foldername);
-		$message = '<b>'.$foldername."</b> created successfully.";
+		$message = '<b>"'.$foldername.'"</b> created successfully.';
+		$_GET["i"] = $foldername;  //change to new directory
 	} else {
-		$message = "A folder by that name already exists.";
+		$message = 'A folder by that name already exists.';
 	}
 }
 
@@ -254,25 +310,39 @@ if (isset($_POST["new_folder"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST
 // RENAME FILE *****************************************************************
 if (isset($_GET["r"])) {
 	$filename = $_GET["r"];
-	$pagetitle = "Rename &ldquo;".$filename."&rdquo;";
+	$pagetitle = "Rename File";
 	$page = "rename";
 }
 if (isset($_POST["rename_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$old_filename = $_POST["old_filename"];
 	$filename = $_POST["rename_filename"];
+
+	//Removed any trailing slashes
+	while (substr($filename, -1) == '/') { $filename = rtrim($filename, '/'); }
+
 	rename($old_filename, $filename);
-	$message = '<b>'.$old_filename."</b> successfully renamed to <b>".$filename."</b>.";
+	$message = 'Successfully renamed: <br><b>"'.$old_filename.'"</b> <br>To:</br> <b>"'.$filename.'"</b>';
 }
 
 
 
 // RENAME FOLDER ***************************************************************
-if ($_GET["p"] == "renamefolder") {$pagetitle = "Rename Folder &ldquo;".$_GET["i"]."&rdquo;"; }
+if ($_GET["p"] == "renamefolder") {$pagetitle = "Rename Folder"; }
 if (isset($_POST["rename_foldername"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$old_foldername = $_POST["old_foldername"];
 	$foldername = $_POST["rename_foldername"];
+
+	//Removed any trailing slashes
+	while (substr($old_foldername, -1) == '/') {
+		$old_foldername = rtrim($old_foldername, '/');
+	}
+	while (substr($foldername, -1) == '/') {
+		$foldername = rtrim($foldername, '/');
+	}
+
 	if (rename($old_foldername, $foldername)) {
-		$message = '<b>'.$old_foldername."</b> unsuccessfully renamed to <b>".$foldername."</b>.";
+		$message = 'Successfully renamed: <br><b>"'.$old_foldername.'"</b><br>To:<br><b>"'.$foldername.'"</b>.';
+		$_GET["i"] = $foldername;  //return to new folder
 	} else {
 		$message = "There was an error. Try again and/or contact your admin.";
 	}
@@ -284,35 +354,43 @@ if (isset($_POST["rename_foldername"]) && $_SESSION['onefilecms_valid'] = "1" &&
 if ($_GET["p"] == "upload") {$pagetitle = "Upload File"; }
 if (isset($_FILES['upload_filename']['name']) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$filename = $_FILES['upload_filename']['name'];
+	$newfilename = $filename;
 	$destination = $_POST["upload_destination"];
-	if(move_uploaded_file($_FILES['upload_filename']['tmp_name'],
-	$destination.basename($filename))) {
-		$message = '<b>'.basename($filename)."</b> uploaded successfully to <b>".$destination."</b>.";
-	} else{
-		$message = "There was an error. Try again and/or contact your admin.";
+	$destintaion = rtrim($destination,"/").'/';  //make sure only a single trailing slash
+	$savefile = $destination.$filename;
+
+	//if file_exists(), serialize filename until it doesn't
+	$serialize = 0;
+	$message   = 'Uploading: <b>"'.$filename.'"</b> to <b>"'.$destination.'"</b><br>';
+	if (file_exists($savefile)) {
+		$message .= 'However, a file with that name already exists in the target directory.<br>';
+		$savefile_info = pathinfo($savefile);
 	}
-}
+	while (file_exists($savefile)) {
+		$serialize = sprintf("%04d", ++$serialize); //  0001, 0002, 0003, etc...
+		$newfilename = $savefile_info['filename'].'.'.$serialize.'.'.$savefile_info['extension'];
+		$savefile = $destination . $newfilename;
+	}
+	$message .= 'Saving as: <b>"</b>'.'<b>'.$newfilename.'"</b>';
+	//end serialize filename *****************************/
+
+	if(move_uploaded_file($_FILES['upload_filename']['tmp_name'], $savefile)) {
+		$message .= '<br>Upload successful.';
+		$_GET["i"] = rtrim($destination,"/");
+	} else{
+		$message .= "<br><b>(!) There was an error.</b> Try again and/or contact your host admin.";
+	}
+} //end Upload file
 
 
 
 
 
-//******************************************************************************
-//******************************************************************************
-?><!DOCTYPE html>
-<!-- DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"-->
-
-<html xmlns="http://www.w3.org/1999/xhtml">
-
-<head>
-
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta name="robots" content="noindex">
-
-<title><?php echo $config_title.' - '.$pagetitle; ?></title>
 
 
-<?php //*** local or a hosted style sheet? **********************
+//*** local or a hosted style sheet? *******************************************
+function style_sheet() {
+global $DOC_ROOT, $config_csslocal, $CWD;
 $STYLE_SHEET = $config_csslocal;
 $ROOT = $DOC_ROOT; 
 
@@ -322,16 +400,20 @@ if (substr($config_csslocal,0,1) != "/"){ $ROOT = $CWD.'/'; }
 
 //Check for local style sheet. If not found, use hosted copy.
 if (!file_exists($ROOT.$config_csslocal) || is_dir($ROOT.$config_csslocal)) { $STYLE_SHEET = $config_csshosted; }
-//***************************************************************?>
-
-<link href="<?php echo $STYLE_SHEET;?>" type="text/css" rel="stylesheet">
 
 
+?> <link href="<?php echo $STYLE_SHEET;?>" type="text/css" rel="stylesheet"> <?php
+}//end style_sheet() ***********************************************************
 
 
 
-<?php //===================================================================== ?>
-<?php if ( ($page == "index") || ($page == "edit") ) { //load script ?>
+
+
+
+
+
+//******************************************************************************
+function time_stamp_scripts() {  ?>
 
 <script>//Dispaly file's timestamp in user's local time 
 
@@ -373,11 +455,36 @@ function FileTimeStamp(php_filemtime, show_offset){
 
 }//end FileTimeStamp(php_filemtime)
 </script>
-<?php }//end if (index or edit), load script ================================ ?>
+<?php }//end time_stamp_scripts() **********************************************
 
 
 
 
+
+
+
+
+
+
+
+//******************************************************************************
+//******************************************************************************
+?><!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="robots" content="noindex">
+
+<title><?php echo $config_title.' - '.$pagetitle; ?></title>
+
+
+<?php style_sheet(); ?>
+
+
+<?php if ( ($page == "index") || ($page == "edit") ) { time_stamp_scripts(); } ?>
 
 </head>
 
@@ -397,23 +504,13 @@ function FileTimeStamp(php_filemtime, show_offset){
 </div>
 
 
-
-
-<?php //********** Notification of action success or failure. **********
-if (isset($message)) { ?>
-	<div id="message"><p><?php echo $message ;?>
-	<!-- [X] to dismiss message box -->	
-	<span><a href='<?php echo $ONESCRIPT.'?f='.$_GET["f"]; ?>'
-	onclick='document.getElementById("message").innerHTML = " ";return false'>
-	[X]</a></span></p></div>
-<?php }
-
-// On Edit page only, preserve vertical spacing for message even when empty.
-if (!isset($message) && ($page == "edit")) { echo '<div id="message"></div>'; };
+<?php message_box(); ?>
 
 
 
 
+
+<?php
 // COPY FILE *******************************************************************
 if ($page == "copy") { 
 	$extension = strrchr($filename, ".");
@@ -434,11 +531,13 @@ if ($page == "copy") {
 		</p>
 		<p>	<?php Cancel_Submit_Buttons("Copy"); ?>	</p>
 	</form>
-<?php };
+<?php }; ?>
 
 
 
-// DELETE FILE *****************************************************************
+
+
+<?php // DELETE FILE ***********************************************************
 if ($page == "delete") {
 	$varvar = "?i=".substr($_GET["d"],0,strrpos($_GET["d"],"/")); ?>
 	<h2>Delete &ldquo;<a href="/<?php echo $filename; ?> ">
@@ -452,11 +551,12 @@ if ($page == "delete") {
 			<?php Cancel_Submit_Buttons("DELETE"); ?>
 		</p>
 	</form>
-<?php };
+<?php }; ?>
 
 
 
-// DELETE FOLDER ***************************************************************
+
+<?php // DELETE FOLDER *********************************************************
 if ($page == "deletefolder") {
 	$varvar = "?i=".substr($_GET["i"],0,strrpos(substr_replace($_GET["i"],"",-1),"/")); ?>
 	<h2>Delete Folder &ldquo;<?php echo $_GET["i"]; ?>&rdquo;</h2>
@@ -468,43 +568,16 @@ if ($page == "deletefolder") {
 			<?php Cancel_Submit_Buttons("DELETE"); ?>
 		</p>
 	</form>
-<?php }; 
+<?php }; ?>
 
 
 
-// EDIT ************************************************************************
+
+<?php // EDIT ******************************************************************
 if ($page == "edit") {
 
 	$ext = end( explode(".", strtolower($filename)) );
-
-
-	function show_image(){ //************************
-		global $filename, $MAX_IMG_W, $MAX_IMG_H;
-		
-		$IMG = $filename;
-		$img_info = getimagesize($IMG);
-
-		$W=0; $H=1;
-		$SCALE = 1; $TOOWIDE = 0; $TOOHIGH = 0;
-		if ($img_info[$W] > $MAX_IMG_W) { $TOOWIDE = ( $MAX_IMG_W/$img_info[$W] );}
-		if ($img_info[$H] > $MAX_IMG_H) { $TOOHIGH = ( $MAX_IMG_H/$img_info[$H] );}
-
-		if ($TOOHIGH || $TOOWIDE) {
-			if     (!$TOOWIDE)           {$SCALE = $TOOHIGH;}
-			elseif (!$TOOHIGH)           {$SCALE = $TOOWIDE;}
-			elseif ($TOOHIGH > $TOOWIDE) {$SCALE = $TOOWIDE;}
-			else                         {$SCALE = $TOOHIGH;}
-		}
-
-		echo '<p class="file_meta">'.$img_info[3];
-		echo ' (Image shown at ~'. round($SCALE*100) .'% of full size.)</p>';
-		echo '<div style="clear:both;"></div>';
-		echo '<a href="/' . $IMG . '">';
-		echo '<img src="/'.$IMG.'"  height="'.$img_info[$H]*$SCALE.'"></a>';
-	}// end show_image() ****************************
 ?>
-
-
 	<h2 id="edit_header">File: &ldquo;<a href="/<?php echo $filename; ?>"> 
 	<?php echo $filename; ?> 
 	</a>&rdquo;</h2>
@@ -660,14 +733,14 @@ if ($page == "edit") {
 	</script>
 	<?php } //end if editable, include this <script>...</script>
 
-}; //End Edit page *************************************************************
+}; //End Edit page ***********************************************************?>
 
 
 
 
 
 
-// INDEX ***********************************************************************
+<?php // INDEX *****************************************************************
 if ($page == "index") {
 	$varvar = "";
 	if (isset($_GET["i"])) { $varvar = $_GET["i"]."/"; }
@@ -701,13 +774,14 @@ if ($page == "index") {
 	<!--===== List folders/sub-directores =====-->
 	<p class="index_folders">
 		<?php
-		$files = glob($varvar."*",GLOB_ONLYDIR);
-		natcasesort($files);
-		foreach ($files as $file) {
-			echo '<a href="'.$ONESCRIPT.'?i='.$file.'" class="folder">'.basename($file).' /</a>';
+		$folders = glob($varvar."*",GLOB_ONLYDIR);
+		natcasesort($folders);
+		foreach ($folders as $folder) {
+			echo '<a href="'.$ONESCRIPT.'?i='.$folder.'" class="index_folder">';
+
+			echo basename($folder).' /</a>';
 		} ?>
 	</p>
-	
 
 
 
@@ -761,7 +835,7 @@ if ($page == "index") {
 	<?php //<!--======== List files in vertical table ========-->
 	function list_view() {
 	
-	global $varvar, $config_excluded, $ftypes, $fclasses ; 
+	global $ONESCRIPT, $varvar, $config_excluded, $ftypes, $fclasses;
 	
 	$files = glob($varvar."{,.}*", GLOB_BRACE);
 	natcasesort($files);
@@ -791,8 +865,8 @@ if ($page == "index") {
 	?>
 					<tr>
 						<td>
-							<?php echo "<a href='", $ONESCRIPT,"?f=", $file, "'"; ?>
-							<?php echo "class='",  $file_class, "'>", basename($file), "</a>"; ?>
+							<?php echo "<a href='", $ONESCRIPT, "?f=", $file, "'"; ?>
+							<?php echo 'class="',  $file_class, '">', basename($file), '</a>'; ?>
 						</td>
 						<td class="meta_T meta_size">&nbsp;
 							<?php echo number_format(filesize($file)).""; ?> B
@@ -831,20 +905,18 @@ if ($page == "index") {
 		<?php } ?>
 	</p>
 
-<?php }; // End of Index (file listing) page ***********************************
+<?php }; // End of Index (file listing) page *********************************?>
 
 
 
 
-// LOG OUT *********************************************************************
-if ($page == "logout") {
-	$page = "login"; 
-}
+<?php // LOG OUT ***************************************************************
+if ($page == "logout") { $page = "login"; } ?>
 
 
 
 
-// LOG IN **********************************************************************
+<?php // LOG IN ****************************************************************
 if ($page == "login") { ?>
 	<h2>Log In</h2>
 	<form method="post" action="<?php echo $ONESCRIPT; ?>">
@@ -860,13 +932,13 @@ if ($page == "login") { ?>
 		<input type="submit" class="button" value="Enter">
 	</form>
 	<script>document.getElementById('onefilecms_username').focus();</script>
-<?php };
+<?php }; ?>
 
 
 
 
 
-// NEW FILE ********************************************************************
+<?php // NEW FILE **************************************************************
 if ($page == "new") {
 	$varvar = "";
 	if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; }?>
@@ -876,16 +948,16 @@ if ($page == "new") {
 			<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 			<p>
 				<label for="new_filename">New filename: </label>
-				<input type="text" name="new_filename" id="new_filename" class="textinput" value="<?php echo $_GET["i"]; ?>">
+				<input type="text" name="new_filename" id="new_filename" class="textinput" value="<?php echo $_GET["i"]; ?>/">
 			</p>
 			<p>	<?php Cancel_Submit_Buttons("Create"); ?> </p>
 		</form>
-<?php };
+<?php }; ?>
 
 
 
 
-// NEW FOLDER ******************************************************************
+<?PHP // NEW FOLDER ************************************************************
 if ($page == "folder") {
 	$varvar = "";
 	if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; }?>
@@ -895,16 +967,16 @@ if ($page == "folder") {
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<p>
 			<label for="new_folder">Folder name: </label>
-			<input type="text" name="new_folder" id="new_folder" class="textinput" value="<?php echo $_GET["i"]; ?>">
+			<input type="text" name="new_folder" id="new_folder" class="textinput" value="<?php echo $_GET["i"]; ?>/">
 		</p>
 		<p>	<?php Cancel_Submit_Buttons("Create"); ?> </p>
 	</form>
-<?php };
+<?php }; ?>
 
 
 
 
-// RENAME FILE *****************************************************************
+<?php // RENAME FILE ***********************************************************
 if ($page == "rename") {
 	$varvar = "?i=".substr($_GET["r"],0,strrpos($_GET["r"],"/")); ?>
 	<h2>Rename &ldquo;<a href="/<?php echo $filename; ?>">	<?php echo $filename; ?> </a>&rdquo;</h2>
@@ -925,14 +997,15 @@ if ($page == "rename") {
 		</p>
 		<p><?php Cancel_Submit_Buttons("Rename"); ?></p>
 	</form>
-<?php };
+<?php }; ?>
 
 
 
 
-// RENAME FOLDER ***************************************************************
+<?php // RENAME FOLDER *********************************************************
 if ($page == "renamefolder") {
-	$varvar = "?i=".substr($_GET["i"],0,strrpos(substr_replace($_GET["i"],"",-1),"/")); ?>
+	$varvar = "?i=".substr($_GET["i"],0,strrpos(substr_replace($_GET["i"],"",-1),"/"));
+?>
 	<h2>Rename Folder &ldquo;<?php echo $_GET["i"]; ?>&rdquo;</h2>
 	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
@@ -946,12 +1019,12 @@ if ($page == "renamefolder") {
 		</p>
 		<p><?php Cancel_Submit_Buttons("Rename"); ?></p>
 	</form>
-<?php };
+<?php }; ?>
 
 
 
 
-// UPLOAD FILE *****************************************************************
+<?php // UPLOAD FILE ***********************************************************
 if ($page == "upload") {
 	$varvar = ""; if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; } ?>
 	<h2>Upload</h2>
@@ -960,7 +1033,7 @@ if ($page == "upload") {
 		<input type="hidden" name="MAX_FILE_SIZE" value="100000">
 		<p>
 			<label for="upload_destination">Destination:</label>
-			<input type="text" name="upload_destination" value="<?php echo $_GET["i"]; ?>" class="textinput">
+			<input type="text" name="upload_destination" value="<?php echo $_GET["i"]; ?>/" class="textinput">
 		</p>
 		<p>
 			<label for="upload_filename">File:</label>
