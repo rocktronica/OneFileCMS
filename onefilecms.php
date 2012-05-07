@@ -2,7 +2,7 @@
 // OneFileCMS - http://onefilecms.com/
 // For license & copyright info, see OneFileCMS.License.BSD.txt
 
-$version = "1.2.6";
+$version = "1.2.7";
 
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
@@ -193,7 +193,7 @@ function show_image(){ //************************
 	if ($TOOHIGH || $TOOWIDE) {
 		if     (!$TOOWIDE)           {$SCALE = $TOOHIGH;}
 		elseif (!$TOOHIGH)           {$SCALE = $TOOWIDE;}
-		elseif ($TOOHIGH > $TOOWIDE) {$SCALE = $TOOWIDE;}
+		elseif ($TOOHIGH > $TOOWIDE) {$SCALE = $TOOWIDE;} //ex:if (.90 > .50)
 		else                         {$SCALE = $TOOHIGH;}
 	}
 
@@ -232,8 +232,12 @@ if (isset($_GET["d"])) {
 
 if (isset($_POST["delete_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$filename = $_POST["delete_filename"];
-	unlink($filename);
-	$message = '<b>"'.$filename.'"</b> successfully deleted.';
+
+	if (unlink($filename)) {
+		$message = '<b>"'.$filename.'"</b> successfully deleted.';
+	}else{
+		$message = '<b>(!) Error deleting "'.$filename.'"</b>.';
+	}
 }
 
 
@@ -357,22 +361,20 @@ if ($_GET["p"] == "renamefolder") {$pagetitle = "Rename Folder"; }
 if (isset($_POST["rename_foldername"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 
 	$old_foldername = $_POST["old_foldername"];
-	$foldername = $_POST["rename_foldername"];
-
+	$foldername     = $_POST["rename_foldername"];
+	$_GET["i"]      = $old_foldername;
+	Check_ipath();
 
 	//Removed any trailing slashes
-	while (substr($old_foldername, -1) == '/') {
-		$old_foldername = rtrim($old_foldername, '/');
-	}
-	while (substr($foldername, -1) == '/') {
-		$foldername = rtrim($foldername, '/');
-	}
+	$old_foldername = rtrim($old_foldername, '/');
+	$foldername = rtrim($foldername, '/');
 
 	if (rename($old_foldername, $foldername)) {
-		$message = 'Successfully renamed: <br><b>"'.$old_foldername.'"</b><br>To:<br><b>"'.$foldername.'"</b>.';
+		$message  = 'Successfully renamed: <br><b>"'.$old_foldername.'"</b><br>';
+		$message .= 'To:<br><b>"'.$foldername.'"</b>.';
 		$_GET["i"] = $foldername;  //return to new folder
 	} else {
-		$message = "There was an error. Try again and/or contact your admin.";
+		$message = "<b>(!)</b> There was an error during rename. Try again and/or contact your admin.";
 	}
 }
 
@@ -382,32 +384,38 @@ if (isset($_POST["rename_foldername"]) && $_SESSION['onefilecms_valid'] = "1" &&
 if ($_GET["p"] == "upload") {$pagetitle = "Upload File"; }
 if (isset($_FILES['upload_filename']['name']) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 
-	$filename = $_FILES['upload_filename']['name'];
+	$filename    = $_FILES['upload_filename']['name'];
 	$newfilename = $filename;
 	$destination = $_POST["upload_destination"];
 	$destintaion = rtrim($destination,"/").'/';  //make sure only a single trailing slash
-	$savefile = $destination.$filename;
+	$savefile    = $destination.$filename;
+	$_GET["i"]   = rtrim($destination,"/");
 
-	//if file_exists(), serialize filename until it doesn't
-	$serialize = 0;
-	$message   = 'Uploading: <b>"'.$filename.'"</b> to <b>"'.$destination.'"</b><br>';
-	if (file_exists($savefile)) {
-		$message .= 'However, a file with that name already exists in the target directory.<br>';
-		$savefile_info = pathinfo($savefile);
-	}
-	while (file_exists($savefile)) {
-		$serialize = sprintf("%04d", ++$serialize); //  0001, 0002, 0003, etc...
-		$newfilename = $savefile_info['filename'].'.'.$serialize.'.'.$savefile_info['extension'];
-		$savefile = $destination . $newfilename;
-	}
-	$message .= 'Saving as: <b>"</b>'.'<b>'.$newfilename.'"</b>';
-	//end serialize filename *****************************/
+	if (($filename == "")){ 
+		$message = "<b>(!) No file selected for upload... </b>";
+	}else{
+		$message   = 'Uploading: <b>"'.$filename.'"</b> to <b>"'.$destination.'"</b>';
+		
+		//if file_exists(), serialize filename until it doesn't
+		$serialize = 0;
+		if (file_exists($savefile)) {
+			$message .= '<br><b>(!)</b> A file with that name already exists in the target directory.<br>';
+			$savefile_info = pathinfo($savefile);
 
-	if(move_uploaded_file($_FILES['upload_filename']['tmp_name'], $savefile)) {
-		$message .= '<br>Upload successful.';
-		$_GET["i"] = rtrim($destination,"/");
-	} else{
-		$message .= "<br><b>(!) There was an error.</b> Try again and/or contact your host admin.";
+			while (file_exists($savefile)) {
+				$serialize = sprintf("%04d", ++$serialize); //  0001, 0002, 0003, etc...
+				$newfilename = $savefile_info['filename'].'.'.$serialize.'.'.$savefile_info['extension'];
+				$savefile = $destination . $newfilename;
+			}
+			$message .= 'Saving as: <b>"</b>'.'<b>'.$newfilename.'"</b>';
+		}
+		//end serialize filename *****************************/
+
+		if(move_uploaded_file($_FILES['upload_filename']['tmp_name'], $savefile)) {
+			$message .= '<br>Upload successful.';
+		} else{
+			$message .= "<br><b>(!) There was an error.</b> Try again and/or contact your host admin.";
+		}
 	}
 } //end Upload file
 
@@ -589,8 +597,9 @@ if ($page == "copy") {
 
 <?php // DELETE FILE ***********************************************************
 if ($page == "delete") {
-	$varvar = "?i=".substr($_GET["d"],0,strrpos($_GET["d"],"/")); ?>
-	<h2>Delete &ldquo;<a href="/<?php echo $filename; ?> ">
+	$varvar = '?i='.dirname($_GET["d"]); 
+
+?>	<h2>Delete &ldquo;<a href="/<?php echo $filename; ?> ">
 	<?php echo $filename; ?></a>&rdquo;</h2>
 	<p>Are you sure?</p>
 
@@ -608,8 +617,9 @@ if ($page == "delete") {
 
 <?php // DELETE FOLDER *********************************************************
 if ($page == "deletefolder") {
-	$varvar = "?i=".substr($_GET["i"],0,strrpos(substr_replace($_GET["i"],"",-1),"/")); ?>
-	<h2>Delete Folder &nbsp;&ldquo; <?php echo $_GET["i"]; ?>/ &rdquo; &nbsp;?</h2>
+	$varvar = "?i=".substr($_GET["i"],0,strrpos(substr_replace($_GET["i"],"",-1),"/"));
+
+?>	<h2>Delete Folder &nbsp;&ldquo; <?php echo $_GET["i"]; ?>/ &rdquo; &nbsp;?</h2>
 	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<p>
@@ -658,8 +668,8 @@ if ($page == "edit") {
 		<?php if (strpos($config_itypes,$ext) === false) { show_textarea(); } ?>
 		
 		<p class="buttons_right">
-		<input type="submit" class="button" name="save_file" id="save_file" value="Save"  onclick="submitted = true;"  disabled="disabled">
-		<input type="button" class="button" id="reset"  value="Reset - loose changes" onclick="Reset_File()"  disabled="disabled">
+		<input type="submit" class="button" name="save_file" id="save_file" value="Save"  onclick="submitted = true;">
+		<input type="button" class="button" id="reset"  value="Reset - loose changes" onclick="Reset_File()">
 		<input type="button" class="button" name="rename_file" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.'?r='.$filename; ?>'">
 		<input type="button" class="button" name="delete_file" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.'?d='.$filename; ?>'">
 		<input type="button" class="button" name="copy_file"   value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.'?c='.$filename; ?>'">
@@ -897,10 +907,10 @@ if ($page == "index") {
 		<a href="<?php echo $ONESCRIPT.'?p=new&amp;i='.$varvar; ?>"    class="new">New File</a>
 		<a href="<?php echo $ONESCRIPT.'?p=folder&amp;i='.$varvar; ?>" class="newfolder">New Folder</a>
 		<?php if ($varvar !== "") { ?>
-			<a href="<?php echo $ONESCRIPT.'?p=deletefolder&amp;i='.$varvar; ?>" class="deletefolder">
-			Delete Folder</a>
 			<a href="<?php echo $ONESCRIPT.'?p=renamefolder&amp;i='.$varvar; ?>" class="renamefolder">
 			Rename Folder</a>
+			<a href="<?php echo $ONESCRIPT.'?p=deletefolder&amp;i='.$varvar; ?>" class="deletefolder">
+			Delete Folder</a>
 		<?php } ?>
 	</p>
 
@@ -1003,7 +1013,7 @@ if ($page == "rename") {
 
 <?php // RENAME FOLDER *********************************************************
 if ($page == "renamefolder") {
-	$varvar = "?i=".substr($_GET["i"],0,strrpos(substr_replace($_GET["i"],"",-1),"/"));
+	$varvar = '?i='.$_GET["i"];
 ?>
 	<h2>Rename Folder &ldquo;<?php echo $_GET["i"]; ?>&rdquo;</h2>
 	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
@@ -1025,9 +1035,10 @@ if ($page == "renamefolder") {
 
 <?php // UPLOAD FILE ***********************************************************
 if ($page == "upload") {
-	$varvar = ""; if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; } ?>
-	<h2>Upload</h2>
-	<form enctype="multipart/form-data" action="<?php echo $ONESCRIPT.substr_replace($varvar,"",-1); ?>" method="post">
+	$varvar = ""; if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; }
+	
+?>	<h2>Upload</h2>
+	<form enctype="multipart/form-data" action="<?php echo $ONESCRIPT.$varvar; ?>" method="post">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<input type="hidden" name="MAX_FILE_SIZE" value="100000">
 		<p>
