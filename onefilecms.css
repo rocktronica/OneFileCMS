@@ -1,5 +1,5 @@
 /* OneFileCMS - http://onefilecms.com/
- * Version 1.2.3
+ * Version 1.2.5
  * For license & copyright info, see OneFileCMS.License.BSD.txt 
  */ 
 
@@ -34,7 +34,8 @@ fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td
 
 body { font-size: 1em; background: #d5d0cc; font-family: sans-serif; }
 
-h2,h3,p,ul,table { margin-bottom: 10px; }
+p, h3,ul,table { margin-bottom: .5em; }
+h2 {margin-bottom: .2em;}
 
 em, i { font-style: italic; }
 
@@ -126,7 +127,7 @@ pre {
 
 
 /* Leave space when message is blank. Used by Edit page */
-#message { min-height: 1.7em; }
+#message { min-height: 1.7em; margin-bottom: .3em;}
 
 #message p {
 	margin: 0;
@@ -252,7 +253,7 @@ table.index_T td {
 	}
 
 
-.index_folders { min-height: 1.4em;  margin-bottom: .2em; }
+.index_folders { min-height: 1.7em;  margin-bottom: .2em; }
 
 .index_folders a {
 	Xborder       : 1px solid gray;

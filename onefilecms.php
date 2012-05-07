@@ -2,7 +2,7 @@
 // OneFileCMS - http://onefilecms.com/
 // For license & copyright info, see OneFileCMS.License.BSD.txt
 
-$version = "1.2.4";
+$version = "1.2.5";
 
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
@@ -22,7 +22,7 @@ $config_csshosted = "http://self-evident.github.com/OneFileCMS/onefilecms.css";
 $MAX_IMG_W   = 810;   // Max width to display images. (page container = 810)
 $MAX_IMG_H   = 1000;  // Max height.  I don't know, it just looks reasonable.
 
-$config_editable  = "html,htm,php,css,txt,text,cfg,conf,ini,csv,svg";
+$config_editable  = "html,htm,php,css,js,txt,text,cfg,conf,ini,csv,svg";
 $config_excluded  = ""; //files to exclude from directory listings
 $config_itypes    = "jpg,gif,png,bmp,ico";  // Can be displayed on edit page.
 $config_ftypes    = "jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,htm,html,cfg,conf"; //used to select file icon
@@ -82,12 +82,15 @@ if (isset($_GET["p"])) {
 }
 
 //Check if "i" path exists & trim trailing slashes ///
-if (isset($_GET["i"])) {
-	$_GET["i"] = rtrim($_GET["i"],"/");
-	if (!file_exists($_GET["i"])) { $message = "Does not exist: ".$_GET["i"]; unset($_GET['p']);}
-	while (!is_dir($_GET["i"])) { $_GET["i"] = dirname($_GET["i"]); }
-	if ($_GET["i"] == '.') {unset($_GET["i"]);}
-}
+function Check_ipath() { global $message;
+	if (isset($_GET["i"])) {
+		$_GET["i"] = rtrim($_GET["i"],"/");
+		if (!is_dir($_GET["i"])) { $message = "Does not exist: ".$_GET["i"]; }
+		while (!is_dir($_GET["i"])) { $_GET["i"] = dirname($_GET["i"]); }
+		if ($_GET["i"] == '.') {unset($_GET["i"]);}
+	}
+}//end Check_ipath()
+Check_ipath();
 
 if ( ($page == "login") and ($_SESSION['onefilecms_valid']) ) {	
 	$page = "index";
@@ -118,6 +121,15 @@ foreach ($_GET as $name => $value) { $_GET[$name] = htmlentities($value); }
 
 //******************************************************************************
 // Misc Functions
+
+
+function is_empty($path){
+	$empty = false;
+	$dh = opendir($path);
+	for($i = 3; $i; $i--) { $empty = (readdir($dh) === FALSE); }
+	closedir($dh);
+	return $empty;
+}//end is_emtpy()
 
 
 function Close_Button($classes) { //********************
@@ -154,7 +166,7 @@ function message_box() { //*****************************
 	?>
 		<div id="message"><p>
 		<!-- [X] to dismiss message box -->	
-		<span><a href='<?php echo $ONESCRIPT.'?f='.$_GET["f"]; ?>'
+		<span><a href='<?php echo $ONESCRIPT.'?'.$_SERVER['QUERY_STRING']; ?>'
 		onclick='document.getElementById("message").innerHTML = " ";return false'>
 		[X]</a>
 		</span>
@@ -230,6 +242,11 @@ if (isset($_POST["delete_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $
 if ($_GET["p"] == "deletefolder") {
 	$pagetitle = "Delete Folder";
 }
+
+
+
+
+
 if (isset($_POST["delete_foldername"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$foldername = $_POST["delete_foldername"];
 	if (@rmdir($foldername)) {
@@ -238,6 +255,8 @@ if (isset($_POST["delete_foldername"]) && $_SESSION['onefilecms_valid'] = "1" &&
 		$message = '<b>(!) "'.$foldername.'"</b> is not empty, or other error occurred.';
 	}
 }
+
+
 
 
 
@@ -254,6 +273,9 @@ if (isset($_POST["filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["
 	}
 	$message = '<b>"'.$filename.'"</b> saved successfully.';
 }//***
+
+
+
 
 //*** If in directory list, and a filename is clicked:
 if (isset($_GET["f"])) {
@@ -280,6 +302,7 @@ if (isset($_GET["f"])) {
 if ($_GET["p"] == "new") {$pagetitle = "New File"; }
 if (isset($_POST["new_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$filename = $_POST["new_filename"];
+
 	if (file_exists($filename)) {
 		$message = '<b>"'.$filename.'"</b> not created. A file with that name already exists.';
 	} else {
@@ -296,12 +319,14 @@ if (isset($_POST["new_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_PO
 if ($_GET["p"] == "folder") {$pagetitle = "New Folder"; }
 if (isset($_POST["new_folder"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$foldername = $_POST["new_folder"];
+
 	if (!is_dir($foldername)) {
 		mkdir($foldername);
 		$message = '<b>"'.$foldername.'"</b> created successfully.';
 		$_GET["i"] = $foldername;  //change to new directory
 	} else {
 		$message = 'A folder by that name already exists.';
+
 	}
 }
 
@@ -326,11 +351,15 @@ if (isset($_POST["rename_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $
 
 
 
+
+
 // RENAME FOLDER ***************************************************************
 if ($_GET["p"] == "renamefolder") {$pagetitle = "Rename Folder"; }
 if (isset($_POST["rename_foldername"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
+
 	$old_foldername = $_POST["old_foldername"];
 	$foldername = $_POST["rename_foldername"];
+
 
 	//Removed any trailing slashes
 	while (substr($old_foldername, -1) == '/') {
@@ -353,6 +382,7 @@ if (isset($_POST["rename_foldername"]) && $_SESSION['onefilecms_valid'] = "1" &&
 // UPLOAD FILE *****************************************************************
 if ($_GET["p"] == "upload") {$pagetitle = "Upload File"; }
 if (isset($_FILES['upload_filename']['name']) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
+
 	$filename = $_FILES['upload_filename']['name'];
 	$newfilename = $filename;
 	$destination = $_POST["upload_destination"];
