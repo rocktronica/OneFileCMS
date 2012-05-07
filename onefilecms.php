@@ -2,18 +2,18 @@
 // OneFileCMS - http://onefilecms.com/
 // For license & copyright info, see OneFileCMS.License.BSD.txt
 
-$version = "1.2.5";
+$version = "1.2.6";
 
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
 
 
+
 // CONFIGURABLE INFO
-$VIEW_MODE        = "LIST"; // or BLOCK   (Actually, anything =/= BLOCK == LIST)
+
 $config_username  = "username";
 $config_password  = "password";
 $config_title     = "OneFileCMS";
-
 $config_LOCAL     = "/onefilecms/";      //local directory for icons, .css, .js, etc...
 $config_csslocal  = "onefilecms.css";    //Relative to this file.
 //$config_csslocal  ="/onefilecms.css";  //Relative to site URL root.
@@ -42,9 +42,9 @@ $ONESCRIPT = $_SERVER["SCRIPT_NAME"];
 $DOC_ROOT  = $_SERVER["DOCUMENT_ROOT"];
 $CWD       = str_replace("\\","/",getcwd());
 
-
 //Allows OneFileCMS.php to be started from any dir on the site.
 chdir($DOC_ROOT);
+
 
 
 
@@ -240,23 +240,23 @@ if (isset($_POST["delete_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $
 
 // DELETE FOLDER ***************************************************************
 if ($_GET["p"] == "deletefolder") {
-	$pagetitle = "Delete Folder";
+	if (!is_empty($_GET["i"])){
+		$message = '<b>(!) Folder is not empty.</b>  Folders must be empty before they can be deleted.<br>';
+		$page = "index";
+		}
+	else { $pagetitle = "Delete Folder"; }
 }
-
-
-
-
 
 if (isset($_POST["delete_foldername"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$foldername = $_POST["delete_foldername"];
+	$_GET["i"] = $foldername;
 	if (@rmdir($foldername)) {
+		$_GET["i"] = dirname($foldername);
 		$message = '<b>"'.$foldername.'"</b> successfully deleted.';
 	} else {
 		$message = '<b>(!) "'.$foldername.'"</b> is not empty, or other error occurred.';
 	}
 }
-
-
 
 
 
@@ -270,12 +270,11 @@ if (isset($_POST["filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["
 	if ($fp) {
 		fwrite($fp, $content);
 		fclose($fp);
+		$message = '<b>"'.$filename.'"</b> saved successfully.';
+	}else{
+		$message = '<b>(!) There was an error saving file.';
 	}
-	$message = '<b>"'.$filename.'"</b> saved successfully.';
 }//***
-
-
-
 
 //*** If in directory list, and a filename is clicked:
 if (isset($_GET["f"])) {
@@ -301,10 +300,10 @@ if (isset($_GET["f"])) {
 // NEW FILE ********************************************************************
 if ($_GET["p"] == "new") {$pagetitle = "New File"; }
 if (isset($_POST["new_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
-	$filename = $_POST["new_filename"];
-
+	$filename  = $_POST["new_filename"];
+	$_GET["i"] = $filename; Check_ipath();
 	if (file_exists($filename)) {
-		$message = '<b>"'.$filename.'"</b> not created. A file with that name already exists.';
+		$message = '<b>(!) "'.$filename.'"</b> not created. A file with that name already exists.';
 	} else {
 		$handle = fopen($filename, 'w') or die("can't open file");
 		fclose($handle);
@@ -319,14 +318,14 @@ if (isset($_POST["new_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_PO
 if ($_GET["p"] == "folder") {$pagetitle = "New Folder"; }
 if (isset($_POST["new_folder"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
 	$foldername = $_POST["new_folder"];
-
+	$_GET["i"] = $foldername; Check_ipath();
 	if (!is_dir($foldername)) {
 		mkdir($foldername);
 		$message = '<b>"'.$foldername.'"</b> created successfully.';
 		$_GET["i"] = $foldername;  //change to new directory
 	} else {
-		$message = 'A folder by that name already exists.';
-
+		$message  = '<b>(!)</b> Folder already exists: ';
+		$message .= '<b>'.$foldername.'</b>';
 	}
 }
 
@@ -346,10 +345,10 @@ if (isset($_POST["rename_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $
 	while (substr($filename, -1) == '/') { $filename = rtrim($filename, '/'); }
 
 	rename($old_filename, $filename);
-	$message = 'Successfully renamed: <br><b>"'.$old_filename.'"</b> <br>To:</br> <b>"'.$filename.'"</b>';
+	$message  = 'Successfully renamed: <br>';
+	$message .='<b>"'.$old_filename.'"</b> <br>To:<br>';
+	$message .='<b>"'.$filename.'"</b>';
 }
-
-
 
 
 
@@ -497,6 +496,25 @@ function FileTimeStamp(php_filemtime, show_offset){
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //******************************************************************************
 //******************************************************************************
 ?><!DOCTYPE html>
@@ -524,14 +542,16 @@ function FileTimeStamp(php_filemtime, show_offset){
 
 <div class="header">
 	<?php echo '<a href="', $ONESCRIPT, '" id="logo">', $config_title; ?></a>
-
+	<?php echo $version; ?>
+	
 	<?php if ((isset($_SESSION['onefilecms_valid'])) && ($_SESSION['onefilecms_valid'] == "1")) { ?>
 		<div class="nav">
-			<a href="/">Visit Site</a> | 
+			<a href="/"><img src="/favicon.ico">&nbsp; <b><?php echo $_SERVER["HTTP_HOST"]; ?>/</b>  &nbsp;- &nbsp;  Visit Site</a> |
 			<a href="<?php echo $ONESCRIPT; ?>?p=logout">Log Out</a>
 		</div>
 	<?php } ?>
 </div>
+
 
 
 <?php message_box(); ?>
@@ -589,13 +609,12 @@ if ($page == "delete") {
 <?php // DELETE FOLDER *********************************************************
 if ($page == "deletefolder") {
 	$varvar = "?i=".substr($_GET["i"],0,strrpos(substr_replace($_GET["i"],"",-1),"/")); ?>
-	<h2>Delete Folder &ldquo;<?php echo $_GET["i"]; ?>&rdquo;</h2>
-	<p>Folders have to be empty before they can be deleted.</p>
+	<h2>Delete Folder &nbsp;&ldquo; <?php echo $_GET["i"]; ?>/ &rdquo; &nbsp;?</h2>
 	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<p>
-			<input type="hidden" name="delete_foldername" value="<?php echo $_GET["i"]; ?>">
-			<?php Cancel_Submit_Buttons("DELETE"); ?>
+		<input type="hidden" name="delete_foldername" value="<?php echo $_GET["i"]; ?>">
+		<?php Cancel_Submit_Buttons("DELETE"); ?>
 		</p>
 	</form>
 <?php }; ?>
@@ -815,53 +834,6 @@ if ($page == "index") {
 
 
 
-	<?php // <!--============== List files - BLOCK view ===============-->
-	function BLOCK_view() {
-	global $varvar, $config_excluded, $ftypes, $fclasses ; 
-	 ?>
-	<div style="clear:both;"></div>
-	<ul class="index">
-		<?php
-		$files = glob($varvar."{,.}*", GLOB_BRACE);
-		natcasesort($files); //sort w/o regard to case.
-
-		foreach ($files as $file) {
-			$excludeme = 0;
-			$config_excludeds = explode(",", $config_excluded);
-
-			foreach ($config_excludeds as $config_exclusion) {
-				if (strrpos(basename($file),$config_exclusion) !== False && 
-				strrpos(basename($file),$config_exclusion) !== "") { 
-					$excludeme = 1;
-				}
-			}
-			
-			if (!is_dir($file) && $excludeme == 0) {
-				//Determine file type & set cooresponding class.
-				$file_class = "";
-				$ext = end( explode(".", strtolower($file)) );
-
-				for ($x=0; $x < count($ftypes); $x++ ){
-					if ($ext == $ftypes[$x]){ $file_class = $fclasses[$x]; } 
-				}
-		?>
-					<li><?php //****** Actual file name & info ******/ ?>
-						<a href="<?php echo $ONESCRIPT.'?f='.$file.'" class=" '.$file_class.'">';
-						echo basename($file); ?></a>
-						<div class="meta">
-							<span><i>File Size:</i> 
-							<?php echo number_format(filesize($file)); ?><br></span>
-							<span><i>Updated:</i> 
-							<script>FileTimeStamp(<?php echo filemtime($file); ?>);</script></span>
-						</div>
-					</li>
-			<?php } ?>
-		<?php } ?>
-	</ul>
-	<?php }//end BLOCK_view() ==============================-->?>
-
-
-
 	<?php //<!--======== List files in vertical table ========-->
 	function list_view() {
 	
@@ -915,11 +887,8 @@ if ($page == "index") {
 
 
 
-	<?php //<!-- Determine view mode, list files. ====================-->
-		if ($VIEW_MODE == "BLOCK"){ BLOCK_view(); }
-		else                      { list_view();  }
-	?>
-
+	<?php list_view(); ?>
+	
 
 
 	<!--=== Upload/New/Rename/Copy/etc... links ===-->
