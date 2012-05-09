@@ -111,9 +111,9 @@ It isn't entirely necessary, but it does provide nice enhancements, like warning
 
 ## Change Log
 
-### 1.2.4
+### 1.2.4 - 1.2.8
 
-- Mostly a bunch of code modifications/improvements.
+- Mostly just a bunch of code modifications/improvements.
 
 ### 1.2.3
 
@@ -216,8 +216,6 @@ To report a bug or request a feature, please file an issue via Github. Forks enc
 
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
 - Prompt to prevent automatic overwrite when uploading or renaming files.
-- Clickable option to switch between original OneFileCMS view and a common list view.
-  (Currently accomplished with a config variable.)
 - Embed css and remove or swtich to svg icons to create a true "OneFileCMS"
   (in the works)
 - Check size of file to upload, verify under max post/upload limits.
