@@ -2,7 +2,7 @@
 // OneFileCMS - http://onefilecms.com/
 // For license & copyright info, see OneFileCMS.License.BSD.txt
 
-$version = "1.2.8";
+$version = "1.2.9";
 
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
@@ -670,11 +670,15 @@ function Edit_Page_javascript() { //********************************************
 <?php
 // COPY FILE *******************************************************************
 if ($page == "copy") { 
-	$extension = strrchr($filename, ".");
-	$slug = substr($filename, 0, strlen($filename) - strlen($extension));
-	$varvar = "?i=".substr($_GET["c"],0,strrpos($_GET["c"],"/")); ?>
+
+	$extension    = strrchr($filename, ".");
+	$slug         = dirname($filename).'/'.pathinfo($filename,PATHINFO_FILENAME);
+	$varvar       = "?i=".dirname($_GET["c"]);
+	$new_filename = $slug."_COPY_".date("YmdHi").$extension;
+?>
 	<h2>Copy &ldquo;<a href="/<?php echo $filename; ?> "> <?php echo $filename; ?> </a> &rdquo;</h2>
-	<p>Existing files with the same filename are automatically overwritten... Be careful!</p>
+	<p><b>( ! )</b> Existing files with the same filename are automatically overwritten... Be careful!</p>
+
 	<form method="post" id="new" action="<?php echo $ONESCRIPT.$varvar; ?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<p>
@@ -684,7 +688,8 @@ if ($page == "copy") {
 		</p>
 		<p>
 			<label for="copy_filename">New filename:</label>
-			<input type="text" name="copy_filename" id="copy_filename" class="textinput" value="<?php echo $slug."_".date("mdyHi").$extension; ?>">
+			<input type="text" name="copy_filename" id="copy_filename" 
+			       class="textinput" value="<?php echo $new_filename; ?>">
 		</p>
 		<p>	<?php Cancel_Submit_Buttons("Copy"); ?>	</p>
 	</form>
@@ -734,24 +739,23 @@ if ($page == "deletefolder") {
 <?php // EDIT ******************************************************************
 if ($page == "edit") {
 
+	$varvar = '?f='.$filename;
 	$ext = end( explode(".", strtolower($filename)) );
 ?>
 	<h2 id="edit_header">File: &ldquo;<a href="/<?php echo $filename; ?>"> 
 	<?php echo $filename; ?> 
 	</a>&rdquo;</h2>
 
-	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.'?f='.$filename; ?>">
-
+	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
 		<p class="file_meta">
 		<span class="meta_size">Size<b>: </b> <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; &nbsp; 
 		<span class="meta_time">Updated<b>: </b><script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1);</script></span><br>
 		</p>
-		
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<?php Close_Button("close"); ?><div style="clear:both;"></div>
 		
-		<?php function show_textarea(){ global $filename, $filecontent, $ext, $config_editable;
-			if (strpos($config_editable,$ext) === false) {
+		<?php if (strpos($config_itypes,$ext) === false) { //If non-image, show textarea
+			if (strpos($config_editable,$ext) === false) { //
 			?>	<p>
 				<textarea name="content" class="textinput disabled" cols="70" rows="25" disabled="disabled">Non-text or unkown file type. Edit disabled.
 				</textarea>
@@ -761,17 +765,15 @@ if ($page == "edit") {
 				<input type="hidden" name="filename" id="filename" class="textinput" value="<?php echo $filename; ?>">
 				<textarea id="file_content" onkeyup="Check_for_changes(event);" name="content" class="textinput" cols="70" rows="25"><?php echo $filecontent; ?></textarea>
 				</p>
-			<?php } //end if-else?>	
-		<?php  } //show_textarea() ?>
-		
-		<?php if (strpos($config_itypes,$ext) === false) { show_textarea(); } ?>
+			<?php } //end if editable ?>	
+		<?php  } //end if non-image, show textarea ?>
 		
 		<p class="buttons_right">
-		<input type="submit" class="button" name="save_file" id="save_file" value="Save"  onclick="submitted = true;">
-		<input type="button" class="button" id="reset"  value="Reset - loose changes" onclick="Reset_File()">
-		<input type="button" class="button" name="rename_file" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.'?r='.$filename; ?>'">
-		<input type="button" class="button" name="delete_file" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.'?d='.$filename; ?>'">
-		<input type="button" class="button" name="copy_file"   value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.'?c='.$filename; ?>'">
+		<input type="submit" class="button" value="Save"                  onclick="submitted = true;" id="save_file">
+		<input type="button" class="button" value="Reset - loose changes" onclick="Reset_File()"      id="reset">
+		<input type="button" class="button" value="Rename/Move"           onclick="parent.location='<?php echo $ONESCRIPT.'?r='.$filename; ?>'">
+		<input type="button" class="button" value="Delete"                onclick="parent.location='<?php echo $ONESCRIPT.'?d='.$filename; ?>'">
+		<input type="button" class="button" value="Copy"                  onclick="parent.location='<?php echo $ONESCRIPT.'?c='.$filename; ?>'">
 		<?php Close_Button(""); ?>
 		</p>
 	</form>
@@ -944,10 +946,11 @@ if ($page == "login") { ?>
 <?php // NEW FILE **************************************************************
 if ($page == "new") {
 	$varvar = "";
-	if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; }?>
+	if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; }
+?>
 		<h2>New File</h2>
 		<p>Existing files with the same name will not be overwritten.</p>
-		<form method="post" id="new" action="<?php echo $ONESCRIPT.substr_replace($varvar,"",-1); ?>">
+		<form method="post" id="new" action="<?php echo $ONESCRIPT.$varvar; ?>">
 			<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 			<p>
 				<label for="new_filename">New filename: </label>
@@ -963,10 +966,11 @@ if ($page == "new") {
 <?PHP // NEW FOLDER ************************************************************
 if ($page == "newfolder") {
 	$varvar = "";
-	if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; }?>
+	if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; }
+?>
 	<h2>New Folder</h2>
 	<p>Existing folders with the same name will not be overwritten.</p>
-	<form method="post" action="<?php echo $ONESCRIPT.substr_replace($varvar,"",-1); ?>">
+	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<p>
 			<label for="new_folder">Folder name: </label>
@@ -981,12 +985,13 @@ if ($page == "newfolder") {
 
 <?php // RENAME FILE ***********************************************************
 if ($page == "rename") {
-	$varvar = "?i=".substr($_GET["r"],0,strrpos($_GET["r"],"/")); ?>
+	$varvar = "?i=".dirname($_GET["r"]);
+?>
 	<h2>Rename &ldquo;<a href="/<?php echo $filename; ?>">	<?php echo $filename; ?> </a>&rdquo;</h2>
-	<p>Existing files with the same filename are automatically overwritten... Be 
-	careful!</p>
+	<p>Existing files with the same filename are automatically overwritten... Be careful!</p>
 	<p>To move a file, preface its name with the folder's name, as in 
 	"<i>foldername/filename.txt</i>." The folder must already exist.</p>
+
 	<form method="post" action="<?php echo $ONESCRIPT.$varvar;	?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<p>
