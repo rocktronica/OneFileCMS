@@ -2,7 +2,7 @@
 // OneFileCMS - http://onefilecms.com/
 // For license & copyright info, see OneFileCMS.License.BSD.txt
 
-$version = "1.2.9";
+$version = "1.3.0";
 
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
@@ -26,13 +26,13 @@ $config_favicon   = "/favicon.ico";
 $config_editable  = "html,htm,php,css,js,txt,text,cfg,conf,ini,csv,svg";
 $config_excluded  = ""; //files to exclude from directory listings
 $config_itypes    = "jpg,gif,png,bmp,ico";  // Can be displayed on edit page.
-$config_ftypes    = "jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,htm,html,cfg,conf"; //used to select file icon
-$config_fclass    = "img,img,img,img,img,svg,txt,txt,css,php,htm,htm,cfg,cfg";   //used to select file icon
+$config_ftypes    = "jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,htm,html,cfg,conf,js"; //used to select file icon
+$config_fclass    = "img,img,img,img,img,svg,txt,txt,css,php,htm,htm,cfg,cfg,txt";  //used to select file icon
 // END CONFIGURABLE INFO
 
 
 
-//Make arrays out of a couple $config_variables.  They are used in // Index .
+//Make arrays out of a few $config_variables.  They are used in Index_Page() .
 //Above, however, it's easier to config/change a simple string.
 $ftypes   = (explode(",", strtolower($config_ftypes)));
 $fclasses = (explode(",", strtolower($config_fclass)));
@@ -246,6 +246,7 @@ if (isset($_POST["copy_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_P
 
 
 
+
 // DELETE FILE response code ***************************************************
 if (isset($_GET["d"])) {
 	$page = "delete"; $filename = $_GET["d"]; $pagetitle = "Delete";
@@ -260,6 +261,7 @@ if (isset($_POST["delete_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $
 		$message = '<b>(!) Error deleting "'.$filename.'"</b>.';
 	}
 }//end DELETE FILE response code ***********************************************
+
 
 
 
@@ -283,6 +285,7 @@ if (isset($_POST["delete_foldername"]) && $_SESSION['onefilecms_valid'] = "1" &&
 		$message = '<b>(!) "'.$foldername.'/"</b> is not empty, or other error occurred.';
 	}
 }//end DELETE FOLDER response code *********************************************
+
 
 
 
@@ -326,6 +329,7 @@ if (isset($_GET["f"])) {
 
 
 
+
 // NEW FILE response code ******************************************************
 if ($_GET["p"] == "new") {$pagetitle = "New File"; }
 if (isset($_POST["new_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
@@ -344,6 +348,7 @@ if (isset($_POST["new_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $_PO
 
 
 
+
 // NEW FOLDER response code ****************************************************
 if ($_GET["p"] == "newfolder") {$pagetitle = "New Folder"; }
 if (isset($_POST["new_folder"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
@@ -358,6 +363,7 @@ if (isset($_POST["new_folder"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST
 		$message .= '<b>'.$foldername.'/</b>';
 	}
 }//end NEW FOLDER response code ************************************************
+
 
 
 
@@ -384,6 +390,7 @@ if (isset($_POST["rename_filename"]) && $_SESSION['onefilecms_valid'] = "1" && $
 
 
 
+
 // RENAME FOLDER response code *************************************************
 if ($_GET["p"] == "renamefolder") {$pagetitle = "Rename Folder"; }
 if (isset($_POST["new_foldername"]) && $_SESSION['onefilecms_valid'] = "1" && $_POST["sessionid"] == session_id()) {
@@ -406,6 +413,7 @@ if (isset($_POST["new_foldername"]) && $_SESSION['onefilecms_valid'] = "1" && $_
 		$message = "<b>(!)</b> There was an error during rename. Try again and/or contact your admin.";
 	}
 }//end RENAME FOLDER response code *********************************************
+
 
 
 
@@ -453,6 +461,418 @@ if (isset($_FILES['upload_filename']['name']) && $_SESSION['onefilecms_valid'] =
 
 
 
+
+
+
+
+
+function Login_Page() { //******************************************************
+	global $ONESCRIPT;
+?>
+	<h2>Log In</h2>
+	<form method="post" action="<?php echo $ONESCRIPT; ?>">
+		<p>
+			<label for="onefilecms_username">Username:</label>
+			<input type="text" name="onefilecms_username" id="onefilecms_username" class="login_input">
+		</p>
+		<p>
+			<label for="onefilecms_password">Password:</label>
+			<input type="password" name="onefilecms_password" id="onefilecms_password" class="login_input">
+		</p>
+			
+		<input type="submit" class="button" value="Enter">
+	</form>
+	<script>document.getElementById('onefilecms_username').focus();</script>
+<?php } //end Login_Page() *****************************************************
+
+
+
+
+
+function list_files() { // ...in a vertical table ******************************
+	
+global $ONESCRIPT, $varvar, $config_excluded, $ftypes, $fclasses;
+	
+$files = glob($varvar."{,.}*", GLOB_BRACE);
+natcasesort($files);
+
+echo '<table class="index_T">';
+	foreach ($files as $file) {
+		$fc++;
+		$excludeme = 0;
+		$config_excludeds = explode(",", $config_excluded);
+			
+		foreach ($config_excludeds as $config_exclusion) {
+			if (strrpos(basename($file),$config_exclusion) !== False && 
+			strrpos(basename($file),$config_exclusion) !== "") { 
+				$excludeme = 1;
+			}
+		}
+
+		if (!is_dir($file) && $excludeme == 0) {
+			
+			//Determine file type & set cooresponding class.
+			$file_class = "";
+			$ext = end( explode(".", strtolower($file)) );
+			
+			for ($x=0; $x < count($ftypes); $x++ ){
+				if ($ext == $ftypes[$x]){ $file_class = $fclasses[$x]; } 
+			}
+?>
+			<tr>
+				<td>
+					<?php echo "<a href='", $ONESCRIPT, "?f=", $file, "'"; ?>
+					<?php echo 'class="',  $file_class, '">', basename($file), '</a>'; ?>
+				</td>
+				<td class="meta_T meta_size">&nbsp;
+					<?php echo number_format(filesize($file)).""; ?> B
+				</td>
+				<td class="meta_T meta_time"> &nbsp;
+					<script>FileTimeStamp(<?php echo filemtime($file); ?>);</script>
+				</td>
+			</tr>
+<?php 
+		}//end if !is_dir
+	}//end foreach file
+echo '</table>';
+}//end list_files() ************************************************************
+
+
+
+
+
+function Index_Page(){ //*******************************************************
+	global $ONESCRIPT, $varvar, $config_excluded, $ftypes, $fclasses;
+	$varvar = ""; //must be global - also used in list_files()
+	if (isset($_GET["i"])) { $varvar = $_GET["i"]."/"; }
+
+ 	// Current path. ie: docroot/current/path/ 
+	// Each level is a link to that level.
+	echo '<h2>';
+		$full_path = basename(getcwd());
+		if (isset($_GET["i"])) { $full_path = basename(getcwd()).'/'.$_GET["i"]; }
+
+		$path_levels = explode("/",$full_path);
+		$levels = count($path_levels); //If levels=3, indexes = 0, 1, 2  etc...
+
+		//docroot folder of site
+		if ($_GET["i"] == "") { 
+			echo $path_levels[0].' /'; // if at root, no need for link.
+		} else {
+			echo '<a href="'.$ONESCRIPT.'" class="path"> '.$path_levels[0].' </a>/';
+		}
+
+		//Remainder of current/path
+		for ($x=1; $x < $levels; $x++) {
+			if ($x !== 1){ $current_path .= '/'; }
+			$current_path = $current_path.$path_levels[$x];
+			echo '<a href="'.$ONESCRIPT.'?i='.$current_path.'" class="path"> ';
+			echo ' '.$path_levels[$x]." </a>/";
+		}
+	?></h2>
+
+	<!--==== List folders/sub-directores ====-->
+	<p class="index_folders">
+		<?php
+		$folders = glob($varvar."*",GLOB_ONLYDIR);
+		natcasesort($folders);
+		foreach ($folders as $folder) {
+			echo '<a href="'.$ONESCRIPT.'?i='.$folder.'" class="index_folder">';
+
+			echo basename($folder).' /</a>';
+		} ?>
+	</p>
+
+	<?php list_files(); //******************* ?>
+	
+	<!-- Upload/New/Rename/Copy/etc... links -->
+	<p class="front_links">
+		<a href="<?php echo $ONESCRIPT.'?p=upload&amp;i='.$varvar; ?>"    class="upload">Upload File</a>
+		<a href="<?php echo $ONESCRIPT.'?p=new&amp;i='.$varvar; ?>"       class="new">New File</a>
+		<a href="<?php echo $ONESCRIPT.'?p=newfolder&amp;i='.$varvar; ?>" class="newfolder">New Folder</a>
+		<?php if ($varvar !== "") { ?>
+			<a href="<?php echo $ONESCRIPT.'?p=renamefolder&amp;i='.$varvar; ?>" class="renamefolder">
+			Rename Folder</a>
+			<a href="<?php echo $ONESCRIPT.'?p=deletefolder&amp;i='.$varvar; ?>" class="deletefolder">
+			Delete Folder</a>
+		<?php } ?>
+	</p>
+<?php
+}//end Index_Page()*************************************************************
+
+
+
+
+
+
+function Edit_Page() { //*******************************************************
+	global $ONESCRIPT, $varvar, $filename, $filecontent, $config_editable, $config_itypes;
+	$varvar = '?f='.$filename;
+	$ext = end( explode(".", strtolower($filename)) );
+?>
+	<h2 id="edit_header">File: &ldquo;<a href="/<?php echo $filename; ?>"> 
+	<?php echo $filename; ?> 
+	</a>&rdquo;</h2>
+
+	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
+		<p class="file_meta">
+		<span class="meta_size">Size<b>: </b> <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; &nbsp; 
+		<span class="meta_time">Updated<b>: </b><script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1);</script></span><br>
+		</p>
+		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
+		<?php Close_Button("close"); ?><div style="clear:both;"></div>
+		
+		<?php if (strpos($config_itypes,$ext) === false) { //If non-image, show textarea
+			if (strpos($config_editable,$ext) === false) { //
+			?>	<p>
+				<textarea id="disabled_content" class="textinput disabled" cols="70" rows="3" disabled="disabled">Non-text or unkown file type. Edit disabled.</textarea>
+				</p>
+			<?php } else { ?>
+				<p>
+				<input type="hidden" name="filename" id="filename" class="textinput" value="<?php echo $filename; ?>">
+				<textarea id="file_content" onkeyup="Check_for_changes(event);" name="content" class="textinput" cols="70" rows="25"><?php echo $filecontent; ?></textarea>
+				</p>
+			<?php } //end if editable ?>	
+		<?php  } //end if non-image, show textarea ?>
+		
+		<p class="buttons_right">
+		<input type="submit" class="button" value="Save"                  onclick="submitted = true;" id="save_file">
+		<input type="button" class="button" value="Reset - loose changes" onclick="Reset_File()"      id="reset">
+		<script>
+			document.getElementById('save_file').disabled = "disabled";
+			document.getElementById('reset').disabled     = "disabled";
+		</script>
+		<input type="button" class="button" value="Rename/Move"           onclick="parent.location='<?php echo $ONESCRIPT.'?r='.$filename; ?>'">
+		<input type="button" class="button" value="Delete"                onclick="parent.location='<?php echo $ONESCRIPT.'?d='.$filename; ?>'">
+		<input type="button" class="button" value="Copy"                  onclick="parent.location='<?php echo $ONESCRIPT.'?c='.$filename; ?>'">
+		<?php Close_Button(""); ?>
+		</p>
+	</form>
+	<div style="clear:both;"></div>
+
+	<?php if (strpos($config_itypes,$ext) !== false) { show_image(); } ?>
+
+	<?php if (strpos($config_editable,$ext) !== false) { //if editable file..?>
+		<?php Edit_Page_javascript(); ?>
+		<div id="edit_note">
+		NOTE: On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser's [Reload].
+		</div>
+	<?php } //end if editable ?>
+
+<?php }; //End Edit_Page *******************************************************
+
+
+
+
+
+
+function Upload_Page() { //*****************************************************
+	global $ONESCRIPT, $varvar;
+	$varvar = ""; if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; }
+?>
+	<h2>Upload</h2>
+	<form enctype="multipart/form-data" action="<?php echo $ONESCRIPT.$varvar; ?>" method="post">
+		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
+		<input type="hidden" name="MAX_FILE_SIZE" value="100000">
+		<p>
+			<label for="upload_destination">Destination:</label>
+			<input type="text" name="upload_destination" value="<?php echo $_GET["i"]; ?>/" class="textinput">
+		</p>
+		<p>
+			<label for="upload_filename">File:</label>
+			<input name="upload_filename" type="file" size="93">
+		</p>
+		<p><?php Cancel_Submit_Buttons("Upload"); ?></p>
+	</form>
+<?php } //end Upload_Page() ****************************************************
+
+
+
+
+
+function New_File_Page() { //***************************************************
+	global $ONESCRIPT, $varvar;
+	$varvar = "";
+	if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; }
+?>
+		<h2>New File</h2>
+		<p>Existing files with the same name will not be overwritten.</p>
+		<form method="post" id="new" action="<?php echo $ONESCRIPT.$varvar; ?>">
+			<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
+			<p>
+				<label for="new_filename">New filename: </label>
+				<input type="text" name="new_filename" id="new_filename" class="textinput" value="<?php echo $_GET["i"]; ?>/">
+			</p>
+			<p>	<?php Cancel_Submit_Buttons("Create"); ?> </p>
+		</form>
+<?php
+}//end New_File_Page()**********************************************************
+
+
+
+
+
+function Copy_File_Page(){ //***************************************************
+	global $ONESCRIPT, $varvar, $filename;
+	
+	$extension    = strrchr($filename, ".");
+	$slug         = dirname($filename).'/'.pathinfo($filename,PATHINFO_FILENAME);
+	$varvar       = "?i=".dirname($_GET["c"]);
+	$new_filename = $slug."_COPY_".date("YmdHi").$extension;
+?>
+	<h2>Copy &ldquo;<a href="/<?php echo $filename; ?> "> <?php echo $filename; ?> </a> &rdquo;</h2>
+	<p><b>( ! )</b> Existing files with the same filename are automatically overwritten... Be careful!</p>
+
+	<form method="post" id="new" action="<?php echo $ONESCRIPT.$varvar; ?>">
+		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
+		<p>
+			<label>Old filename:</label>
+			<input type="hidden" name="old_filename" value="<?php echo $filename; ?>">
+			<input type="text" name="dummy" value="<?php echo $filename; ?>" class="textinput" disabled="disabled">
+		</p>
+		<p>
+			<label for="copy_filename">New filename:</label>
+			<input type="text" name="copy_filename" id="copy_filename" 
+			       class="textinput" value="<?php echo $new_filename; ?>">
+		</p>
+		<p>	<?php Cancel_Submit_Buttons("Copy"); ?>	</p>
+	</form>
+<?php }//end Copy_File_Page() **************************************************
+
+
+
+
+
+function Rename_File_Page() { //************************************************
+	global $ONESCRIPT, $varvar, $filename;
+	$varvar = "?i=".dirname($_GET["r"]);
+?>
+	<h2>Rename &ldquo;<a href="/<?php echo $filename; ?>">	<?php echo $filename; ?> </a>&rdquo;</h2>
+	<p>Existing files with the same filename are automatically overwritten... Be careful!</p>
+	<p>To move a file, preface its name with the folder's name, as in 
+	"<i>foldername/filename.txt</i>." The folder must already exist.</p>
+
+	<form method="post" action="<?php echo $ONESCRIPT.$varvar;	?>">
+		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
+		<p>
+			<label>Old filename:</label>
+			<input type="hidden" name="old_filename" value="<?php echo $filename; ?>">
+			<input type="text" name="dummy" value="<?php echo $filename; ?>" class="textinput" disabled="disabled">
+		</p>
+		<p>
+			<label for="rename_filename">New filename:</label>
+			<input type="text" name="rename_filename" id="rename_filename" class="textinput" value="<?php echo $filename; ?>">
+		</p>
+		<p><?php Cancel_Submit_Buttons("Rename"); ?></p>
+	</form>
+<?php } //end Rename_File_Page() ***********************************************
+
+
+
+
+
+function Delete_File_Page() { //************************************************
+	global $ONESCRIPT, $varvar, $filename;
+	$varvar = '?i='.dirname($_GET["d"]); 
+?>
+	<h2>Delete &ldquo;<a href="/<?php echo $filename; ?>">
+	<?php echo $filename; ?></a> &rdquo; ?</h2>
+	<p>Are you sure?</p>
+
+	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
+		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
+		<p>
+			<input type="hidden" name="delete_filename" value="<?php echo $filename; ?>">
+			<?php Cancel_Submit_Buttons("DELETE"); ?>
+		</p>
+	</form>
+<?php } //end Delete_File_Page() ***********************************************
+
+
+
+
+
+function New_Folder_Page() { //*************************************************
+	global $ONESCRIPT, $varvar;
+	$varvar = "";
+	if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; }
+?>
+	<h2>New Folder</h2>
+	<p>Existing folders with the same name will not be overwritten.</p>
+	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
+		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
+		<p>
+			<label for="new_folder">Folder name: </label>
+			<input type="text" name="new_folder" id="new_folder" class="textinput" value="<?php echo $_GET["i"]; ?>/">
+		</p>
+		<p>	<?php Cancel_Submit_Buttons("Create"); ?> </p>
+	</form>
+<?php } // end New_Folder_Page() ***********************************************
+
+
+
+
+
+function Rename_Folder_Page() { //**********************************************
+	global $ONESCRIPT, $varvar;
+	$varvar = '?i='.$_GET["i"];
+?>
+	<h2>Rename Folder &ldquo;<?php echo $_GET["i"]; ?>&rdquo;</h2>
+	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
+		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
+		<p>
+			<label>Old name:</label><input type="hidden" name="old_foldername" value="<?php echo $_GET["i"]; ?>">
+			<input type="text" name="dummy" value="<?php echo $_GET["i"]; ?>" class="textinput" disabled="disabled">
+		</p>
+		<p>
+			<label for="new_foldername">New name:</label>
+			<input type="text" name="new_foldername" id="new_foldername" class="textinput" value="<?php echo $_GET["i"]; ?>">
+		</p>
+		<p><?php Cancel_Submit_Buttons("Rename"); ?></p>
+	</form>
+<?php } //end Rename_Folder_Page() *********************************************
+
+
+
+
+
+function Delete_Folder_Page(){ //***********************************************
+	global $ONESCRIPT, $varvar;
+	$varvar = "?i=".dirname($_GET['i']);
+?>
+	<h2>Delete Folder &nbsp;&ldquo; <?php echo $_GET["i"]; ?>/ &rdquo; &nbsp;?</h2>
+	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
+		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
+		<p>
+		<input type="hidden" name="delete_foldername" value="<?php echo $_GET["i"]; ?>">
+		<?php Cancel_Submit_Buttons("DELETE"); ?>
+		</p>
+	</form>
+<?php } //end Delete_Folder_Page() //*******************************************
+
+
+
+
+
+
+
+
+
+
+function Load_Selected_Page(){ //***********************************************
+	global $page;
+	if ($page == "login")        { Login_Page();         }
+	if ($page == "index")        { Index_Page();         }
+	if ($page == "edit")         { Edit_Page();          }
+	if ($page == "upload")       { Upload_Page();        }
+	if ($page == "new")          { New_File_Page();      }
+	if ($page == "copy")         { Copy_File_Page();     }
+	if ($page == "rename")       { Rename_File_Page();   }
+	if ($page == "delete")       { Delete_File_Page();   }
+	if ($page == "newfolder")    { New_Folder_Page();    }
+	if ($page == "renamefolder") { Rename_Folder_Page(); }
+	if ($page == "deletefolder") { Delete_Folder_Page(); }
+}//end Load_Selected_Page() ****************************************************
 
 
 
@@ -664,405 +1084,14 @@ function Edit_Page_javascript() { //********************************************
 <?php message_box(); ?>
 
 
-
-
-
-<?php
-// COPY FILE *******************************************************************
-if ($page == "copy") { 
-
-	$extension    = strrchr($filename, ".");
-	$slug         = dirname($filename).'/'.pathinfo($filename,PATHINFO_FILENAME);
-	$varvar       = "?i=".dirname($_GET["c"]);
-	$new_filename = $slug."_COPY_".date("YmdHi").$extension;
-?>
-	<h2>Copy &ldquo;<a href="/<?php echo $filename; ?> "> <?php echo $filename; ?> </a> &rdquo;</h2>
-	<p><b>( ! )</b> Existing files with the same filename are automatically overwritten... Be careful!</p>
-
-	<form method="post" id="new" action="<?php echo $ONESCRIPT.$varvar; ?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-		<p>
-			<label>Old filename:</label>
-			<input type="hidden" name="old_filename" value="<?php echo $filename; ?>">
-			<input type="text" name="dummy" value="<?php echo $filename; ?>" class="textinput" disabled="disabled">
-		</p>
-		<p>
-			<label for="copy_filename">New filename:</label>
-			<input type="text" name="copy_filename" id="copy_filename" 
-			       class="textinput" value="<?php echo $new_filename; ?>">
-		</p>
-		<p>	<?php Cancel_Submit_Buttons("Copy"); ?>	</p>
-	</form>
-<?php }; ?>
-
-
-
-
-
-<?php // DELETE FILE ***********************************************************
-if ($page == "delete") {
-	$varvar = '?i='.dirname($_GET["d"]); 
-
-?>	<h2>Delete &ldquo;<a href="/<?php echo $filename; ?> ">
-	<?php echo $filename; ?></a>&rdquo;</h2>
-	<p>Are you sure?</p>
-
-	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-		<p>
-			<input type="hidden" name="delete_filename" value="<?php echo $filename; ?>">
-			<?php Cancel_Submit_Buttons("DELETE"); ?>
-		</p>
-	</form>
-<?php }; ?>
-
-
-
-
-<?php // DELETE FOLDER *********************************************************
-if ($page == "deletefolder") {
-	$varvar = "?i=".substr($_GET["i"],0,strrpos(substr_replace($_GET["i"],"",-1),"/"));
-
-?>	<h2>Delete Folder &nbsp;&ldquo; <?php echo $_GET["i"]; ?>/ &rdquo; &nbsp;?</h2>
-	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-		<p>
-		<input type="hidden" name="delete_foldername" value="<?php echo $_GET["i"]; ?>">
-		<?php Cancel_Submit_Buttons("DELETE"); ?>
-		</p>
-	</form>
-<?php }; ?>
-
-
-
-
-<?php // EDIT ******************************************************************
-if ($page == "edit") {
-
-	$varvar = '?f='.$filename;
-	$ext = end( explode(".", strtolower($filename)) );
-?>
-	<h2 id="edit_header">File: &ldquo;<a href="/<?php echo $filename; ?>"> 
-	<?php echo $filename; ?> 
-	</a>&rdquo;</h2>
-
-	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
-		<p class="file_meta">
-		<span class="meta_size">Size<b>: </b> <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; &nbsp; 
-		<span class="meta_time">Updated<b>: </b><script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1);</script></span><br>
-		</p>
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-		<?php Close_Button("close"); ?><div style="clear:both;"></div>
-		
-		<?php if (strpos($config_itypes,$ext) === false) { //If non-image, show textarea
-			if (strpos($config_editable,$ext) === false) { //
-			?>	<p>
-				<textarea name="content" class="textinput disabled" cols="70" rows="25" disabled="disabled">Non-text or unkown file type. Edit disabled.
-				</textarea>
-				</p>
-			<?php } else { ?>
-				<p>
-				<input type="hidden" name="filename" id="filename" class="textinput" value="<?php echo $filename; ?>">
-				<textarea id="file_content" onkeyup="Check_for_changes(event);" name="content" class="textinput" cols="70" rows="25"><?php echo $filecontent; ?></textarea>
-				</p>
-			<?php } //end if editable ?>	
-		<?php  } //end if non-image, show textarea ?>
-		
-		<p class="buttons_right">
-		<input type="submit" class="button" value="Save"                  onclick="submitted = true;" id="save_file">
-		<input type="button" class="button" value="Reset - loose changes" onclick="Reset_File()"      id="reset">
-		<input type="button" class="button" value="Rename/Move"           onclick="parent.location='<?php echo $ONESCRIPT.'?r='.$filename; ?>'">
-		<input type="button" class="button" value="Delete"                onclick="parent.location='<?php echo $ONESCRIPT.'?d='.$filename; ?>'">
-		<input type="button" class="button" value="Copy"                  onclick="parent.location='<?php echo $ONESCRIPT.'?c='.$filename; ?>'">
-		<?php Close_Button(""); ?>
-		</p>
-	</form>
-	<div style="clear:both;"></div>
-
-	<?php if (strpos($config_itypes,$ext) !== false) { show_image(); } ?>
-
-	<?php if (strpos($config_editable,$ext) !== false) { //if editable file..?>
-		<?php Edit_Page_javascript(); ?>
-		<div id="edit_note">
-		NOTE: On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser's [Reload].
-		</div>
-	<?php } //end if editable ?>
-
-<?php }; //End Edit page *****************************************************?>
-
-
-
-
-
-
-<?php // INDEX *****************************************************************
-if ($page == "index") {
-	$varvar = "";
-	if (isset($_GET["i"])) { $varvar = $_GET["i"]."/"; }
-
- 	// Current path. ie: docroot/current/path/ 
-	// Each level is a link to that level.
-	echo '<h2>';
-		$full_path = basename(getcwd());
-		if (isset($_GET["i"])) { $full_path = basename(getcwd()).'/'.$_GET["i"]; }
-
-		$path_levels = explode("/",$full_path);
-		$levels = count($path_levels); //If levels=3, indexes = 0, 1, 2  etc...
-
-		//docroot folder of site
-		if ($_GET["i"] == "") { 
-			echo $path_levels[0].' /'; // if at root, no need for link.
-		} else {
-			echo '<a href="'.$ONESCRIPT.'" class="path"> '.$path_levels[0].' </a>/';
-		}
-
-		//Remainder of current/path
-		for ($x=1; $x < $levels; $x++) {
-			if ($x !== 1){ $current_path .= '/'; }
-			$current_path = $current_path.$path_levels[$x];
-			echo '<a href="'.$ONESCRIPT.'?i='.$current_path.'" class="path"> ';
-			echo ' '.$path_levels[$x]." </a>/";
-		}
-	?></h2>
-
-
-	<!--===== List folders/sub-directores =====-->
-	<p class="index_folders">
-		<?php
-		$folders = glob($varvar."*",GLOB_ONLYDIR);
-		natcasesort($folders);
-		foreach ($folders as $folder) {
-			echo '<a href="'.$ONESCRIPT.'?i='.$folder.'" class="index_folder">';
-
-			echo basename($folder).' /</a>';
-		} ?>
-	</p>
-
-
-
-	<?php //<!--======== List files in vertical table ========-->
-	function list_view() {
-	
-	global $ONESCRIPT, $varvar, $config_excluded, $ftypes, $fclasses;
-	
-	$files = glob($varvar."{,.}*", GLOB_BRACE);
-	natcasesort($files);
-
-	echo '<table class="index_T">';
-		foreach ($files as $file) {
-			$fc++;
-			$excludeme = 0;
-			$config_excludeds = explode(",", $config_excluded);
-			
-			foreach ($config_excludeds as $config_exclusion) {
-				if (strrpos(basename($file),$config_exclusion) !== False && 
-				strrpos(basename($file),$config_exclusion) !== "") { 
-					$excludeme = 1;
-				}
-			}
-			
-			if (!is_dir($file) && $excludeme == 0) {
-				
-				//Determine file type & set cooresponding class.
-				$file_class = "";
-				$ext = end( explode(".", strtolower($file)) );
-				
-				for ($x=0; $x < count($ftypes); $x++ ){
-					if ($ext == $ftypes[$x]){ $file_class = $fclasses[$x]; } 
-				}
-	?>
-					<tr>
-						<td>
-							<?php echo "<a href='", $ONESCRIPT, "?f=", $file, "'"; ?>
-							<?php echo 'class="',  $file_class, '">', basename($file), '</a>'; ?>
-						</td>
-						<td class="meta_T meta_size">&nbsp;
-							<?php echo number_format(filesize($file)).""; ?> B
-						</td>
-						<td class="meta_T meta_time"> &nbsp;
-							<script>FileTimeStamp(<?php echo filemtime($file); ?>);</script>
-						</td>
-					</tr>
-	<?php 
-			}//end if !is_dir
-		}//end foreach file
-	echo '</table>';
-	
-	}//end list_view() =================================-->
-	?>
-
-
-
-	<?php list_view(); ?>
-	
-
-
-	<!--=== Upload/New/Rename/Copy/etc... links ===-->
-	<p class="front_links">
-		<a href="<?php echo $ONESCRIPT.'?p=upload&amp;i='.$varvar; ?>" class="upload">Upload File</a>
-		<a href="<?php echo $ONESCRIPT.'?p=new&amp;i='.$varvar; ?>"    class="new">New File</a>
-		<a href="<?php echo $ONESCRIPT.'?p=newfolder&amp;i='.$varvar; ?>" class="newfolder">New Folder</a>
-		<?php if ($varvar !== "") { ?>
-			<a href="<?php echo $ONESCRIPT.'?p=renamefolder&amp;i='.$varvar; ?>" class="renamefolder">
-			Rename Folder</a>
-			<a href="<?php echo $ONESCRIPT.'?p=deletefolder&amp;i='.$varvar; ?>" class="deletefolder">
-			Delete Folder</a>
-		<?php } ?>
-	</p>
-
-<?php }; // End of Index (file listing) page *********************************?>
-
-
-
-
-<?php // LOG OUT ***************************************************************
-if ($page == "logout") { $page = "login"; } ?>
-
-
-
-
-<?php // LOG IN ****************************************************************
-if ($page == "login") { ?>
-	<h2>Log In</h2>
-	<form method="post" action="<?php echo $ONESCRIPT; ?>">
-		<p>
-			<label for="onefilecms_username">Username:</label>
-			<input type="text" name="onefilecms_username" id="onefilecms_username" class="login_input">
-		</p>
-		<p>
-			<label for="onefilecms_password">Password:</label>
-			<input type="password" name="onefilecms_password" id="onefilecms_password" class="login_input">
-		</p>
-			
-		<input type="submit" class="button" value="Enter">
-	</form>
-	<script>document.getElementById('onefilecms_username').focus();</script>
-<?php }; ?>
-
-
-
-
-
-<?php // NEW FILE **************************************************************
-if ($page == "new") {
-	$varvar = "";
-	if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; }
-?>
-		<h2>New File</h2>
-		<p>Existing files with the same name will not be overwritten.</p>
-		<form method="post" id="new" action="<?php echo $ONESCRIPT.$varvar; ?>">
-			<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-			<p>
-				<label for="new_filename">New filename: </label>
-				<input type="text" name="new_filename" id="new_filename" class="textinput" value="<?php echo $_GET["i"]; ?>/">
-			</p>
-			<p>	<?php Cancel_Submit_Buttons("Create"); ?> </p>
-		</form>
-<?php }; ?>
-
-
-
-
-<?PHP // NEW FOLDER ************************************************************
-if ($page == "newfolder") {
-	$varvar = "";
-	if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; }
-?>
-	<h2>New Folder</h2>
-	<p>Existing folders with the same name will not be overwritten.</p>
-	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-		<p>
-			<label for="new_folder">Folder name: </label>
-			<input type="text" name="new_folder" id="new_folder" class="textinput" value="<?php echo $_GET["i"]; ?>/">
-		</p>
-		<p>	<?php Cancel_Submit_Buttons("Create"); ?> </p>
-	</form>
-<?php }; ?>
-
-
-
-
-<?php // RENAME FILE ***********************************************************
-if ($page == "rename") {
-	$varvar = "?i=".dirname($_GET["r"]);
-?>
-	<h2>Rename &ldquo;<a href="/<?php echo $filename; ?>">	<?php echo $filename; ?> </a>&rdquo;</h2>
-	<p>Existing files with the same filename are automatically overwritten... Be careful!</p>
-	<p>To move a file, preface its name with the folder's name, as in 
-	"<i>foldername/filename.txt</i>." The folder must already exist.</p>
-
-	<form method="post" action="<?php echo $ONESCRIPT.$varvar;	?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-		<p>
-			<label>Old filename:</label>
-			<input type="hidden" name="old_filename" value="<?php echo $filename; ?>">
-			<input type="text" name="dummy" value="<?php echo $filename; ?>" class="textinput" disabled="disabled">
-		</p>
-		<p>
-			<label for="rename_filename">New filename:</label>
-			<input type="text" name="rename_filename" id="rename_filename" class="textinput" value="<?php echo $filename; ?>">
-		</p>
-		<p><?php Cancel_Submit_Buttons("Rename"); ?></p>
-	</form>
-<?php }; ?>
-
-
-
-
-<?php // RENAME FOLDER *********************************************************
-if ($page == "renamefolder") {
-	$varvar = '?i='.$_GET["i"];
-?>
-	<h2>Rename Folder &ldquo;<?php echo $_GET["i"]; ?>&rdquo;</h2>
-	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-		<p>
-			<label>Old name:</label><input type="hidden" name="old_foldername" value="<?php echo $_GET["i"]; ?>">
-			<input type="text" name="dummy" value="<?php echo $_GET["i"]; ?>" class="textinput" disabled="disabled">
-		</p>
-		<p>
-			<label for="new_foldername">New name:</label>
-			<input type="text" name="new_foldername" id="new_foldername" class="textinput" value="<?php echo $_GET["i"]; ?>">
-		</p>
-		<p><?php Cancel_Submit_Buttons("Rename"); ?></p>
-	</form>
-<?php }; ?>
-
-
-
-
-<?php // UPLOAD FILE ***********************************************************
-if ($page == "upload") {
-	$varvar = ""; if (isset($_GET["i"])) { $varvar = "?i=".$_GET["i"]; }
-	
-?>	<h2>Upload</h2>
-	<form enctype="multipart/form-data" action="<?php echo $ONESCRIPT.$varvar; ?>" method="post">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-		<input type="hidden" name="MAX_FILE_SIZE" value="100000">
-		<p>
-			<label for="upload_destination">Destination:</label>
-			<input type="text" name="upload_destination" value="<?php echo $_GET["i"]; ?>/" class="textinput">
-		</p>
-		<p>
-			<label for="upload_filename">File:</label>
-			<input name="upload_filename" type="file" size="93">
-		</p>
-		<p><?php Cancel_Submit_Buttons("Upload"); ?></p>
-	</form>
-<?php } ?>
-
-
+<?php Load_Selected_Page(); ?>
 
 
 <div class="footer">
 	<hr><br><br>
 </div>
 
-
-</div>
-
+</div><!-- end container -->
 
 </body>
 </html>
-

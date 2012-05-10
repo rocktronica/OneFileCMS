@@ -1,3 +1,5 @@
+# Current "stable" version: 1.2.3
+--------------------------------------------------------------------------------
 ### April 30, 2012
 
 # NOTICE - SECURITY HOLE! (Fixed in version 1.2.1)
@@ -111,9 +113,13 @@ It isn't entirely necessary, but it does provide nice enhancements, like warning
 
 ## Change Log
 
-### 1.2.4 - 1.2.8
+### 1.2.4 - 1.3.0
 
-- Mostly just a bunch of code modifications/improvements.
+- DO NOT USE THESE VERSIONS!
+- Mostly just a bunch of code modifications.
+- These versions have issues, primarily when on the home/root page your site, 
+  and attempting to [Upload File],  [New File], [New Folder], or when editing
+  a file.
 
 ### 1.2.3
 
