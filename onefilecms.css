@@ -1,11 +1,11 @@
 /* OneFileCMS - http://onefilecms.com/
- * Version 1.3.0
+ * Version 1.4.0
  * For license & copyright info, see OneFileCMS.License.BSD.txt 
  */ 
 
 
-/* #774200 #807568 #976322 #995400 #d4d4d4 #0F0901 #eaeaea rgb(255,250,150)
-   rgb(157, 124, 83) rgb(157, 124, 83)
+/* #d5d0cc #774200 #807568 #976322 #995400 #d4d4d4 #0F0901 #eaeaea
+   rgb(255,250,150) rgb(157, 124, 83) rgb(157, 124, 83)
    rgb(255,250,150) rgb(255,250,150) #969376 rgb(255,245,115)
  */
 
@@ -15,7 +15,7 @@
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,
 cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,dl,dt,dd,ol,ul,li,
 fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td
-{border : 0;  outline: 0; margin : 0; padding: 0; 
+{border : 0;  outline: 0; margin : 0; padding: 0;
 font-family: inherit; font-weight: inherit; font-style : inherit;
 font-size  : 100%; vertical-align: baseline; }
 
@@ -24,10 +24,16 @@ font-size  : 100%; vertical-align: baseline; }
 
 /* --- general formatting --- */
 
-body { font-size: 1em; background: #d5d0cc; font-family: sans-serif; }
+body { font-size: 1em; background: #DDD; font-family: sans-serif; }
 
-p, h3,ul,table { margin-bottom: .5em; }
-h2 {margin-bottom: .2em;}
+p, table { margin-bottom: .5em; }
+
+div{position: relative;}
+
+h1,h2,h3,h4,h5,h6{font-weight: bold;}
+h2 { font-size: 20px; margin: 0 1em .2em 0;} /*TRBL*/
+h3 { font-size: 18px; margin-top: 15px; }
+h4 { font-size: 1.3em; margin-bottom: .2em; font-weight: normal;}
 
 em, i { font-style: italic; }
 
@@ -46,13 +52,6 @@ caption,th,td{text-align:left;font-weight:400;}
 blockquote:before,blockquote:after,q:before,q:after{content:"";}
 blockquote,q{quotes:"" "";}
 
-div{position: relative;}
-
-h1,h2,h3,h4,h5,h6{font-weight: bold;}
-h2 { font-size: 20px; }
-h3 { font-size: 18px; margin-top: 15px; }
-h4 { font-size: 1.3em; margin-bottom: .2em; font-weight: normal;}
-
 a { border: 1px solid transparent; color: rgb(100,45,0); text-decoration: none; }
 a:hover { border: 1px solid #807568; background-color: rgb(255,250,150); }
 a:focus { border: 1px solid #807568; background-color: rgb(255,250,150); }
@@ -60,12 +59,7 @@ a:focus { border: 1px solid #807568; background-color: rgb(255,250,150); }
 form p { margin-bottom: 5px; }
 
 
-label {
-	display: inline-block;
-	width  : 7em;
-	font-size : 14px;
-	font-style: italic;
-	}
+label { display: inline-block; width : 7em; font-size : 1em; }
 
 
 pre {
@@ -78,8 +72,6 @@ pre {
 	margin: 5px 0 10px 0;
 	overflow: hidden;
 	}
-
-
 
 
 /* --- layout --- */
@@ -111,28 +103,36 @@ pre {
 .footer { color: #777; font-size: .7em; }
 
 
-.page_login label { display: block; margin-bottom: 2px; }
-
-
 .alignleft { margin: 0 10px 10px 0; float: left; }
 
 
-/* Leave space when message is blank. Used by Edit page */
-#message { min-height: 1.7em; margin-bottom: .3em;}
+.dirname { font-weight: 400; }
+
+.filename {
+	border: 1px solid #807568;
+	padding: .1em .2em .1em .2em;
+	font-weight: 700;
+	font-family: courier;
+	background-color: #EEE;
+	}
+
+
+#message {margin: .5em 0;}
 
 #message p {
 	margin: 0;
 	padding: 4px 0px 4px .5em;
 	border: 1px solid #807568;
-	font-family: Lucida Console, "Courier New" ;
-	font-size: .95em;
+	Xfont-family: courier;
+	font-size: 1em;
 	line-height: 1.2em;
 	background: #fff000;
 	}
 
 #message span { float: right; }
 
-#message a { padding: 6px 1px 5px 1px; border-right: none; } /*T R B L*/
+/* #message a { font-family: Courier; font-size: 1.2em; padding: 4px 2px 3px 2px; border-right: none;} */
+#message a { padding: 5px 4px 5px 4px; border-right: none; } /*T R B L */
 
 
 /* --- INDEX directory listing, table format --- */
@@ -144,7 +144,7 @@ table.index_T {
 	border-color: #807568;
 	border-collapse: collapse;
 	margin-bottom: .7em;
-	background-color: #F8F8F8;
+	background-color: #FdFdFd;
 	}
 	
 table.index_T  tr:hover { border: 1px solid #807568; }
@@ -166,7 +166,6 @@ table.index_T td {
 	overflow   : hidden;
 	}
 
-/*	background : url("http://self-evident.github.com/OneFileCMS/images/silk_file.png") 4px no-repeat;*/
 
 .index_T a.txt { background: url("http://self-evident.github.com/OneFileCMS/images/file-txt.png") 3px no-repeat; }
 .index_T a.htm { background: url("http://self-evident.github.com/OneFileCMS/images/file-htm.png") 3px no-repeat; }
@@ -210,13 +209,13 @@ table.index_T td {
 .index_folders { min-height: 1.7em;  margin-bottom: .2em; }
 
 .index_folders a {
-	border       : 1px solid #807568;
+	Xborder       : 1px solid #807568;
 	display      : inline-block;
-	line-height  : 1.1em;
+	line-height  : 1em;
 	font-size    : 1em;
 	margin-right : .6em;
-	margin-bottom: .3em;
-	padding      : .1em .4em .1em 25px; /*TRBL*/
+	margin-bottom: .1em;
+	padding      : 3px .4em 3px 25px; /*TRBL*/
 	background : url("http://self-evident.github.com/OneFileCMS/images/folder-2.png") 4px 3px no-repeat;
 	}
 
@@ -238,27 +237,28 @@ table.index_T td {
 	display: inline-block;
 	}
 
-.front_links a.upload       { background: url("http://self-evident.github.com/OneFileCMS/images/upload.png") 3px      3px no-repeat; }
-.front_links a.new          { background: url("http://self-evident.github.com/OneFileCMS/images/file-new-2.png")      3px 4px no-repeat; }
-.front_links a.newfolder    { background: url("http://self-evident.github.com/OneFileCMS/images/folder-new-2.png")    2px 5px no-repeat; }
-.front_links a.renamefolder { background: url("http://self-evident.github.com/OneFileCMS/images/folder-rename-1.png") 1px 4px no-repeat; }
-.front_links a.deletefolder { background: url("http://self-evident.github.com/OneFileCMS/images/folder-del-3.png")    1px 5px no-repeat; }
-.front_links a.settings     { background: url("http://self-evident.github.com/OneFileCMS/images/settings.png")        2px 3px no-repeat; }
+.front_links a.upload       { background: #EEE url("http://self-evident.github.com/OneFileCMS/images/upload.png") 3px      3px no-repeat; }
+.front_links a.new          { background: #EEE url("http://self-evident.github.com/OneFileCMS/images/file-new-2.png")      3px 4px no-repeat; }
+.front_links a.newfolder    { background: #EEE url("http://self-evident.github.com/OneFileCMS/images/folder-new-2.png")    2px 5px no-repeat; }
+.front_links a.renamefolder { background: #EEE url("http://self-evident.github.com/OneFileCMS/images/folder-rename-1.png") 1px 4px no-repeat; }
+.front_links a.deletefolder { background: #EEE url("http://self-evident.github.com/OneFileCMS/images/folder-del-3.png")    1px 5px no-repeat; }
 
 .front_links a:hover  { background-color: rgb(255,250,150); }
 .front_links a:focus  { background-color: rgb(255,250,150); }
 
 
-form .meta { z-index: -1; }
-
-.textinput {
+input[type="text"] {
 	border: 1px solid #807568;
 	padding: 2px;
-	width: 650px;
+	width: 630px;
 	font: 1em "Courier New", Courier, monospace;
 	}
 
-textarea.textinput {
+input.textinput1 { width: 20em; }
+
+input.textinput2 { width: 40em; }
+
+textarea {
 	border: 1px solid #999;
 	font  : .95em "Courier New", Courier, monospace;
 	margin: 0 0 .5em 0; /*T R B L*/
@@ -267,15 +267,19 @@ textarea.textinput {
 	height: 30em;
 	}
 
-textarea.disabled { height: 50px; }
+textarea[disabled ]{ width : 99.5%; height: 50px; }
 
 textarea:focus { border: 1px solid #Faa; }
 
 
 input:focus { background-color: rgb(255,250,150); }
-/* input[type="button"]:focus { background-color: rgb(255,250,150); } */
 
 input:hover { background-color: rgb(255,250,150); }
+
+input[readonly]       { color: #333; background-color: #EEE; }
+input[disabled]       { color: #555; background-color: #EEE; }
+input[disabled]:hover { background-color: rgb(236,233,216);  } 
+input[disabled]:hover { background-color: rgb(236,233,216);  } 
 
 
 .buttons_right         { float: right; }
@@ -286,21 +290,13 @@ input:hover { background-color: rgb(255,250,150); }
 .button {
 	border: 1px solid #807568;
 	padding: 4px 10px;
-	background-color: #d4d4d4;
+	background-color: #EEE;  /*#d4d4d4*/
 	cursor: pointer;
 	font-size: .9em;
 	font-family: sans-serif;
 	}
 
-.Xbutton:hover { background-color: rgb(255,250,150); } 
-.button[disabled]:hover { background-color: #d4d4d4; cursor:default }
-
-/*
-#Xsave_file         { border: 1px solid red; }
-#save_file a:hover { background-color: rgb(255,250,150); border: 1px solid red; }
-#save_file a:focus { background-color: rgb(255,250,150); border: 1px solid red; }
-*/
-
+.button[disabled]  { color: #777; background-color: #EEE; }
 
 #action {color: white; background-color: rgb(235,70,70); font-weight: 700;}
 
@@ -343,22 +339,25 @@ input:hover { background-color: rgb(255,250,150); }
 
 #edit_note    {font-size: .8em; color: #444 ;margin-top: 1em;}
 
+
+
 /* --- log in --- */
 
-.page_login .container {
-	margin-top: 5em;
-	border    : 1px solid #807568;
-	padding   : 1em;
-	width     : 360px;
+.login_page {
+	margin  : 5em auto;
+	border  : 1px solid #807568;
+	padding : 1em;
+	width   : 360px;
 	}
-
 
 .login_input {
 	border  : 1px solid #807568;
 	padding : 2px 0px 2px 2px;
 	width   : 356px;
-	font    : 1em Courier;
+	font    : 1em "Courier New";
 	}
+
+input[type="text"].login_input { width   : 354px; }
 
 
 
@@ -376,4 +375,16 @@ hr {
 	border-top   : 1px solid #807568;
 	Xborder-bottom: 1px solid #eee;
 	overflow: visible;
+	}
+
+.web_root { font:1.2em Courier; }
+
+.sure { margin: .5em 0em .5em 0; }
+
+.verify {
+	border: 1px solid #807568;
+	color: #333;
+	background-color: #FEE;
+	padding: 2px .3em;
+	font: 1.2em Courier;
 	}

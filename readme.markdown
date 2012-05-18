@@ -1,5 +1,9 @@
-# Current "stable" version: 1.2.3
+### May 18, 2012
+
+# Current stable version: 1.4.0
+
 --------------------------------------------------------------------------------
+
 ### April 30, 2012
 
 # NOTICE - SECURITY HOLE! (Fixed in version 1.2.1)
@@ -49,8 +53,7 @@ Coupling a utilitarian code editor with all the basic necessities of an FTP appl
  
 - All the basic features of an FTP application like renaming, deleting, copying, and uploading
   _(Of course, for more complex processes like batch renaming or mass uploads/deletions, you're going to want to break out an actual FTP program.)_
-- Smart alert if you try to leave without saving your edits
-- Gracefully degrading CSS and Javascript
+- Alert if you try to leave without saving your edits
 - Easily re-brandable via the title text stored in a configurable variable, and a modifiable filename.
 - Externally hosted CSS and images.
   _(Of course, you can switch it out to your own stylesheet if you need to!)_
@@ -107,19 +110,19 @@ Probably not.
 
 The reason there isn't default support for multiple users is that all of their info will have to be stored together, more or less in plain text, at the top of onefilecms.php. Giving people different usernames and passwords then is sort of futile, since everyone who can log in can view onefilecms's source and config variables. (This answer kind of ignores MD5 hashes but is valid for most considerations.) 
 
-### Is the JavaScript in the middle of the file really needed? When I remove it, everything seems to work fine.
-
-It isn't entirely necessary, but it does provide nice enhancements, like warning you if you try to leave without saving changes, and stuff like that. 
-
 ## Change Log
+
+
+### 1.4.0
+
+- Substantial code reorganization & updates.
+
 
 ### 1.2.4 - 1.3.0
 
 - DO NOT USE THESE VERSIONS!
 - Mostly just a bunch of code modifications.
-- These versions have issues, primarily when on the home/root page your site, 
-  and attempting to [Upload File],  [New File], [New Folder], or when editing
-  a file.
+- These versions have issues, primarily when on the home/root page your site. 
 
 ### 1.2.3
 
