@@ -2,7 +2,7 @@
 // OneFileCMS - http://onefilecms.com/
 // For license & copyright info, see OneFileCMS.License.BSD.txt
 
-$version = '1.5';
+$version = '"Lite" (v2.0)';
 
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate (v5.4 recommended). Please contact your host to upgrade your PHP installation."); };
@@ -110,7 +110,7 @@ if (isset($_GET["i"])) { $ipath    = Check_path($_GET["i"]); }else{ $ipath    = 
 if (isset($_GET["f"])) { $filename = $ipath.$_GET["f"]; }else{ $filename = ""; }
 if (isset($_GET["p"])) { $page     = $_GET["p"]; } // default $page set above
 
-$varvar = "?i=".$ipath;
+$param1 = "?i=".$ipath;
 
 
 
@@ -175,8 +175,8 @@ function message_box() { //*********************************
 ?>
 		<div id="message"><p>
 		<span><!-- [X] to dismiss message box -->	
-			<a id="dismiss" href='<?php echo $ONESCRIPT.$varvar; ?>'
-			onclick='document.getElementById("message").innerHTML = " ";return false'>
+			<a id="dismiss" href='<?php echo $ONESCRIPT.$param1; ?>'
+			onclick='document.getElementById("message").innerHTML = " ";return false;'>
 			[X]</a>
 		</span>
 		<?php echo $message.PHP_EOL ;?>
@@ -194,15 +194,15 @@ function message_box() { //*********************************
 
 
 function Upload_New_Rename_Delete_Links() { //**************
-	global $ONESCRIPT, $ipath, $varvar;
+	global $ONESCRIPT, $ipath, $param1;
 
 	echo '<p class="front_links">';
-	echo '<a href="'.$ONESCRIPT.$varvar.'&amp;p=upload"    class="upload" >Upload File</a>';
-	echo '<a href="'.$ONESCRIPT.$varvar.'&amp;p=new"       class="new" >New File</a>'   ;
-	echo '<a href="'.$ONESCRIPT.$varvar.'&amp;p=newfolder" class="newfolder" >New Folder</a>' ;
+	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=upload">Upload File</a>';
+	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=new">New File</a>'   ;
+	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=newfolder">New Folder</a>' ;
 	if ($ipath !== "") {
-		echo '<a href="'.$ONESCRIPT.$varvar.'&amp;p=renamefolder" class="renamefolder" >Rename Folder</a>';
-		echo '<a href="'.$ONESCRIPT.$varvar.'&amp;p=deletefolder" class="deletefolder" >Delete Folder</a>';
+		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=renamefolder">Rename Folder</a>';
+		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=deletefolder">Delete Folder</a>';
 	}
 	echo '</p>';
 }//end Upload_New_Rename_Delete_Links()  *******************
@@ -210,9 +210,9 @@ function Upload_New_Rename_Delete_Links() { //**************
 
 
 function Close_Button($classes) { //************************
-	global $ONESCRIPT, $ipath, $varvar;
+	global $ONESCRIPT, $ipath, $param1;
 	echo '<input type="button" class="button '.$classes.'" name="close" value="Close" onclick="parent.location=\'';
-	echo $ONESCRIPT.$varvar.'\'">';
+	echo $ONESCRIPT.$param1.'\'">';
 	?><script>document.edit_form.elements[1].focus();</script><?php // focus on [Close]
 }// End Close_Button() //***********************************
 
@@ -221,14 +221,14 @@ function Close_Button($classes) { //************************
 function Cancel_Submit_Buttons($submit_label, $focus) { //**
 	//$submit_label = Rename, Copy, Delete, etc...
 	//$focus: if==1 or TRUE, set focus() to cancel button.
-	global $ONESCRIPT, $ipath, $varvar, $filename, $page;
+	global $ONESCRIPT, $ipath, $param1, $filename, $page;
 
 	// [Cancel] returns to either the current/path, or current/path/file
-	if ($filename != "") { $varvar .= '&f='.basename($filename).'&p='.edit; }
+	if ($filename != "") { $param1 .= '&f='.basename($filename).'&p='.edit; }
 ?>
 	<p>
 		<input type="button" class="button" id="cancel" name="cancel" value="Cancel"
-			onclick="parent.location='<?php echo $ONESCRIPT.$varvar; ?>'">
+			onclick="parent.location='<?php echo $ONESCRIPT.$param1; ?>'">
 		<input type="submit" class="button" value="<?php echo $submit_label;?>" style="margin-left: 1.3em;">
 	</p>
 <?php
@@ -374,7 +374,7 @@ if (isset($_POST["username"])) {
 function list_files() { // ...in a vertical table ******************************
 //called from Index Page
 
-	global $ONESCRIPT, $ipath, $varvar, $ftypes, $fclasses, $excluded_list;
+	global $ONESCRIPT, $ipath, $param1, $ftypes, $fclasses, $excluded_list;
 
 	$files = scandir('./'.$ipath);
 	natcasesort($files);
@@ -386,19 +386,19 @@ function list_files() { // ...in a vertical table ******************************
 		if (in_array(basename($file), $excluded_list)) { $excluded = TRUE; };
 		
 		if (!is_dir($ipath.$file) && !$excluded) {
-		
-			//Determine file type & set cooresponding class.
-			$file_class = "";
+
+			//Determine file type & set cooresponding icon type.
+			$type = "bin"; //default
 			$ext = end( explode(".", strtolower($file)) );
 			for ($x=0; $x < count($ftypes); $x++ ){
-				if ($ext == $ftypes[$x]){ $file_class = $fclasses[$x]; } 
+				if ($ext == $ftypes[$x]){ $type = $fclasses[$x]; } 
 			}
 ?>
 			<tr>
 				<td>
-					<?php echo '<a href="'.$ONESCRIPT.$varvar.'&amp;f='.$file.'&amp;p=edit" '; ?>
-					<?php echo 'class="',  $file_class, '">', $file, '</a>'; ?>
+					<?php echo '<a href="'.$ONESCRIPT.$param1.'&amp;f='.$file.'&amp;p=edit" >'; ?>
 
+					<?php echo  $file, '</a>'; ?>
 				</td>
 				<td class="meta_T meta_size">&nbsp;
 					<?php echo number_format(filesize($ipath.$file)).""; ?> B
@@ -408,7 +408,7 @@ function list_files() { // ...in a vertical table ******************************
 				</td>
 			</tr>
 <?php 
-		}//end if !is_dir
+		}//end if !is_dir...
 	}//end foreach file
 echo '</table>';
 }//end list_files() ************************************************************
@@ -425,7 +425,7 @@ function Index_Page(){ //*******************************************************
 		$folders = glob($ipath."*",GLOB_ONLYDIR);
 		natcasesort($folders);
 		foreach ($folders as $folder) {
-			echo '<a href="'.$ONESCRIPT.'?i='.$folder.'/" class="index_folder">';
+			echo '<a href="'.$ONESCRIPT.'?i='.$folder.'/">';
 
 			echo basename($folder).' /</a>';
 		}
@@ -444,10 +444,10 @@ function Index_Page(){ //*******************************************************
 
 
 function Edit_Page() { //*******************************************************
-	global $ONESCRIPT, $ipath, $varvar, $filename, $filecontent, $etypes, $itypes, $ftypes;
+	global $ONESCRIPT, $ipath, $param1, $filename, $filecontent, $etypes, $itypes, $ftypes;
 
-	$varvar2 = $varvar.'&amp;p=edit';
-	$varvar3 = $varvar.'&amp;f='.basename($filename);
+	$param2 = $param1.'&amp;f='.basename($filename);
+	$param3 = $param1.'&amp;f='.basename($filename).'&amp;p=edit';
 	
 	//Determine if editable file type
 	$ext = end( explode(".", strtolower($filename) ) );
@@ -458,7 +458,7 @@ function Edit_Page() { //*******************************************************
 	<a class="filename" href="/<?php echo $filename.'">'.basename($filename) ?></a>
 	</h2>
 
-	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$varvar2 ?>">
+	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$param3 ?>">
 		<p class="file_meta">
 		<span class="meta_size">Size<b>: </b> <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; &nbsp; 
 		<span class="meta_time">Updated<b>: </b><script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1);</script></span><br>
@@ -495,9 +495,9 @@ function Edit_Page() { //*******************************************************
 			document.getElementById('save_file').disabled = "disabled";
 			document.getElementById('reset').disabled     = "disabled";
 		</script>
-		<input type="button" class="button" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.$varvar3.'&amp;p=rename'; ?>'">
-		<input type="button" class="button" value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.$varvar3.'&amp;p=copy'  ; ?>'">
-		<input type="button" class="button" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.$varvar3.'&amp;p=delete'; ?>'">
+		<input type="button" class="button" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.$param3.'&amp;p=rename'; ?>'">
+		<input type="button" class="button" value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.$param3.'&amp;p=copy'  ; ?>'">
+		<input type="button" class="button" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.$param3.'&amp;p=delete'; ?>'">
 		<?php Close_Button(""); ?>
 		</p>
 	</form>
@@ -539,10 +539,10 @@ if ( $page == "edit" && isset($_POST["filename"]) && $_SESSION['valid'] = "1" &&
 
 
 function Upload_Page() { //*****************************************************
-	global $ONESCRIPT, $ipath, $varvar;
+	global $ONESCRIPT, $ipath, $param1;
 ?>
 	<h2>Upload File</h2>
-	<form enctype="multipart/form-data" action="<?php echo $ONESCRIPT.$varvar; ?>" method="post">
+	<form enctype="multipart/form-data" action="<?php echo $ONESCRIPT.$param1; ?>" method="post">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<input type="hidden" name="MAX_FILE_SIZE" value="100000">
 		<input type="hidden" name="upload_destination" value="<?php echo $ipath; ?>" >
@@ -585,10 +585,10 @@ if (isset($_FILES['upload_filename']['name']) && $_SESSION['valid'] = "1" && $_P
 
 
 function New_File_Page() { //***************************************************
-	global $ONESCRIPT, $WEB_ROOT, $ipath, $varvar;
+	global $ONESCRIPT, $WEB_ROOT, $ipath, $param1;
 ?>
 		<h2 style="float: left;">New File</h2>
-		<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
+		<form method="post" action="<?php echo $ONESCRIPT.$param1; ?>">
 			<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 			<input type="text" name="new_filename" id="new_filename" class="textinput1" value="">
 			<p>	<?php Cancel_Submit_Buttons("Create","new_filename"); ?> </p>
@@ -615,7 +615,7 @@ if (isset($_POST["new_filename"]) && $_SESSION['valid'] = "1" && $_POST["session
 		fclose($handle);
 		$message = '"<b>'.$filename.'</b>"successfully created.';
 		$ipath = Check_path(dirname($filename)); //if changed, return to new dir.
-		$varvar = "?i=".$ipath;
+		$param1 = "?i=".$ipath;
 		$page = "edit";
 	}
 }//end NEW FILE response code **************************************************
@@ -626,13 +626,13 @@ if (isset($_POST["new_filename"]) && $_SESSION['valid'] = "1" && $_POST["session
 
 
 function Copy_File_Page(){ //***************************************************
-	global $ONESCRIPT, $WEB_ROOT, $ipath, $varvar, $filename;
+	global $ONESCRIPT, $WEB_ROOT, $ipath, $param1, $filename;
 
 	$new_filename = ordinalize($ipath, basename($filename));
 ?>
 	<h2>Copy File</h2>
 
-	<form method="post" id="new" action="<?php echo $ONESCRIPT.$varvar; ?>">
+	<form method="post" id="new" action="<?php echo $ONESCRIPT.$param1; ?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<p>
 			<label>Old filename:</label>
@@ -678,14 +678,14 @@ if (isset($_POST["copy_filename"]) && $_SESSION['valid'] = "1" && $_POST["sessio
 
 
 function Rename_File_Page() { //************************************************
-	global $ONESCRIPT, $WEB_ROOT, $ipath, $varvar, $filename;
+	global $ONESCRIPT, $WEB_ROOT, $ipath, $param1, $filename;
 ?>
 	<h2>Rename/Move File</h2>
 
 	<p>To move a file, change the folder's name, as in 
 	"newfolder/filename.txt". The new folder must already exist.</p>
 
-	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
+	<form method="post" action="<?php echo $ONESCRIPT.$param1; ?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<p>
 			<label>Old filename:</label>
@@ -711,7 +711,7 @@ if (isset($_POST["rename_filename"]) && $_SESSION['valid'] = "1" && $_POST["sess
 	$new_filename = trim($_POST["rename_filename"], '/');
 
 	$page = "edit"; //return to edit page
-	
+
 	if (file_exists($new_filename)) {
 		$message .= '<b>(!) Error renaming or moving file - target filename already exists:<br>';
 		$message .= '(!) '.$new_filename.'</b>';
@@ -723,7 +723,7 @@ if (isset($_POST["rename_filename"]) && $_SESSION['valid'] = "1" && $_POST["sess
 		$message .= '<b>"'.$new_filename.'</b>"<br>';
 		$filename = $new_filename;
 		$ipath = Check_path(dirname($filename)); //if changed, return to new dir.
-		$varvar = '?i='.$ipath;
+		$param1 = '?i='.$ipath;
 	}else{
 		$message .= '<b>(!) Error renaming/moving file from:<br>"'.$old_filename.'"</b>';
 		$message .= '<b>(!) To:<br>"'.$new_filename.'"</b>';
@@ -735,11 +735,11 @@ if (isset($_POST["rename_filename"]) && $_SESSION['valid'] = "1" && $_POST["sess
 
 
 function Delete_File_Page() { //************************************************
-	global $ONESCRIPT, $WEB_ROOT, $ipath, $varvar, $filename;
+	global $ONESCRIPT, $WEB_ROOT, $ipath, $param1, $filename;
 ?>
 	<h2 style="float: left;">Delete File</h2>
 
-	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
+	<form method="post" action="<?php echo $ONESCRIPT.$param1; ?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<input type="hidden" name="delete_filename" value="<?php echo $filename; ?>" >
 		<span class="verify"><?php echo basename($filename); ?></span>
@@ -769,10 +769,10 @@ if (isset($_POST["delete_filename"]) && $_SESSION['valid'] = "1" && $_POST["sess
 
 
 function New_Folder_Page() { //*************************************************
-	global $ONESCRIPT, $WEB_ROOT, $ipath, $varvar;
+	global $ONESCRIPT, $WEB_ROOT, $ipath, $param1;
 ?>
 	<h2 style="float: left;">New Folder</h2>
-	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
+	<form method="post" action="<?php echo $ONESCRIPT.$param1; ?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<input type="text" name="new_folder" id="new_folder" class="textinput1" value="">
 		<p><?php Cancel_Submit_Buttons("Create","new_folder"); ?></p>
@@ -798,7 +798,7 @@ if (isset($_POST["new_folder"]) && $_SESSION['valid'] = "1" && $_POST["sessionid
 	}elseif (mkdir($new_folder)) {
 		$message .= 'Folder "<b>'.basename($new_folder).'</b>" successfully created.';
 		$ipath   = $new_folder;  //cd to new folder
-		$varvar = "?i=".$ipath;
+		$param1 = "?i=".$ipath;
 	}else{
 		$message .= "<b>(!) Error- new folder not created.</b>";
 	}
@@ -809,10 +809,10 @@ if (isset($_POST["new_folder"]) && $_SESSION['valid'] = "1" && $_POST["sessionid
 
 
 function Rename_Folder_Page() { //**********************************************
-	global $ONESCRIPT, $WEB_ROOT, $ipath, $varvar;
+	global $ONESCRIPT, $WEB_ROOT, $ipath, $param1;
 ?>
 	<h2>Rename Folder</h2>
-	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
+	<form method="post" action="<?php echo $ONESCRIPT.$param1; ?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<p>
 			<label>Old name:</label><input type="hidden" name="old_foldername" value="<?php echo $ipath; ?>">
@@ -849,7 +849,7 @@ if (isset($_POST["new_foldername"]) && $_SESSION['valid'] = "1" && $_POST["sessi
 		$message .= ' --- successfully renamed to ---<br>';
 		$message .= '<b>"'.$new_foldername.'/</b>"<br>';
 		$ipath    = Check_path($new_foldername); //Return to new folder
-		$varvar = "?i=".$ipath;
+		$param1 = "?i=".$ipath;
 	} else {
 		$message = "<b>(!)</b> There was an error during rename. Try again and/or contact your admin.";
 	}
@@ -860,11 +860,11 @@ if (isset($_POST["new_foldername"]) && $_SESSION['valid'] = "1" && $_POST["sessi
 
 
 function Delete_Folder_Page(){ //***********************************************
-	global $ONESCRIPT, $WEB_ROOT, $ipath, $varvar;
+	global $ONESCRIPT, $WEB_ROOT, $ipath, $param1;
 ?>
 	<br><h2>Delete Folder</h2>
 
-	<form method="post" action="<?php echo $ONESCRIPT.$varvar; ?>">
+	<form method="post" action="<?php echo $ONESCRIPT.$param1; ?>">
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<input type="hidden" name="delete_foldername" value="<?php echo $ipath; ?>" >
 		<span class="web_root"><?php echo $WEB_ROOT.Check_path(dirname($ipath)); ?></span>
@@ -892,7 +892,7 @@ if (isset($_POST["delete_foldername"]) && $_SESSION['valid'] = "1" && $_POST["se
 	if (@rmdir($foldername)) {
 		$message = 'Folder "<b>'.basename($foldername).'</b>" successfully deleted.';
 		$ipath = Check_path($foldername); //Return to parent dir.
-		$varvar = "?i=".$ipath;
+		$param1 = "?i=".$ipath;
 	} else {
 		$message .= '<b>(!) "'.$foldername.'/"</b> an error occurred during delete.';
 	}
@@ -1132,7 +1132,7 @@ form p { margin-bottom: 5px; }
 
 label { display: inline-block; width : 7em; font-size : 1em; }
 
-
+svg { margin: 0; padding: 0; }
 
 pre {
 	background: white;
@@ -1230,22 +1230,11 @@ table.index_T td {
 .index_T a { 
 	height : 1em;
 	display: block;
-	padding: .2em 1em .3em 1.6em;
+	padding: .2em 1em .3em .3em;
 	color  : rgb(100,45,0);
 	border : none;
-	background : url("http://self-evident.github.com/OneFileCMS/images/file-bin.png") 3px no-repeat;
 	overflow   : hidden;
 	}
-
-
-.index_T a.txt { background: url("http://self-evident.github.com/OneFileCMS/images/file-txt.png") 3px no-repeat; }
-.index_T a.htm { background: url("http://self-evident.github.com/OneFileCMS/images/file-htm.png") 3px no-repeat; }
-.index_T a.css { background: url("http://self-evident.github.com/OneFileCMS/images/file-css.png") 3px no-repeat; }
-.index_T a.php { background: url("http://self-evident.github.com/OneFileCMS/images/file-php.png") 3px no-repeat; }
-.index_T a.cfg { background: url("http://self-evident.github.com/OneFileCMS/images/file-cfg.png") 3px no-repeat; }
-.index_T a.img { background: url("http://self-evident.github.com/OneFileCMS/images/file-img.png") 3px no-repeat; }
-.index_T a.bin { background: url("http://self-evident.github.com/OneFileCMS/images/file-bin.png") 3px no-repeat; }
-.index_T a.svg { background: url("http://self-evident.github.com/OneFileCMS/images/file-svg.png") 3px no-repeat; }
 
 .index_T a:hover { background-color: rgb(255,250,150); }
 .index_T a:focus { background-color: rgb(255,250,150); }
@@ -1286,8 +1275,7 @@ table.index_T td {
 	font-size    : 1em;
 	margin-right : .6em;
 	margin-bottom: .1em;
-	padding      : 3px .4em 3px 25px; /*TRBL*/
-	background : url("http://self-evident.github.com/OneFileCMS/images/folder-2.png") 4px 3px no-repeat;
+	padding      : 3px .4em 3px 5px; /*TRBL*/
 	}
 
 .index_folders a:hover { background-color: rgb(255,250,150); }
@@ -1302,18 +1290,12 @@ table.index_T td {
 .front_links a {
 	display: inline-block;
 	border : 1px solid #807568;
-	height      : 16px;
-	font-size   : 16px;
-	margin-right: 15px;
-	padding     : 3px 5px 5px 21px; /*TRBL*/
+	height      : 1em;
+	font-size   : 1em;
+	margin-right: 1em;
+	padding     : 3px 5px 5px 4px; /*TRBL*/
 	background-color: #EEE;
 	}
-
-.front_links a.upload       { background: #EEE url("http://self-evident.github.com/OneFileCMS/images/upload.png") 3px      3px no-repeat; }
-.front_links a.new          { background: #EEE url("http://self-evident.github.com/OneFileCMS/images/file-new-2.png")      3px 4px no-repeat; }
-.front_links a.newfolder    { background: #EEE url("http://self-evident.github.com/OneFileCMS/images/folder-new-2.png")    2px 5px no-repeat; }
-.front_links a.renamefolder { background: #EEE url("http://self-evident.github.com/OneFileCMS/images/folder-rename-1.png") 1px 4px no-repeat; }
-.front_links a.deletefolder { background: #EEE url("http://self-evident.github.com/OneFileCMS/images/folder-del-3.png")    1px 5px no-repeat; }
 
 .front_links a:hover  { background-color: rgb(255,250,150); }
 .front_links a:focus  { background-color: rgb(255,250,150); }
