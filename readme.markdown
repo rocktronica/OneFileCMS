@@ -221,8 +221,8 @@ The reason there isn't default support for multiple users is that all of their i
 
 ## Requirements
 
-- PHP 5.4
-  __(Older 5.x versions may work, but there will be issues editing files with back slashes.  See php docs on magic_quotes_gpc & stripslashes().)__
+- PHP 5.4  
+  (Older 5.x versions may work, but there will be issues editing files with back slashes.  See php docs on magic_quotes_gpc & stripslashes().)
 - File permission privileges
 - Javascript enabled browswer
 - (and, if you use IE, IE9+ for svg support if using OneFileCMS 3.0+) 
@@ -247,30 +247,34 @@ To report a bug or request a feature, please file an issue via Github. Forks enc
 --------------------------------------------------------------------------------
 
 ### General layout/structure of OneFileCMS.php
-
-Configurable Info
-Setup a few general & global values.
-Session start
-Misc functions
-svg_icons_...() functions
-Set page title
-Logout response
-Login_Page() function
-list_files() function
-Index_Page() function
-
-<page...>() functions
-<page...>   response code
-...(Edit_Page(), Upload_,
-   New_File_, Copy_, Rename_File_, Delete_File_, 
-   New_Folder_, Rename_Folder_, Delete_Folder_)...
-
-Load_Selected_Page() function
-Time_Stamp_scripts() function
-Edit_Page_script() function
-style_sheet() function
-<html>
-...
-Load_Selected_Page()
-...
-</html>
+  
+Configurable Info  
+Setup a few general & global values.  
+Session start  
+Misc functions  
+svg\_icons\_...() functions  
+Set page title  
+Logout response  
+Login\_Page() function  
+list\_files() function  
+Index\_Page() function  
+&lt;page...&gt;() functions  
+&lt;page...&gt;   response code  
+&nbsp; &nbsp; Edit\_Page()...   
+&nbsp; &nbsp; Upload\_  
+&nbsp; &nbsp; New\_File\_  
+&nbsp; &nbsp; Copy\_  
+&nbsp; &nbsp; Rename\_File\_  
+&nbsp; &nbsp; Delete\_File\_   
+&nbsp; &nbsp; New\_Folder\_   
+&nbsp; &nbsp; Rename\_Folder\_  
+&nbsp; &nbsp; Delete\_Folder\_  
+Load\_Selected\_Page() function  
+Time\_Stamp\_scripts() function  
+Edit\_Page\_script() function  
+style\_sheet() function  
+&lt;html&gt;  
+...  
+Load\_Selected\_Page()  
+...  
+&lt;/html&gt;  
