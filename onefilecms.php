@@ -2,10 +2,10 @@
 // OneFileCMS - http://onefilecms.com/
 // For license & copyright info, see OneFileCMS.License.BSD.txt
 
-$version = "1.4.0";
+$version = '1.5';
 
 
-if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Please contact your host to upgrade your PHP installation."); };
+if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate (v5.4 recommended). Please contact your host to upgrade your PHP installation."); };
 
 
 // CONFIGURABLE INFO ***********************************************************
@@ -13,38 +13,36 @@ $config_username  = "username";
 $config_password  = "password";
 $config_title     = "OneFileCMS";
 
-$config_style_sheet = "onefilecms.css";  //Relative to this file.
-//$config_style_sheet ="/onefilecms.css";  //Relative to site URL root.
-//$config_style_sheet = "http://self-evident.github.com/OneFileCMS/onefilecms.css";
-
 $MAX_IMG_W   = 810;   // Max width to display images. (page container = 810)
 $MAX_IMG_H   = 1000;  // Max height.  I don't know, it just looks reasonable.
 
 $config_favicon   = "/favicon.ico";
-$config_editable  = "html,htm,php,css,js,txt,text,cfg,conf,ini,csv,svg";
-$config_excluded  = ""; //files to exclude from directory listings
-$config_itypes    = "jpg,gif,png,bmp,ico";  // Can be displayed on edit page.
-$config_ftypes    = "jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,htm,html,cfg,conf,js"; //used to select file icon
-$config_fclass    = "img,img,img,img,img,svg,txt,txt,css,php,htm,htm,cfg,cfg,txt";  //used to select file icon
+$config_excluded  = ""; //files to exclude from directory listings- CaSe sensaTive!
+
+$config_etypes = "html,htm,xhtml,php,css,js,txt,text,cfg,conf,ini,csv,svg"; //lowercase, no spaces!
+$config_itypes = "jpg,gif,png,bmp,ico"; //lowercase, no spaces!
+$config_ftypes = "jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,ini,cfg,conf,js,htm,html"; //lowercase, no spaces!
+$config_fclass = "img,img,img,img,img,svg,txt,txt,css,php,txt,cfg,cfg,txt,htm,htm";  //lowercase, no spaces!
 // END CONFIGURABLE INFO *******************************************************
 
 
 
-//Make arrays out of a few $config_variables.  They are used in Index_Page() .
+//Make arrays out of a few $config_variables for actual use later.
 //Above, however, it's easier to config/change a simple string.
-$ftypes   = (explode(",", strtolower($config_ftypes)));
-$fclasses = (explode(",", strtolower($config_fclass)));
-$itypes   = (explode(",", strtolower($config_itypes)));
+$etypes   = (explode(",", strtolower($config_etypes))); //editable file types
+$itypes   = (explode(",", strtolower($config_itypes))); //images types to display
+$ftypes   = (explode(",", strtolower($config_ftypes))); //file types with icons
+$fclasses = (explode(",", strtolower($config_fclass))); //for file types with icons
+$excluded_list = (explode(",", $config_excluded));
 
-
-$valid_pages = array("login","logout","index","edit","upload","new","copy","rename","delete","newfolder","renamefolder","deletefolder" );
 
 $ONESCRIPT = $_SERVER["SCRIPT_NAME"];
 $DOC_ROOT  = $_SERVER["DOCUMENT_ROOT"].'/';
 $WEB_ROOT  = basename($DOC_ROOT).'/';
 $WEBSITE   = $_SERVER["HTTP_HOST"];
+$pagetitle = $_SERVER['SERVER_NAME']; //Default value. May be changed per page.
 
-$pagetitle = $_SERVER['SERVER_NAME'];
+$valid_pages = array("login","logout","index","edit","upload","new","copy","rename","delete","newfolder","renamefolder","deletefolder" );
 
 
 //Allows OneFileCMS.php to be started from any dir on the site.
@@ -176,38 +174,37 @@ function message_box() { //*********************************
 	if (isset($message)) {
 ?>
 		<div id="message"><p>
-		<!-- [X] to dismiss message box -->	
-		<span><a id="dismiss" href='<?php echo $ONESCRIPT.$varvar; ?>'
-		onclick='document.getElementById("message").innerHTML = " ";return false'>
-		[X]</a>
+		<span><!-- [X] to dismiss message box -->	
+			<a id="dismiss" href='<?php echo $ONESCRIPT.$varvar; ?>'
+			onclick='document.getElementById("message").innerHTML = " ";return false'>
+			[X]</a>
 		</span>
 		<?php echo $message.PHP_EOL ;?>
 		</p></div>
 		<script>document.getElementById("dismiss").focus();</script>
 <?php
-	}   //The else is needed or some of the Edit Page javascript feedback fails.
-		else { echo '<div id="message"></div>'; 
+	}else {
+		echo '<div id="message"></div>'; // Needed on Edit page to keep js feedback from failing
 	} //end isset($message)
+	
+	// Used on Edit Page to preserve vertical spacing.
+	if ($page == "edit") {echo '<style>#message { min-height: 1.8em; }</style>';}
 }//end message_box()  **************************************
 
 
 
 function Upload_New_Rename_Delete_Links() { //**************
 	global $ONESCRIPT, $ipath, $varvar;
-?>
-	<!-- Upload/New/Rename/Copy/etc... links -->
-	<p class="front_links">
-		<a href="<?php echo $ONESCRIPT.$varvar.'&amp;p=upload'; ?>"    class="upload"   >Upload File</a>
-		<a href="<?php echo $ONESCRIPT.$varvar.'&amp;p=new'; ?>"       class="new"      >New File</a>
-		<a href="<?php echo $ONESCRIPT.$varvar.'&amp;p=newfolder'; ?>" class="newfolder">New Folder</a>
-		<?php if ($ipath !== "") { ?>
-			<a href="<?php echo $ONESCRIPT.$varvar.'&amp;p=renamefolder'; ?>" class="renamefolder">
-			Rename Folder</a>
-			<a href="<?php echo $ONESCRIPT.$varvar.'&amp;p=deletefolder'; ?>" class="deletefolder">
-			Delete Folder</a>
-		<?php } ?>
-	</p>
-<?php
+
+	echo '<p class="front_links">';
+	echo '<a href="'.$ONESCRIPT.$varvar.'&amp;p=upload"    class="upload" >Upload File</a>';
+	echo '<a href="'.$ONESCRIPT.$varvar.'&amp;p=new"       class="new" >New File</a>'   ;
+	echo '<a href="'.$ONESCRIPT.$varvar.'&amp;p=newfolder" class="newfolder" >New Folder</a>' ;
+	if ($ipath !== "") {
+		echo '<a href="'.$ONESCRIPT.$varvar.'&amp;p=renamefolder" class="renamefolder" >Rename Folder</a>';
+		echo '<a href="'.$ONESCRIPT.$varvar.'&amp;p=deletefolder" class="deletefolder" >Delete Folder</a>';
+	}
+	echo '</p>';
 }//end Upload_New_Rename_Delete_Links()  *******************
 
 
@@ -377,36 +374,31 @@ if (isset($_POST["username"])) {
 function list_files() { // ...in a vertical table ******************************
 //called from Index Page
 
-	global $ONESCRIPT, $WEB_ROOT, $ipath, $varvar, $config_excluded, $ftypes, $fclasses;
+	global $ONESCRIPT, $ipath, $varvar, $ftypes, $fclasses, $excluded_list;
 
 	$files = scandir('./'.$ipath);
 	natcasesort($files);
 
 	echo '<table class="index_T">';
 	foreach ($files as $file) {
-		$fc++;
-		$excludeme = 0;
-		$config_excludeds = explode(",", $config_excluded);
 		
-		foreach ($config_excludeds as $config_exclusion) {
-			if (strrpos(basename($file),$config_exclusion) !== False && 
-			strrpos(basename($file),$config_exclusion) !== "") { 
-				$excludeme = 1;
-			}
-		}
+		$excluded = FALSE;
+		if (in_array(basename($file), $excluded_list)) { $excluded = TRUE; };
 		
-		if (!is_dir($ipath.$file) && $excludeme == 0) {
+		if (!is_dir($ipath.$file) && !$excluded) {
+		
 			//Determine file type & set cooresponding class.
 			$file_class = "";
 			$ext = end( explode(".", strtolower($file)) );
-			
 			for ($x=0; $x < count($ftypes); $x++ ){
 				if ($ext == $ftypes[$x]){ $file_class = $fclasses[$x]; } 
 			}
 ?>
 			<tr>
-				<td><?php echo '<a href="'.$ONESCRIPT.$varvar.'&amp;f='.$file.'&amp;p=edit'.'"'; ?>
+				<td>
+					<?php echo '<a href="'.$ONESCRIPT.$varvar.'&amp;f='.$file.'&amp;p=edit" '; ?>
 					<?php echo 'class="',  $file_class, '">', $file, '</a>'; ?>
+
 				</td>
 				<td class="meta_T meta_size">&nbsp;
 					<?php echo number_format(filesize($ipath.$file)).""; ?> B
@@ -426,20 +418,20 @@ echo '</table>';
 
 
 function Index_Page(){ //*******************************************************
-	global $ONESCRIPT, $WEB_ROOT, $ipath, $config_excluded, $ftypes, $fclasses;
+	global $ONESCRIPT, $ipath;
 
-	Upload_New_Rename_Delete_Links();
-?>
-	<!--==== List folders/sub-directores ====-->
-<?php
+	//<!--==== List folders/sub-directores ====-->
 	echo '<p class="index_folders">';
 		$folders = glob($ipath."*",GLOB_ONLYDIR);
 		natcasesort($folders);
 		foreach ($folders as $folder) {
 			echo '<a href="'.$ONESCRIPT.'?i='.$folder.'/" class="index_folder">';
+
 			echo basename($folder).' /</a>';
 		}
 	echo '</p>';
+
+	Upload_New_Rename_Delete_Links();
 
 	list_files();
 
@@ -452,7 +444,7 @@ function Index_Page(){ //*******************************************************
 
 
 function Edit_Page() { //*******************************************************
-	global $ONESCRIPT, $ipath, $varvar, $filename, $filecontent, $ftypes, $config_editable, $config_itypes;
+	global $ONESCRIPT, $ipath, $varvar, $filename, $filecontent, $etypes, $itypes, $ftypes;
 
 	$varvar2 = $varvar.'&amp;p=edit';
 	$varvar3 = $varvar.'&amp;f='.basename($filename);
@@ -460,13 +452,13 @@ function Edit_Page() { //*******************************************************
 	//Determine if editable file type
 	$ext = end( explode(".", strtolower($filename) ) );
 	$editable = FALSE;
-	if (in_array($ext, $ftypes)) { $editable = TRUE; };
+	if (in_array(strtolower($ext), $etypes)) { $editable = TRUE; };
 ?>
 	<h2 id="edit_header">Edit/View:
-	<a class="filename" href="/<?php echo $filename; ?>"><?php echo basename($filename); ?></a>
+	<a class="filename" href="/<?php echo $filename.'">'.basename($filename) ?></a>
 	</h2>
 
-	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$varvar2; ?>">
+	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$varvar2 ?>">
 		<p class="file_meta">
 		<span class="meta_size">Size<b>: </b> <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; &nbsp; 
 		<span class="meta_time">Updated<b>: </b><script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1);</script></span><br>
@@ -474,7 +466,7 @@ function Edit_Page() { //*******************************************************
 		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
 		<?php Close_Button("close"); ?><div style="clear:both;"></div>
 
-		<?php if (strpos($config_itypes,$ext) === false) { //If non-image, show textarea
+		<?php if ( !in_array( strtolower($ext), $itypes) ) { //If non-image, show textarea
 			if (!$editable) { // If non-text file, disable textarea
 			?>	<p>
 				<textarea id="disabled_content" cols="70" rows="3"
@@ -499,7 +491,7 @@ function Edit_Page() { //*******************************************************
 		<input type="button" class="button" value="Reset - loose changes" onclick="Reset_File()"      id="reset">
 		<script>
 			//Setting disabled here instead of via input attribute in case js is disabled.
-			//If js is disabled, use would be unable to save changes.
+			//If js is disabled, user would be unable to save changes.
 			document.getElementById('save_file').disabled = "disabled";
 			document.getElementById('reset').disabled     = "disabled";
 		</script>
@@ -510,17 +502,15 @@ function Edit_Page() { //*******************************************************
 		</p>
 	</form>
 	<div style="clear:both;"></div>
+<?php
+	if ( in_array( strtolower($ext), $itypes) ) { show_image(); }
 
-	<?php if (strpos($config_itypes,$ext) !== false) { show_image(); } ?>
+	if ($editable) {
+		Edit_Page_scripts();
+		echo '<div id="edit_note">NOTE: On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser\'s [Reload].</div>';
+	} //end if editable
 
-	<?php if (strpos($config_editable,$ext) !== false) { //if editable file..?>
-		<?php Edit_Page_javascript(); ?>
-		<div id="edit_note">
-		NOTE: On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser's [Reload].
-		</div>
-	<?php } //end if editable ?>
-
-<?php }; //End Edit_Page *******************************************************
+}//End Edit_Page ***************************************************************
 
 
 
@@ -626,6 +616,7 @@ if (isset($_POST["new_filename"]) && $_SESSION['valid'] = "1" && $_POST["session
 		$message = '"<b>'.$filename.'</b>"successfully created.';
 		$ipath = Check_path(dirname($filename)); //if changed, return to new dir.
 		$varvar = "?i=".$ipath;
+		$page = "edit";
 	}
 }//end NEW FILE response code **************************************************
 
@@ -669,9 +660,10 @@ if (isset($_POST["copy_filename"]) && $_SESSION['valid'] = "1" && $_POST["sessio
 	$new_filename = $_POST["copy_filename"];
 
 	if (file_exists($new_filename)) {
-		$message = '<b>(!) "'.$new_filename.'"</b> not created.<br>A file with that name already exists.';
+		$message .= '<b>(!) Error copying file - target filename already exists:<br>';
+		$message .= '(!) '.$new_filename.'</b>';
 		$page = "edit";
-		$filename = basename($old_filename);
+		$filename = $old_filename;
 	}elseif (copy($old_filename, $new_filename)){ 
 		$message  = '<b>"'.$old_filename.'"</b><br>';
 		$message .= ' --- successfully copied to ---<br>';
@@ -718,14 +710,20 @@ if (isset($_POST["rename_filename"]) && $_SESSION['valid'] = "1" && $_POST["sess
 	$old_filename = $_POST["old_filename"];
 	$new_filename = trim($_POST["rename_filename"], '/');
 
-
+	$page = "edit"; //return to edit page
+	
 	if (file_exists($new_filename)) {
-		$message .= '<b>(!) Error renaming or moving file : '.$old_filename.'</b><br>';
-		$message .= '<b>(!) Target filename already exists: '.$new_filename.'</b><br>';
+		$message .= '<b>(!) Error renaming or moving file - target filename already exists:<br>';
+		$message .= '(!) '.$new_filename.'</b>';
+		$page = "edit";
+		$filename = $old_filename;
 	}elseif (rename($old_filename, $new_filename)) {
 		$message .= '<b>"'.$old_filename.'</b>"<br>';
 		$message .= ' --- successfully renamed to ---<br>';
 		$message .= '<b>"'.$new_filename.'</b>"<br>';
+		$filename = $new_filename;
+		$ipath = Check_path(dirname($filename)); //if changed, return to new dir.
+		$varvar = '?i='.$ipath;
 	}else{
 		$message .= '<b>(!) Error renaming/moving file from:<br>"'.$old_filename.'"</b>';
 		$message .= '<b>(!) To:<br>"'.$new_filename.'"</b>';
@@ -762,6 +760,7 @@ if (isset($_POST["delete_filename"]) && $_SESSION['valid'] = "1" && $_POST["sess
 		$message = '"<b>'.basename($filename).'</b>" successfully deleted.';
 	}else{
 		$message = '<b>(!) Error deleting "'.$filename.'"</b>.';
+		$page = "edit";
 	}
 }//end DELETE FILE response code ***********************************************
 
@@ -892,7 +891,7 @@ if (isset($_POST["delete_foldername"]) && $_SESSION['valid'] = "1" && $_POST["se
 
 	if (@rmdir($foldername)) {
 		$message = 'Folder "<b>'.basename($foldername).'</b>" successfully deleted.';
-		$ipath = Check_path($foldername);
+		$ipath = Check_path($foldername); //Return to parent dir.
 		$varvar = "?i=".$ipath;
 	} else {
 		$message .= '<b>(!) "'.$foldername.'/"</b> an error occurred during delete.';
@@ -903,14 +902,11 @@ if (isset($_POST["delete_foldername"]) && $_SESSION['valid'] = "1" && $_POST["se
 
 
 
-
-
-
 function Load_Selected_Page(){ //***********************************************
 	global $page;
 	if ($page == "login")        { Login_Page();         }
 	if ($page == "index")        { Index_Page();         }
-	if ($page == "edit")         { $pagetitle = "Edit/View File"; Edit_Page();}
+	if ($page == "edit")         { Edit_Page();          }
 	if ($page == "upload")       { Upload_Page();        }
 	if ($page == "new")          { New_File_Page();      }
 	if ($page == "copy")         { Copy_File_Page();     }
@@ -926,12 +922,8 @@ function Load_Selected_Page(){ //***********************************************
 
 
 
-
-
-
-
 //******************************************************************************
-function Time_Stamp_javascripts() {  ?>
+function Time_Stamp_scripts() {  ?>
 
 <script>//Dispaly file's timestamp in user's local time 
 
@@ -973,13 +965,13 @@ function FileTimeStamp(php_filemtime, show_offset){
 
 }//end FileTimeStamp(php_filemtime)
 </script>
-<?php }//end Time_Stamp_javascripts() **********************************************
+<?php }//end Time_Stamp_scripts() ******************************************
 
 
 
 
 
-function Edit_Page_javascript() { //********************************************
+function Edit_Page_scripts() { //********************************************
 ?>
 	<!--======== Provide feedback re: unsaved changes ========-->
 	<script>
@@ -1083,7 +1075,395 @@ function Edit_Page_javascript() { //********************************************
 	Reset_file_status_indicators()
 	</script>
 
-<?php }//End Edit_Page_javascript() ********************************************
+<?php }//End Edit_Page_scripts() ********************************************
+
+
+
+
+
+function style_sheet(){ //****************************************************?>
+<style>
+/* --- reset --- */
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,
+cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,dl,dt,dd,ol,ul,li,
+fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td
+{border : 0;  outline: 0; margin : 0; padding: 0;
+font-family: inherit; font-weight: inherit; font-style : inherit;
+font-size  : 100%; vertical-align: baseline; }
+
+
+
+/* --- general formatting --- */
+
+body { font-size: 1em; background: #DDD; font-family: sans-serif; }
+
+p, table { margin-bottom: .5em; }
+
+div{position: relative;}
+
+h1,h2,h3,h4,h5,h6{font-weight: bold;}
+h2 { font-size: 20px; margin: 0 1em .2em 0;} /*TRBL*/
+h3 { font-size: 18px; margin-top: 15px; }
+h4 { font-size: 1.3em; margin-bottom: .2em; font-weight: normal;}
+
+em, i { font-style: italic; }
+
+strong { font-weight: bold; }
+
+li {line-height: 1.4em; }
+
+:focus{outline:0;}
+
+ol,ul{list-style:none;}
+
+table{border-collapse:separate;border-spacing:0;}
+
+caption,th,td{text-align:left;font-weight:400;}
+
+blockquote:before,blockquote:after,q:before,q:after{content:"";}
+blockquote,q{quotes:"" "";}
+
+a { border: 1px solid transparent; color: rgb(100,45,0); text-decoration: none; }
+a:hover { border: 1px solid #807568; background-color: rgb(255,250,150); }
+a:focus { border: 1px solid #807568; background-color: rgb(255,250,150); }
+
+form p { margin-bottom: 5px; }
+
+
+label { display: inline-block; width : 7em; font-size : 1em; }
+
+
+
+pre {
+	background: white;
+	border: 1px solid #807568;
+	line-height: 1.25em;
+	overflow: auto
+	overflow-Y: hidden;
+	padding: 10px;
+	margin: 5px 0 10px 0;
+	overflow: hidden;
+	}
+
+
+/* --- layout --- */
+
+.container {
+	border : 0px solid #807568;
+	width  : 810px;
+	margin : 0em auto;
+	}
+
+
+.header {
+	border-bottom : 1px solid #807568;
+	padding: 04px 0px 04px 0px;
+	margin : 0;
+	margin-bottom : .5em;
+	}
+
+
+#logo {
+	font-family: 'Trebuchet MS', sans-serif;
+	font-size:2.2em;
+	font-weight: bold;
+	color: black;
+	padding: .1em;
+	}
+
+
+.footer { color: #777; font-size: .7em; }
+
+
+.alignleft { margin: 0 10px 10px 0; float: left; }
+
+
+.dirname { font-weight: 400; }
+
+.filename {
+	border: 1px solid #807568;
+	padding: .1em .2em .1em .2em;
+	font-weight: 700;
+	font-family: courier;
+	background-color: #EEE;
+	}
+
+/* Preserve space when message is dismissed.*/
+#message { margin-bottom: .5em;}
+
+#message p {
+	margin: 0;
+	padding: 4px 0px 4px .5em;
+	border: 1px solid #807568;
+	Xfont-family: courier;
+	font-size: 1em;
+	line-height: 1.2em;
+	background: #fff000;
+	}
+
+#message span { float: right; }
+
+#message #dismiss { padding: 5px 4px 5px 4px; border-right: none; } /*TRBL */ /*font-family: Courier; font-size: 1.2em;*/
+
+
+/* --- INDEX directory listing, table format --- */
+table.index_T {
+	min-width: 30em;
+	font-size: .95em;
+	border-style: outset;
+	border-width: 1px;
+	border-color: #807568;
+	border-collapse: collapse;
+	margin-bottom: .7em;
+	background-color: #FdFdFd;
+	}
+	
+table.index_T  tr:hover { border: 1px solid #807568; }
+
+table.index_T td { 
+	border-width  : 1px;
+	border-color  : silver;
+	border-style  : inset;
+	vertical-align: middle;
+	}
+
+.index_T a { 
+	height : 1em;
+	display: block;
+	padding: .2em 1em .3em 1.6em;
+	color  : rgb(100,45,0);
+	border : none;
+	background : url("http://self-evident.github.com/OneFileCMS/images/file-bin.png") 3px no-repeat;
+	overflow   : hidden;
+	}
+
+
+.index_T a.txt { background: url("http://self-evident.github.com/OneFileCMS/images/file-txt.png") 3px no-repeat; }
+.index_T a.htm { background: url("http://self-evident.github.com/OneFileCMS/images/file-htm.png") 3px no-repeat; }
+.index_T a.css { background: url("http://self-evident.github.com/OneFileCMS/images/file-css.png") 3px no-repeat; }
+.index_T a.php { background: url("http://self-evident.github.com/OneFileCMS/images/file-php.png") 3px no-repeat; }
+.index_T a.cfg { background: url("http://self-evident.github.com/OneFileCMS/images/file-cfg.png") 3px no-repeat; }
+.index_T a.img { background: url("http://self-evident.github.com/OneFileCMS/images/file-img.png") 3px no-repeat; }
+.index_T a.bin { background: url("http://self-evident.github.com/OneFileCMS/images/file-bin.png") 3px no-repeat; }
+.index_T a.svg { background: url("http://self-evident.github.com/OneFileCMS/images/file-svg.png") 3px no-repeat; }
+
+.index_T a:hover { background-color: rgb(255,250,150); }
+.index_T a:focus { background-color: rgb(255,250,150); }
+
+
+
+/* File size & date */
+
+.meta_size { min-width: 6em; }
+
+.meta_time { width    : 13em;}
+
+.meta {
+	height        : 25px;
+	line-height   : 1.1em;
+	font-size     : .9em;
+	margin-top    : 3px;
+	padding-right : .5em;
+    font-size     : .9em;
+	color         : #333;
+	}
+
+.meta_T {
+	padding-right : .5em;
+	text-align    : right;
+	font-family   : courier;
+    font-size     : .9em;
+	color         : #333;
+	}
+
+
+.index_folders { min-height: 1.7em;  margin-bottom: .2em; }
+
+.index_folders a {
+	Xborder       : 1px solid #807568;
+	display      : inline-block;
+	line-height  : 1em;
+	font-size    : 1em;
+	margin-right : .6em;
+	margin-bottom: .1em;
+	padding      : 3px .4em 3px 25px; /*TRBL*/
+	background : url("http://self-evident.github.com/OneFileCMS/images/folder-2.png") 4px 3px no-repeat;
+	}
+
+.index_folders a:hover { background-color: rgb(255,250,150); }
+.index_folders a:focus { background-color: rgb(255,250,150); }
+
+
+
+/*  [Upload File] [New File] [New Folder] etc... */
+
+.front_links { clear: both; }
+
+.front_links a {
+	display: inline-block;
+	border : 1px solid #807568;
+	height      : 16px;
+	font-size   : 16px;
+	margin-right: 15px;
+	padding     : 3px 5px 5px 21px; /*TRBL*/
+	background-color: #EEE;
+	}
+
+.front_links a.upload       { background: #EEE url("http://self-evident.github.com/OneFileCMS/images/upload.png") 3px      3px no-repeat; }
+.front_links a.new          { background: #EEE url("http://self-evident.github.com/OneFileCMS/images/file-new-2.png")      3px 4px no-repeat; }
+.front_links a.newfolder    { background: #EEE url("http://self-evident.github.com/OneFileCMS/images/folder-new-2.png")    2px 5px no-repeat; }
+.front_links a.renamefolder { background: #EEE url("http://self-evident.github.com/OneFileCMS/images/folder-rename-1.png") 1px 4px no-repeat; }
+.front_links a.deletefolder { background: #EEE url("http://self-evident.github.com/OneFileCMS/images/folder-del-3.png")    1px 5px no-repeat; }
+
+.front_links a:hover  { background-color: rgb(255,250,150); }
+.front_links a:focus  { background-color: rgb(255,250,150); }
+
+
+input[type="text"] {
+	border: 1px solid #807568;
+	padding: 2px;
+	width: 630px;
+	font: 1em "Courier New", Courier, monospace;
+	}
+
+input.textinput1 { width: 20em; }
+
+input.textinput2 { width: 40em; }
+
+textarea {
+	border: 1px solid #999;
+	font  : .95em "Courier New", Courier, monospace;
+	margin: 0 0 .5em 0; /*T R B L*/
+	width : 99.5%;
+	height: 30em;
+	height: 30em;
+	}
+
+textarea[disabled ]{ width : 99.5%; height: 50px; }
+
+textarea:focus { border: 1px solid #Faa; }
+
+
+input:focus { background-color: rgb(255,250,150); }
+
+input:hover { background-color: rgb(255,250,150); }
+
+input[readonly]       { color: #333; background-color: #EEE; }
+input[disabled]       { color: #555; background-color: #EEE; }
+input[disabled]:hover { background-color: rgb(236,233,216);  } 
+input[disabled]:hover { background-color: rgb(236,233,216);  } 
+
+
+.buttons_right         { float: right; }
+.buttons_right .button { margin-left: 7px; }
+.buttons_left          { float: left; }
+.buttons_left  .button { margin-right: 7px; }
+
+.button {
+	border : 1px solid #807568;
+	padding: 4px 10px;
+	cursor : pointer;
+	color      : black;
+	font-size  : .9em;
+	font-family: sans-serif;
+	background-color: #EEE;  /*#d4d4d4*/
+	}
+
+.button[disabled]  { color: #777; background-color: #EEE; }
+
+
+/* --- header --- */
+
+.nav {
+	float     : right;
+	display   : inline-block;
+	margin-top: 1.6em;
+	font-size : 1em;
+	}
+
+.nav a {
+	border: 1px solid transparent;
+	font-weight : bold;
+	padding     : .0em;
+	padding-top   : .2em;
+	padding-left  : .6em;
+	padding-right : .6em;
+	padding-bottom: .1em;
+	}
+
+.nav a:hover { border: 1px solid #807568; }
+.nav a:focus { border: 1px solid #807568; }
+
+
+
+/* --- edit --- */
+
+#edit_header  {margin: 0;}
+
+#edit_form    {margin: 0;}
+
+#file_content {height: 24em;}
+
+.file_meta	  {float: left;  margin-top: .5em; font-size: .9em; color: #333; font-family: courier;}
+
+.close        {float: right; margin-bottom: .5em;}
+
+#edit_note    {font-size: .8em; color: #444 ;margin-top: 1em;}
+
+
+
+/* --- log in --- */
+
+.login_page {
+	margin  : 5em auto;
+	border  : 1px solid #807568;
+	padding : 1em;
+	width   : 360px;
+	}
+
+.login_input {
+	border  : 1px solid #807568;
+	padding : 2px 0px 2px 2px;
+	width   : 356px;
+	font    : 1em "Courier New";
+	}
+
+input[type="text"].login_input { width   : 354px; }
+
+
+
+/* --- --- --- */
+hr { 
+	line-height  : 0;
+	font-size    : 1px;
+	display : block;
+	position: relative;
+	padding : 0;
+	margin  : 8px auto;
+	width   : 100%;
+	clear   : both;
+	border  : none;
+	border-top   : 1px solid #807568;
+	Xborder-bottom: 1px solid #eee;
+	overflow: visible;
+	}
+
+.web_root { font:1.2em Courier; }
+
+.sure { margin: .5em 0em .5em 0; }
+
+.verify {
+	border: 1px solid #807568;
+	color: #333;
+	background-color: #FEE;
+	padding: 2px .3em;
+	font: 1.2em Courier;
+	}
+
+
+</style>
+<?php }//end style_sheet() *****************************************************
+
 
 
 
@@ -1096,15 +1476,14 @@ function Edit_Page_javascript() { //********************************************
 <html>
 <head>
 
-<title><?php echo $config_title.' - '.$pagetitle; ?></title>
+<title><?php echo $config_title.' - '.$pagetitle ?></title>
 
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="robots" content="noindex">
 
-<?php //style_sheet(); ?>
-<link href="<?php echo $config_style_sheet;?>" type="text/css" rel="stylesheet">
+<?php style_sheet(); ?>
 
-<?php if ( (1) || ($page == "index") || ($page == "edit") ) { Time_Stamp_javascripts(); } ?>
+<?php if ( ($page == "index") || ($page == "edit") ) { Time_Stamp_scripts(); } ?>
 
 </head>
 
@@ -1112,7 +1491,7 @@ function Edit_Page_javascript() { //********************************************
 
 <?php
 if ($page == "login"){ echo '<div class="login_page">'; }
-				 else{ echo '<div class="container">';}
+				 else{ echo '<div class="container">';  }
 ?>
 
 <div class="header">
@@ -1121,19 +1500,19 @@ if ($page == "login"){ echo '<div class="login_page">'; }
 	
 	<?php if ($_SESSION['valid'] == "1") { ?>
 		<div class="nav">
-			<a href="/"><?php show_favicon(); ?>&nbsp; 
-			<b><?php echo $WEBSITE; ?>/</b>  &nbsp;- &nbsp;
+			<a href="/"><?php show_favicon() ?>&nbsp; 
+			<b><?php echo $WEBSITE ?>/</b>  &nbsp;- &nbsp;
 			Visit Site</a> |
-			<a href="<?php echo $ONESCRIPT; ?>?p=logout">Log Out</a>
+			<a href="<?php echo $ONESCRIPT ?>?p=logout">Log Out</a>
 		</div>
 	<?php } ?>
 </div><!-- end header -->
 
-<?php message_box(); ?>
+<?php message_box() ?>
 
-<?php if ( $page != "login" ){Current_Path_Header(); } ?>
+<?php if ( $page != "login" ){ Current_Path_Header(); } ?>
 
-<?php Load_Selected_Page(); ?>
+<?php Load_Selected_Page() ?>
 
 <div class="footer">
 	<hr><br><br>
