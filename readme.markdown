@@ -1,6 +1,10 @@
-### May 18, 2012
+### May 20, 2012
 
-# Current stable version: 1.4.0
+# Current stable versions: 1.5, 2.0, & 3.0
+
+- 3.0: "Full" version - uses svg icons
+- 2.0: "Lite" version - uses no icons.
+- 1.5: style sheet is now part of onfilecms.php file, but still uses external icons.
 
 --------------------------------------------------------------------------------
 
@@ -32,7 +36,7 @@
 
 # OneFileCMS
 
-## Yeah, it's exactly what you think.
+## Yes, that's exactly what it is!
 
 Main screen:
 ![OneFileCMS](http://self-evident.github.com/OneFileCMS/images/OneFileCMS_screenshot.png)
@@ -54,15 +58,12 @@ Coupling a utilitarian code editor with all the basic necessities of an FTP appl
 - All the basic features of an FTP application like renaming, deleting, copying, and uploading
   _(Of course, for more complex processes like batch renaming or mass uploads/deletions, you're going to want to break out an actual FTP program.)_
 - Alert if you try to leave without saving your edits
-- Easily re-brandable via the title text stored in a configurable variable, and a modifiable filename.
-- Externally hosted CSS and images.
-  _(Of course, you can switch it out to your own stylesheet if you need to!)_
+- Easily modifiable & re-brandable.
 - Possibly the easiest installation process ever!
 
 ## Installation
 
 1) Download [this file](https://raw.github.com/Self-Evident/OneFileCMS/master/onefilecms.php).
-
 
 2) Set your username and password - edit them to something less obvious.
 
@@ -72,7 +73,7 @@ Coupling a utilitarian code editor with all the basic necessities of an FTP appl
 
 3) Upload!
 
-Depending on how your stack is set up, you may also have to modify the file permissions of your site's folders to allow OneFileCMS to modify and create files. ([More about that here.](http://catcode.com/teachmod/)) Make sure onefilecms.php and its parent folder are allowed to execute, with CHMOD at 777 or 755. Check with your host if you're not sure, and be aware of any inherent security concerns.
+Depending on how your web stack is set up, you may also have to modify the file permissions of your site's folders to allow OneFileCMS to modify and create files. ([More about that here.](http://catcode.com/teachmod/)) Make sure onefilecms.php and its parent folder are allowed to execute, with CHMOD at 755. Check with your host if you're not sure, and be aware of any inherent security concerns.
 
 You can also change the name of OneFileCMS.php to something else. _(Be careful making it a folder's default file: your server may get stuck in redirects.)_
 
@@ -80,27 +81,23 @@ You can also change the name of OneFileCMS.php to something else. _(Be careful m
 
 ### Where's the WYSIWYG? What about syntax highlighting?
 
-WYSWIWYG editors have been requested, but probably won’t ever come standard, as they’d bloat the system out and/or make it more than one file, sort of defeating the point of OneFileCMS. Plus, if you’re working in PHP or non-HTML code, they're generally more of a hindrance than anything else.
+WYSWIWYG editors have been requested, but probably won’t become standard, as they’d bloat the system out and/or make it more than one file, sort of defeating the point of OneFileCMS. Plus, if you’re working in PHP or non-HTML code, they're generally more of a hindrance than anything else.
 
-Just because I don't want to do it, though, doesn't mean it's impossible.  Look for the second instance of this line:
-
-    // EDIT
-
-This is the edit page code. Its textarea can be modified to work with whatever editor you like. 
+Just because I don't want to do it, though, doesn't mean it's impossible.  Look for the Edit_Page() function. Its textarea can be modified to work with whatever editor you like. 
 
 ### I found something that could be better. Can I suggest it to you?
 
 Yes, of course, you can!
 
-I may not have the bandwidth to implement every feature, but I'll do what I can. If it's urgent, contact me.
+I may not have the time/bandwidthinclination to implement every feature, but I'll do what I can. If it's urgent, contact me.
 
 Otherwise, try [forking the file and submitting your changes to me](https://github.com/blog/844-forking-with-the-edit-button).
 
 Everything's welcome!
 
-### This is basically just a file manager with a text editor. Why is it being called a Content Management System?
+### This is basically just a file manager with a text editor. Why is it being a Content Management System?
 
-Because "OneFileFileManagerTextEditor" just doesn't have the same ring to it...
+Well, because "OneFileFileManagerTextEditor" just doesn't have the same ring to it...
 
 ### Multi-Language Support?
 
@@ -112,6 +109,22 @@ The reason there isn't default support for multiple users is that all of their i
 
 ## Change Log
 
+### 3.0
+
+- Implemented svg icons
+
+
+### 2.0
+
+- OneFileCMS is now actually ONE FILE! No external style sheets or icons.
+  __(Of course, external style sheets & icons can be added back in, if you like.)__
+
+- This is OneFileCMS "Lite", and will be maintained along with v3.0
+
+### 1.5 
+
+- Style sheet is now part of onfilecms.php file, but still uses external icons.
+- Some minor logic improvements on Edit & Index pages.
 
 ### 1.4.0
 
@@ -208,8 +221,11 @@ The reason there isn't default support for multiple users is that all of their i
 
 ## Requirements
 
-- PHP5 (PHP4 untested)
+- PHP 5.4
+  __(Older 5.x versions may work, but there will be issues editing files with back slashes.  See php docs on magic_quotes_gpc & stripslashes().)__
 - File permission privileges
+- Javascript enabled browswer
+- (and, if you use IE, IE9+ for svg support if using OneFileCMS 3.0+) 
 
 ## Credit, License, Et Cetera
 
@@ -224,8 +240,37 @@ To report a bug or request a feature, please file an issue via Github. Forks enc
 ##Needed/potential/upcoming improvements
 
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
-- Prompt to prevent automatic overwrite when uploading or renaming files.
-- Embed css and remove or swtich to svg icons to create a true "OneFileCMS"
-  (in the works)
 - Check size of file to upload, verify under max post/upload limits.
 - Multiple login names?
+
+
+--------------------------------------------------------------------------------
+
+### General layout/structure of OneFileCMS.php
+
+Configurable Info
+Setup a few general & global values.
+Session start
+Misc functions
+svg_icons_...() functions
+Set page title
+Logout response
+Login_Page() function
+list_files() function
+Index_Page() function
+
+<page...>() functions
+<page...>   response code
+...(Edit_Page(), Upload_,
+   New_File_, Copy_, Rename_File_, Delete_File_, 
+   New_Folder_, Rename_Folder_, Delete_Folder_)...
+
+Load_Selected_Page() function
+Time_Stamp_scripts() function
+Edit_Page_script() function
+style_sheet() function
+<html>
+...
+Load_Selected_Page()
+...
+</html>
