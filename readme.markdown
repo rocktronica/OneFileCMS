@@ -239,6 +239,8 @@ To report a bug or request a feature, please file an issue via Github. Forks enc
 
 ##Needed/potential/upcoming improvements
 
+- Be aware that, currently, only some very basic & rudimentary data & error checking is performed.
+- Partly as a consequence of the precedeing note, also be aware that there are issues with folder & file names containing special chars (&,%, etc...).  
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
 - Check size of file to upload, verify under max post/upload limits.
 - Multiple login names?
