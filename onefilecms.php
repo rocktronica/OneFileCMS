@@ -1,8 +1,33 @@
 <?php
 // OneFileCMS - http://onefilecms.com/
-// For license & copyright info, see OneFileCMS.License.BSD.txt
 
-$version = '3.0';
+$version = '3.1';
+
+/*******************************************************************************
+Copyright © 2009-2012 https://github.com/rocktronica
+Copyright © 2012-     https://github.com/Self-Evident  David W. Gay
+
+This software is copyright under terms of the "MIT" license:
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*******************************************************************************/
+
 
 
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate (v5.4 recommended). Please contact your host to upgrade your PHP installation."); };
@@ -27,6 +52,86 @@ $config_fclass = "img,img,img,img,img,svg,txt,txt,css,php,txt,cfg,cfg,txt,htm,ht
 
 
 
+
+
+//******************************************************************************
+session_start();  $SID = session_id();
+
+if (isset($_POST["username"])) { $_SESSION['username'] = $_POST["username"]; }
+if (isset($_POST["password"])) { $_SESSION['password'] = $_POST["password"]; }
+
+if (($_SESSION['username'] == $config_username) and ( $_SESSION['password'] == $config_password ))
+     { $_SESSION['valid'] = "1"; $page = "index"; }
+else { $_SESSION['valid'] = "0"; $page = "login"; unset($_GET["p"]); session_destroy() ;}
+
+
+$VALID_POST = ($_SESSION['valid'] == "1" && $_POST["sessionid"] == session_id());
+
+
+chdir($_SERVER["DOCUMENT_ROOT"]); //Allow OneFileCMS.php to be started from any dir on the site.
+//
+//End session startup***********************************************************
+
+
+
+
+
+// A couple functions needed early *********************************************
+//
+
+function URLencode_path($path){ // don't encode the forward slashes
+	$TS = '';
+	if (substr($path, -1) == '/' ) { $TS = '/'; } //start with a trailing slash?
+	$path_array = explode('/',$path);
+	$path = "";
+	foreach ($path_array as $level) { $path .= rawurlencode($level).'/'; }
+	$path = rtrim($path,'/').$TS;  //end with trailing slash only if started with one
+	return $path;
+}//end URLencode_path($path)
+
+
+
+//*** Clean up & check a path **********
+function Check_path($path) { // returns first valid path in some/supplied/path/
+	global $message; 
+	$invalidpath = $path; //used for message if supplied $path doesn't exist.
+	$path = str_replace('\\','/',$path);   //Make sure all forward slashes.
+	$path = trim($path,"/ ."); // trim slashes, dots, and spaces
+
+	//Remove any '.' and '..' parts of the path.  Causes issues in <h2>www \ current \ path \</h2>
+	$pathparts = explode( '/', $path);
+	$len       = count($pathparts);
+	$path      = "";  //Cleaned path.
+	foreach ($pathparts as $value) { //(More reliable than str_replace(entire_string).)
+		if ( !(($value == '.') && (!value == '..')) ) { $path .= $value.'/'; }
+	}
+
+	$path = trim($path,"/"); // Remove -for now- final trailing slash.
+
+	if (strlen($path) < 1) { return ""; } //If at site root
+	else {
+		if (!is_dir($path) && (strlen($message) < 1))
+			{ $message .= "<b>(!)</b> Directory does not exist: ".htmlentities($invalidpath).'<br>'; }
+
+		while ( (strlen($path) > 0) && (!is_dir($path)) ) {
+			$path = dirname($path);
+		}
+
+		$path = $path.'/';
+		if ($path == './') { $path = ""; } // ./ means path not found, so clear for root.
+	}
+
+	return $path; 
+}//end Check_path() ********************
+//end a couple functions needed early ******************************************
+
+
+
+
+
+//******************************************************************************
+//Some global values
+//
 //Make arrays out of a few $config_variables for actual use later.
 //Above, however, it's easier to config/change a simple string.
 $etypes   = (explode(",", strtolower($config_etypes))); //editable file types
@@ -36,94 +141,23 @@ $fclasses = (explode(",", strtolower($config_fclass))); //for file types with ic
 $excluded_list = (explode(",", $config_excluded));
 
 
-$ONESCRIPT = $_SERVER["SCRIPT_NAME"];
+$ONESCRIPT = URLencode_path($_SERVER["SCRIPT_NAME"]);
 $DOC_ROOT  = $_SERVER["DOCUMENT_ROOT"].'/';
-$WEB_ROOT  = basename($DOC_ROOT).'/';
-$WEBSITE   = $_SERVER["HTTP_HOST"];
-$pagetitle = $_SERVER['SERVER_NAME']; //Default value. May be changed per page.
-
-$valid_pages = array("login","logout","index","edit","upload","new","copy","rename","delete","newfolder","renamefolder","deletefolder" );
+$WEB_ROOT  = URLencode_path(basename($DOC_ROOT)).'/';
+$WEBSITE   = ''.$_SERVER["HTTP_HOST"].'/';
 
 
-//Allows OneFileCMS.php to be started from any dir on the site.
-chdir($DOC_ROOT);
-
-
-
-
-
-//******************************************************************************
-session_start();
-
-//*** Verify session *******************
-if (isset($_POST["username"])) { $_SESSION['username'] = $_POST["username"]; }
-if (isset($_POST["password"])) { $_SESSION['password'] = $_POST["password"]; }
-
-if (($_SESSION['username'] == $config_username) and
-   ( $_SESSION['password'] == $config_password || md5($_SESSION['password']) == $config_password))
-     { $_SESSION['valid'] = "1"; $page = "index"; }
-else { $_SESSION['valid'] = "0"; $page = "login"; unset($_GET["p"]); }
-
-
-
-//*** entitize $_GET params ************
-foreach ($_GET as $name => $value) { $_GET[$name] = htmlentities($value); }
-
-
-
-//*** Clean up & check a path **********
-function Check_path($path) { // returns first valid path in some/supplied/path/
-	global $message; 
-	$nopath = $path; //used for message if supplied $path doesn't exist.
-	$path = str_replace('\\','/',$path);   //Make sure all forward slashes.
-	$path = trim($path,"/ ."); // trim leading & trailing slashes, dots, and spaces
-
-	//Remove any '.' and '..' parts of the path. (More reliable than str_replace.)
-	$pathparts = explode( '/', $path);
-	$len       = count($pathparts);
-	$path      = "";  //Cleaned path.
-	for ($x=0 ; $x < $len; $x++  ) {
-		if ( !(($pathparts[$x] == '..') && (!$pathparts[$x] == '.')) ) {
-			$path .= $pathparts[$x].'/';
-		}
-	}
-	$path = trim($path,"/"); // Remove -for now- final trailing slash.
-
-	if (strlen($path) < 1) { $path = ""; }
-	else {
-		if (!is_dir($path) && (strlen($message) < 1))
-			{ $message .= "<b>(!)</b> Directory does not exist: ".$nopath.'<br>'; }
-
-		while ( (strlen($path) > 0) && (!is_dir($path)) ) {
-			$path = dirname($path);
-		}
-		$path = $path.'/';
-		if ($path == './') { $path = ""; }
-	}
-	return $path; 
-}//end Check_path() ********************
-
+$valid_pages = array("login","logout","index","edit","upload","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder" );
 
 
 //*** Get main parameters **************
-if (isset($_GET["i"])) { $ipath    = Check_path($_GET["i"]); }else{ $ipath    = ""; }
+if (isset($_GET["i"])) { $ipath    = Check_path($_GET["i"]); }else{ $ipath = ""; }
 if (isset($_GET["f"])) { $filename = $ipath.$_GET["f"]; }else{ $filename = ""; }
 if (isset($_GET["p"])) { $page     = $_GET["p"]; } // default $page set above
 
-$param1 = "?i=".$ipath;
+$param1 = '?i='.URLencode_path($ipath);
 
-
-
-//*** Verify valid $page ***************
-if ($page != "") {
-	if (!in_array(strtolower($page), $valid_pages)) {
-		header("Location: ".$ONESCRIPT); // redirect on invalid page attempts
-		$page = "index";
-	}
-}
-//
-//End session startup***********************************************************
-
+//******************************************************************************
 
 
 
@@ -145,13 +179,13 @@ function Current_Path_Header(){ //**************************
 		$current_path = "";
 
 		//Root folder of web site.
-		echo '<a href="'.$ONESCRIPT.'" class="path"> '.trim($WEB_ROOT, '/').' </a>/';
+		echo '<a href="'.$ONESCRIPT.'" class="path"> '.htmlentities(trim($WEB_ROOT, '/')).' </a>/';
 
 		//Remainder of current/path
 		for ($x=0; $x < $levels; $x++) {
 			$current_path .= $path_levels[$x].'/';
-			echo '<a href="'.$ONESCRIPT.'?i='.$current_path.'" class="path"> ';
-			echo ' '.$path_levels[$x]." </a>/";
+			echo '<a href="'.$ONESCRIPT.'?i='.URLencode_path($current_path).'" class="path"> ';
+			echo ' '.htmlentities($path_levels[$x])." </a>/";
 		}
 	echo '</h2>';
 }//end Current_Path_Header() //*****************************
@@ -198,10 +232,10 @@ function Upload_New_Rename_Delete_Links() { //**************
 
 	echo '<p class="front_links">';
 	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=upload">'   ; svg_icon_upload()    ; echo 'Upload File</a>';
-	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=new">'      ; svg_icon_new_file()  ; echo 'New File</a>'   ;
+	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=newfile">'  ; svg_icon_new_file()  ; echo 'New File</a>'   ;
 	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=newfolder">'; svg_icon_new_folder(); echo 'New Folder</a>' ;
 	if ($ipath !== "") {
-		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=renamefolder">'; svg_icon_rename_folder();echo 'Rename Folder</a>';
+		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=renamefolder">'; svg_icon_ren_folder();echo 'Rename/Move Folder</a>';
 		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=deletefolder">'; svg_icon_del_folder();   echo 'Delete Folder</a>';
 	}
 	echo '</p>';
@@ -220,11 +254,11 @@ function Close_Button($classes) { //************************
 
 function Cancel_Submit_Buttons($submit_label, $focus) { //**
 	//$submit_label = Rename, Copy, Delete, etc...
-	//$focus: if==1 or TRUE, set focus() to cancel button.
+	//$focus is ID of element to receive focus(). (element may be outside this function)
 	global $ONESCRIPT, $ipath, $param1, $filename, $page;
 
 	// [Cancel] returns to either the current/path, or current/path/file
-	if ($filename != "") { $param1 .= '&f='.basename($filename).'&p='.edit; }
+	if ($filename != "") { $param1 .= '&f='.rawurlencode(basename($filename)).'&p='.edit; }
 ?>
 	<p>
 		<input type="button" class="button" id="cancel" name="cancel" value="Cancel"
@@ -259,14 +293,15 @@ function show_image(){ //***********************************
 	echo '<p class="file_meta">';
 	echo 'Image shown at ~'. round($SCALE*100) .'% of full size ('.$img_info[3].').</p>';
 	echo '<div style="clear:both;"></div>';
-	echo '<a href="/' . $IMG . '">';
-	echo '<img src="/'.$IMG.'"  height="'.$img_info[$H]*$SCALE.'"></a>';
+	echo '<a href="/' .URLencode_path($IMG). '">';
+	echo '<img src="/'.urlencode_path($IMG).'"  height="'.$img_info[$H]*$SCALE.'"></a>';
 }// end show_image() ***************************************
 
 
 
 //if file_exists(), ordinalize filename until it doesn't ***
-function ordinalize($destination,$filename, &$message) {
+function ordinalize($destination,$filename) {
+	global $message;
 
 	$ordinal   = 0;
 	$savefile = $destination.$filename;
@@ -277,28 +312,53 @@ function ordinalize($destination,$filename, &$message) {
 		$savefile_info = pathinfo($savefile);
 
 		while (file_exists($savefile)) {
-
 			$ordinal = sprintf("%03d", ++$ordinal); //  001, 002, 003, etc...
 			$newfilename = $savefile_info['filename'].'.'.$ordinal.'.'.$savefile_info['extension'];
 			$savefile = $destination.$newfilename;
-
 		}
-		$message .= 'Saving as: <b>"</b>'.'<b>'.$newfilename.'"</b>';
+		$message .= 'Saving as: "<b>'.htmlentities($newfilename).'</b>"';
 	}
 	return $savefile;
-}//end ordinalize filename *********************************
+}//end ordinalize() filename *********************************
 
 
 
 function show_favicon(){
 	global $config_favicon, $DOC_ROOT;
 	if (file_exists($DOC_ROOT.$config_favicon)) { 
-		echo '<img src="'.$config_favicon.'" alt="">'; 
+		echo '<img src="'.URLencode_path($config_favicon).'" alt="">'; 
 	}
 }// end show_favicon()
 
 //
 // End of misc funtions ********************************************************
+
+
+
+
+
+//A few macros ($varibale="some common chunk of code")**************************
+
+$INPUT_SESSIONID = '<input type="hidden" name="sessionid" value="'.$SID.'">';
+$FORM_COMMON = '<form method="post" action="'.$ONESCRIPT.$param1.'">'.$INPUT_SESSIONID;
+
+$SVG_icon_txt_lines = '<line x1="3" y1="3.5"  x2="11" y2="3.5"  stroke="black" stroke-width=".6"/>
+	<line x1="3" y1="6.5"  x2="11" y2="6.5"  stroke="black" stroke-width=".6"/>
+	<line x1="3" y1="9.5"  x2="11" y2="9.5"  stroke="black" stroke-width=".6"/>
+	<line x1="3" y1="12.5" x2="11" y2="12.5" stroke="black" stroke-width=".6"/>';
+
+$SVG_icon_folder = '<path  d="M0.5, 1  L8,  1  L9,  2    L9,3     L16.5,3  L17,3.5  L17,13.5  L.5,13.5  L.5,.5" fill="#FBE47b" stroke="#F0CD28" stroke-width="1" />
+	<path  d="M1.5, 8  L7,  8  L8.5,6.3  L16,6.3  L7.5, 6.3   L6.5,7.5  L1.5,7.5"  fill="transparent" stroke="white" stroke-width="1" />
+	<path  d="M1.5,13  L1.5,2  L7.5,2    L8.5,3   L8.5, 4  L15.5,4 L16,4.5  L16,13" fill="transparent" stroke="white" stroke-width="1"/>';
+
+$SVG_icon_circle_plus = '<circle cx="5" cy="5" r="5" stroke="black" stroke-width="0" fill="#080"/>
+	  <line x1="2" y1="5" x2="8" y2="5" stroke="white" stroke-width="1.5" shape-rendering="crispEdges"/>
+	  <line x1="5" y1="2" x2="5" y2="8" stroke="white" stroke-width="1.5" shape-rendering="crispEdges"/>';
+
+$SVG_icon_circle_x = '<circle cx="5" cy="5" r="5" stroke="black" stroke-width="0" fill="#D00"/>
+	<line x1="2.5" y1="2.5" x2="7.5" y2="7.5" stroke="white" stroke-width="1.5"/>
+	<line x1="7.5" y1="2.5" x2="2.5" y2="7.5" stroke="white" stroke-width="1.5"/>';
+//******************************************************************************
 
 
 
@@ -315,6 +375,7 @@ function svg_icon_bin(){ //***************************************************?>
 	<g transform="translate( 8.5,9.5)"><rect x="0"  y="0"  width="3" height="6" fill="white" stroke="#555" stroke-width="1" /></g>
 </svg>
 <?php } //end svg_icon_bin() ***************************************************
+
 
 
 function svg_icon_img(){ //***************************************************?>
@@ -343,61 +404,51 @@ function svg_icon_svg(){ //***************************************************?>
 
 
 
-function svg_icon_txt(){ //***************************************************?>
+function svg_icon_txt(){ //*****************************************************
+global $SVG_icon_txt_lines; ?>
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="14" height="16">
 	<rect x = "0" y = "0" width = "14" height = "16" fill="white" stroke="#333" stroke-width="2" />
-	<line x1="3" y1="3.5"  x2="11" y2="3.5"  stroke="black" stroke-width=".6"/>
-	<line x1="3" y1="6.5"  x2="11" y2="6.5"  stroke="black" stroke-width=".6"/>
-	<line x1="3" y1="9.5"  x2="11" y2="9.5"  stroke="black" stroke-width=".6"/>
-	<line x1="3" y1="12.5" x2="11" y2="12.5" stroke="black" stroke-width=".6"/>
+	<?php echo $SVG_icon_txt_lines; ?>
 </svg>
 <?php } //end svg_icon_txt() ***************************************************
 
 
 
-function svg_icon_htm(){ //***************************************************?>
+function svg_icon_htm(){ //*****************************************************
+global $SVG_icon_txt_lines; ?>
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="14" height="16">
 	<rect x = "0" y = "0" width = "14" height = "16" fill="rgb(250,190,170)" stroke="#444" stroke-width="2" />
-	<line x1="3" y1="3.5"  x2="11" y2="3.5"  stroke="black" stroke-width=".6"/>
-	<line x1="3" y1="6.5"  x2="11" y2="6.5"  stroke="black" stroke-width=".6"/>
-	<line x1="3" y1="9.5"  x2="11" y2="9.5"  stroke="black" stroke-width=".6"/>
-	<line x1="3" y1="12.5" x2="11" y2="12.5" stroke="black" stroke-width=".6"/>
+	<?php echo $SVG_icon_txt_lines; ?>
 </svg>
 <?php } //end svg_icon_htm() ***************************************************
 
 
 
-function svg_icon_cfg(){ //***************************************************?>
+function svg_icon_cfg(){ //*****************************************************
+global $SVG_icon_txt_lines; ?>
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="14" height="16">
 	<rect x="0"  y="0"  width="14"  height="16"  fill="#DDD" stroke="#444" stroke-width="2" />
-	<line x1="3" y1="3.5"  x2="11" y2="3.5"  stroke="black" stroke-width=".6"/>
-	<line x1="3" y1="6.5"  x2="11" y2="6.5"  stroke="black" stroke-width=".6"/>
-	<line x1="3" y1="9.5"  x2="11" y2="9.5"  stroke="black" stroke-width=".6"/>
-	<line x1="3" y1="12.5" x2="11" y2="12.5" stroke="black" stroke-width=".6"/>
+	<?php echo $SVG_icon_txt_lines; ?>
 </svg>
 <?php } //end svg_icon_cfg() ***************************************************
 
 
 
-function svg_icon_php(){ //***************************************************?>
+function svg_icon_php(){ //*****************************************************
+global $SVG_icon_txt_lines; ?>
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="14" height="16">
 	<rect x="0" y = "0" width = "14" height = "16" fill="rgb(195,195,225)" stroke="#444" stroke-width="2" />
-	<line x1="3" y1="3.5"  x2="11" y2="3.5"  stroke="black" stroke-width=".6"/>
-	<line x1="3" y1="6.5"  x2="11" y2="6.5"  stroke="black" stroke-width=".6"/>
-	<line x1="3" y1="9.5"  x2="11" y2="9.5"  stroke="black" stroke-width=".6"/>
-	<line x1="3" y1="12.5" x2="11" y2="12.5" stroke="black" stroke-width=".6"/>
+	<?php echo $SVG_icon_txt_lines; ?>
 </svg>
 <?php } //end svg_icon_php() ***************************************************
 
 
 
-function svg_icon_css(){ //***************************************************?>
+function svg_icon_css(){ //*****************************************************
+global $SVG_icon_txt_lines; ?>
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="14" height="16">
 	<rect x="0"  y="0"  width="14"  height="16"  fill="rgb(255,225,165)" stroke="#444" stroke-width="2" />
-	<line x1="3" y1="3.5"  x2="11" y2="3.5"  stroke="black" stroke-width=".6"/>
-	<line x1="3" y1="6.5"  x2="11" y2="6.5"  stroke="black" stroke-width=".6"/>
-	<line x1="3" y1="9.5"  x2="11" y2="9.5"  stroke="black" stroke-width=".6"/>
-	<line x1="3" y1="12.5" x2="11" y2="12.5" stroke="black" stroke-width=".6"/>
+	<?php echo $SVG_icon_txt_lines; ?>
 </svg>
 <?php } //end svg_icon_css() ***************************************************
 
@@ -419,70 +470,57 @@ function svg_icon_upload(){ //************************************************?>
 
 
 
-function svg_icon_new_file(){ //**********************************************?>
+function svg_icon_new_file(){ //************************************************
+global $SVG_icon_txt_lines, $SVG_icon_circle_plus; ?>
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="14" height="16" >
 	<rect x = "0" y = "0" width = "14" height = "16" fill="white" stroke="#444" stroke-width = "2" />
-	<line x1="3" y1="3.5"  x2="11" y2="3.5"  stroke="black" stroke-width=".5"/>
-	<line x1="3" y1="6.5"  x2="11" y2="6.5"  stroke="black" stroke-width=".5"/>
-	<line x1="3" y1="9.5"  x2="11" y2="9.5"  stroke="black" stroke-width=".5"/>
-	<line x1="3" y1="12.5" x2="11" y2="12.5" stroke="black" stroke-width=".5"/>
+	<?php echo $SVG_icon_txt_lines; ?>
 	<g transform="translate(4,6)">
-	  <circle cx="5" cy="5" r="5" stroke="black" stroke-width="0" fill="#080"/>
-	  <line x1="2" y1="5" x2="8" y2="5" stroke="white" stroke-width="1.5" shape-rendering="crispEdges"/>
-	  <line x1="5" y1="2" x2="5" y2="8" stroke="white" stroke-width="1.5" shape-rendering="crispEdges"/>
+		<?php echo $SVG_icon_circle_plus; ?>
 	</g>
 </svg>
 <?php } //end svg_icon_new_file() **********************************************
 
 
 
-function svg_icon_del_file(){ //**********************************************?>
+function svg_icon_del_file(){ //************************************************
+global $SVG_icon_txt_lines, $SVG_icon_circle_x; ?>
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="14" height="16">
 	<rect x = "0" y = "0" width = "14" height = "16" fill="white" stroke="#444" stroke-width = "2" />
-	<line x1="3" y1="3.5"  x2="11" y2="3.5"  stroke="black" stroke-width=".5" />
-	<line x1="3" y1="6.5"  x2="11" y2="6.5"  stroke="black" stroke-width=".5" />
-	<line x1="3" y1="9.5"  x2="11" y2="9.5"  stroke="black" stroke-width=".5" />
-	<line x1="3" y1="12.5" x2="11" y2="12.5" stroke="black" stroke-width=".5" />
+	<?php echo $SVG_icon_txt_lines; ?>
 	<g transform="translate(4,6)">
-	<circle cx="5" cy="5" r="5" stroke="black" stroke-width="0" fill="#D00"/>
-	<line x1="2.5" y1="2.5" x2="7.5" y2="7.5" stroke="white" stroke-width="1.5"/>
-	<line x1="7.5" y1="2.5" x2="2.5" y2="7.5" stroke="white" stroke-width="1.5"/>
+		<?php echo $SVG_icon_circle_x; ?>
 	<g>
 </svg>
 <?php } //end svg_icon_del_file() **********************************************
 
 
 
-function svg_icon_folder(){ //************************************************?>
+function svg_icon_folder(){ //**************************************************
+global $SVG_icon_folder; ?>
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="18" height="14">
-	<path  d="M0.5, 1  L8,  1  L9,  2    L9,3     L16.5,3  L17,3.5  L17,13.5  L.5,13.5  L.5,.5" fill="#FBE47b" stroke="#F0CD28" stroke-width="1" />
-	<path  d="M1.5, 8  L7,  8  L8.5,6.3  L16,6.3  L7.5, 6.3   L6.5,7.5  L1.5,7.5"  fill="transparent" stroke="white" stroke-width="1" />
-	<path  d="M1.5,13  L1.5,2  L7.5,2    L8.5,3   L8.5, 4  L15.5,4 L16,4.5  L16,13" fill="transparent" stroke="white" stroke-width="1"/>
+	<?php echo $SVG_icon_folder; ?>
 </svg>
 <?php } //end svg_icon_folder() ************************************************
 
 
 
-function svg_icon_new_folder(){ //********************************************?>
+function svg_icon_new_folder(){ //**********************************************
+global $SVG_icon_folder, $SVG_icon_circle_plus; ?>
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="18" height="14">
-	<path  d="M0.5, 1  L8,  1  L9,  2    L9,3     L16.5,3  L17,3.5  L17,13.5  L.5,13.5  L.5,.5" fill="#FBE47b" stroke="#F0CD28" stroke-width="1" />
-	<path  d="M1.5, 8  L7,  8  L8.5,6.3  L16,6.3  L7.5, 6.3   L6.5,7.5  L1.5,7.5"  fill="transparent" stroke="white" stroke-width="1" />
-	<path  d="M1.5,13  L1.5,2  L7.5,2    L8.5,3   L8.5, 4  L15.5,4 L16,4.5  L16,13" fill="transparent" stroke="white" stroke-width="1"/>
+	<?php echo $SVG_icon_folder; ?>
 	<g transform="translate(7.5,4)">
-	  <circle cx="5" cy="5" r="5" stroke="black" stroke-width="0" fill="#080"/>
-	  <line x1="2" y1="5" x2="8" y2="5" stroke="white" stroke-width="1.5" shape-rendering="crispEdges"/>
-	  <line x1="5" y1="2" x2="5" y2="8" stroke="white" stroke-width="1.5" shape-rendering="crispEdges"/>
+		<?php echo $SVG_icon_circle_plus; ?>
 	</g>
 </svg>
 <?php } //end svg_icon_new_folder() ********************************************
 
 
 
-function svg_icon_rename_folder(){ //*****************************************?>
+function svg_icon_ren_folder(){ //*******************************************
+global $SVG_icon_folder; ?>
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="18" height="14">
-	<path  d="M0.5, 1  L8,  1  L9,  2    L9,3     L16.5,3  L17,3.5  L17,13.5  L.5,13.5  L.5,.5" fill="#FBE47b" stroke="#F0CD28" stroke-width="1" />
-	<path  d="M1.5, 8  L7,  8  L8.5,6.3  L16,6.3  L7.5, 6.3   L6.5,7.5  L1.5,7.5"  fill="transparent" stroke="white" stroke-width="1" />
-	<path  d="M1.5,13  L1.5,2  L7.5,2    L8.5,3   L8.5, 4  L15.5,4 L16,4.5  L16,13" fill="transparent" stroke="white" stroke-width="1"/>
+	<?php echo $SVG_icon_folder; ?>
 	<g transform="translate(6,3)">
 	  <polygon points="2,0 9,7 7,9 0,2" stroke-width="1" stroke="darkgoldenrod" fill="rgb(246,222,100)"/>
 	  <path  d="M0,2   L0,0  L2,0"      stroke="tan" fill="tan" stroke-width="1"  shape-rendering="crispEdges"/>
@@ -491,22 +529,20 @@ function svg_icon_rename_folder(){ //*****************************************?>
 	  <line x1="8.1" y1="10.8"  x2="10.8" y2="8.1"  stroke="red" stroke-width="1"/>
 	</g>
 </svg>
-<?php } //end svg_icon_() ***************************************************
+<?php } //end svg_icon_ren_folder() *****************************************
 
 
 
-function svg_icon_del_folder(){ //********************************************?>
+function svg_icon_del_folder(){ //**********************************************
+global $SVG_icon_folder, $SVG_icon_circle_x; ?>
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="18" height="14">
-	<path  d="M0.5, 1  L8,  1  L9,  2    L9,3     L16.5,3  L17,3.5  L17,13.5  L.5,13.5  L.5,.5" fill="#FBE47b" stroke="#F0CD28" stroke-width="1" />
-	<path  d="M1.5, 8  L7,  8  L8.5,6.3  L16,6.3  L7.5, 6.3   L6.5,7.5  L1.5,7.5"  fill="transparent" stroke="white" stroke-width="1" />
-	<path  d="M1.5,13  L1.5,2  L7.5,2    L8.5,3   L8.5, 4  L15.5,4 L16,4.5  L16,13" fill="transparent" stroke="white" stroke-width="1"/>
+	<?php echo $SVG_icon_folder; ?>
 	<g transform="translate(7.5,4)">
-	  <circle cx="5" cy="5" r="5" stroke="black" stroke-width="0" fill="#D00"/>
-	  <line x1="2.5" y1="2.5" x2="7.5" y2="7.5" stroke="white" stroke-width="1.5"/>
-	  <line x1="7.5" y1="2.5" x2="2.5" y2="7.5" stroke="white" stroke-width="1.5"/>
+		<?php echo $SVG_icon_circle_x; ?>
 	</g>
 </svg>
 <?php } //end svg_icon_del_folder() ********************************************
+
 
 
 
@@ -519,53 +555,21 @@ function show_icon($type){ //***************************************************
 	if ($type == 'cfg') { svg_icon_cfg(); }
 	if ($type == 'php') { svg_icon_php(); }
 	if ($type == 'css') { svg_icon_css(); }
-	if ($type == 'upload')        { svg_icon_upload();     }
-	if ($type == 'new_file')      { svg_icon_new_file();   }
-	if ($type == 'del_file')      { svg_icon_del_file();   }
-	if ($type == 'folder')        { svg_icon_folder();     }
-	if ($type == 'new_folder')    { svg_icon_new_folder(); }
-	if ($type == 'rename_folder') { svg_icon_rename_folder(); }
-	if ($type == 'del_folder')    { svg_icon_del_folder(); }
+	if ($type == 'upload')     { svg_icon_upload();     }
+	if ($type == 'new_file')   { svg_icon_new_file();   }
+	if ($type == 'del_file')   { svg_icon_del_file();   }
+	if ($type == 'folder')     { svg_icon_folder();     }
+	if ($type == 'new_folder') { svg_icon_new_folder(); }
+	if ($type == 'ren_folder') { svg_icon_ren_folder(); }
+	if ($type == 'del_folder') { svg_icon_del_folder(); }
 }//end show_icon() *************************************************************
-
-
-
-
-//Don't load login screen if already in a valid session *************
-if (($page == "login") and ($_SESSION['valid'])) { $page = "index"; }
-
-
-
-
-if ($page == "login")        { $pagetitle = "Log In";         }
-if ($page == "edit")         { $pagetitle = "Edit/View File"; }
-if ($page == "upload")       { $pagetitle = "Upload File";    }
-if ($page == "new")          { $pagetitle = "New File";       }
-if ($page == "copy" )        { $pagetitle = "Copy";           }
-if ($page == "rename")       { $pagetitle = "Rename File";    }
-if ($page == "delete")       { $pagetitle = "Delete";         }
-if ($page == "newfolder")    { $pagetitle = "New Folder";     }
-if ($page == "renamefolder") { $pagetitle = "Rename Folder";  }
-if ($page == "deletefolder") { $pagetitle = "Delete Folder";  }
-
-
-
-
-
-//Logout ***********************************************************************
-if ($page == "logout") {
-	$page = "login";  $pagetitle = "Login";
-	$_SESSION['valid'] = "0";
-	session_destroy();
-	$message = 'You have successfully logged out.';
-}//*****************************************************************************
 
 
 
 
 
 function Login_Page() { //******************************************************
-	global $ONESCRIPT;
+	global $ONESCRIPT, $message;
 ?>
 	<h2>Log In</h2>
 	<form method="post" action="<?php echo $ONESCRIPT; ?>">
@@ -582,17 +586,6 @@ function Login_Page() { //******************************************************
 	</form>
 	<script>document.getElementById('username').focus();</script>
 <?php } //end Login_Page() *****************************************************
-
-
-
-
-
-// Login Page response message**************************************************
-if (isset($_POST["username"])) {
-	if (($_SESSION['username'] != $config_username) || ($_SESSION['password'] != $config_password))
-		{ $message = "<b>(!) INVALID LOGIN ATTEMPT</b>"; }
-}//end Login Page response message**********************************************
-
 
 
 
@@ -623,9 +616,9 @@ function list_files() { // ...in a vertical table ******************************
 ?>
 			<tr>
 				<td>
-					<?php echo '<a href="'.$ONESCRIPT.$param1.'&amp;f='.$file.'&amp;p=edit" >'; ?>
+					<?php echo '<a href="'.$ONESCRIPT.$param1.'&amp;f='.rawurlencode($file).'&amp;p=edit" >'; ?>
 					<span class="icon"><?php show_icon($type); ?></span>
-					<?php echo  $file, '</a>'; ?>
+					<?php echo  htmlentities($file), '</a>'; ?>
 				</td>
 				<td class="meta_T meta_size">&nbsp;
 					<?php echo number_format(filesize($ipath.$file)).""; ?> B
@@ -652,9 +645,9 @@ function Index_Page(){ //*******************************************************
 		$folders = glob($ipath."*",GLOB_ONLYDIR);
 		natcasesort($folders);
 		foreach ($folders as $folder) {
-			echo '<a href="'.$ONESCRIPT.'?i='.$folder.'/">';
+			echo '<a href="'.$ONESCRIPT.'?i='.URLencode_path($folder).'/">'.PHP_EOL;
 			svg_icon_folder();
-			echo basename($folder).' /</a>';
+			echo htmlentities(basename($folder)).' /</a>';
 		}
 	echo '</p>';
 
@@ -671,66 +664,66 @@ function Index_Page(){ //*******************************************************
 
 
 function Edit_Page() { //*******************************************************
-	global $ONESCRIPT, $ipath, $param1, $filename, $filecontent, $etypes, $itypes, $ftypes;
+	global $ONESCRIPT, $ipath, $param1, $filename, $filecontent, $etypes, $itypes, $ftypes, $INPUT_SESSIONID;
 
-	$param2 = $param1.'&amp;f='.basename($filename);
-	$param3 = $param1.'&amp;f='.basename($filename).'&amp;p=edit';
+	$param2 = $param1.'&amp;f='.rawurlencode(basename($filename));
+	$param3 = $param2.'&amp;p=edit';
 	
-	//Determine if editable file type
+	//Determine if text/editable file type
 	$ext = end( explode(".", strtolower($filename) ) );
-	$editable = FALSE;
-	if (in_array(strtolower($ext), $etypes)) { $editable = TRUE; };
+	$editable = FALSE;  if (in_array($ext, $etypes)) { $editable = TRUE; };
 ?>
 	<h2 id="edit_header">Edit/View:
-	<a class="filename" href="/<?php echo $filename.'">'.basename($filename) ?></a>
+	<a class="filename" href="/<?php echo URLencode_path($filename).'">'.htmlentities(basename($filename)) ?></a>
 	</h2>
 
 	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$param3 ?>">
+		<?php echo $INPUT_SESSIONID; ?>
 		<p class="file_meta">
 		<span class="meta_size">Size<b>: </b> <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; &nbsp; 
 		<span class="meta_time">Updated<b>: </b><script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1);</script></span><br>
 		</p>
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-		<?php Close_Button("close"); ?><div style="clear:both;"></div>
+		<?php Close_Button("close"); ?>
 
 		<?php if ( !in_array( strtolower($ext), $itypes) ) { //If non-image, show textarea
 			if (!$editable) { // If non-text file, disable textarea
 			?>	<p>
-				<textarea id="disabled_content" cols="70" rows="3"
+				<textarea id="disabled_content" cols="70" rows="3" 
 				disabled="disabled">Non-text or unkown file type. Edit disabled.</textarea>
 				</p>
-			<?php } else {
+			<?php }else{
 				$fp = @fopen($filename, "r");
-				if (filesize($filename) !== 0) {
-					$filecontent = fread($fp, filesize($filename));
-					$filecontent = htmlspecialchars($filecontent);
-				}
+				$filecontent = htmlspecialchars(fread($fp, filesize($filename)));
 				fclose($fp);
 			?>	<p>
-				<input type="hidden" name="filename" id="filename" class="textinput" value="<?php echo $filename; ?>">
-				<textarea id="file_content" name="content" class="textinput" cols="70" rows="25" onkeyup="Check_for_changes(event);"><?php echo $filecontent; ?></textarea>
+				<input type="hidden" name="filename" id="filename" value="<?php echo htmlspecialchars($filename); ?>">
+				<textarea id="file_content" name="content" cols="70" rows="25"
+				onkeyup="Check_for_changes(event);"><?php echo $filecontent; ?></textarea>
 				</p>
 			<?php } //end if editable ?>	
 		<?php  } //end if non-image, show textarea ?>
-		
+
+		<div style="clear:both;"></div>
 		<p class="buttons_right">
-		<input type="submit" class="button" value="Save"                  onclick="submitted = true;" id="save_file">
-		<input type="button" class="button" value="Reset - loose changes" onclick="Reset_File()"      id="reset">
-		<script>
-			//Setting disabled here instead of via input attribute in case js is disabled.
-			//If js is disabled, user would be unable to save changes.
-			document.getElementById('save_file').disabled = "disabled";
-			document.getElementById('reset').disabled     = "disabled";
-		</script>
-		<input type="button" class="button" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.$param3.'&amp;p=rename'; ?>'">
-		<input type="button" class="button" value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.$param3.'&amp;p=copy'  ; ?>'">
-		<input type="button" class="button" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.$param3.'&amp;p=delete'; ?>'">
+		<?php if ($editable) { //Show save & reset only if editable file ?> 
+			<input type="submit" class="button" value="Save"                  onclick="submitted = true;" id="save_file">
+			<input type="button" class="button" value="Reset - loose changes" onclick="Reset_File()"      id="reset">
+			<script>
+				//Set disabled here instead of via input attribute in case js is disabled.
+				//If js is disabled, user would be unable to save changes.
+				document.getElementById('save_file').disabled = "disabled";
+				document.getElementById('reset').disabled     = "disabled";
+			</script>
+		<?php } ?>
+		<input type="button" class="button" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.$param2.'&amp;p=rename'; ?>'">
+		<input type="button" class="button" value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.$param2.'&amp;p=copy'  ; ?>'">
+		<input type="button" class="button" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.$param2.'&amp;p=delete'; ?>'">
 		<?php Close_Button(""); ?>
 		</p>
 	</form>
 	<div style="clear:both;"></div>
 <?php
-	if ( in_array( strtolower($ext), $itypes) ) { show_image(); }
+	if ( in_array( $ext, $itypes) ) { show_image(); }
 
 	if ($editable) {
 		Edit_Page_scripts();
@@ -743,38 +736,34 @@ function Edit_Page() { //*******************************************************
 
 
 
-
-// EDIT Page response code *****************************************************
-//*** If on Edit page, and [Save] clicked:
-if ( $page == "edit" && isset($_POST["filename"]) && $_SESSION['valid'] = "1" && $_POST["sessionid"] == session_id()) {
-	$filename = $_POST["filename"];
-	$content = $_POST["content"];
+function Edit_Page_response(){ //***If on Edit page, and [Save] clicked ********
+	global $filename, $content, $message;
+	$filename = htmlspecialchars_decode($_POST["filename"]);
+	$content = htmlspecialchars_decode($_POST["content"]);
 	$fp = @fopen($filename, "w");
 	if ($fp) {
 		fwrite($fp, $content);
 		fclose($fp);
-		$message = '<b>"'.$filename.'"</b> saved...';
-		$page == "edit";
+		$message = '<b>File saved...</b>';
 	}else{
 		$message = '<b>(!) There was an error saving file.</b>';
 	}
-}//end EDIT Page response code**************************************************
-
+}//end Edit_Page_response() ****************************************************
 
 
 
 
 
 function Upload_Page() { //*****************************************************
-	global $ONESCRIPT, $ipath, $param1;
+	global $ONESCRIPT, $ipath, $param1, $INPUT_SESSIONID;
 ?>
 	<h2>Upload File</h2>
 	<form enctype="multipart/form-data" action="<?php echo $ONESCRIPT.$param1; ?>" method="post">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
+		<?php echo $INPUT_SESSIONID; ?>
 		<input type="hidden" name="MAX_FILE_SIZE" value="100000">
-		<input type="hidden" name="upload_destination" value="<?php echo $ipath; ?>" >
-		<input name="upload_filename" type="file" size="100">
-		<p><?php Cancel_Submit_Buttons("Upload","cancel"); ?></p>
+		<input type="hidden" name="upload_destination" value="<?php echo htmlspecialchars($ipath); ?>" >
+		<input name="upload_file" type="file" size="100">
+		<?php Cancel_Submit_Buttons("Upload","cancel"); ?>
 	</form>
 <?php } //end Upload_Page() ****************************************************
 
@@ -782,29 +771,27 @@ function Upload_Page() { //*****************************************************
 
 
 
-// UPLOAD FILE response code ***************************************************
-if (isset($_FILES['upload_filename']['name']) && $_SESSION['valid'] = "1" && $_POST["sessionid"] == session_id()) {
-
-	$filename    = $_FILES['upload_filename']['name'];
-	$destination = Check_path($_POST["upload_destination"]);
+function Upload_File_response() { //********************************************
+	global $filename, $message, $page;
+	$filename    = $_FILES['upload_file']['name'];
+	$destination = htmlspecialchars_decode(Check_path($_POST["upload_destination"]));
+	$page = "index";
 
 	if (($filename == "")){ 
 		$message = "<b>(!) No file selected for upload... </b>";
-	}elseif (($destination != "") && !is_dir($_POST["upload_destination"])) {
+	}elseif (($destination != "") && !is_dir($destination)) {
 		$message .= '<b>(!)</b> Destination folder does not exist: <br><b>';
-		$message .= ''.$WEB_ROOT.$destination.'</b><br><b>Upload cancelled.</b>';
+		$message .= ''.htmlentities($WEB_ROOT.$destination).'</b><br><b>Upload cancelled.</b>';
 	}else{
-		$message .= 'Uploading: <b>"'.$filename.'"</b> to <b>"'.$WEB_ROOT.$destination.'"</b>';
-		
-		$savefile = ordinalize($destination, $filename, $message);
-
-		if(move_uploaded_file($_FILES['upload_filename']['tmp_name'], $savefile)) {
+		$message .= 'Uploading: "<b>'.htmlentities($filename).'</b>"...';
+		$savefile = ordinalize($destination, $filename);
+		if(move_uploaded_file($_FILES['upload_file']['tmp_name'], $savefile)) {
 			$message .= '<br>Upload successful.';
 		} else{
-			$message .= "<br><b>(!) There was an error.</b> Upload or rename may have failed.";
+			$message .= '<br><b>(!) There was an error.</b> Upload or rename may have failed.';
 		}
 	}
-} //end Upload file response code **********************************************
+}//end Upload_File_response() **************************************************
 
 
 
@@ -812,14 +799,13 @@ if (isset($_FILES['upload_filename']['name']) && $_SESSION['valid'] = "1" && $_P
 
 
 function New_File_Page() { //***************************************************
-	global $ONESCRIPT, $WEB_ROOT, $ipath, $param1;
+	global $FORM_COMMON;
 ?>
-		<h2 style="float: left;">New File</h2>
-		<form method="post" action="<?php echo $ONESCRIPT.$param1; ?>">
-			<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-			<input type="text" name="new_filename" id="new_filename" class="textinput1" value="">
-			<p>	<?php Cancel_Submit_Buttons("Create","new_filename"); ?> </p>
-		</form>
+	<h2>New File</h2>
+	<?php echo $FORM_COMMON ?>
+		<input type="text" name="new_file" id="new_file" value="">
+		<?php Cancel_Submit_Buttons("Create","new_file"); ?>
+	</form>
 <?php
 }//end New_File_Page()**********************************************************
 
@@ -827,149 +813,112 @@ function New_File_Page() { //***************************************************
 
 
 
-// NEW FILE response code ******************************************************
-if (isset($_POST["new_filename"]) && $_SESSION['valid'] = "1" && $_POST["sessionid"] == session_id()) {
-
-	$filename = $ipath.trim($_POST["new_filename"],'/ '); //trim spaces & slashes
+function New_File_response() { //***********************************************
+	global $ipath, $filename, $page, $message;
+	$new_name = $_POST["new_file"];
+	$FS = strpos($new_name, '/');
+	$filename = $ipath.trim($new_name,'/ '); //trim spaces & slashes
 	$savefile = $DOC_ROOT.$filename;
-
-	if (($_POST["new_filename"] == "")){ 
-		$message = "<b>(!) New file not created - no filename given... </b>";
+	$page = "index"; // return to index if new file fails
+	
+	if ( $FS !== false){
+		$message .= '<b>('.$FS.') File not created.</b> Filename contains invalid character(s) (forward slash): <br>';
+		$message .= '<b>'.htmlentities($new_name).'</b>';
+	}elseif (($_POST["new_file"] == "")){ 
+		$message = "<b>(!) New file not created - no filename given.</b>";
 	}elseif (file_exists($savefile)) {
-		$message = '<b>(!) "'.$filename.'"</b> not created. A file with that name already exists.';
-	} else {
-		$handle = fopen($savefile, 'w') or die("can't open file");
+		$message = '<b>(!) "'.htmlentities(basename($filename)).'"</b> not created. A file with that name already exists.';
+	}elseif ($handle = fopen($savefile, 'w')) {
 		fclose($handle);
-		$message = '"<b>'.$filename.'</b>"successfully created.';
-		$ipath = Check_path(dirname($filename)); //if changed, return to new dir.
-		$param1 = "?i=".$ipath;
+		$message = '"<b>'.htmlentities(basename($filename)).'</b>" successfully created.';
+		$ipath    = Check_path(dirname($filename)); //if changed, return to new dir.
+		$param1   = '?i='.URLencode_path($ipath);
 		$page = "edit";
+	}else {
+		$message .= "<b>(!) ERROR - can't open or create file:<br>";
+		$message .= htmlentities($filename);
 	}
-}//end NEW FILE response code **************************************************
+}//end New_File_response() *****************************************************
 
 
 
 
 
-
-function Copy_File_Page(){ //***************************************************
-	global $ONESCRIPT, $WEB_ROOT, $ipath, $param1, $filename;
-
-	$new_filename = ordinalize($ipath, basename($filename));
+function Copy_Ren_Move_Page($action, $title, $name_id, $isfile) { //******
+	//$action = 'Copy' or 'Rename'. $isfile = 1 if acting on a file, not a folder
+	global $WEB_ROOT, $ipath, $filename, $FORM_COMMON;
+	if ($isfile) { $old_name = $filename; }else{ $old_name = $ipath; }
+	if ($isfile) { $new_name = $filename; }else{ $new_name = $ipath; }
+	if ($action == "Copy" ) { $new_name = ordinalize($ipath, basename($filename)); }
 ?>
-	<h2>Copy File</h2>
-
-	<form method="post" id="new" action="<?php echo $ONESCRIPT.$param1; ?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
+	<h2><?php echo $action.' '.$title ?></h2>
+	<p>To move a file or folder, change the path/to/folder/or_file. The new location must already exist.</p>
+	<?php echo $FORM_COMMON ?>
 		<p>
-			<label>Old filename:</label>
-			<span class="web_root"><?php echo $WEB_ROOT; ?></span>
-			<input type="hidden" name="old_filename" value="<?php echo $filename; ?>">
-			<input type="text"   name="dummy" value="<?php echo $filename; ?>" disabled="disabled">
+			<label>Old name:</label>
+			<span class="web_root"><?php echo htmlentities($WEB_ROOT); ?></span>
+			<input type="text" name="old_name" 
+				value="<?php echo htmlspecialchars($old_name); ?>" readonly="readonly">
 		</p>
 		<p>
-			<label for="copy_filename">New filename:</label>
-			<span class="web_root"><?php echo $WEB_ROOT; ?></span>
-			<input type="text" name="copy_filename" id="copy_filename" 
-				  class="textinput" value="<?php echo $new_filename; ?>">
+			<label>New name:</label>
+			<span class="web_root"><?php echo htmlentities($WEB_ROOT); ?></span>
+			<input type="text" name="<?php echo $name_id ?>" id="<?php echo $name_id ?>" 	
+				value="<?php echo htmlspecialchars($new_name); ?>">
 		</p>
-		<p><?php Cancel_Submit_Buttons("Copy","copy_filename"); ?></p>
+		<?php Cancel_Submit_Buttons($action, $name_id); ?>
 	</form>
-<?php }//end Copy_File_Page() **************************************************
+<?php } //end Copy_Ren_Move_Page() *********************************************
 
 
 
 
+
+
+//******************************************************************************
+function Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $msg2, $isfile){
+	//$action = 'copy' or 'rename'. $isfile = 1 if acting on a file, not a folder
+	global $WEB_ROOT, $ipath, $param1, $message, $page, $filename;
+
+	$old_name = htmlspecialchars_decode(trim($old_name,'/ '));
+	$new_name = htmlspecialchars_decode(trim($new_name,'/ '));
+	$new_location = dirname($new_name);
+	$filename = $old_name; //default if error
+	$page = "index"; //Return to index if folder
+	if ($isfile) { $page = "edit"; }//return to edit page if a file
 	
-// COPY FILE response code *****************************************************
-if (isset($_POST["copy_filename"]) && $_SESSION['valid'] = "1" && $_POST["sessionid"] == session_id()) {
-	$old_filename = $_POST["old_filename"];
-	$new_filename = $_POST["copy_filename"];
-
-	if (file_exists($new_filename)) {
-		$message .= '<b>(!) Error copying file - target filename already exists:<br>';
-		$message .= '(!) '.$new_filename.'</b>';
-		$page = "edit";
-		$filename = $old_filename;
-	}elseif (copy($old_filename, $new_filename)){ 
-		$message  = '<b>"'.$old_filename.'"</b><br>';
-		$message .= ' --- successfully copied to ---<br>';
-		$message .= '<b>"'.$new_filename.'"</b>';
+	if ( !is_dir($new_location) ){
+		$message .= '<b>(!) '.$msg1.' Error - new parent location does not exist:</b><br>';
+		$message .= $WEB_ROOT.$new_location.'/<br>';
+	}elseif (file_exists($new_name)) {
+		$message .= '<b>(!) '.$msg1.' Error - target filename already exists:<br>';
+		$message .= ''.htmlentities($WEB_ROOT.$new_name).'</b>';
+	}elseif ($action($old_name, $new_name)) {
+		$message .= '<b>'.htmlentities($WEB_ROOT.$old_name).'</b><br>';
+		$message .= ' --- Successfully '.$msg2.' to ---<br>';
+		$message .= '<b>'.htmlentities($WEB_ROOT.$new_name).'</b>';
+		$filename = $new_name; //so edit page knows what to edit
+		if ($isfile) { $ipath = Check_path(dirname($filename)); } //if changed,
+		else         { $ipath = Check_path($filename); }          //return to new dir.
+		$param1   = '?i='.URLencode_path($ipath);
 	}else{
-		$message .= '<b>(!) Error copying file:<br>"'.$new_filename.'"</b>';
+		$message .= '<b>'.htmlentities($WEB_ROOT.$old_name).'</b><br>';
+		$message .= '<b>(!) Error durring '.$msg1.' from the above to the following:</b><br>';
+		$message .= '<b>'.htmlentities($WEB_ROOT.$new_name).'</b>';
 	}
-}//end COPY FILE response code *************************************************
-
-
-
-
-
-function Rename_File_Page() { //************************************************
-	global $ONESCRIPT, $WEB_ROOT, $ipath, $param1, $filename;
-?>
-	<h2>Rename/Move File</h2>
-
-	<p>To move a file, change the folder's name, as in 
-	"newfolder/filename.txt". The new folder must already exist.</p>
-
-	<form method="post" action="<?php echo $ONESCRIPT.$param1; ?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-		<p>
-			<label>Old filename:</label>
-			<span class="web_root"><?php echo $WEB_ROOT; ?></span>
-			<input type="text" name="old_filename" value="<?php echo $filename; ?>" class="textinput" readonly="readonly">
-		</p>
-		<p>
-			<label for="rename_filename">New filename:</label>
-			<span class="web_root"><?php echo $WEB_ROOT; ?></span>
-			<input type="text" name="rename_filename" id="rename_filename" class="textinput" value="<?php echo $filename; ?>">
-		</p>
-		<p><?php Cancel_Submit_Buttons("Rename", "rename_filename"); ?></p>
-	</form>
-<?php } //end Rename_File_Page() ***********************************************
-
-
-
-
-
-// RENAME FILE response code ***************************************************
-if (isset($_POST["rename_filename"]) && $_SESSION['valid'] = "1" && $_POST["sessionid"] == session_id()) {
-	$old_filename = $_POST["old_filename"];
-	$new_filename = trim($_POST["rename_filename"], '/');
-
-	$page = "edit"; //return to edit page
-	
-	if (file_exists($new_filename)) {
-		$message .= '<b>(!) Error renaming or moving file - target filename already exists:<br>';
-		$message .= '(!) '.$new_filename.'</b>';
-		$page = "edit";
-		$filename = $old_filename;
-	}elseif (rename($old_filename, $new_filename)) {
-		$message .= '<b>"'.$old_filename.'</b>"<br>';
-		$message .= ' --- successfully renamed to ---<br>';
-		$message .= '<b>"'.$new_filename.'</b>"<br>';
-		$filename = $new_filename;
-		$ipath = Check_path(dirname($filename)); //if changed, return to new dir.
-		$param1 = '?i='.$ipath;
-	}else{
-		$message .= '<b>(!) Error renaming/moving file from:<br>"'.$old_filename.'"</b>';
-		$message .= '<b>(!) To:<br>"'.$new_filename.'"</b>';
-	}
-}//end RENAME FILE response code ***********************************************
+}//end Copy_Ren_Move_response() ************************************************
 
 
 
 
 
 function Delete_File_Page() { //************************************************
-	global $ONESCRIPT, $WEB_ROOT, $ipath, $param1, $filename;
+	global $filename, $FORM_COMMON;
 ?>
-	<h2 style="float: left;">Delete File</h2>
-
-	<form method="post" action="<?php echo $ONESCRIPT.$param1; ?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-		<input type="hidden" name="delete_filename" value="<?php echo $filename; ?>" >
-		<span class="verify"><?php echo basename($filename); ?></span>
+	<h2>Delete File</h2>
+	<?php echo $FORM_COMMON ?>
+		<input type="hidden" name="delete_file" value="<?php echo htmlspecialchars($filename); ?>" >
+		<span class="verify"><?php echo htmlentities(basename($filename)); ?></span>
 		<p class="sure"><b>Are you sure?</b></p>
 		<?php Cancel_Submit_Buttons("DELETE", "cancel"); ?>
 	</form>
@@ -979,31 +928,31 @@ function Delete_File_Page() { //************************************************
 
 
 
-// DELETE FILE response code ***************************************************
-if (isset($_POST["delete_filename"]) && $_SESSION['valid'] = "1" && $_POST["sessionid"] == session_id()) {
-	$filename = $_POST["delete_filename"];
+function Delete_File_response(){ //*********************************************
+	global $filename, $message, $page;
+
+	$page = "index"; //Return to index
+	$filename = htmlspecialchars_decode($_POST["delete_file"]);
 
 	if (unlink($filename)) {
-		$message = '"<b>'.basename($filename).'</b>" successfully deleted.';
+		$message .= '"<b>'.htmlentities(basename($filename)).'</b>" successfully deleted.';
 	}else{
-		$message = '<b>(!) Error deleting "'.$filename.'"</b>.';
+		$message .= '<b>(!) Error deleting "'.htmlentities($filename).'"</b>.';
 		$page = "edit";
 	}
-}//end DELETE FILE response code ***********************************************
+}//end Delete_File_response() **************************************************
 
 
 
 
 
 function New_Folder_Page() { //*************************************************
-	global $ONESCRIPT, $WEB_ROOT, $ipath, $param1;
+	global $FORM_COMMON;
 ?>
-	<h2 style="float: left;">New Folder</h2>
-	<form method="post" action="<?php echo $ONESCRIPT.$param1; ?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-		<input type="text" name="new_folder" id="new_folder" class="textinput1" value="">
-		<p><?php Cancel_Submit_Buttons("Create","new_folder"); ?></p>
-		
+	<h2>New Folder</h2>
+	<?php echo $FORM_COMMON ?>
+		<input type="text" name="new_folder" id="new_folder" value="">
+		<?php Cancel_Submit_Buttons("Create","new_folder"); ?>
 	</form>
 <?php } // end New_Folder_Page() ***********************************************
 
@@ -1011,91 +960,51 @@ function New_Folder_Page() { //*************************************************
 
 
 
-// NEW FOLDER response code ****************************************************
-if (isset($_POST["new_folder"]) && $_SESSION['valid'] = "1" && $_POST["sessionid"] == session_id()) {
+function New_Folder_response(){ //**********************************************
+	global $message, $ipath, $param1, $page;
 
-	$new_folder = $ipath.trim($_POST["new_folder"],"/").'/'; //make sure only has a single trailing slash.
+	$page = "index"; //Return to index
+	$new_name = trim($_POST["new_folder"],'/ ');
+	$invalid_characters = '< > ? * : " | / \\';
+	$invalid_char_array = explode(' ', $invalid_characters);
+	foreach ($invalid_char_array as $bad_char) {
+		if (strpos($new_name, $bad_char) !== false) { $invalid = true; }
+	}
 
+	 //Trim spaces, and make sure only has a single trailing slash.
+	$new_folder = $ipath.trim($_POST["new_folder"],"/ ").'/';
 
-	if ($_POST["new_folder"] == ""){ 
+	if ($invalid){
+		$message .= '<b>(!) Error-</b> new name may not contain invalid character(s): <b>'.htmlentities($invalid_characters).'</b><br>';
+		$message .= '<b>'.htmlentities($new_name).'<b>';
+	}elseif ($_POST["new_folder"] == ""){ 
 		$message .= "<b>(!) New folder not created - no name given... </b>";
 	}elseif (is_dir($new_folder)) {
 		$message .= '<b>(!) Folder already exists: ';
-		$message .= ''.$new_folder.'</b>';
+		$message .= ''.htmlentities($new_folder).'</b>';
 	}elseif (mkdir($new_folder)) {
-		$message .= 'Folder "<b>'.basename($new_folder).'</b>" successfully created.';
-		$ipath   = $new_folder;  //cd to new folder
-		$param1 = "?i=".$ipath;
+		$message .= 'Folder "<b>'.htmlentities(basename($new_folder)).'</b>" successfully created.';
+		$ipath  = $new_folder;  //return to new folder
+		$param1 = '?i='.URLencode_path($ipath);
 	}else{
-		$message .= "<b>(!) Error- new folder not created.</b>";
+		$message .= '<b>(!) Error- new folder not created: </b><br>';
+		$message .= htmlentities($WEB_ROOT.dirname($new_folder)).'/<b>'.htmlentities(basename($new_folder)).'/</b><br>';
+		if ( !is_dir(dirname($new_folder)) ) { $message .= '&nbsp; <b>Parent folder must already exist.</b>';}
 	}
-}//end NEW FOLDER response code ************************************************
-
-
-
-
-
-function Rename_Folder_Page() { //**********************************************
-	global $ONESCRIPT, $WEB_ROOT, $ipath, $param1;
-?>
-	<h2>Rename Folder</h2>
-	<form method="post" action="<?php echo $ONESCRIPT.$param1; ?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-		<p>
-			<label>Old name:</label><input type="hidden" name="old_foldername" value="<?php echo $ipath; ?>">
-			<span class="web_root"><?php echo $WEB_ROOT.Check_path(dirname($ipath)); ?></span>
-			<input type="text" name="dummy" value="<?php echo basename($ipath); ?>" class="textinput1" disabled="disabled">
-		</p>
-		<p>
-			<label for="new_foldername">New name:</label>
-			<span class="web_root"><?php echo $WEB_ROOT.Check_path(dirname($ipath)); ?></span>
-			<input type="text" name="new_foldername" id="new_foldername" class="textinput1" value="<?php echo basename($ipath); ?>">
-		</p>
-		<p><?php Cancel_Submit_Buttons("Rename","new_foldername"); ?></p>
-	</form>
-<?php } //end Rename_Folder_Page() *********************************************
-
-
-
-
-
-// RENAME FOLDER response code *************************************************
-if (isset($_POST["new_foldername"]) && $_SESSION['valid'] = "1" && $_POST["sessionid"] == session_id()) {
-
-	$old_foldername = $_POST["old_foldername"]; // entire old $ipath
-	$new_foldername = $_POST["new_foldername"]; // not entire path - only end foldername
-
-	//Removed any trailing slashes
-	$new_foldername = Check_path(dirname($old_foldername)).trim($new_foldername, '/');
-
-	if (file_exists($new_foldername)) {
-		$message .= '<b>(!) Error renaming folder- target name already exists:</b><br>';
-		$message .= '<b>&nbsp; &nbsp; '.$WEB_ROOT.$new_foldername.'</b><br>';
-	}elseif (rename($old_foldername, $new_foldername)) {
-		$message .= '<b>"'.$old_foldername.'</b>"<br>';
-		$message .= ' --- successfully renamed to ---<br>';
-		$message .= '<b>"'.$new_foldername.'/</b>"<br>';
-		$ipath    = Check_path($new_foldername); //Return to new folder
-		$param1 = "?i=".$ipath;
-	} else {
-		$message = "<b>(!)</b> There was an error during rename. Try again and/or contact your admin.";
-	}
-}//end RENAME FOLDER response code *********************************************
+}//end New_Folder_response *****************************************************
 
 
 
 
 
 function Delete_Folder_Page(){ //***********************************************
-	global $ONESCRIPT, $WEB_ROOT, $ipath, $param1;
+	global $WEB_ROOT, $ipath, $FORM_COMMON;
 ?>
-	<br><h2>Delete Folder</h2>
-
-	<form method="post" action="<?php echo $ONESCRIPT.$param1; ?>">
-		<input type="hidden" name="sessionid" value="<?php echo session_id(); ?>">
-		<input type="hidden" name="delete_foldername" value="<?php echo $ipath; ?>" >
-		<span class="web_root"><?php echo $WEB_ROOT.Check_path(dirname($ipath)); ?></span>
-		<span class="verify"><?php echo basename($ipath); ?></span> /
+	<h2>Delete Folder</h2>
+	<?php echo $FORM_COMMON ?>
+		<input type="hidden" name="delete_folder" value="<?php echo htmlspecialchars($ipath); ?>" >
+		<span class="web_root"><?php echo htmlentities($WEB_ROOT.Check_path(dirname($ipath))); ?></span>
+		<span class="verify"><?php echo htmlentities(basename($ipath)); ?></span> /
 		<p class="sure"><b>Are you sure?</b></p>
 		<?php Cancel_Submit_Buttons("DELETE", "cancel"); ?>
 	</form>
@@ -1105,45 +1014,116 @@ function Delete_Folder_Page(){ //***********************************************
 
 
 
-// DELETE FOLDER response code *************************************************
+function Delete_Folder_response() { //******************************************
+	global $ipath, $param1, $page, $message;
+	$page = "index"; //Return to index
+	$foldername = htmlspecialchars_decode(trim($_POST["delete_folder"], '/'));
+
+	if ( !is_empty($ipath) ) {
+		$message .= '<b>(!) Folder not empty. &nbsp; Folders must be empty before they can be deleted.</b>';
+	}elseif (@rmdir($foldername)) {
+		$message .= 'Folder "<b>'.htmlentities(basename($foldername)).'</b>" successfully deleted.';
+		$ipath  = Check_path($foldername); //Return to parent dir.
+		$param1 = '?i='.URLencode_path($ipath);
+	}else {
+		$message .= '<b>(!) "'.htmlentities($foldername).'/"</b> an error occurred during delete.';
+	}
+}//end Delete_Folder_response() ************************************************
+
+
+
+
+
+// Login Page response message**************************************************
+if (isset($_POST["username"])) {
+	if (($_SESSION['username'] != $config_username) || ($_SESSION['password'] != $config_password))
+		{ $message = "<b>(!) INVALID LOGIN ATTEMPT</b>"; }
+}//end Login Page response message**********************************************
+
+
+
+
+
+//Logout ***********************************************************************
+if ($page == "logout") {
+	$page = "login";
+	$_SESSION['valid'] = "0";
+	session_destroy();
+	$message = 'You have successfully logged out.';
+}//*****************************************************************************
+
+
+
+
+
+if ($VALID_POST) { //***********************************************************
+	if (isset($_FILES['upload_file']['name'])) { Upload_File_response(); }
+	if (isset($_POST["filename"]     )) { Edit_Page_response(); }
+	if (isset($_POST["new_file"]     )) { New_File_response(); }
+	if (isset($_POST["copy_file"]    )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["copy_file"], 'copy', 'Copy', 'Copied', 1); } 
+	if (isset($_POST["rename_file"]  )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_file"], 'rename', 'Rename/Move', 'Renamed/Moved', 1); } 
+	if (isset($_POST["delete_file"]  )) { Delete_File_response(); }
+	if (isset($_POST["new_folder"]   )) { New_Folder_response(); }
+	if (isset($_POST["rename_folder"])) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_folder"], 'rename', 'Rename/Move', 'Renamed/Moved', 0); } 
+	if (isset($_POST["delete_folder"])) { Delete_Folder_response(); }
+}//end if ($VALID_POST) ********************************************************
+
+
+
+
+
+//<title>$pagetitle</title>*****************************************************
+if     ($page == "login")        { $pagetitle = "Log In";         }
+elseif ($page == "edit")         { $pagetitle = "Edit/View File"; }
+elseif ($page == "upload")       { $pagetitle = "Upload File";    }
+elseif ($page == "newfile")      { $pagetitle = "New File";       }
+elseif ($page == "copy" )        { $pagetitle = "Copy";           }
+elseif ($page == "rename")       { $pagetitle = "Rename File";    }
+elseif ($page == "delete")       { $pagetitle = "Delete";         }
+elseif ($page == "newfolder")    { $pagetitle = "New Folder";     }
+elseif ($page == "renamefolder") { $pagetitle = "Rename Folder";  }
+elseif ($page == "deletefolder") { $pagetitle = "Delete Folder";  }
+else                  { $pagetitle = $_SERVER['SERVER_NAME']; }
+//******************************************************************************
+
+
+
+
+
+//*** Verify valid $page *******************************************************
+if ($page != "") {
+	if (!in_array(strtolower($page), $valid_pages)) {
+		header("Location: ".$ONESCRIPT); // redirect on invalid page attempts
+		$page = "index";
+	}
+}
 if ( ($page == "deletefolder") && !is_empty($ipath) ) {
-	$message = '<b>(!) Folder not empty.</b>  Folders must be empty before they can be deleted.<br>';
+	$message = '<b>(!) Folder not empty. &nbsp; Folders must be empty before they can be deleted.</b>';
 	$page = "index";
 }
-
-if (isset($_POST["delete_foldername"]) && $_SESSION['valid'] = "1" && $_POST["sessionid"] == session_id()) {
-
-	$page = "index"; //Return to index
-	$foldername = trim($_POST["delete_foldername"], '/');
-
-	if (@rmdir($foldername)) {
-		$message = 'Folder "<b>'.basename($foldername).'</b>" successfully deleted.';
-		$ipath = Check_path($foldername); //Return to parent dir.
-		$param1 = "?i=".$ipath;
-	} else {
-		$message .= '<b>(!) "'.$foldername.'/"</b> an error occurred during delete.';
-	}
-}//end DELETE FOLDER response code *********************************************
+//Don't load login screen if already in a valid session 
+if (($page == "login") and ($_SESSION['valid'])) { $page = "index"; }
+//******************************************************************************
 
 
 
 
 
 function Load_Selected_Page(){ //***********************************************
-	global $page;
-	if ($page == "login")        { Login_Page();         }
-	if ($page == "index")        { Index_Page();         }
-	if ($page == "edit")         { Edit_Page();          }
-	if ($page == "upload")       { Upload_Page();        }
-	if ($page == "new")          { New_File_Page();      }
-	if ($page == "copy")         { Copy_File_Page();     }
-	if ($page == "rename")       { Rename_File_Page();   }
-	if ($page == "delete")       { Delete_File_Page();   }
-	if ($page == "newfolder")    { New_Folder_Page();    }
-	if ($page == "renamefolder") { Rename_Folder_Page(); }
-	if ($page == "deletefolder") { Delete_Folder_Page(); }
-}//end Load_Selected_Page() ****************************************************
+	global $ONESCRIPT, $page, $valid_pages;
 
+	if     ($page == "login")        { Login_Page();         }
+	elseif ($page == "edit")         { Edit_Page();          }
+	elseif ($page == "upload")       { Upload_Page();        }
+	elseif ($page == "newfile")      { New_File_Page();      }
+	elseif ($page == "copy")         { Copy_Ren_Move_Page('Copy', 'File', 'copy_file', 1); }
+	elseif ($page == "rename")       { Copy_Ren_Move_Page('Rename', 'File', 'rename_file', 1); }
+	elseif ($page == "delete")       { Delete_File_Page();   }
+	elseif ($page == "newfolder")    { New_Folder_Page();    }
+	elseif ($page == "renamefolder") { Copy_Ren_Move_Page('Rename', 'Folder', 'rename_folder', 0); }
+	elseif ($page == "deletefolder") { Delete_Folder_Page(); }
+	else                             { Index_Page();         } //default
+}//end Load_Selected_Page() ****************************************************
 
 
 
@@ -1154,10 +1134,7 @@ function Time_Stamp_scripts() {  ?>
 
 <script>//Dispaly file's timestamp in user's local time 
 
-function pad(num){ 
-	if ( num < 10 ){ num = "0" + num; }
-	return num
-}
+function pad(num){ if ( num < 10 ){ num = "0" + num; }; return num; }
 
 
 function FileTimeStamp(php_filemtime, show_offset){
@@ -1185,8 +1162,8 @@ function FileTimeStamp(php_filemtime, show_offset){
 	var offset_MINS  = pad( NEG * GMT_offset % 60 );
 	var offset_FULL  = "UTC " + SIGN + offset_HOURS + ":" + offset_MINS;
 
-	if (show_offset){ var DATETIME = YEAR+"-"+MONTH+"-"+DATE+" &nbsp;"+HOURS+":"+MINS+" "+AMPM+" ("+offset_FULL+")"; }
-	else            { var DATETIME = YEAR+"-"+MONTH+"-"+DATE+" &nbsp;"+HOURS+":"+MINS+" "+AMPM; }
+	if (show_offset){ var DATETIME = YEAR+"-"+MONTH+"-"+DATE+" &nbsp;"+HOURS+":"+MINS+":"+SECS+" "+AMPM+" ("+offset_FULL+")"; }
+	else            { var DATETIME = YEAR+"-"+MONTH+"-"+DATE+" &nbsp;"+HOURS+":"+MINS+":"+SECS+" "+AMPM; }
 	
 	document.write( DATETIME );
 
@@ -1314,62 +1291,45 @@ function style_sheet(){ //****************************************************?>
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,
 cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,dl,dt,dd,ol,ul,li,
 fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td
-{border : 0;  outline: 0; margin : 0; padding: 0;
+{ border : 0; outline: 0; margin : 0; padding: 0;
 font-family: inherit; font-weight: inherit; font-style : inherit;
 font-size  : 100%; vertical-align: baseline; }
-
 
 
 /* --- general formatting --- */
 
 body { font-size: 1em; background: #DDD; font-family: sans-serif; }
 
-p, table { margin-bottom: .5em; }
+p, table { margin-bottom: .5em; margin-top: .5em;}
 
-div{position: relative;}
+div { position: relative; }
 
-h1,h2,h3,h4,h5,h6{font-weight: bold;}
-h2 { font-size: 20px; margin: 0 1em .2em 0;} /*TRBL*/
-h3 { font-size: 18px; margin-top: 15px; }
-h4 { font-size: 1.3em; margin-bottom: .2em; font-weight: normal;}
+h1,h2,h3,h4,h5,h6 { font-weight: bold; }
+h2, h3 { font-size: 1.2em; margin: .5em 1em .5em 0; } /*TRBL*/
 
-em, i { font-style: italic; }
+i, em     { font-style : italic; }
+b, strong { font-weight: bold;   }
 
-strong { font-weight: bold; }
+:focus { outline:0; }
 
-li {line-height: 1.4em; }
+table { border-collapse:separate; border-spacing:0; }
+th,td { text-align:left; font-weight:400; }
 
-:focus{outline:0;}
-
-ol,ul{list-style:none;}
-
-table{border-collapse:separate;border-spacing:0;}
-
-caption,th,td{text-align:left;font-weight:400;}
-
-blockquote:before,blockquote:after,q:before,q:after{content:"";}
-blockquote,q{quotes:"" "";}
-
-a { border: 1px solid transparent; color: rgb(100,45,0); text-decoration: none; }
+a       { border: 1px solid transparent; color: rgb(100,45,0); text-decoration: none; }
 a:hover { border: 1px solid #807568; background-color: rgb(255,250,150); }
 a:focus { border: 1px solid #807568; background-color: rgb(255,250,150); }
 
-form p { margin-bottom: 5px; }
+form p { margin-bottom: .3em; }
 
-
-label { display: inline-block; width : 7em; font-size : 1em; }
+label { display: inline-block; width : 6em; font-size : 1em; }
 
 svg { margin: 0; padding: 0; }
 
-pre {
+pre { /*Used when trouble shooting around test output*/
 	background: white;
 	border: 1px solid #807568;
-	line-height: 1.25em;
-	overflow: auto
-	overflow-Y: hidden;
-	padding: 10px;
-	margin: 5px 0 10px 0;
-	overflow: hidden;
+	padding: .5em;
+	margin: 0;
 	}
 
 
@@ -1384,9 +1344,8 @@ pre {
 
 .header {
 	border-bottom : 1px solid #807568;
-	padding: 04px 0px 04px 0px;
-	margin : 0;
-	margin-bottom : .5em;
+	padding: 04px 0px 01px 0px;
+	margin : 0 0 .5em 0;
 	}
 
 
@@ -1397,15 +1356,6 @@ pre {
 	color: black;
 	padding: .1em;
 	}
-
-
-.footer { color: #777; font-size: .7em; }
-
-
-.alignleft { margin: 0 10px 10px 0; float: left; }
-
-
-.dirname { font-weight: 400; }
 
 .filename {
 	border: 1px solid #807568;
@@ -1470,19 +1420,9 @@ table.index_T td {
 
 /* File size & date */
 
-.meta_size { min-width: 6em; }
+.meta_size { min-width:  6em; }
 
-.meta_time { width    : 13em;}
-
-.meta {
-	height        : 25px;
-	line-height   : 1.1em;
-	font-size     : .9em;
-	margin-top    : 3px;
-	padding-right : .5em;
-    font-size     : .9em;
-	color         : #333;
-	}
+.meta_time { min-width: 15em; }
 
 .meta_T {
 	padding-right : .5em;
@@ -1531,24 +1471,19 @@ table.index_T td {
 input[type="text"] {
 	border: 1px solid #807568;
 	padding: 2px;
-	width: 630px;
+	width: 40em;
 	font: 1em "Courier New", Courier, monospace;
 	}
-
-input.textinput1 { width: 20em; }
-
-input.textinput2 { width: 40em; }
 
 textarea {
 	border: 1px solid #999;
 	font  : .95em "Courier New", Courier, monospace;
-	margin: 0 0 .5em 0; /*T R B L*/
+	margin: 0 0 0 0; /*T R B L*/
 	width : 99.5%;
-	height: 30em;
 	height: 30em;
 	}
 
-textarea[disabled ]{ width : 99.5%; height: 50px; }
+textarea[disabled] { width : 99.5%; height: 50px; background-color: #EEE; color: #777;}
 
 textarea:focus { border: 1px solid #Faa; }
 
@@ -1565,8 +1500,7 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 
 .buttons_right         { float: right; }
 .buttons_right .button { margin-left: 7px; }
-.buttons_left          { float: left; }
-.buttons_left  .button { margin-right: 7px; }
+
 
 .button {
 	border : 1px solid #807568;
@@ -1604,7 +1538,6 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 .nav a:focus { border: 1px solid #807568; }
 
 
-
 /* --- edit --- */
 
 #edit_header  {margin: 0;}
@@ -1626,9 +1559,11 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 .login_page {
 	margin  : 5em auto;
 	border  : 1px solid #807568;
-	padding : 1em;
+	padding : 1em 1em 0 1em;
 	width   : 360px;
 	}
+
+.login_page .nav { margin-top: .5em; }
 
 .login_input {
 	border  : 1px solid #807568;
@@ -1637,18 +1572,17 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 	font    : 1em "Courier New";
 	}
 
-input[type="text"].login_input { width   : 354px; }
-
+.login_page input[type="text"]{ width   : 354px; }
 
 
 /* --- --- --- */
 hr { 
 	line-height  : 0;
-	font-size    : 1px;
+	Xfont-size    : 1px;
 	display : block;
 	position: relative;
 	padding : 0;
-	margin  : 8px auto;
+	margin  : 1em auto;
 	width   : 100%;
 	clear   : both;
 	border  : none;
@@ -1659,17 +1593,19 @@ hr {
 
 .web_root { font:1.2em Courier; }
 
-.sure { margin: .5em 0em .5em 0; }
-
 .verify {
 	border: 1px solid #807568;
 	color: #333;
 	background-color: #FEE;
-	padding: 2px .3em;
+	padding: .1em .2em;
 	font: 1.2em Courier;
 	}
 
+.sure { margin: .7em 0em .5em 0; }
+
 .icon {float: left; margin: 0 5px 0 0;}
+
+.H2_LEFT { float: left; }
 </style>
 <?php }//end style_sheet() *****************************************************
 
@@ -1686,7 +1622,6 @@ hr {
 <head>
 
 <title><?php echo $config_title.' - '.$pagetitle ?></title>
-
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="robots" content="noindex">
 
@@ -1700,34 +1635,31 @@ hr {
 
 <?php
 if ($page == "login"){ echo '<div class="login_page">'; }
-				 else{ echo '<div class="container">';  }
+				 else{ echo '<div class="container" >'; }
 ?>
 
 <div class="header">
 	<?php echo '<a href="', $ONESCRIPT, '" id="logo">', $config_title; ?></a>
 	<?php echo $version; ?>
-	
-	<?php if ($_SESSION['valid'] == "1") { ?>
-		<div class="nav">
-			<a href="/"><?php show_favicon() ?>&nbsp; 
-			<b><?php echo $WEBSITE ?>/</b>  &nbsp;- &nbsp;
-			Visit Site</a> |
-			<a href="<?php echo $ONESCRIPT ?>?p=logout">Log Out</a>
-		</div>
-	<?php } ?>
-</div><!-- end header -->
 
-<?php message_box() ?>
+	<div class="nav">
+		<a href="/" target="_blank"><?php show_favicon() ?>&nbsp; 
+		<b><?php echo htmlentities($WEBSITE) ?></b>  &nbsp;- &nbsp;
+		Visit Site</a>
+		<?php if ($page != "login") { ?>
+		| <a href="<?php echo $ONESCRIPT ?>?p=logout">Log Out</a>
+		<?php } ?>
+	</div><div style="clear:both;"></div>
+</div><!-- end header -->
 
 <?php if ( $page != "login" ){ Current_Path_Header(); } ?>
 
+<?php message_box() ?>
+
 <?php Load_Selected_Page() ?>
 
-<div class="footer">
-	<hr><br><br>
-</div>
-
-</div><!-- end container -->
+<hr>
+</div><!-- end container/login_page -->
 
 </body>
 </html>

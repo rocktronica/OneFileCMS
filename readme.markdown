@@ -1,8 +1,8 @@
-### May 20, 2012
+### May 29, 2012
 
-# Current stable versions: 1.5, 2.0, & 3.0
+# Current stable versions: 1.5, 2.0, & 3.1
 
-- 3.0: "Full" version - uses svg icons
+- 3.1: "Full" version - uses svg icons
 - 2.0: "Lite" version - uses no icons.
 - 1.5: style sheet is now part of onfilecms.php file, but still uses external icons.
 
@@ -10,7 +10,7 @@
 
 ### April 30, 2012
 
-# NOTICE - SECURITY HOLE! (Fixed in version 1.2.1)
+## NOTICE - SECURITY HOLE! (Fixed in version 1.2.1)
 
 ## Versions affected
 
@@ -109,10 +109,14 @@ The reason there isn't default support for multiple users is that all of their i
 
 ## Change Log
 
+### 3.1
+
+- (Very) moderate data validation improvements.
+- Reorganized & funcionalized() most of the code.
+
 ### 3.0
 
 - Implemented svg icons
-
 
 ### 2.0
 
@@ -231,7 +235,7 @@ The reason there isn't default support for multiple users is that all of their i
 
 Written in PHP, JavaScript, HTML and CSS.
 
-Available under the MIT and BSD license.
+Available under the MIT and BSD licenses.
 
 Icons for versions thru 1.1.6 by [famfamfam](http://www.famfamfam.com/).
 
@@ -251,31 +255,36 @@ To report a bug or request a feature, please file an issue via Github. Forks enc
 ### General layout/structure of OneFileCMS.php
   
 Configurable Info  
-Setup a few general & global values.  
 Session start  
+A few functions needed early  
+A few global values.  
 Misc functions  
+A few macros ($vars = "common chunks of code")
 svg\_icons\_...() functions  
-Set page title  
-Logout response  
 Login\_Page() function  
 list\_files() function  
 Index\_Page() function  
-&lt;page...&gt;() functions  
-&lt;page...&gt;   response code  
+&lt;page...&gt;_Page() functions  
+&lt;page...&gt;_response() functions 
 &nbsp; &nbsp; Edit\_Page()...   
 &nbsp; &nbsp; Upload\_  
 &nbsp; &nbsp; New\_File\_  
-&nbsp; &nbsp; Copy\_  
-&nbsp; &nbsp; Rename\_File\_  
-&nbsp; &nbsp; Delete\_File\_   
+&nbsp; &nbsp; Copy_Ren_Move\_  
+&nbsp; &nbsp; Delete\_File\_  
 &nbsp; &nbsp; New\_Folder\_   
-&nbsp; &nbsp; Rename\_Folder\_  
 &nbsp; &nbsp; Delete\_Folder\_  
+Invalid Login response  
+Logout response  
+If ($VALID\_POST), do \_response  
+Set page title  
+Verify valid $page  
 Load\_Selected\_Page() function  
 Time\_Stamp\_scripts() function  
 Edit\_Page\_script() function  
 style\_sheet() function  
 &lt;html&gt;  
+.  
+.. (head, body, etc...)  
 ...  
 Load\_Selected\_Page()  
 ...  
