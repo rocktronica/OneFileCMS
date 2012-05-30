@@ -1,10 +1,10 @@
 ### May 29, 2012
 
-# Current stable versions: 1.5, 2.0, & 3.1
+# Current stable versions: 1.5, 2.0, & 3.1.1
 
-- 3.1: "Full" version - uses svg icons
-- 2.0: "Lite" version - uses no icons.
-- 1.5: style sheet is now part of onfilecms.php file, but still uses external icons.
+- 3.1.1: "Full" version - uses svg icons
+- 2.0  : "Lite" version - uses no icons.
+- 1.5  : style sheet is now part of onfilecms.php file, but still uses external icons.
 
 --------------------------------------------------------------------------------
 
@@ -108,6 +108,10 @@ Probably not.
 The reason there isn't default support for multiple users is that all of their info will have to be stored together, more or less in plain text, at the top of onefilecms.php. Giving people different usernames and passwords then is sort of futile, since everyone who can log in can view onefilecms's source and config variables. (This answer kind of ignores MD5 hashes but is valid for most considerations.) 
 
 ## Change Log
+
+### 3.1.1
+
+	Fixed minor issue with data encoding of file to exit in <textarea>
 
 ### 3.1
 
@@ -259,13 +263,13 @@ Session start
 A few functions needed early  
 A few global values.  
 Misc functions  
-A few macros ($vars = "common chunks of code")
+A few macros (common chunks of code)  
 svg\_icons\_...() functions  
 Login\_Page() function  
 list\_files() function  
 Index\_Page() function  
 &lt;page...&gt;_Page() functions  
-&lt;page...&gt;_response() functions 
+&lt;page...&gt;_response() functions  
 &nbsp; &nbsp; Edit\_Page()...   
 &nbsp; &nbsp; Upload\_  
 &nbsp; &nbsp; New\_File\_  

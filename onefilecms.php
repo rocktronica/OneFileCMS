@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - http://onefilecms.com/
 
-$version = '3.1';
+$version = '3.1.1';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -685,17 +685,15 @@ function Edit_Page() { //*******************************************************
 		</p>
 		<?php Close_Button("close"); ?>
 
-		<?php if ( !in_array( strtolower($ext), $itypes) ) { //If non-image, show textarea
+<?php	if ( !in_array( strtolower($ext), $itypes) ) { //If non-image, show textarea
 			if (!$editable) { // If non-text file, disable textarea
-			?>	<p>
+?>			<p>
 				<textarea id="disabled_content" cols="70" rows="3" 
 				disabled="disabled">Non-text or unkown file type. Edit disabled.</textarea>
 				</p>
-			<?php }else{
-				$fp = @fopen($filename, "r");
-				$filecontent = htmlspecialchars(fread($fp, filesize($filename)));
-				fclose($fp);
-			?>	<p>
+<?php 		}else{
+				$filecontent = htmlspecialchars(file_get_contents($filename), ENT_SUBSTITUTE,'UTF-8');
+?>			<p>
 				<input type="hidden" name="filename" id="filename" value="<?php echo htmlspecialchars($filename); ?>">
 				<textarea id="file_content" name="content" cols="70" rows="25"
 				onkeyup="Check_for_changes(event);"><?php echo $filecontent; ?></textarea>
@@ -739,7 +737,7 @@ function Edit_Page() { //*******************************************************
 function Edit_Page_response(){ //***If on Edit page, and [Save] clicked ********
 	global $filename, $content, $message;
 	$filename = htmlspecialchars_decode($_POST["filename"]);
-	$content = htmlspecialchars_decode($_POST["content"]);
+	$content  = htmlspecialchars_decode($_POST["content"]);
 	$fp = @fopen($filename, "w");
 	if ($fp) {
 		fwrite($fp, $content);
@@ -792,7 +790,6 @@ function Upload_File_response() { //********************************************
 		}
 	}
 }//end Upload_File_response() **************************************************
-
 
 
 
@@ -884,8 +881,7 @@ function Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $msg2, $is
 	$new_name = htmlspecialchars_decode(trim($new_name,'/ '));
 	$new_location = dirname($new_name);
 	$filename = $old_name; //default if error
-	$page = "index"; //Return to index if folder
-	if ($isfile) { $page = "edit"; }//return to edit page if a file
+	if ($isfile) { $page = "edit"; }else{ $page = "index"; }
 	
 	if ( !is_dir($new_location) ){
 		$message .= '<b>(!) '.$msg1.' Error - new parent location does not exist:</b><br>';
@@ -1083,7 +1079,7 @@ elseif ($page == "delete")       { $pagetitle = "Delete";         }
 elseif ($page == "newfolder")    { $pagetitle = "New Folder";     }
 elseif ($page == "renamefolder") { $pagetitle = "Rename Folder";  }
 elseif ($page == "deletefolder") { $pagetitle = "Delete Folder";  }
-else                  { $pagetitle = $_SERVER['SERVER_NAME']; }
+else                             { $pagetitle = $_SERVER['SERVER_NAME']; }
 //******************************************************************************
 
 
@@ -1365,7 +1361,6 @@ pre { /*Used when trouble shooting around test output*/
 	background-color: #EEE;
 	}
 
-/* Preserve space when message is dismissed.*/
 #message { margin-bottom: .5em;}
 
 #message p {
@@ -1634,6 +1629,7 @@ hr {
 <body>
 
 <?php
+
 if ($page == "login"){ echo '<div class="login_page">'; }
 				 else{ echo '<div class="container" >'; }
 ?>
