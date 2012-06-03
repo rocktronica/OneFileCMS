@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - http://onefilecms.com/
 
-$version = '3.1.3';
+$version = '3.1.4'; // 20-06-03 19:30
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -159,17 +159,46 @@ $excluded_list = (explode(",", $config_excluded));
 $valid_pages = array("login","logout","index","edit","upload","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder" );
 
 
-//*** Get main parameters 
-if (isset($_GET["i"])) { $ipath    = Check_path($_GET["i"]); }else{ $ipath = ""; }
+//*** Get main parameters: i="some/path/", f="somefile.xyz", p="somepage"
+if (isset($_GET["i"])) { $ipath = Check_path($_GET["i"]); }else{ $ipath = ""; }
 
 if (isset($_GET["f"])) {
 	$filename = $ipath.$_GET["f"];
-	if ( !is_file($filename) ) { $message .= $EX.' <b>File does not exist: '.$filename.'</b><br>'; $filename = ""; }
+	if ( !is_file($filename) ) {
+		$message .= $EX.' <b>File does not exist: '.$filename.'</b><br>'; $filename = "";
+	}
 }else{ $filename = ""; }
 
-if (isset($_GET["p"])) { $page     = $_GET["p"]; } // default $page set above
+if (isset($_GET["p"])) { $page = $_GET["p"]; } // default $page set above
 
 $param1 = '?i='.URLencode_path($ipath);
+//******************************************************************************
+
+
+
+
+
+//*** Verify valid $page *******************************************************
+
+if ($page != "") {
+	if (!in_array(strtolower($page), $valid_pages)) {
+		header("Location: ".$ONESCRIPT); // redirect on invalid page attempts
+		$page = "index";
+	}
+}
+
+
+//Don't load login screen if already in a valid session 
+if ( ($page == "login") and ($_SESSION['valid']) ) { $page = "index"; }
+
+
+if ( ($page == "deletefolder") && !is_empty($ipath) ) {
+	$message = $EX.' <b>Folder not empty. &nbsp; Folders must be empty before they can be deleted.</b>';
+	$page = "index";
+}
+
+
+if ( $page == "edit" && !is_file($filename) ) { $page = "index"; }
 //******************************************************************************
 
 
@@ -708,11 +737,21 @@ function Edit_Page_response(){ //***If on Edit page, and [Save] clicked ********
 
 function Upload_Page() { //*****************************************************
 	global $ONESCRIPT, $ipath, $param1, $INPUT_SESSIONID;
+
+	//Determine $MAX_FILE_SIZE to upload
+	$UMF = ini_get('upload_max_filesize'); //assumes  it's < post_max_size. If not, oh well.
+	$KMB = strtoupper(substr($UMF, -1));
+
+	if     ($KMB == "K") { $MAX_FILE_SIZE = $UMF * 1024; }
+	elseif ($KMB == "M") { $MAX_FILE_SIZE = $UMF * 1048576; }
+	elseif ($KMB == "G") { $MAX_FILE_SIZE = $UMF * 1073741824; }
+	else                 { $MAX_FILE_SIZE = $UMF; }
 ?>
 	<h2>Upload File</h2>
+	<p>Note: Maximum upload file size is: <?php echo $UMF; ?></p>
 	<form enctype="multipart/form-data" action="<?php echo $ONESCRIPT.$param1; ?>" method="post">
 		<?php echo $INPUT_SESSIONID; ?>
-		<input type="hidden" name="MAX_FILE_SIZE" value="100000">
+		<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $MAX_FILE_SIZE ?>"> 
 		<input type="hidden" name="upload_destination" value="<?php echo htmlspecialchars($ipath); ?>" >
 		<input name="upload_file" type="file" size="100">
 		<?php Cancel_Submit_Buttons("Upload","cancel"); ?>
@@ -727,20 +766,33 @@ function Upload_File_response() { //********************************************
 	global $filename, $message, $EX, $page;
 	$filename    = $_FILES['upload_file']['name'];
 	$destination = htmlspecialchars_decode(Check_path($_POST["upload_destination"]));
-	$page = "index";
+	$page  = "index";
+	$MAXUP1 = ini_get('upload_max_filesize');
+	$MAXUP2 = number_format ($_POST['MAX_FILE_SIZE']).' bytes';
+	$ERROR = $_FILES['upload_file']['error'];
+
+	if     ( $ERROR == 1 ){ $ERRMSG = 'File too large.  upload_max_filesize = '.$MAXUP1.' (From php.ini)';}
+	elseif ( $ERROR == 2 ){ $ERRMSG = 'File too large.  $MAX_FILE_SIZE = '.$MAXUP2.' (From OneFileCMS)';}
+	elseif ( $ERROR == 3 ){ $ERRMSG = 'The uploaded file was only partially uploaded.'; }
+	elseif ( $ERROR == 4 ){ $ERRMSG = 'No file was uploaded. '; }
+	elseif ( $ERROR == 5 ){ $ERRMSG = ''; }
+	elseif ( $ERROR == 6 ){ $ERRMSG = 'Missing a temporary folder.'; }
+	elseif ( $ERROR == 7 ){ $ERRMSG = 'Failed to write file to disk.'; }
+	elseif ( $ERROR == 8 ){ $ERRMSG = 'A PHP extension stopped the file upload.'; }
+	else                  { $ERRMSG = ''; }
 
 	if (($filename == "")){ 
-		$message = $EX.' <b>No file selected for upload... </b>';
+		$message .= $EX.' <b>No file selected for upload... </b>';
 	}elseif (($destination != "") && !is_dir($destination)) {
 		$message .= $EX.' Destination folder does not exist: <br><b>';
-		$message .= ''.htmlentities($WEB_ROOT.$destination).'</b><br><b>Upload cancelled.</b>';
+		$message .= htmlentities($WEB_ROOT.$destination).'</b><br><b>Upload cancelled.</b>';
 	}else{
 		$message .= 'Uploading: "<b>'.htmlentities($filename).'</b>"...';
 		$savefile = ordinalize($destination, $filename, $savefile_msg);
 		if(move_uploaded_file($_FILES['upload_file']['tmp_name'], $savefile)) {
-			$message .= '<br>Upload successful.'.$savefile_msg;
+			$message .= '<br>Upload successful! '.$savefile_msg;
 		} else{
-			$message .= '<br>'.$EX.' <b>There was an error.</b> Upload or rename may have failed.';
+			$message .= '<br>'.$EX.' <b>Error '.$ERROR.' - Upload failed: </b>'.$ERRMSG.'';
 		}
 	}
 }//end Upload_File_response() **************************************************
@@ -1024,25 +1076,6 @@ elseif ($page == "newfolder")    { $pagetitle = "New Folder";     }
 elseif ($page == "renamefolder") { $pagetitle = "Rename Folder";  }
 elseif ($page == "deletefolder") { $pagetitle = "Delete Folder";  }
 else                             { $pagetitle = $_SERVER['SERVER_NAME']; }
-//******************************************************************************
-
-
-
-
-
-//*** Verify valid $page *******************************************************
-if ($page != "") {
-	if (!in_array(strtolower($page), $valid_pages)) {
-		header("Location: ".$ONESCRIPT); // redirect on invalid page attempts
-		$page = "index";
-	}
-}
-if ( ($page == "deletefolder") && !is_empty($ipath) ) {
-	$message = '<b>(!) Folder not empty. &nbsp; Folders must be empty before they can be deleted.</b>';
-	$page = "index";
-}
-//Don't load login screen if already in a valid session 
-if (($page == "login") and ($_SESSION['valid'])) { $page = "index"; }
 //******************************************************************************
 
 
