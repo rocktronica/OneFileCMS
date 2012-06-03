@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - http://onefilecms.com/
 
-$version = '3.1.1';
+$version = '3.1.2'; //2012-06-03
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -41,13 +41,18 @@ $config_title     = "OneFileCMS";
 $MAX_IMG_W   = 810;   // Max width to display images. (page container = 810)
 $MAX_IMG_H   = 1000;  // Max height.  I don't know, it just looks reasonable.
 
+
+
+
 $config_favicon   = "/favicon.ico";
 $config_excluded  = ""; //files to exclude from directory listings- CaSe sensaTive!
 
-$config_etypes = "html,htm,xhtml,php,css,js,txt,text,cfg,conf,ini,csv,svg"; //lowercase, no spaces!
-$config_itypes = "jpg,gif,png,bmp,ico"; //lowercase, no spaces!
-$config_ftypes = "jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,ini,cfg,conf,js,htm,html"; //lowercase, no spaces!
-$config_fclass = "img,img,img,img,img,svg,txt,txt,css,php,txt,cfg,cfg,txt,htm,htm";  //lowercase, no spaces!
+$config_etypes = "html,htm,xhtml,php,css,js,txt,text,cfg,conf,ini,csv,svg"; //Editable file types.
+$config_itypes = "jpg,gif,png,bmp,ico"; //image types to display on edit page.
+$config_ftypes = "bin,jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,ini,cfg,conf,asp,js ,htm,html"; // _ftype & _fclass must have same
+$config_fclass = "bin,img,img,img,img,img,svg,txt,txt,css,php,txt,cfg,cfg ,txt,txt,htm,htm";  // number of values. bin is default.
+
+$EX = '<b>( ! )</b>'; //"EXclaimation point" icon Used in $message's
 // END CONFIGURABLE INFO *******************************************************
 
 
@@ -93,7 +98,7 @@ function URLencode_path($path){ // don't encode the forward slashes
 
 //*** Clean up & check a path **********
 function Check_path($path) { // returns first valid path in some/supplied/path/
-	global $message; 
+	global $message, $EX;
 	$invalidpath = $path; //used for message if supplied $path doesn't exist.
 	$path = str_replace('\\','/',$path);   //Make sure all forward slashes.
 	$path = trim($path,"/ ."); // trim slashes, dots, and spaces
@@ -111,7 +116,7 @@ function Check_path($path) { // returns first valid path in some/supplied/path/
 	if (strlen($path) < 1) { return ""; } //If at site root
 	else {
 		if (!is_dir($path) && (strlen($message) < 1))
-			{ $message .= "<b>(!)</b> Directory does not exist: ".htmlentities($invalidpath).'<br>'; }
+			{ $message .= $EX.' <b>Directory does not exist: '.htmlentities($invalidpath).'</b><br>'; }
 
 		while ( (strlen($path) > 0) && (!is_dir($path)) ) {
 			$path = dirname($path);
@@ -130,66 +135,44 @@ function Check_path($path) { // returns first valid path in some/supplied/path/
 
 
 //******************************************************************************
-//Some global values
+//Some global values & $_GET parameters
 //
-//Make arrays out of a few $config_variables for actual use later.
-//Above, however, it's easier to config/change a simple string.
-$etypes   = (explode(",", strtolower($config_etypes))); //editable file types
-$itypes   = (explode(",", strtolower($config_itypes))); //images types to display
-$ftypes   = (explode(",", strtolower($config_ftypes))); //file types with icons
-$fclasses = (explode(",", strtolower($config_fclass))); //for file types with icons
-$excluded_list = (explode(",", $config_excluded));
-
-
 $ONESCRIPT = URLencode_path($_SERVER["SCRIPT_NAME"]);
 $DOC_ROOT  = $_SERVER["DOCUMENT_ROOT"].'/';
 $WEB_ROOT  = URLencode_path(basename($DOC_ROOT)).'/';
-$WEBSITE   = ''.$_SERVER["HTTP_HOST"].'/';
+$WEBSITE   = $_SERVER["HTTP_HOST"].'/';
+
+//Make arrays out of a few $config_variables for actual use later.
+//Also, remove spaces and make lowercase.
+$etypes   = explode(',', strtolower(str_replace(' ', '', $config_etypes))); //editable file types
+$itypes   = explode(',', strtolower(str_replace(' ', '', $config_itypes))); //images types to display
+$ftypes   = explode(',', strtolower(str_replace(' ', '', $config_ftypes))); //file types with icons
+$fclasses = explode(',', strtolower(str_replace(' ', '', $config_fclass))); //for file types with icons
+$excluded_list = (explode(",", $config_excluded));
 
 
 $valid_pages = array("login","logout","index","edit","upload","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder" );
 
 
-//*** Get main parameters **************
+//*** Get main parameters 
 if (isset($_GET["i"])) { $ipath    = Check_path($_GET["i"]); }else{ $ipath = ""; }
-if (isset($_GET["f"])) { $filename = $ipath.$_GET["f"]; }else{ $filename = ""; }
+
+if (isset($_GET["f"])) {
+	$filename = $ipath.$_GET["f"];
+	if ( !is_file($filename) ) { $message .= $EX.' <b>File does not exist: '.$filename.'</b><br>'; $filename = ""; }
+}else{ $filename = ""; }
+
 if (isset($_GET["p"])) { $page     = $_GET["p"]; } // default $page set above
 
 $param1 = '?i='.URLencode_path($ipath);
-
 //******************************************************************************
+
 
 
 
 
 //******************************************************************************
 // Misc Functions
-
-
-function Current_Path_Header(){ //**************************
- 	// Current path. ie: webroot/current/path/ 
-	// Each level is a link to that level.
-
-	global $ONESCRIPT, $ipath, $WEB_ROOT;
-
-	echo '<h2>';
-		$path_levels  = explode("/",trim($ipath,'/') );
-		$levels = count($path_levels); //If levels=3, indexes = 0, 1, 2  etc... 
-		if ($ipath == "" ){ $levels = 0;} //if at root
-		$current_path = "";
-
-		//Root folder of web site.
-		echo '<a href="'.$ONESCRIPT.'" class="path"> '.htmlentities(trim($WEB_ROOT, '/')).' </a>/';
-
-		//Remainder of current/path
-		for ($x=0; $x < $levels; $x++) {
-			$current_path .= $path_levels[$x].'/';
-			echo '<a href="'.$ONESCRIPT.'?i='.URLencode_path($current_path).'" class="path"> ';
-			echo ' '.htmlentities($path_levels[$x])." </a>/";
-		}
-	echo '</h2>';
-}//end Current_Path_Header() //*****************************
-
 
 
 function is_empty($path){ //********************************
@@ -199,6 +182,56 @@ function is_empty($path){ //********************************
 	closedir($dh);
 	return $empty;
 }//end is_emtpy() //****************************************
+
+
+
+//if file_exists(), ordinalize filename until it doesn't ***
+function ordinalize($destination,$filename, &$msg) {
+	global $EX;
+
+	$ordinal   = 0;
+	$savefile = $destination.$filename;
+
+	if (file_exists($savefile)) {
+
+		$msg .= $EX.' A file with that name already exists in the target directory.<br>';
+		$savefile_info = pathinfo($savefile);
+
+		while (file_exists($savefile)) {
+			$ordinal = sprintf("%03d", ++$ordinal); //  001, 002, 003, etc...
+			$newfilename = $savefile_info['filename'].'.'.$ordinal.'.'.$savefile_info['extension'];
+			$savefile = $destination.$newfilename;
+		}
+		$msg .= 'Saving as: "<b>'.htmlentities($newfilename).'</b>"';
+	}
+	return $savefile;
+}//end ordinalize() filename *******************************
+
+
+
+function Current_Path_Header(){ //**************************
+ 	// Current path. ie: webroot/current/path/ 
+	// Each level is a link to that level.
+
+	global $ONESCRIPT, $ipath, $WEB_ROOT;
+
+	echo '<h2>';
+		//Root folder of web site.
+		echo '<a href="'.$ONESCRIPT.'" class="path"> '.htmlentities(trim($WEB_ROOT, '/')).' </a>/';
+
+		if ($ipath != "" ) { //if not at root, show the rest
+			$path_levels  = explode("/",trim($ipath,'/') );
+			$levels = count($path_levels); //If levels=3, indexes = 0, 1, 2  etc... 
+			$current_path = "";
+
+			for ($x=0; $x < $levels; $x++) {
+				$current_path .= $path_levels[$x].'/';
+				echo '<a href="'.$ONESCRIPT.'?i='.URLencode_path($current_path).'" class="path"> ';
+				echo ' '.htmlentities($path_levels[$x])." </a>/";
+			}
+		}//end if (not at root)
+	echo '</h2>';
+}//end Current_Path_Header() //*****************************
 
 
 
@@ -221,7 +254,7 @@ function message_box() { //*********************************
 		echo '<div id="message"></div>'; // Needed on Edit page to keep js feedback from failing
 	} //end isset($message)
 	
-	// Used on Edit Page to preserve vertical spacing.
+	// Used on Edit Page to preserve vertical spacing, so edit area doesn't jump as much.
 	if ($page == "edit") {echo '<style>#message { min-height: 1.8em; }</style>';}
 }//end message_box()  **************************************
 
@@ -229,12 +262,11 @@ function message_box() { //*********************************
 
 function Upload_New_Rename_Delete_Links() { //**************
 	global $ONESCRIPT, $ipath, $param1;
-
 	echo '<p class="front_links">';
 	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=upload">'   ; svg_icon_upload()    ; echo 'Upload File</a>';
 	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=newfile">'  ; svg_icon_new_file()  ; echo 'New File</a>'   ;
 	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=newfolder">'; svg_icon_new_folder(); echo 'New Folder</a>' ;
-	if ($ipath !== "") {
+	if ($ipath !== "") { //if at root, don't show Rename & Delete links
 		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=renamefolder">'; svg_icon_ren_folder();echo 'Rename/Move Folder</a>';
 		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=deletefolder">'; svg_icon_del_folder();   echo 'Delete Folder</a>';
 	}
@@ -299,30 +331,6 @@ function show_image(){ //***********************************
 
 
 
-//if file_exists(), ordinalize filename until it doesn't ***
-function ordinalize($destination,$filename) {
-	global $message;
-
-	$ordinal   = 0;
-	$savefile = $destination.$filename;
-
-	if (file_exists($savefile)) {
-
-		$message .= '<br><b>(!)</b> A file with that name already exists in the target directory.<br>';
-		$savefile_info = pathinfo($savefile);
-
-		while (file_exists($savefile)) {
-			$ordinal = sprintf("%03d", ++$ordinal); //  001, 002, 003, etc...
-			$newfilename = $savefile_info['filename'].'.'.$ordinal.'.'.$savefile_info['extension'];
-			$savefile = $destination.$newfilename;
-		}
-		$message .= 'Saving as: "<b>'.htmlentities($newfilename).'</b>"';
-	}
-	return $savefile;
-}//end ordinalize() filename *********************************
-
-
-
 function show_favicon(){
 	global $config_favicon, $DOC_ROOT;
 	if (file_exists($DOC_ROOT.$config_favicon)) { 
@@ -331,14 +339,13 @@ function show_favicon(){
 }// end show_favicon()
 
 //
-// End of misc funtions ********************************************************
+// End of misc functions ********************************************************
 
 
 
 
 
 //A few macros ($varibale="some common chunk of code")**************************
-
 $INPUT_SESSIONID = '<input type="hidden" name="sessionid" value="'.$SID.'">';
 $FORM_COMMON = '<form method="post" action="'.$ONESCRIPT.$param1.'">'.$INPUT_SESSIONID;
 
@@ -547,21 +554,15 @@ global $SVG_icon_folder, $SVG_icon_circle_x; ?>
 
 
 function show_icon($type){ //***************************************************
-	if ($type == 'bin') { svg_icon_bin(); }
-	if ($type == 'img') { svg_icon_img(); }
-	if ($type == 'svg') { svg_icon_svg(); }
-	if ($type == 'txt') { svg_icon_txt(); }
-	if ($type == 'htm') { svg_icon_htm(); }
-	if ($type == 'cfg') { svg_icon_cfg(); }
-	if ($type == 'php') { svg_icon_php(); }
-	if ($type == 'css') { svg_icon_css(); }
-	if ($type == 'upload')     { svg_icon_upload();     }
-	if ($type == 'new_file')   { svg_icon_new_file();   }
-	if ($type == 'del_file')   { svg_icon_del_file();   }
-	if ($type == 'folder')     { svg_icon_folder();     }
-	if ($type == 'new_folder') { svg_icon_new_folder(); }
-	if ($type == 'ren_folder') { svg_icon_ren_folder(); }
-	if ($type == 'del_folder') { svg_icon_del_folder(); }
+	if     ($type == 'bin') { svg_icon_bin(); }
+	elseif ($type == 'img') { svg_icon_img(); }
+	elseif ($type == 'svg') { svg_icon_svg(); }
+	elseif ($type == 'txt') { svg_icon_txt(); }
+	elseif ($type == 'htm') { svg_icon_htm(); }
+	elseif ($type == 'php') { svg_icon_php(); }
+	elseif ($type == 'css') { svg_icon_css(); }
+	elseif ($type == 'cfg') { svg_icon_cfg(); }
+	else                    { svg_icon_bin(); } //default
 }//end show_icon() *************************************************************
 
 
@@ -735,7 +736,7 @@ function Edit_Page() { //*******************************************************
 
 
 function Edit_Page_response(){ //***If on Edit page, and [Save] clicked ********
-	global $filename, $content, $message;
+	global $filename, $message, $EX;
 	$filename = htmlspecialchars_decode($_POST["filename"]);
 	$content  = htmlspecialchars_decode($_POST["content"]);
 	$fp = @fopen($filename, "w");
@@ -744,7 +745,7 @@ function Edit_Page_response(){ //***If on Edit page, and [Save] clicked ********
 		fclose($fp);
 		$message = '<b>File saved...</b>';
 	}else{
-		$message = '<b>(!) There was an error saving file.</b>';
+		$message = $EX.' <b>There was an error saving file.</b>';
 	}
 }//end Edit_Page_response() ****************************************************
 
@@ -770,23 +771,23 @@ function Upload_Page() { //*****************************************************
 
 
 function Upload_File_response() { //********************************************
-	global $filename, $message, $page;
+	global $filename, $message, $EX, $page;
 	$filename    = $_FILES['upload_file']['name'];
 	$destination = htmlspecialchars_decode(Check_path($_POST["upload_destination"]));
 	$page = "index";
 
 	if (($filename == "")){ 
-		$message = "<b>(!) No file selected for upload... </b>";
+		$message = $EX.' <b>No file selected for upload... </b>';
 	}elseif (($destination != "") && !is_dir($destination)) {
-		$message .= '<b>(!)</b> Destination folder does not exist: <br><b>';
+		$message .= $EX.' Destination folder does not exist: <br><b>';
 		$message .= ''.htmlentities($WEB_ROOT.$destination).'</b><br><b>Upload cancelled.</b>';
 	}else{
 		$message .= 'Uploading: "<b>'.htmlentities($filename).'</b>"...';
-		$savefile = ordinalize($destination, $filename);
+		$savefile = ordinalize($destination, $filename, $savefile_msg);
 		if(move_uploaded_file($_FILES['upload_file']['tmp_name'], $savefile)) {
-			$message .= '<br>Upload successful.';
+			$message .= '<br>Upload successful.'.$savefile_msg;
 		} else{
-			$message .= '<br><b>(!) There was an error.</b> Upload or rename may have failed.';
+			$message .= '<br>'.$EX.' <b>There was an error.</b> Upload or rename may have failed.';
 		}
 	}
 }//end Upload_File_response() **************************************************
@@ -811,28 +812,28 @@ function New_File_Page() { //***************************************************
 
 
 function New_File_response() { //***********************************************
-	global $ipath, $filename, $page, $message;
+	global $ipath, $filename, $page, $message, $EX;
 	$new_name = $_POST["new_file"];
 	$FS = strpos($new_name, '/');
 	$filename = $ipath.trim($new_name,'/ '); //trim spaces & slashes
-	$savefile = $DOC_ROOT.$filename;
+	$savefile = $filename;
 	$page = "index"; // return to index if new file fails
 	
 	if ( $FS !== false){
 		$message .= '<b>('.$FS.') File not created.</b> Filename contains invalid character(s) (forward slash): <br>';
 		$message .= '<b>'.htmlentities($new_name).'</b>';
 	}elseif (($_POST["new_file"] == "")){ 
-		$message = "<b>(!) New file not created - no filename given.</b>";
+		$message = $EX.' <b>New file not created - no filename given.</b>';
 	}elseif (file_exists($savefile)) {
-		$message = '<b>(!) "'.htmlentities(basename($filename)).'"</b> not created. A file with that name already exists.';
+		$message = $EX.' <b>"'.htmlentities(basename($filename)).'"</b> not created. A file with that name already exists.';
 	}elseif ($handle = fopen($savefile, 'w')) {
 		fclose($handle);
-		$message = '"<b>'.htmlentities(basename($filename)).'</b>" successfully created.';
+		$message = 'Created file: <b>'.htmlentities(basename($filename)).'</b>';
 		$ipath    = Check_path(dirname($filename)); //if changed, return to new dir.
 		$param1   = '?i='.URLencode_path($ipath);
 		$page = "edit";
 	}else {
-		$message .= "<b>(!) ERROR - can't open or create file:<br>";
+		$message .= $EX.' <b>ERROR - can\'t open or create file:<br>';
 		$message .= htmlentities($filename);
 	}
 }//end New_File_response() *****************************************************
@@ -846,7 +847,7 @@ function Copy_Ren_Move_Page($action, $title, $name_id, $isfile) { //******
 	global $WEB_ROOT, $ipath, $filename, $FORM_COMMON;
 	if ($isfile) { $old_name = $filename; }else{ $old_name = $ipath; }
 	if ($isfile) { $new_name = $filename; }else{ $new_name = $ipath; }
-	if ($action == "Copy" ) { $new_name = ordinalize($ipath, basename($filename)); }
+	if ($action == "Copy" ) { $new_name = ordinalize($ipath, basename($filename), $msg); }
 ?>
 	<h2><?php echo $action.' '.$title ?></h2>
 	<p>To move a file or folder, change the path/to/folder/or_file. The new location must already exist.</p>
@@ -875,7 +876,7 @@ function Copy_Ren_Move_Page($action, $title, $name_id, $isfile) { //******
 //******************************************************************************
 function Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $msg2, $isfile){
 	//$action = 'copy' or 'rename'. $isfile = 1 if acting on a file, not a folder
-	global $WEB_ROOT, $ipath, $param1, $message, $page, $filename;
+	global $WEB_ROOT, $ipath, $param1, $message, $EX, $page, $filename;
 
 	$old_name = htmlspecialchars_decode(trim($old_name,'/ '));
 	$new_name = htmlspecialchars_decode(trim($new_name,'/ '));
@@ -884,10 +885,10 @@ function Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $msg2, $is
 	if ($isfile) { $page = "edit"; }else{ $page = "index"; }
 	
 	if ( !is_dir($new_location) ){
-		$message .= '<b>(!) '.$msg1.' Error - new parent location does not exist:</b><br>';
+		$message .= $EX.' <b>'.$msg1.' Error - new parent location does not exist:</b><br>';
 		$message .= $WEB_ROOT.$new_location.'/<br>';
 	}elseif (file_exists($new_name)) {
-		$message .= '<b>(!) '.$msg1.' Error - target filename already exists:<br>';
+		$message .= $EX.' <b>'.$msg1.' Error - target filename already exists:<br>';
 		$message .= ''.htmlentities($WEB_ROOT.$new_name).'</b>';
 	}elseif ($action($old_name, $new_name)) {
 		$message .= '<b>'.htmlentities($WEB_ROOT.$old_name).'</b><br>';
@@ -899,7 +900,7 @@ function Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $msg2, $is
 		$param1   = '?i='.URLencode_path($ipath);
 	}else{
 		$message .= '<b>'.htmlentities($WEB_ROOT.$old_name).'</b><br>';
-		$message .= '<b>(!) Error durring '.$msg1.' from the above to the following:</b><br>';
+		$message .= $EX.' <b>Error durring '.$msg1.' from the above to the following:</b><br>';
 		$message .= '<b>'.htmlentities($WEB_ROOT.$new_name).'</b>';
 	}
 }//end Copy_Ren_Move_response() ************************************************
@@ -925,15 +926,15 @@ function Delete_File_Page() { //************************************************
 
 
 function Delete_File_response(){ //*********************************************
-	global $filename, $message, $page;
+	global $filename, $message, $EX, $page;
 
 	$page = "index"; //Return to index
 	$filename = htmlspecialchars_decode($_POST["delete_file"]);
 
 	if (unlink($filename)) {
-		$message .= '"<b>'.htmlentities(basename($filename)).'</b>" successfully deleted.';
+		$message .= 'Deleted file: <b>'.htmlentities(basename($filename)).'</b>';
 	}else{
-		$message .= '<b>(!) Error deleting "'.htmlentities($filename).'"</b>.';
+		$message .= $EX.' <b>Error deleting "'.htmlentities($filename).'"</b>.';
 		$page = "edit";
 	}
 }//end Delete_File_response() **************************************************
@@ -957,7 +958,7 @@ function New_Folder_Page() { //*************************************************
 
 
 function New_Folder_response(){ //**********************************************
-	global $message, $ipath, $param1, $page;
+	global $message, $EX, $ipath, $param1, $page;
 
 	$page = "index"; //Return to index
 	$new_name = trim($_POST["new_folder"],'/ ');
@@ -971,19 +972,19 @@ function New_Folder_response(){ //**********************************************
 	$new_folder = $ipath.trim($_POST["new_folder"],"/ ").'/';
 
 	if ($invalid){
-		$message .= '<b>(!) Error-</b> new name may not contain invalid character(s): <b>'.htmlentities($invalid_characters).'</b><br>';
+		$message .= $EX.' <b>Error-</b> new name may not contain invalid character(s): <b>'.htmlentities($invalid_characters).'</b><br>';
 		$message .= '<b>'.htmlentities($new_name).'<b>';
 	}elseif ($_POST["new_folder"] == ""){ 
-		$message .= "<b>(!) New folder not created - no name given... </b>";
+		$message .= $EX.' <b>New folder not created - no name given... </b>';
 	}elseif (is_dir($new_folder)) {
-		$message .= '<b>(!) Folder already exists: ';
-		$message .= ''.htmlentities($new_folder).'</b>';
+		$message .= $EX.' <b>Folder already exists: ';
+		$message .= htmlentities($new_folder).'</b>';
 	}elseif (mkdir($new_folder)) {
-		$message .= 'Folder "<b>'.htmlentities(basename($new_folder)).'</b>" successfully created.';
+		$message .= 'Created folder <b>'.htmlentities(basename($new_folder)).'</b>';
 		$ipath  = $new_folder;  //return to new folder
 		$param1 = '?i='.URLencode_path($ipath);
 	}else{
-		$message .= '<b>(!) Error- new folder not created: </b><br>';
+		$message .= $EX.' <b>Error- new folder not created: </b><br>';
 		$message .= htmlentities($WEB_ROOT.dirname($new_folder)).'/<b>'.htmlentities(basename($new_folder)).'/</b><br>';
 		if ( !is_dir(dirname($new_folder)) ) { $message .= '&nbsp; <b>Parent folder must already exist.</b>';}
 	}
@@ -1011,18 +1012,18 @@ function Delete_Folder_Page(){ //***********************************************
 
 
 function Delete_Folder_response() { //******************************************
-	global $ipath, $param1, $page, $message;
+	global $ipath, $param1, $page, $message, $EX;
 	$page = "index"; //Return to index
 	$foldername = htmlspecialchars_decode(trim($_POST["delete_folder"], '/'));
 
 	if ( !is_empty($ipath) ) {
-		$message .= '<b>(!) Folder not empty. &nbsp; Folders must be empty before they can be deleted.</b>';
+		$message .= $EX.' <b>Folder not empty. &nbsp; Folders must be empty before they can be deleted.</b>';
 	}elseif (@rmdir($foldername)) {
-		$message .= 'Folder "<b>'.htmlentities(basename($foldername)).'</b>" successfully deleted.';
+		$message .= 'Deleted folder: <b>'.htmlentities(basename($foldername)).'</b>';
 		$ipath  = Check_path($foldername); //Return to parent dir.
 		$param1 = '?i='.URLencode_path($ipath);
 	}else {
-		$message .= '<b>(!) "'.htmlentities($foldername).'/"</b> an error occurred during delete.';
+		$message .= $EX.' <b>"'.htmlentities($foldername).'/"</b> an error occurred during delete.';
 	}
 }//end Delete_Folder_response() ************************************************
 
@@ -1106,7 +1107,7 @@ if (($page == "login") and ($_SESSION['valid'])) { $page = "index"; }
 
 
 function Load_Selected_Page(){ //***********************************************
-	global $ONESCRIPT, $page, $valid_pages;
+	global $ONESCRIPT, $page;
 
 	if     ($page == "login")        { Login_Page();         }
 	elseif ($page == "edit")         { Edit_Page();          }
@@ -1600,7 +1601,6 @@ hr {
 
 .icon {float: left; margin: 0 5px 0 0;}
 
-.H2_LEFT { float: left; }
 </style>
 <?php }//end style_sheet() *****************************************************
 
@@ -1629,7 +1629,6 @@ hr {
 <body>
 
 <?php
-
 if ($page == "login"){ echo '<div class="login_page">'; }
 				 else{ echo '<div class="container" >'; }
 ?>
