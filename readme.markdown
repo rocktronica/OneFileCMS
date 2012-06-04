@@ -1,6 +1,6 @@
 ### May 29, 2012
 
-# Current stable versions: 1.5, 2.0, & 3.1.1
+# Current stable versions: 1.5, 2.0, & 3.1.5
 
 - 3.1.1: "Full" version - uses svg icons
 - 2.0  : "Lite" version - uses no icons.
@@ -109,9 +109,19 @@ The reason there isn't default support for multiple users is that all of their i
 
 ## Change Log
 
+
+
+
+### 3.1.2 thru 3.1.5
+
+- Added file size limits to the Edit/View page. (Some browsers don't like large files in an HTML textarea.
+- Added some data validation to _GET parameters
+- Some misc code cleanup & organization etc.
+- And other misc stuff...
+
 ### 3.1.1
 
-	Fixed minor issue with data encoding of file to exit in <textarea>
+- Fixed minor issue with data encoding of file to exit in <textarea>
 
 ### 3.1
 
@@ -230,14 +240,16 @@ The reason there isn't default support for multiple users is that all of their i
 ## Requirements
 
 - PHP 5.4  
-  (Older 5.x versions may work, but there will be issues editing files with back slashes.  See php docs on magic_quotes_gpc & stripslashes().)
-- File permission privileges
+  (Older 5.x versions may work, but there will be issues editing files with back slashes, among other things.  See php docs on magic_quotes_gpc & stripslashes().)
+- File permission privileges on your host
 - Javascript enabled browswer
-- (and, if you use IE, IE9+ for svg support if using OneFileCMS 3.0+) 
+- And, for OneFileCMS 3+, a browser that supports inline SVG.
 
 ## Credit, License, Et Cetera
 
-Written in PHP, JavaScript, HTML and CSS.
+Original concept and development by github.com/rocktronica
+
+Written in PHP, JavaScript, HTML, CSS, and SVG.
 
 Available under the MIT and BSD licenses.
 
@@ -247,8 +259,9 @@ To report a bug or request a feature, please file an issue via Github. Forks enc
 
 ##Needed/potential/upcoming improvements
 
-- Be aware that, currently, only some very basic & rudimentary data & error checking is performed.
-- Partly as a consequence of the precedeing note, also be aware that there are issues with folder & file names containing special chars (&,%, etc...).  
+- Connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text during login.
+- Be aware that only some very basic & rudimentary data & error checking is performed.  
+  On Windows, for instance, it's possible to create folders that are subsequently inaccessible and undeletable by Windows.  (Yea, I found out the hard way...)
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
 - Check size of file to upload, verify under max post/upload limits.
 - Multiple login names?
@@ -263,13 +276,13 @@ Session start
 A few functions needed early  
 A few global values.  
 Misc functions  
-A few macros (common chunks of code)  
+A few macros (reusable chunks of code)  
 svg\_icons\_...() functions  
 Login\_Page() function  
 list\_files() function  
 Index\_Page() function  
-&lt;page...&gt;_Page() functions  
-&lt;page...&gt;_response() functions  
+&lt;...page&gt;_Page() functions  
+&lt;...page&gt;_response() functions  
 &nbsp; &nbsp; Edit\_Page()...   
 &nbsp; &nbsp; Upload\_  
 &nbsp; &nbsp; New\_File\_  

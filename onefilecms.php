@@ -1,7 +1,7 @@
 <?php
-// OneFileCMS - http://onefilecms.com/
+// OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.1.4'; // 20-06-03 19:30
+$version = '3.1.5'; //
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -30,7 +30,8 @@ SOFTWARE.
 
 
 
-if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate (v5.4 recommended). Please contact your host to upgrade your PHP installation."); };
+if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate - and version 5.4 is recommended."); }
+
 
 
 // CONFIGURABLE INFO ***********************************************************
@@ -41,9 +42,9 @@ $config_title     = "OneFileCMS";
 $MAX_IMG_W   = 810;   // Max width to display images. (page container = 810)
 $MAX_IMG_H   = 1000;  // Max height.  I don't know, it just looks reasonable.
 
-
-
-
+$MAX_EDIT_SIZE = 150000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
+$MAX_VIEW_SIZE = 1000000; //If file > $MAX_EDIT_SIZE, don't even view in OneFileCMS.
+                          // The max view size is completely arbitray. It was 2am and seemed like a good idea at the time.
 $config_favicon   = "/favicon.ico";
 $config_excluded  = ""; //files to exclude from directory listings- CaSe sensaTive!
 
@@ -54,7 +55,6 @@ $config_fclass = "bin,img,img,img,img,img,svg,txt,txt,css,php,txt,cfg,cfg ,txt,t
 
 $EX = '<b>( ! )</b>'; //"EXclaimation point" icon Used in $message's
 // END CONFIGURABLE INFO *******************************************************
-
 
 
 
@@ -79,9 +79,7 @@ $VALID_POST = ($_SESSION['valid'] == "1" && $_POST["sessionid"] == session_id())
 
 
 chdir($_SERVER["DOCUMENT_ROOT"]); //Allow OneFileCMS.php to be started from any dir on the site.
-//
 //End session startup***********************************************************
-
 
 
 
@@ -138,7 +136,6 @@ function Check_path($path) { // returns first valid path in some/supplied/path/
 
 
 
-
 //******************************************************************************
 //Some global values & $_GET parameters
 //
@@ -177,7 +174,6 @@ $param1 = '?i='.URLencode_path($ipath);
 
 
 
-
 //*** Verify valid $page *******************************************************
 
 if ($page != "") {
@@ -200,7 +196,6 @@ if ( ($page == "deletefolder") && !is_empty($ipath) ) {
 
 if ( $page == "edit" && !is_file($filename) ) { $page = "index"; }
 //******************************************************************************
-
 
 
 
@@ -378,7 +373,6 @@ function show_favicon(){
 
 
 
-
 //A few macros ($varibale="some reusable chunk of code")************************
 $INPUT_SESSIONID = '<input type="hidden" name="sessionid" value="'.$SID.'">'.PHP_EOL;
 $FORM_COMMON = '<form method="post" action="'.$ONESCRIPT.$param1.'">'.$INPUT_SESSIONID;
@@ -402,7 +396,6 @@ $SVG_icon_img_0 = '<rect x="0"    y="0"   width="14" height="16" fill="#FF8" str
 	<rect x="7.5"  y="6"   width="5"  height="5"  fill="#6F6" stroke-width="0" />
 	<rect x="2"    y="10"  width="5"  height="5"  fill="#66F" stroke-width="0" />';
 //******************************************************************************
-
 
 
 
@@ -554,7 +547,6 @@ function show_icon($type){ //***************************************************
 
 
 
-
 function Login_Page() { //******************************************************
 	global $ONESCRIPT, $message;
 ?>
@@ -573,7 +565,6 @@ function Login_Page() { //******************************************************
 	</form>
 	<script>document.getElementById('username').focus();</script>
 <?php } //end Login_Page() *****************************************************
-
 
 
 
@@ -620,7 +611,6 @@ function list_files() { // ...in a vertical table ******************************
 
 
 
-
 function Index_Page(){ //*******************************************************
 	global $ONESCRIPT, $ipath;
 
@@ -646,73 +636,118 @@ function Index_Page(){ //*******************************************************
 
 
 
+function Edit_Page_Buttons($text_editable, $too_large_to_edit) { //*************
+	global $ONESCRIPT, $param2;
+?>
+	<p class="buttons_right">
+	<?php if ($text_editable && !$too_large_to_edit) { //Show save & reset only if editable file ?> 
+		<input type="submit" class="button" value="Save"                  onclick="submitted = true;" id="save_file">
+		<input type="button" class="button" value="Reset - loose changes" onclick="Reset_File()"      id="reset">
+		<script>
+			//Set disabled here instead of via input attribute in case js is disabled.
+			//If js is disabled, user would be unable to save changes.
+			document.getElementById('save_file').disabled = "disabled";
+			document.getElementById('reset').disabled     = "disabled";
+		</script>
+	<?php } ?>
+	<input type="button" class="button" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.$param2.'&amp;p=rename'; ?>'">
+	<input type="button" class="button" value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.$param2.'&amp;p=copy'  ; ?>'">
+	<input type="button" class="button" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.$param2.'&amp;p=delete'; ?>'">
+	<?php Close_Button(""); ?>
+	</p>
+<?php
+}//end Edit_Page_Buttons()******************************************************
 
-function Edit_Page() { //*******************************************************
-	global $ONESCRIPT, $ipath, $param1, $filename, $filecontent, $etypes, $itypes, $ftypes, $INPUT_SESSIONID;
+
+
+
+//******************************************************************************
+function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $large_file_message1){ 
+	global $ONESCRIPT, $param1, $param2, $filename, $itypes, $INPUT_SESSIONID;
 
 	$param2 = $param1.'&amp;f='.rawurlencode(basename($filename));
 	$param3 = $param2.'&amp;p=edit';
-	
-	//Determine if text/editable file type
-	$ext = end( explode(".", strtolower($filename) ) );
-	$editable = FALSE;  if (in_array($ext, $etypes)) { $editable = TRUE; };
+	clearstatcache ();
 ?>
-	<h2 id="edit_header">Edit/View:
-	<a class="filename" href="/<?php echo URLencode_path($filename).'"  target="_blank">'.htmlentities(basename($filename)) ?></a>
-	</h2>
-
 	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$param3 ?>">
 		<?php echo $INPUT_SESSIONID; ?>
 		<p class="file_meta">
-		<span class="meta_size">Size<b>: </b> <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; &nbsp; 
-		<span class="meta_time">Updated<b>: </b><script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1);</script></span><br>
+		<span class="meta_size">Filesize: <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; 
+		<span class="meta_time">Updated: <script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1);</script></span><br>
 		</p>
 		<?php Close_Button("close"); ?>
 		<div style="clear:both;"></div>
-		
-<?php	if ( !in_array( strtolower($ext), $itypes) ) { //If non-image, show textarea
-
-			if (!$editable) { // If non-text file, disable textarea
-?>				<p class="edit_disabled">Non-text or unkown file type. Edit disabled.<br><br></p>
-<?php 		}else{
-				$filecontent = htmlspecialchars(file_get_contents($filename), ENT_SUBSTITUTE,'UTF-8');
-?>				<p>
-				<input type="hidden" name="filename" id="filename" value="<?php echo htmlspecialchars($filename); ?>">
-				<textarea id="file_content" name="content" cols="70" rows="25"
-				onkeyup="Check_for_changes(event);"><?php echo $filecontent; ?></textarea>
-				</p>
-			<?php } //end if editable ?>	
-		<?php  } //end if non-image, show textarea ?>
-
-		<div style="clear:both;"></div>
-		<p class="buttons_right">
-		<?php if ($editable) { //Show save & reset only if editable file ?> 
-			<input type="submit" class="button" value="Save"                  onclick="submitted = true;" id="save_file">
-			<input type="button" class="button" value="Reset - loose changes" onclick="Reset_File()"      id="reset">
-			<script>
-				//Set disabled here instead of via input attribute in case js is disabled.
-				//If js is disabled, user would be unable to save changes.
-				document.getElementById('save_file').disabled = "disabled";
-				document.getElementById('reset').disabled     = "disabled";
-			</script>
-		<?php } ?>
-		<input type="button" class="button" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.$param2.'&amp;p=rename'; ?>'">
-		<input type="button" class="button" value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.$param2.'&amp;p=copy'  ; ?>'">
-		<input type="button" class="button" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.$param2.'&amp;p=delete'; ?>'">
-		<?php Close_Button(""); ?>
-		</p>
-	</form>
-	<div style="clear:both;"></div>
 <?php
+		if ( !in_array( strtolower($ext), $itypes) ) { //If non-image, show textarea
+
+			if (!$text_editable) { // If non-text file, disable textarea
+				echo '<p class="edit_disabled">Non-text or unkown file type. Edit disabled.<br><br></p>';
+
+			}elseif ( $too_large_to_edit ) {
+ 				echo '<p class="edit_disabled">'.$large_file_message1.'</p>';
+
+			}else{
+				$filecontent = htmlspecialchars(file_get_contents($filename), ENT_SUBSTITUTE,'UTF-8');
+				echo '<input type="hidden" name="filename" id="filename" value="'.htmlspecialchars($filename).'">';
+				echo '<textarea id="file_content" name="content" cols="70" rows="25"
+					onkeyup="Check_for_changes(event);">'.$filecontent.'</textarea>';
+			} //end if !editable /else...
+		} //end if non-image, show textarea
+
+		Edit_Page_Buttons($text_editable, $too_large_to_edit);
+?>
+	</form> 
+<?php }//end Edit_Page_form() **************************************************
+
+
+
+
+function Edit_Page() { //*******************************************************
+	global $filename, $filecontent, $etypes, $itypes, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE;
+
+	//Determine if text editable file type
+	$ext = end( explode(".", strtolower($filename) ) );
+	if (in_array($ext, $etypes)) { $text_editable = TRUE;  }
+	else                         { $text_editable = FALSE; }
+	
+	$too_large_to_edit = (filesize($filename) > $MAX_EDIT_SIZE);
+	$too_large_to_view = (filesize($filename) > $MAX_VIEW_SIZE);
+	
+	if ($too_large_to_edit){$header2 = "Viewing: ";}
+	else                   {$header2 = "Editing: ";}
+
+	$large_file_message1 = 
+'<b>Edit disabled. Filesize &gt; '.number_format($MAX_EDIT_SIZE).' bytes.</b> ($MAX_EDIT_SIZE)<br>
+Some browsers (on my PC) bog down or become unstable while editing a large file in an HTML &lt;textarea&gt;.<br>
+$MAX_EDIT_SIZE is in the configuration section of OneFileCMS, and may be adjusted as needed.<br>
+A simple trial and error test can determine a practical limit for a given browser/computer.';
+	$large_file_message2 = 
+'<b>View disabled. Filesize &gt; '.number_format($MAX_VIEW_SIZE).' bytes.</b> ($MAX_VIEW_SIZE)<br>
+Click the the file name above to view normally in a browser window.<br>
+(The default value for $MAX_VIEW_SIZE is completely arbitrary, and may be adjusted as desired to suit individual perceptions of neccessity.)';
+
+	echo '<h2 id="edit_header">'.$header2;
+	echo '<a class="filename" href="/'.URLencode_path($filename).'" target="_blank">'.htmlentities(basename($filename)).'</a>';
+	echo '</h2>';
+
+	Edit_Page_form($ext, $text_editable, $too_large_to_edit, $large_file_message1);
+
 	if ( in_array( $ext, $itypes) ) { show_image(); }
 
-	if ($editable) {
+	echo '<div style="clear:both;"></div>';
+
+	if ( $text_editable && $too_large_to_edit && !$too_large_to_view ) {
+		$filecontent = htmlspecialchars(file_get_contents($filename), ENT_SUBSTITUTE,'UTF-8');
+		echo '<pre class="edit_disabled view_file">'.$filecontent.'</pre>';
+	}elseif ( $text_editable && $too_large_to_view ){
+		echo '<p class="edit_disabled">'.$large_file_message2.'</p>';
+	}
+	
+	if ($text_editable && !$too_large_to_edit) {
 		Edit_Page_scripts();
 		echo '<div id="edit_note">NOTE: On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser\'s [Reload].</div>';
-	} //end if editable
-
+	}
 }//End Edit_Page ***************************************************************
-
 
 
 
@@ -730,7 +765,6 @@ function Edit_Page_response(){ //***If on Edit page, and [Save] clicked ********
 		$message = $EX.' <b>There was an error saving file.</b>';
 	}
 }//end Edit_Page_response() ****************************************************
-
 
 
 
@@ -757,7 +791,6 @@ function Upload_Page() { //*****************************************************
 		<?php Cancel_Submit_Buttons("Upload","cancel"); ?>
 	</form>
 <?php } //end Upload_Page() ****************************************************
-
 
 
 
@@ -800,7 +833,6 @@ function Upload_File_response() { //********************************************
 
 
 
-
 function New_File_Page() { //***************************************************
 	global $FORM_COMMON;
 ?>
@@ -811,7 +843,6 @@ function New_File_Page() { //***************************************************
 	</form>
 <?php
 }//end New_File_Page()**********************************************************
-
 
 
 
@@ -846,7 +877,6 @@ function New_File_response() { //***********************************************
 
 
 
-
 function Copy_Ren_Move_Page($action, $title, $name_id, $isfile) { //******
 	//$action = 'Copy' or 'Rename'. $isfile = 1 if acting on a file, not a folder
 	global $WEB_ROOT, $ipath, $filename, $FORM_COMMON;
@@ -872,8 +902,6 @@ function Copy_Ren_Move_Page($action, $title, $name_id, $isfile) { //******
 		<?php Cancel_Submit_Buttons($action, $name_id); ?>
 	</form>
 <?php } //end Copy_Ren_Move_Page() *********************************************
-
-
 
 
 
@@ -913,7 +941,6 @@ function Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $msg2, $is
 
 
 
-
 function Delete_File_Page() { //************************************************
 	global $filename, $FORM_COMMON;
 ?>
@@ -925,7 +952,6 @@ function Delete_File_Page() { //************************************************
 		<?php Cancel_Submit_Buttons("DELETE", "cancel"); ?>
 	</form>
 <?php } //end Delete_File_Page() ***********************************************
-
 
 
 
@@ -947,7 +973,6 @@ function Delete_File_response(){ //*********************************************
 
 
 
-
 function New_Folder_Page() { //*************************************************
 	global $FORM_COMMON;
 ?>
@@ -957,7 +982,6 @@ function New_Folder_Page() { //*************************************************
 		<?php Cancel_Submit_Buttons("Create","new_folder"); ?>
 	</form>
 <?php } // end New_Folder_Page() ***********************************************
-
 
 
 
@@ -998,7 +1022,6 @@ function New_Folder_response(){ //**********************************************
 
 
 
-
 function Delete_Folder_Page(){ //***********************************************
 	global $WEB_ROOT, $ipath, $FORM_COMMON;
 ?>
@@ -1011,7 +1034,6 @@ function Delete_Folder_Page(){ //***********************************************
 		<?php Cancel_Submit_Buttons("DELETE", "cancel"); ?>
 	</form>
 <?php } //end Delete_Folder_Page() //*******************************************
-
 
 
 
@@ -1035,7 +1057,6 @@ function Delete_Folder_response() { //******************************************
 
 
 
-
 //Logout ***********************************************************************
 if ($page == "logout") {
 	$page = "login";
@@ -1043,7 +1064,6 @@ if ($page == "logout") {
 	session_destroy();
 	$message = 'You have successfully logged out.';
 }//*****************************************************************************
-
 
 
 
@@ -1059,7 +1079,6 @@ if ($VALID_POST) { //***********************************************************
 	if (isset($_POST["rename_folder"])) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_folder"], 'rename', 'Rename/Move', 'Renamed/Moved', 0); } 
 	if (isset($_POST["delete_folder"])) { Delete_Folder_response(); }
 }//end if ($VALID_POST) ********************************************************
-
 
 
 
@@ -1081,7 +1100,6 @@ else                             { $pagetitle = $_SERVER['SERVER_NAME']; }
 
 
 
-
 function Load_Selected_Page(){ //***********************************************
 	global $ONESCRIPT, $page;
 
@@ -1097,7 +1115,6 @@ function Load_Selected_Page(){ //***********************************************
 	elseif ($page == "deletefolder") { Delete_Folder_Page(); }
 	else                             { Index_Page();         } //default
 }//end Load_Selected_Page() ****************************************************
-
 
 
 
@@ -1143,7 +1160,6 @@ function FileTimeStamp(php_filemtime, show_offset){
 }//end FileTimeStamp(php_filemtime)
 </script>
 <?php }//end Time_Stamp_scripts() ******************************************
-
 
 
 
@@ -1253,7 +1269,6 @@ function Edit_Page_scripts() { //********************************************
 	</script>
 
 <?php }//End Edit_Page_scripts() ********************************************
-
 
 
 
@@ -1588,8 +1603,6 @@ hr {
 
 </style>
 <?php }//end style_sheet() *****************************************************
-
-
 
 
 
