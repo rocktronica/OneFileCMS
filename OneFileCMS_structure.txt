@@ -1,0 +1,77 @@
+CONFIGURATION SECTION
+
+SOME STANDARD GLOBAL VARIABLES
+
+MISC FUNCTIONS:
+	Session_Startup()
+	Get_GET()
+	URLencode_path()
+	Check_path()
+	is_empty()
+	ordinalize()
+	Current_Path_Header()
+	message_box()
+	Upload_New_Rename_Delete_Links()
+	Close_Button()
+	Cancel_Submit_Buttons()
+	show_image()
+	show_favicon()
+	Init_Macros()
+
+SVG ICON FUNCTIONS:
+	svg_icon_bin()
+	svg_icon_img()
+	svg_icon_svg()
+	svg_icon_txt_0()
+	svg_icon_txt()
+	svg_icon_htm()
+	svg_icon_php()
+	svg_icon_css()
+	svg_icon_cfg()
+	svg_icon_upload()
+	svg_icon_file_new()
+	svg_icon_file_del()
+	svg_icon_folder_0()
+	svg_icon_folder()
+	svg_icon_folder_new()
+	svg_icon_folder_ren()
+	svg_icon_folder_del()
+	show_icon()
+
+PAGE & RESPONSE FUNCTIONS:
+	Login_Page()
+	list_files()
+	Index_Page()
+	Edit_Page_Buttons()
+	Edit_Page_form()
+	Edit_Page()
+	Edit_Page_response()
+	Upload_Page()
+	Upload_File_response()
+	New_File_Page()
+	New_File_response() 
+	Copy_Ren_Move_Page()
+	Copy_Ren_Move_response()
+	Delete_File_Page()
+	Delete_File_response()
+	New_Folder_Page()
+	New_Folder_response()
+	Delete_Folder_Page()
+	Delete_Folder_response() 
+	Page_Title()
+	Load_Selected_Page()
+
+JAVASCRIPT & STYLESHEET FUNCTIONS:
+	Time_Stamp_scripts() //Javascript functions
+	Edit_Page_scripts()  //Javascript functions
+	style_sheet()        //css
+	
+LOGIC TO DETERMINE PAGE ACTION
+	Call Session_Startup()
+	Call Get_GET()
+	Call Init_Macros()
+	If VALID_POST 
+		Do $_POST['someaction'] (<someaction>_response)
+	Validate $page to show
+	
+GENERATE ACTUAL <HTML>...

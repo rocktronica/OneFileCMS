@@ -1,36 +1,10 @@
-### May 29, 2012
+### June 05, 2012
 
-# Current stable versions: 1.5, 2.0, & 3.1.5
+# Current stable versions: 1.5, "Lite" 2.1.7, 3.1.7
 
-- 3.1.1: "Full" version - uses svg icons
-- 2.0  : "Lite" version - uses no icons.
+- 3.0+ : "Full" version - uses svg icons
+- 2.0+ : "Lite" version - uses no icons.
 - 1.5  : style sheet is now part of onfilecms.php file, but still uses external icons.
-
---------------------------------------------------------------------------------
-
-### April 30, 2012
-
-## NOTICE - SECURITY HOLE! (Fixed in version 1.2.1)
-
-## Versions affected
-
-- 1.1.7 thru 1.2.0
-
-## Versions *Un* affected / fixed
-
-- Version 1.1.6
-- Versions 1.2.1 and newer
-
-## Brief description:
-
-- No login required if a file and path is known.
-  EX:  http:// yourdomain.com/onefilecms.php?f=some/path/to/file.txt
-
-- File edit, rename, move, and copy work in this way, without login.
-
-## Cause
-
-- Me. I just noticed the problem.  Some edit after 1.1.6 introduced the hole.
 
 --------------------------------------------------------------------------------
 
@@ -47,11 +21,11 @@ Edit screen:
 
 OneFileCMS is just that. It's a flat, light, one file CMS (Content Management System) entirely contained in an easy-to-implement, highly customizable, database-less PHP script.
 
-Coupling a utilitarian code editor with all the basic necessities of an FTP application, OneFileCMS can maintain a whole website completely in-browser without any external programs.
+Coupling a utilitarian code editor with basic file managing functions, OneFileCMS can maintain a whole website completely in-browser without any external programs.
 
 ## Demo
 
-- Just download & try the current version - it's one file!
+- Just download & try the current stable version - it's one file!
 
 ## Features
  
@@ -71,46 +45,107 @@ Coupling a utilitarian code editor with all the basic necessities of an FTP appl
     $config_username = "username";
     $config_password = "password";
 
-3) Upload!
+3) Upload to anywhere on your site!
 
 Depending on how your web stack is set up, you may also have to modify the file permissions of your site's folders to allow OneFileCMS to modify and create files. ([More about that here.](http://catcode.com/teachmod/)) Make sure onefilecms.php and its parent folder are allowed to execute, with CHMOD at 755. Check with your host if you're not sure, and be aware of any inherent security concerns.
 
-You can also change the name of OneFileCMS.php to something else. _(Be careful making it a folder's default file: your server may get stuck in redirects.)_
+You can also change the file name of OneFileCMS.php to something else, such as "Admin.php" . _(Be careful making it a folder's default file: your server may get stuck in redirects.)_
 
 ## FAQ
 
 ### Where's the WYSIWYG? What about syntax highlighting?
 
-WYSWIWYG editors have been requested, but probably won’t become standard, as they’d bloat the system out and/or make it more than one file, sort of defeating the point of OneFileCMS. Plus, if you’re working in PHP or non-HTML code, they're generally more of a hindrance than anything else.
+WYSWIWYG editors have been requested, but probably won’t become standard, as they’d probably make it more than one file, sort of defeating the point of OneFileCMS. Plus, if you’re working in PHP or non-HTML code, they're can be more of a hindrance than an asset.
 
-Just because I don't want to do it, though, doesn't mean it's impossible.  Look for the Edit_Page() function. Its textarea can be modified to work with whatever editor you like. 
+However, just because I don't want to do it, doesn't mean it's impossible.  Look for the Edit_Page_form() function. Its textarea can be modified to work with whatever editor you like. 
 
 ### I found something that could be better. Can I suggest it to you?
 
-Yes, of course, you can!
+Yes, of course!
 
-I may not have the time/bandwidthinclination to implement every feature, but I'll do what I can. If it's urgent, contact me.
+I may not have the time/bandwidth/inclination to implement every feature, but I'll do what I can. If it's urgent, contact me.  
 
 Otherwise, try [forking the file and submitting your changes to me](https://github.com/blog/844-forking-with-the-edit-button).
 
-Everything's welcome!
-
-### This is basically just a file manager with a text editor. Why is it being a Content Management System?
+### This is basically just a file manager with a text editor. Why is it being called a Content Management System?
 
 Well, because "OneFileFileManagerTextEditor" just doesn't have the same ring to it...
 
 ### Multi-Language Support?
 
-Probably not.
+Probably not, as that would also most likely make it more than "OneFile".
 
 ### Can I have more than one username/password?
 
-The reason there isn't default support for multiple users is that all of their info will have to be stored together, more or less in plain text, at the top of onefilecms.php. Giving people different usernames and passwords then is sort of futile, since everyone who can log in can view onefilecms's source and config variables. (This answer kind of ignores MD5 hashes but is valid for most considerations.) 
+The reason there isn't default support for multiple users is that all of their info will have to be stored together, more or less in plain text, at the top of onefilecms.php. Giving people different usernames and passwords then is sort of futile, since everyone who can log in can view onefilecms's source and config variables.   
+
+However, "it's on my to-do list!"...
+
+## Requirements
+
+- PHP 5.4  
+  (Older 5.x versions may work, but there will be issues editing files with back slashes, among other things.  See php docs on magic_quotes_gpc & stripslashes().)
+- File permission privileges on your host
+- Javascript enabled browswer
+- And, for OneFileCMS 3+, a browser that supports inline SVG.
+
+## Credit, License, Et Cetera
+
+Original concept and development by github.com/rocktronica
+
+Written in PHP, JavaScript, HTML, CSS, and SVG.
+
+Available under the MIT and BSD licenses.
+
+Icons for versions thru 1.1.6 by [famfamfam](http://www.famfamfam.com/).
+
+To report a bug or request a feature, please file an issue via Github. Forks encouraged!
+
+##Needed/potential/upcoming improvements
+
+- Connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text during login.
+- Be aware that only some very basic & rudimentary data & error checking is performed.  
+  On Windows, for instance, it's possible to create folders that are subsequently inaccessible and undeletable by Windows.  (Yea, I found out the hard way...)
+- With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
+- Multiple login names.
+- Anything else?
+
+--------------------------------------------------------------------------------
+
+### General layout/structure of OneFileCMS.php
+  
+CONFIGURATION SECTION  
+  
+SOME STANDARD GLOBAL VARIABLES  
+  
+SESSION & MISC FUNCTIONS  
+  
+SVG ICON FUNCTIONS  
+  
+PAGE & RESPONSE FUNCTIONS  
+    Index, Upload, New, Copy, Rename, etc...  
+  
+JAVASCRIPT & STYLESHEET FUNCTIONS  
+  
+LOGIC TO DETERMINE PAGE ACTION  
+    Call Session\_Startup()  
+    Call Get\_GET()  
+    Call Init\_Macros()  
+    If $VALID\_POST, do $\_POST['someaction']  
+    Validate which $page to show  
+  
+GENERATE THE PAGE  
+    &lt;HTML&gt;  
+  
+    ...  
+    Load_Selected_Page($page)  
+    ...  
+  
+    &lt;/HTML&gt;  
+
+--------------------------------------------------------------------------------
 
 ## Change Log
-
-
-
 
 ### 3.1.2 thru 3.1.5
 
@@ -236,73 +271,3 @@ The reason there isn't default support for multiple users is that all of their i
 ### 1.0 (9/5/09)
 
 - Launch!
-
-## Requirements
-
-- PHP 5.4  
-  (Older 5.x versions may work, but there will be issues editing files with back slashes, among other things.  See php docs on magic_quotes_gpc & stripslashes().)
-- File permission privileges on your host
-- Javascript enabled browswer
-- And, for OneFileCMS 3+, a browser that supports inline SVG.
-
-## Credit, License, Et Cetera
-
-Original concept and development by github.com/rocktronica
-
-Written in PHP, JavaScript, HTML, CSS, and SVG.
-
-Available under the MIT and BSD licenses.
-
-Icons for versions thru 1.1.6 by [famfamfam](http://www.famfamfam.com/).
-
-To report a bug or request a feature, please file an issue via Github. Forks encouraged!
-
-##Needed/potential/upcoming improvements
-
-- Connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text during login.
-- Be aware that only some very basic & rudimentary data & error checking is performed.  
-  On Windows, for instance, it's possible to create folders that are subsequently inaccessible and undeletable by Windows.  (Yea, I found out the hard way...)
-- With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
-- Check size of file to upload, verify under max post/upload limits.
-- Multiple login names?
-
-
---------------------------------------------------------------------------------
-
-### General layout/structure of OneFileCMS.php
-  
-Configurable Info  
-Session start  
-A few functions needed early  
-A few global values.  
-Misc functions  
-A few macros (reusable chunks of code)  
-svg\_icons\_...() functions  
-Login\_Page() function  
-list\_files() function  
-Index\_Page() function  
-&lt;...page&gt;_Page() functions  
-&lt;...page&gt;_response() functions  
-&nbsp; &nbsp; Edit\_Page()...   
-&nbsp; &nbsp; Upload\_  
-&nbsp; &nbsp; New\_File\_  
-&nbsp; &nbsp; Copy_Ren_Move\_  
-&nbsp; &nbsp; Delete\_File\_  
-&nbsp; &nbsp; New\_Folder\_   
-&nbsp; &nbsp; Delete\_Folder\_  
-Invalid Login response  
-Logout response  
-If ($VALID\_POST), do \_response  
-Set page title  
-Verify valid $page  
-Load\_Selected\_Page() function  
-Time\_Stamp\_scripts() function  
-Edit\_Page\_script() function  
-style\_sheet() function  
-&lt;html&gt;  
-.  
-.. (head, body, etc...)  
-...  
-Load\_Selected\_Page()  
-...  
-&lt;/html&gt;  
