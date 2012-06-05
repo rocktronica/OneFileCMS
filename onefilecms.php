@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.1.5'; //
+$version = '3.1.6'; //2012-06-04
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -155,20 +155,22 @@ $excluded_list = (explode(",", $config_excluded));
 
 $valid_pages = array("login","logout","index","edit","upload","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder" );
 
+$INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file/folder names. (Space deliminated)
+$INVALID_CHARS_array = explode(' ', $INVALID_CHARS);
 
-//*** Get main parameters: i="some/path/", f="somefile.xyz", p="somepage"
-if (isset($_GET["i"])) { $ipath = Check_path($_GET["i"]); }else{ $ipath = ""; }
+//*** Get main parameters: i=some/path/,  f=somefile.xyz,  p=somepage
+	if (isset($_GET["i"])) { $ipath = Check_path($_GET["i"]); }else{ $ipath = ""; }
 
-if (isset($_GET["f"])) {
-	$filename = $ipath.$_GET["f"];
-	if ( !is_file($filename) ) {
-		$message .= $EX.' <b>File does not exist: '.$filename.'</b><br>'; $filename = "";
-	}
-}else{ $filename = ""; }
+	if (isset($_GET["f"])) {
+		$filename = $ipath.$_GET["f"];
+		if ( !is_file($filename) && $_SESSION['valid'] )//Don't set $message for login page.
+			{ $message .= $EX.' <b>File does not exist:</b> '.htmlentities($filename).'<br>'; }
+		if ( !is_file($filename) ) { $filename = ""; $page = "index"; }
+	}else{ $filename = ""; }
 
-if (isset($_GET["p"])) { $page = $_GET["p"]; } // default $page set above
+	if (isset($_GET["p"])) { $page = $_GET["p"]; } // default $page set in session startup
 
-$param1 = '?i='.URLencode_path($ipath);
+	$param1 = '?i='.URLencode_path($ipath);
 //******************************************************************************
 
 
@@ -270,7 +272,7 @@ function message_box() { //*********************************
 	if (isset($message)) {
 ?>
 		<div id="message"><p>
-		<span><!-- [X] to dismiss message box -->	
+		<span id="Xbox"><!-- [X] to dismiss message box -->	
 			<a id="dismiss" href='<?php echo $ONESCRIPT.$param1; ?>'
  			onclick='document.getElementById("message").innerHTML = " ";return false;'>
 			[X]</a>
@@ -564,7 +566,8 @@ function Login_Page() { //******************************************************
 		<input type="submit" class="button" value="Enter">
 	</form>
 	<script>document.getElementById('username').focus();</script>
-<?php } //end Login_Page() *****************************************************
+<?php
+} //end Login_Page() ***********************************************************
 
 
 
@@ -697,7 +700,8 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $large_file_me
 		Edit_Page_Buttons($text_editable, $too_large_to_edit);
 ?>
 	</form> 
-<?php }//end Edit_Page_form() **************************************************
+<?php 
+}//end Edit_Page_form() ********************************************************
 
 
 
@@ -790,7 +794,8 @@ function Upload_Page() { //*****************************************************
 		<input name="upload_file" type="file" size="100">
 		<?php Cancel_Submit_Buttons("Upload","cancel"); ?>
 	</form>
-<?php } //end Upload_Page() ****************************************************
+<?php 
+} //end Upload_Page() **********************************************************
 
 
 
@@ -834,43 +839,49 @@ function Upload_File_response() { //********************************************
 
 
 function New_File_Page() { //***************************************************
-	global $FORM_COMMON;
+	global $FORM_COMMON, $INVALID_CHARS;
 ?>
 	<h2>New File</h2>
 	<?php echo $FORM_COMMON ?>
+		<p>File will be created in the current folder. &nbsp;
+		Some invalid characters are: <span class="mono"><?php echo htmlentities($INVALID_CHARS) ?></span></p>
 		<input type="text" name="new_file" id="new_file" value="">
 		<?php Cancel_Submit_Buttons("Create","new_file"); ?>
 	</form>
-<?php
+<?php 
 }//end New_File_Page()**********************************************************
 
 
 
 
 function New_File_response() { //***********************************************
-	global $ipath, $filename, $page, $message, $EX;
-	$new_name = $_POST["new_file"];
-	$FS = strpos($new_name, '/');
-	$filename = $ipath.trim($new_name,'/ '); //trim spaces & slashes
-	$savefile = $filename;
+	global $ipath, $filename, $page, $message, $EX, $INVALID_CHARS, $INVALID_CHARS_array;
+
+	$new_name = trim($_POST["new_file"],'/ '); //Trim spaces and slashes.
+	$filename = $ipath.$new_name;
 	$page = "index"; // return to index if new file fails
 	
-	if ( $FS !== false){
-		$message .= '<b>('.$FS.') File not created.</b> Filename contains invalid character(s) (forward slash): <br>';
-		$message .= '<b>'.htmlentities($new_name).'</b>';
-	}elseif (($_POST["new_file"] == "")){ 
-		$message = $EX.' <b>New file not created - no filename given.</b>';
-	}elseif (file_exists($savefile)) {
-		$message = $EX.' <b>"'.htmlentities(basename($filename)).'"</b> not created. A file with that name already exists.';
-	}elseif ($handle = fopen($savefile, 'w')) {
+	foreach ($INVALID_CHARS_array as $bad_char) {
+		if (strpos($new_name, $bad_char) !== false) { $invalid = true; }
+	}
+
+	if ($invalid){
+		$message .= $EX.' <b>New file not created:</b> '.htmlentities($new_name).'<br>'.
+			'<b> &nbsp; &nbsp; &nbsp; Name contains invalid character(s): '.
+			'<span class="mono">'.htmlentities($INVALID_CHARS).'</span></b>';
+	}elseif ($new_name == ""){ 
+		$message .= $EX.' <b>New file not created -</b> no name given';
+	}elseif (file_exists($filename)) {
+		$message .= $EX.' <b>File already exists: ';
+		$message .= htmlentities($new_name).'</b>';
+	}elseif ($handle = fopen($filename, 'w')) {
 		fclose($handle);
-		$message = 'Created file: <b>'.htmlentities(basename($filename)).'</b>';
-		$ipath    = Check_path(dirname($filename)); //if changed, return to new dir.
+		$message .= '<b>Created file:</b> '.htmlentities($new_name);
+		$page     = "edit";
 		$param1   = '?i='.URLencode_path($ipath);
-		$page = "edit";
-	}else {
-		$message .= $EX.' <b>ERROR - can\'t open or create file:<br>';
-		$message .= htmlentities($filename);
+	}else{
+		$message .= $EX.' <b>Error - new file not created:<br>';
+		$message .= htmlentities($new_name);
 	}
 }//end New_File_response() *****************************************************
 
@@ -901,7 +912,8 @@ function Copy_Ren_Move_Page($action, $title, $name_id, $isfile) { //******
 		</p>
 		<?php Cancel_Submit_Buttons($action, $name_id); ?>
 	</form>
-<?php } //end Copy_Ren_Move_Page() *********************************************
+<?php 
+} //end Copy_Ren_Move_Page() ***************************************************
 
 
 
@@ -919,13 +931,16 @@ function Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $msg2, $is
 	
 	if ( !is_dir($new_location) ){
 		$message .= $EX.' <b>'.$msg1.' Error - new parent location does not exist:</b><br>';
-		$message .= $WEB_ROOT.$new_location.'/<br>';
+		$message .= htmlentities($WEB_ROOT.$new_location).'/<br>';
+	}elseif ( !file_exists($filename) ){
+		$message .= $EX.' <b>'.$msg1.' Error - Source file does not exist:</b><br>';
+		$message .= htmlentities($filename);
 	}elseif (file_exists($new_name)) {
 		$message .= $EX.' <b>'.$msg1.' Error - target filename already exists:<br>';
-		$message .= ''.htmlentities($WEB_ROOT.$new_name).'</b>';
+		$message .= htmlentities($WEB_ROOT.$new_name).'</b>';
 	}elseif ($action($old_name, $new_name)) {
 		$message .= '<b>'.htmlentities($WEB_ROOT.$old_name).'</b><br>';
-		$message .= ' --- Successfully '.$msg2.' to ---<br>';
+		$message .= ' --- '.$msg2.' to ---<br>';
 		$message .= '<b>'.htmlentities($WEB_ROOT.$new_name).'</b>';
 		$filename = $new_name; //so edit page knows what to edit
 		if ($isfile) { $ipath = Check_path(dirname($filename)); } //if changed,
@@ -951,7 +966,8 @@ function Delete_File_Page() { //************************************************
 		<p class="sure"><b>Are you sure?</b></p>
 		<?php Cancel_Submit_Buttons("DELETE", "cancel"); ?>
 	</form>
-<?php } //end Delete_File_Page() ***********************************************
+<?php 
+} //end Delete_File_Page() *****************************************************
 
 
 
@@ -963,7 +979,7 @@ function Delete_File_response(){ //*********************************************
 	$filename = htmlspecialchars_decode($_POST["delete_file"]);
 
 	if (unlink($filename)) {
-		$message .= 'Deleted file: <b>'.htmlentities(basename($filename)).'</b>';
+		$message .= '<b>Deleted file:</b> '.htmlentities(basename($filename));
 	}else{
 		$message .= $EX.' <b>Error deleting "'.htmlentities($filename).'"</b>.';
 		$page = "edit";
@@ -974,48 +990,50 @@ function Delete_File_response(){ //*********************************************
 
 
 function New_Folder_Page() { //*************************************************
-	global $FORM_COMMON;
+	global $FORM_COMMON, $INVALID_CHARS;
 ?>
 	<h2>New Folder</h2>
 	<?php echo $FORM_COMMON ?>
+		<p>Folder will be created in the current folder. &nbsp;
+		Some invalid characters are: <span class="mono"><?php echo htmlentities($INVALID_CHARS) ?></span></p>
 		<input type="text" name="new_folder" id="new_folder" value="">
 		<?php Cancel_Submit_Buttons("Create","new_folder"); ?>
 	</form>
-<?php } // end New_Folder_Page() ***********************************************
+<?php 
+} //end New_Folder_Page() ******************************************************
 
 
 
 
 function New_Folder_response(){ //**********************************************
-	global $message, $EX, $ipath, $param1, $page;
+	global $ipath, $param1, $page, $message, $EX, $INVALID_CHARS, $INVALID_CHARS_array;
 
-	$page = "index"; //Return to index
-	$new_name = trim($_POST["new_folder"],'/ ');
-	$invalid_characters = '< > ? * : " | / \\';
-	$invalid_char_array = explode(' ', $invalid_characters);
-	foreach ($invalid_char_array as $bad_char) {
+	$new_name = trim($_POST["new_folder"],'/ '); //Trim spaces, and make sure only has a single trailing slash.
+
+	foreach ($INVALID_CHARS_array as $bad_char) {
 		if (strpos($new_name, $bad_char) !== false) { $invalid = true; }
 	}
+	$page = "index"; //Return to index
 
-	 //Trim spaces, and make sure only has a single trailing slash.
-	$new_folder = $ipath.trim($_POST["new_folder"],"/ ").'/';
+	$new_ipath = $ipath.$new_name.'/';
 
 	if ($invalid){
-		$message .= $EX.' <b>Error-</b> new name may not contain invalid character(s): <b>'.htmlentities($invalid_characters).'</b><br>';
-		$message .= '<b>'.htmlentities($new_name).'<b>';
-	}elseif ($_POST["new_folder"] == ""){ 
-		$message .= $EX.' <b>New folder not created - no name given... </b>';
-	}elseif (is_dir($new_folder)) {
+		$message .= $EX.' <b>New folder not created:</b> '.htmlentities($new_name).'<br>'.
+			'<b> &nbsp; &nbsp; &nbsp; Name contains invalid character(s): '.
+			'<span class="mono">'.htmlentities($INVALID_CHARS).'</span></b>';
+	}elseif ($new_name == ""){ 
+		$message .= $EX.' <b>New folder not created - no name given.</b>';
+	}elseif (is_dir($new_ipath)) {
 		$message .= $EX.' <b>Folder already exists: ';
-		$message .= htmlentities($new_folder).'</b>';
-	}elseif (mkdir($new_folder)) {
-		$message .= 'Created folder: <b>'.htmlentities(basename($new_folder)).'</b>';
-		$ipath  = $new_folder;  //return to new folder
-		$param1 = '?i='.URLencode_path($ipath);
+		$message .= htmlentities($new_ipath).'</b>';
+	}elseif (mkdir($new_ipath)) {
+
+		$message .= '<b>Created folder:</b> '.htmlentities($new_name);
+		$ipath    = $new_ipath;  //return to new folder
+		$param1   = '?i='.URLencode_path($ipath);
 	}else{
-		$message .= $EX.' <b>Error- new folder not created: </b><br>';
-		$message .= htmlentities($WEB_ROOT.dirname($new_folder)).'/<b>'.htmlentities(basename($new_folder)).'/</b><br>';
-		if ( !is_dir(dirname($new_folder)) ) { $message .= '&nbsp; <b>Parent folder must already exist.</b>';}
+		$message .= $EX.' <b>Error - new folder not created: </b><br>';
+		$message .= htmlentities($new_name);
 	}
 }//end New_Folder_response *****************************************************
 
@@ -1028,12 +1046,13 @@ function Delete_Folder_Page(){ //***********************************************
 	<h2>Delete Folder</h2>
 	<?php echo $FORM_COMMON ?>
 		<input type="hidden" name="delete_folder" value="<?php echo htmlspecialchars($ipath); ?>" >
-		<span class="web_root"><?php echo htmlentities($WEB_ROOT.Check_path(dirname($ipath))); ?></span>
-		<span class="verify"><?php echo htmlentities(basename($ipath)); ?></span> /
+		<span class="web_root"><?php echo htmlentities($WEB_ROOT.Check_path(dirname($ipath))); ?></span><span 
+		class="verify"><?php echo htmlentities(basename($ipath)); ?></span> /
 		<p class="sure"><b>Are you sure?</b></p>
 		<?php Cancel_Submit_Buttons("DELETE", "cancel"); ?>
 	</form>
-<?php } //end Delete_Folder_Page() //*******************************************
+<?php 
+} //end Delete_Folder_Page() //*************************************************
 
 
 
@@ -1045,8 +1064,9 @@ function Delete_Folder_response() { //******************************************
 
 	if ( !is_empty($ipath) ) {
 		$message .= $EX.' <b>Folder not empty. &nbsp; Folders must be empty before they can be deleted.</b>';
+		$page = "index";
 	}elseif (@rmdir($foldername)) {
-		$message .= 'Deleted folder: <b>'.htmlentities(basename($foldername)).'</b>';
+		$message .= '<b>Deleted folder:</b> '.htmlentities(basename($foldername));
 		$ipath  = Check_path($foldername); //Return to parent dir.
 		$param1 = '?i='.URLencode_path($ipath);
 	}else {
@@ -1365,9 +1385,9 @@ pre { /*Used when trouble shooting around test output*/
 	background: #fff000;
 	}
 
-#message span { float: right; }
+#message #Xbox { float: right; }
 
-#message #dismiss { padding: 5px 4px 5px 4px; border-right: none; } /*TRBL */ /*font-family: Courier; font-size: 1.2em;*/
+#message #dismiss { padding: 5px 4px 5px 4px; border-right: none; } /*TRBL*/ /*font-family: Courier; font-size: 1.2em;*/
 
 
 /* --- INDEX directory listing, table format --- */
@@ -1601,6 +1621,7 @@ hr {
 
 .icon {float: left; margin: 0 .3em 0 0;}
 
+.mono {font-family: courier;}
 </style>
 <?php }//end style_sheet() *****************************************************
 
@@ -1623,7 +1644,6 @@ hr {
 <?php if ( ($page == "index") || ($page == "edit") ) { Time_Stamp_scripts(); } ?>
 
 </head>
-
 <body>
 
 <?php
