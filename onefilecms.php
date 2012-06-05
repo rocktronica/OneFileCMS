@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.1.6'; //2012-06-04
+$version = '3.1.7';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -46,7 +46,7 @@ $MAX_EDIT_SIZE = 150000;  // Edit gets flaky with large files in some browsers. 
 $MAX_VIEW_SIZE = 1000000; //If file > $MAX_EDIT_SIZE, don't even view in OneFileCMS.
                           // The max view size is completely arbitray. It was 2am and seemed like a good idea at the time.
 $config_favicon   = "/favicon.ico";
-$config_excluded  = ""; //files to exclude from directory listings- CaSe sensaTive!
+$config_excluded  = ""; //files to exclude from directory listings- CaSe sEnsaTive!
 
 $config_etypes = "html,htm,xhtml,php,css,js,txt,text,cfg,conf,ini,csv,svg"; //Editable file types.
 $config_itypes = "jpg,gif,png,bmp,ico"; //image types to display on edit page.
@@ -60,34 +60,80 @@ $EX = '<b>( ! )</b>'; //"EXclaimation point" icon Used in $message's
 
 
 //******************************************************************************
-session_start();  $SID = session_id();
+//Some global values
 
-if ( isset($_POST["username"]) || isset($_POST["password"]) ) {
-	$_SESSION['username'] = $_POST["username"];
-	$_SESSION['password'] = $_POST["password"];
+$ONESCRIPT = URLencode_path($_SERVER["SCRIPT_NAME"]);
+$DOC_ROOT  = $_SERVER["DOCUMENT_ROOT"].'/';
+$WEB_ROOT  = URLencode_path(basename($DOC_ROOT)).'/';
+$WEBSITE   = $_SERVER["HTTP_HOST"].'/';
 
-	if (($_POST["username"] != $config_username) || ($_POST["password"] != $config_password))
-		{ $message = $EX.' <b>INVALID LOGIN ATTEMPT</b>'; }
-}
-
-if (($_SESSION['username'] == $config_username) and ( $_SESSION['password'] == $config_password ))
-     { $_SESSION['valid'] = "1"; $page = "index"; }
-else { $_SESSION['valid'] = "0"; $page = "login"; unset($_GET["p"]); session_destroy() ;}
-
-
-$VALID_POST = ($_SESSION['valid'] == "1" && $_POST["sessionid"] == session_id());
+//Make arrays out of a few $config_variables for actual use later.
+//Also, remove spaces and make lowercase.
+$etypes   = explode(',', strtolower(str_replace(' ', '', $config_etypes))); //editable file types
+$itypes   = explode(',', strtolower(str_replace(' ', '', $config_itypes))); //images types to display
+$ftypes   = explode(',', strtolower(str_replace(' ', '', $config_ftypes))); //file types with icons
+$fclasses = explode(',', strtolower(str_replace(' ', '', $config_fclass))); //for file types with icons
+$excluded_list = (explode(",", $config_excluded));
 
 
-chdir($_SERVER["DOCUMENT_ROOT"]); //Allow OneFileCMS.php to be started from any dir on the site.
-//End session startup***********************************************************
+$valid_pages = array("login","logout","index","edit","upload","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder" );
 
-
-
-
+$INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file/folder names. (Space deliminated)
+$INVALID_CHARS_array = explode(' ', $INVALID_CHARS);
 //******************************************************************************
-// A couple functions needed early
 
-function URLencode_path($path){ // don't encode the forward slashes
+
+
+
+function Session_Startup() {//**************************************************
+	global $config_username, $config_password, $message , $page, $VALID_POST;
+
+	session_start();
+
+	if ( isset($_POST["username"]) || isset($_POST["password"]) ) {
+		$_SESSION['username'] = $_POST["username"];
+		$_SESSION['password'] = $_POST["password"];
+
+		if (($_POST["username"] != $config_username) || ($_POST["password"] != $config_password))
+			{ $message = $EX.' <b>INVALID LOGIN ATTEMPT</b>'; }
+	}
+
+	if (($_SESSION['username'] == $config_username) and ( $_SESSION['password'] == $config_password ))
+		 { $_SESSION['valid'] = "1"; $page = "index"; }
+	else { $_SESSION['valid'] = "0"; $page = "login"; unset($_GET["p"]); session_destroy() ;}
+
+
+	$VALID_POST = ($_SESSION['valid'] == "1" && $_POST["sessionid"] == session_id());
+
+
+	chdir($_SERVER["DOCUMENT_ROOT"]); //Allow OneFileCMS.php to be started from any dir on the site.
+}//End Session_Startup() *******************************************************
+
+
+
+
+function Get_GET() { //*** Get main parameters *********************************
+	// i=some/path/,  f=somefile.xyz,  p=somepage
+	global $ipath, $filename, $page, $param1, $message, $EX;
+
+	if (isset($_GET["i"])) { $ipath = Check_path($_GET["i"]); }else{ $ipath = ""; }
+
+	if (isset($_GET["f"])) {
+		$filename = $ipath.$_GET["f"];
+		if ( !is_file($filename) && $_SESSION['valid'] )//Don't set $message for login page.
+			{ $message .= $EX.' <b>File does not exist:</b> '.htmlentities($filename).'<br>'; }
+		if ( !is_file($filename) ) { $filename = ""; $page = "index"; }
+	}else{ $filename = ""; }
+
+	if (isset($_GET["p"])) { $page = $_GET["p"]; } // default $page set in session startup
+
+	$param1 = '?i='.URLencode_path($ipath);
+}//end Get_GET()****************************************************************
+
+
+
+
+function URLencode_path($path){ // don't encode the forward slashes ************
 	$TS = '';
 	if (substr($path, -1) == '/' ) { $TS = '/'; } //start with a trailing slash?
 	$path_array = explode('/',$path);
@@ -95,11 +141,11 @@ function URLencode_path($path){ // don't encode the forward slashes
 	foreach ($path_array as $level) { $path .= rawurlencode($level).'/'; }
 	$path = rtrim($path,'/').$TS;  //end with trailing slash only if started with one
 	return $path;
-}//end URLencode_path($path)
+}//end URLencode_path($path) ***************************************************
 
 
 
-//*** Clean up & check a path **********
+
 function Check_path($path) { // returns first valid path in some/supplied/path/
 	global $message, $EX;
 	$invalidpath = $path; //used for message if supplied $path doesn't exist.
@@ -130,94 +176,25 @@ function Check_path($path) { // returns first valid path in some/supplied/path/
 	}
 
 	return $path; 
-}//end Check_path() ********************
-//end a couple functions needed early ******************************************
+}//end Check_path() ************************************************************
 
 
 
 
-//******************************************************************************
-//Some global values & $_GET parameters
-//
-$ONESCRIPT = URLencode_path($_SERVER["SCRIPT_NAME"]);
-$DOC_ROOT  = $_SERVER["DOCUMENT_ROOT"].'/';
-$WEB_ROOT  = URLencode_path(basename($DOC_ROOT)).'/';
-$WEBSITE   = $_SERVER["HTTP_HOST"].'/';
-
-//Make arrays out of a few $config_variables for actual use later.
-//Also, remove spaces and make lowercase.
-$etypes   = explode(',', strtolower(str_replace(' ', '', $config_etypes))); //editable file types
-$itypes   = explode(',', strtolower(str_replace(' ', '', $config_itypes))); //images types to display
-$ftypes   = explode(',', strtolower(str_replace(' ', '', $config_ftypes))); //file types with icons
-$fclasses = explode(',', strtolower(str_replace(' ', '', $config_fclass))); //for file types with icons
-$excluded_list = (explode(",", $config_excluded));
-
-
-$valid_pages = array("login","logout","index","edit","upload","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder" );
-
-$INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file/folder names. (Space deliminated)
-$INVALID_CHARS_array = explode(' ', $INVALID_CHARS);
-
-//*** Get main parameters: i=some/path/,  f=somefile.xyz,  p=somepage
-	if (isset($_GET["i"])) { $ipath = Check_path($_GET["i"]); }else{ $ipath = ""; }
-
-	if (isset($_GET["f"])) {
-		$filename = $ipath.$_GET["f"];
-		if ( !is_file($filename) && $_SESSION['valid'] )//Don't set $message for login page.
-			{ $message .= $EX.' <b>File does not exist:</b> '.htmlentities($filename).'<br>'; }
-		if ( !is_file($filename) ) { $filename = ""; $page = "index"; }
-	}else{ $filename = ""; }
-
-	if (isset($_GET["p"])) { $page = $_GET["p"]; } // default $page set in session startup
-
-	$param1 = '?i='.URLencode_path($ipath);
-//******************************************************************************
-
-
-
-
-//*** Verify valid $page *******************************************************
-
-if ($page != "") {
-	if (!in_array(strtolower($page), $valid_pages)) {
-		header("Location: ".$ONESCRIPT); // redirect on invalid page attempts
-		$page = "index";
-	}
-}
-
-
-//Don't load login screen if already in a valid session 
-if ( ($page == "login") and ($_SESSION['valid']) ) { $page = "index"; }
-
-
-if ( ($page == "deletefolder") && !is_empty($ipath) ) {
-	$message = $EX.' <b>Folder not empty. &nbsp; Folders must be empty before they can be deleted.</b>';
-	$page = "index";
-}
-
-
-if ( $page == "edit" && !is_file($filename) ) { $page = "index"; }
-//******************************************************************************
-
-
-
-
-//******************************************************************************
-// Misc Functions
-
-
-function is_empty($path){ //********************************
+function is_empty($path){ //****************************************************
 	$empty = false;
 	$dh = opendir($path);
 	for($i = 3; $i; $i--) { $empty = (readdir($dh) === FALSE); }
 	closedir($dh);
 	return $empty;
-}//end is_emtpy() //****************************************
+}//end is_emtpy() //************************************************************
 
 
 
-//if file_exists(), ordinalize filename until it doesn't ***
-function ordinalize($destination,$filename, &$msg) {
+
+function ordinalize($destination,$filename, &$msg) { //*************************
+//if file_exists(file.txt), ordinalize filename until it doesn't
+//ie: file.txt.001,  file.txt.002, file.txt.003  etc...
 	global $EX;
 
 	$ordinal   = 0;
@@ -226,21 +203,20 @@ function ordinalize($destination,$filename, &$msg) {
 	if (file_exists($savefile)) {
 
 		$msg .= $EX.' A file with that name already exists in the target directory.<br>';
-		$savefile_info = pathinfo($savefile);
 
 		while (file_exists($savefile)) {
 			$ordinal = sprintf("%03d", ++$ordinal); //  001, 002, 003, etc...
-			$newfilename = $savefile_info['filename'].'.'.$ordinal.'.'.$savefile_info['extension'];
-			$savefile = $destination.$newfilename;
+			$savefile = $destination.$filename.'.'.$ordinal;
 		}
-		$msg .= 'Saving as: "<b>'.htmlentities($newfilename).'</b>"';
+		$msg .= 'Saving as: "<b>'.htmlentities(basename($savefile)).'</b>"';
 	}
 	return $savefile;
-}//end ordinalize() filename *******************************
+}//end ordinalize() filename ***************************************************
 
 
 
-function Current_Path_Header(){ //**************************
+
+function Current_Path_Header(){ //**********************************************
  	// Current path. ie: webroot/current/path/ 
 	// Each level is a link to that level.
 
@@ -262,17 +238,18 @@ function Current_Path_Header(){ //**************************
 			}
 		}//end if (not at root)
 	echo '</h2>';
-}//end Current_Path_Header() //*****************************
+}//end Current_Path_Header() //*************************************************
 
 
 
-function message_box() { //*********************************
+
+function message_box() { //*****************************************************
 	global $ONESCRIPT, $message, $page;
 
 	if (isset($message)) {
 ?>
 		<div id="message"><p>
-		<span id="Xbox"><!-- [X] to dismiss message box -->	
+		<span id="Xbox"><!-- [X] to dismiss message box -->
 			<a id="dismiss" href='<?php echo $ONESCRIPT.$param1; ?>'
  			onclick='document.getElementById("message").innerHTML = " ";return false;'>
 			[X]</a>
@@ -287,11 +264,12 @@ function message_box() { //*********************************
 	
 	// Used on Edit Page to preserve vertical spacing, so edit area doesn't jump as much.
 	if ($page == "edit") {echo '<style>#message { min-height: 1.8em; }</style>';}
-}//end message_box()  **************************************
+}//end message_box()  **********************************************************
 
 
 
-function Upload_New_Rename_Delete_Links() { //**************
+
+function Upload_New_Rename_Delete_Links() { //**********************************
 	global $ONESCRIPT, $ipath, $param1;
 	echo '<p class="front_links">';
 	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=upload">'   ; svg_icon_upload()    ; echo 'Upload File</a>';
@@ -302,20 +280,22 @@ function Upload_New_Rename_Delete_Links() { //**************
 		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=deletefolder">'; svg_icon_folder_del();   echo 'Delete Folder</a>';
 	}
 	echo '</p>';
-}//end Upload_New_Rename_Delete_Links()  *******************
+}//end Upload_New_Rename_Delete_Links()  ***************************************
 
 
 
-function Close_Button($classes) { //************************
+
+function Close_Button($classes) { //********************************************
 	global $ONESCRIPT, $ipath, $param1;
 	echo '<input type="button" class="button '.$classes.'" name="close" value="Close" onclick="parent.location=\'';
 	echo $ONESCRIPT.$param1.'\'">';
 	?><script>document.edit_form.elements[1].focus();</script><?php // focus on [Close]
-}// End Close_Button() //***********************************
+}// End Close_Button() //*******************************************************
 
 
 
-function Cancel_Submit_Buttons($submit_label, $focus) { //**
+
+function Cancel_Submit_Buttons($submit_label, $focus) { //**********************
 	//$submit_label = Rename, Copy, Delete, etc...
 	//$focus is ID of element to receive focus(). (element may be outside this function)
 	global $ONESCRIPT, $ipath, $param1, $filename, $page;
@@ -331,11 +311,12 @@ function Cancel_Submit_Buttons($submit_label, $focus) { //**
 <?php
 	if ($focus != ""){ echo '<script>document.getElementById("'.$focus.'").focus();</script>'; }
 
-}// End Cancel_Submit_Buttons() //**************************
+}// End Cancel_Submit_Buttons() //**********************************************
 
 
 
-function show_image(){ //***********************************
+
+function show_image(){ //*******************************************************
 	global $filename, $MAX_IMG_W, $MAX_IMG_H;
 	
 	$IMG = $filename;
@@ -358,25 +339,27 @@ function show_image(){ //***********************************
 	echo '<div style="clear:both;"></div>';
 	echo '<a href="/' .URLencode_path($IMG). '">';
 	echo '<img src="/'.urlencode_path($IMG).'"  height="'.$img_info[$H]*$SCALE.'"></a>';
-}// end show_image() ***************************************
+}// end show_image() ***********************************************************
 
 
 
-function show_favicon(){
+
+function show_favicon(){ //*****************************************************
 	global $config_favicon, $DOC_ROOT;
 	if (file_exists($DOC_ROOT.$config_favicon)) { 
 		echo '<img src="'.URLencode_path($config_favicon).'" alt="">'; 
 	}
-}// end show_favicon()
-
-//
-// End of misc functions ********************************************************
+}// end show_favicon() *********************************************************
 
 
 
 
-//A few macros ($varibale="some reusable chunk of code")************************
-$INPUT_SESSIONID = '<input type="hidden" name="sessionid" value="'.$SID.'">'.PHP_EOL;
+function Init_Macros(){ //*** ($varibale="some reusable chunk of code")*********
+
+global 	$ONESCRIPT, $param1, $INPUT_SESSIONID, $FORM_COMMON, 
+		$SVG_icon_circle_plus, $SVG_icon_circle_x, $SVG_icon_pencil, $SVG_icon_img_0;
+
+$INPUT_SESSIONID = '<input type="hidden" name="sessionid" value="'.session_id().'">'.PHP_EOL;
 $FORM_COMMON = '<form method="post" action="'.$ONESCRIPT.$param1.'">'.$INPUT_SESSIONID;
 
 $SVG_icon_circle_plus = '<circle cx="5" cy="5" r="5" stroke="black" stroke-width="0" fill="#080"/>
@@ -397,7 +380,7 @@ $SVG_icon_img_0 = '<rect x="0"    y="0"   width="14" height="16" fill="#FF8" str
 	<rect x="2"    y="2"   width="5"  height="5"  fill="#F66" stroke-width="0" />
 	<rect x="7.5"  y="6"   width="5"  height="5"  fill="#6F6" stroke-width="0" />
 	<rect x="2"    y="10"  width="5"  height="5"  fill="#66F" stroke-width="0" />';
-//******************************************************************************
+}//end Init_Macros() ***********************************************************
 
 
 
@@ -501,7 +484,7 @@ function svg_icon_folder_0($extra){ //******************************************
 			fill="transparent" stroke="white" stroke-width="1" />
 	<?php echo $extra ?>
 </svg><?php 
-} //end svg_icon_folder() ******************************************************
+} //end svg_icon_folder_0() ****************************************************
 
 
 
@@ -566,7 +549,7 @@ function Login_Page() { //******************************************************
 		<input type="submit" class="button" value="Enter">
 	</form>
 	<script>document.getElementById('username').focus();</script>
-<?php
+<?php 
 } //end Login_Page() ***********************************************************
 
 
@@ -900,14 +883,13 @@ function Copy_Ren_Move_Page($action, $title, $name_id, $isfile) { //******
 	<?php echo $FORM_COMMON ?>
 		<p>
 			<label>Old name:</label>
-			<span class="web_root"><?php echo htmlentities($WEB_ROOT); ?></span>
-			<input type="text" name="old_name" 
-				value="<?php echo htmlspecialchars($old_name); ?>" readonly="readonly">
+			<span class="web_root"><?php echo htmlentities($WEB_ROOT); ?></span><input type="text" 
+				name="old_name" value="<?php echo htmlspecialchars($old_name); ?>" readonly="readonly">
 		</p>
 		<p>
 			<label>New name:</label>
-			<span class="web_root"><?php echo htmlentities($WEB_ROOT); ?></span>
-			<input type="text" name="<?php echo $name_id ?>" id="<?php echo $name_id ?>" 	
+			<span class="web_root"><?php echo htmlentities($WEB_ROOT); ?></span><input type="text" 
+				name="<?php echo $name_id ?>" id="<?php echo $name_id ?>" 
 				value="<?php echo htmlspecialchars($new_name); ?>">
 		</p>
 		<?php Cancel_Submit_Buttons($action, $name_id); ?>
@@ -933,7 +915,7 @@ function Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $msg2, $is
 		$message .= $EX.' <b>'.$msg1.' Error - new parent location does not exist:</b><br>';
 		$message .= htmlentities($WEB_ROOT.$new_location).'/<br>';
 	}elseif ( !file_exists($filename) ){
-		$message .= $EX.' <b>'.$msg1.' Error - Source file does not exist:</b><br>';
+		$message .= $EX.' <b>'.$msg1.' Error - source file does not exist:</b><br>';
 		$message .= htmlentities($filename);
 	}elseif (file_exists($new_name)) {
 		$message .= $EX.' <b>'.$msg1.' Error - target filename already exists:<br>';
@@ -1077,45 +1059,21 @@ function Delete_Folder_response() { //******************************************
 
 
 
-//Logout ***********************************************************************
-if ($page == "logout") {
-	$page = "login";
-	$_SESSION['valid'] = "0";
-	session_destroy();
-	$message = 'You have successfully logged out.';
-}//*****************************************************************************
+function Page_Title(){ //***<title>Page_Title()</title>*************************
+	global $page;
 
-
-
-
-if ($VALID_POST) { //***********************************************************
-	if (isset($_FILES['upload_file']['name'])) { Upload_File_response(); }
-	if (isset($_POST["filename"]     )) { Edit_Page_response(); }
-	if (isset($_POST["new_file"]     )) { New_File_response(); }
-	if (isset($_POST["copy_file"]    )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["copy_file"], 'copy', 'Copy', 'Copied', 1); } 
-	if (isset($_POST["rename_file"]  )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_file"], 'rename', 'Rename/Move', 'Renamed/Moved', 1); } 
-	if (isset($_POST["delete_file"]  )) { Delete_File_response(); }
-	if (isset($_POST["new_folder"]   )) { New_Folder_response(); }
-	if (isset($_POST["rename_folder"])) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_folder"], 'rename', 'Rename/Move', 'Renamed/Moved', 0); } 
-	if (isset($_POST["delete_folder"])) { Delete_Folder_response(); }
-}//end if ($VALID_POST) ********************************************************
-
-
-
-
-//<title>$pagetitle</title>*****************************************************
-if     ($page == "login")        { $pagetitle = "Log In";         }
-elseif ($page == "edit")         { $pagetitle = "Edit/View File"; }
-elseif ($page == "upload")       { $pagetitle = "Upload File";    }
-elseif ($page == "newfile")      { $pagetitle = "New File";       }
-elseif ($page == "copy" )        { $pagetitle = "Copy";           }
-elseif ($page == "rename")       { $pagetitle = "Rename File";    }
-elseif ($page == "delete")       { $pagetitle = "Delete";         }
-elseif ($page == "newfolder")    { $pagetitle = "New Folder";     }
-elseif ($page == "renamefolder") { $pagetitle = "Rename Folder";  }
-elseif ($page == "deletefolder") { $pagetitle = "Delete Folder";  }
-else                             { $pagetitle = $_SERVER['SERVER_NAME']; }
-//******************************************************************************
+	if     ($page == "login")        { return "Log In";         }
+	elseif ($page == "edit")         { return "Edit/View File"; }
+	elseif ($page == "upload")       { return "Upload File";    }
+	elseif ($page == "newfile")      { return "New File";       }
+	elseif ($page == "copy" )        { return "Copy";           }
+	elseif ($page == "rename")       { return "Rename File";    }
+	elseif ($page == "delete")       { return "Delete";         }
+	elseif ($page == "newfolder")    { return "New Folder";     }
+	elseif ($page == "renamefolder") { return "Rename Folder";  }
+	elseif ($page == "deletefolder") { return "Delete Folder";  }
+	else                             { return $_SERVER['SERVER_NAME']; }
+}//end Page_Title() ************************************************************
 
 
 
@@ -1491,17 +1449,19 @@ textarea {
 	height: 30em;
 	}
 
+textarea:focus { border: 1px solid #Faa; }
+
 .edit_disabled { 
 	border : 1px solid #807568;
 	width  : 99%;
 	padding: .2em;
 	margin : 0;
 	color: #444;
-	background-color: #F8F8F8;
+	background-color: #F0F0F0;
 	line-height: 1.4em;
 	}
 
-textarea:focus { border: 1px solid #Faa; }
+.view_file {font-family: courier; font-size: .9em; background-color: #F8F8F8;}
 
 
 input:focus { background-color: rgb(255,250,150); }
@@ -1516,7 +1476,6 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 
 .buttons_right         { float: right; }
 .buttons_right .button { margin-left: 7px; }
-
 
 .button {
 	border : 1px solid #807568;
@@ -1630,12 +1589,63 @@ hr {
 
 //******************************************************************************
 //******************************************************************************
+//Begin logic to determine page action
+
+
+Session_Startup(); //***********************************************************
+
+Get_GET();         //***********************************************************
+
+Init_Macros();     //***********************************************************
+
+
+
+
+if ($VALID_POST) { //***********************************************************
+	if     (isset($_FILES['upload_file']['name'])) { Upload_File_response(); }
+	elseif (isset($_POST["filename"]     )) { Edit_Page_response(); }
+	elseif (isset($_POST["new_file"]     )) { New_File_response(); }
+	elseif (isset($_POST["copy_file"]    )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["copy_file"], 'copy', 'Copy', 'Copied', 1); } 
+	elseif (isset($_POST["rename_file"]  )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_file"], 'rename', 'Rename/Move', 'Renamed/Moved', 1); } 
+	elseif (isset($_POST["delete_file"]  )) { Delete_File_response(); }
+	elseif (isset($_POST["new_folder"]   )) { New_Folder_response(); }
+	elseif (isset($_POST["rename_folder"])) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_folder"], 'rename', 'Rename/Move', 'Renamed/Moved', 0); } 
+	elseif (isset($_POST["delete_folder"])) { Delete_Folder_response(); }
+}//end if ($VALID_POST) ********************************************************
+
+
+
+
+//*** Verify valid $page and/or $filename **************************************
+
+if (!in_array(strtolower($page), $valid_pages)) { $page = "index"; }
+
+//Don't load login screen if already in a valid session 
+if ( ($page == "login") and ($_SESSION['valid']) ) { $page = "index"; }
+
+if ( $page == "edit" && !is_file($filename) ) { $page = "index"; }
+
+if ($page == "logout") { $page = "login"; $_SESSION['valid'] = "0";	session_destroy();
+	$message = 'You have successfully logged out.'; }
+
+if ( ($page == "deletefolder") && !is_empty($ipath) ) { //Don't load delete page if can't delete.
+	$message = $EX.' <b>Folder not empty. &nbsp; Folders must be empty before they can be deleted.</b>';
+	$page = "index";
+}
+//******************************************************************************
+
+
+
+
+//******************************************************************************
+//******************************************************************************
 ?><!DOCTYPE html>
 
 <html>
 <head>
 
-<title><?php echo $config_title.' - '.$pagetitle ?></title>
+<title><?php echo $config_title.' - '.Page_Title() ?></title>
+
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="robots" content="noindex">
 
