@@ -4,6 +4,7 @@ SOME STANDARD GLOBAL VARIABLES
 
 MISC FUNCTIONS:
 	Session_Startup()
+	undo_magic_quotes()
 	Get_GET()
 	URLencode_path()
 	Check_path()

@@ -1,11 +1,11 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.1.7';
+$version = '3.1.8';
 
 /*******************************************************************************
-Copyright © 2009-2012 https://github.com/rocktronica
-Copyright © 2012-     https://github.com/Self-Evident  David W. Gay
+Copyright Â© 2009-2012 https://github.com/rocktronica
+Copyright Â© 2012-     https://github.com/Self-Evident  David W. Gay
 
 This software is copyright under terms of the "MIT" license:
 
@@ -30,7 +30,7 @@ SOFTWARE.
 
 
 
-if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate - and version 5.4 is recommended."); }
+if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Tested on 5.3.3 & 5.4"); }
 
 
 
@@ -90,6 +90,8 @@ function Session_Startup() {//**************************************************
 
 	session_start();
 
+	undo_magic_quotes();
+
 	if ( isset($_POST["username"]) || isset($_POST["password"]) ) {
 		$_SESSION['username'] = $_POST["username"];
 		$_SESSION['password'] = $_POST["password"];
@@ -108,6 +110,23 @@ function Session_Startup() {//**************************************************
 
 	chdir($_SERVER["DOCUMENT_ROOT"]); //Allow OneFileCMS.php to be started from any dir on the site.
 }//End Session_Startup() *******************************************************
+
+
+
+
+function undo_magic_quotes(){ //************************************************
+
+	function strip_array($var) {
+		if (is_array($var)) {return array_map("strip_array", $var); }
+		else                {return stripslashes($var); }
+	} //Note: stripslashes also handles cases when magic_quotes_sybase is on.
+
+	if (get_magic_quotes_gpc()) {
+		$_GET     = strip_array($_GET);
+		$_POST    = strip_array($_POST);
+		$_COOKIE  = strip_array($_COOKIE);
+	}
+}//end undo_magic_quotes() *****************************************************
 
 
 
@@ -134,12 +153,12 @@ function Get_GET() { //*** Get main parameters *********************************
 
 
 function URLencode_path($path){ // don't encode the forward slashes ************
-	$TS = '';
-	if (substr($path, -1) == '/' ) { $TS = '/'; } //start with a trailing slash?
+	$TS = '';  // Trailing Slash/
+	if (substr($path, -1) == '/' ) { $TS = '/'; } //start with a $TS?
 	$path_array = explode('/',$path);
 	$path = "";
 	foreach ($path_array as $level) { $path .= rawurlencode($level).'/'; }
-	$path = rtrim($path,'/').$TS;  //end with trailing slash only if started with one
+	$path = rtrim($path,'/').$TS;  //end with $TS only if started with one
 	return $path;
 }//end URLencode_path($path) ***************************************************
 
@@ -224,7 +243,7 @@ function Current_Path_Header(){ //**********************************************
 
 	echo '<h2>';
 		//Root folder of web site.
-		echo '<a href="'.$ONESCRIPT.'" class="path"> '.htmlentities(trim($WEB_ROOT, '/')).' </a>/';
+		echo '<a href="'.$ONESCRIPT.'" class="path"> '.htmlentities(trim($WEB_ROOT, '/')).' </a>/'.PHP_EOL;
 
 		if ($ipath != "" ) { //if not at root, show the rest
 			$path_levels  = explode("/",trim($ipath,'/') );
@@ -234,7 +253,7 @@ function Current_Path_Header(){ //**********************************************
 			for ($x=0; $x < $levels; $x++) {
 				$current_path .= $path_levels[$x].'/';
 				echo '<a href="'.$ONESCRIPT.'?i='.URLencode_path($current_path).'" class="path"> ';
-				echo ' '.htmlentities($path_levels[$x])." </a>/";
+				echo ' '.htmlentities($path_levels[$x]).' </a>/'.PHP_EOL;
 			}
 		}//end if (not at root)
 	echo '</h2>';
@@ -287,8 +306,8 @@ function Upload_New_Rename_Delete_Links() { //**********************************
 
 function Close_Button($classes) { //********************************************
 	global $ONESCRIPT, $ipath, $param1;
-	echo '<input type="button" class="button '.$classes.'" name="close" value="Close" onclick="parent.location=\'';
-	echo $ONESCRIPT.$param1.'\'">';
+	echo '<input type="button" class="button '.$classes.'" name="close" value="Close" 
+		onclick="parent.location=\''.$ONESCRIPT.$param1.'\'">';
 	?><script>document.edit_form.elements[1].focus();</script><?php // focus on [Close]
 }// End Close_Button() //*******************************************************
 
@@ -336,9 +355,9 @@ function show_image(){ //*******************************************************
 
 	echo '<p class="file_meta">';
 	echo 'Image shown at ~'. round($SCALE*100) .'% of full size.<br>('.$img_info[3].')</p>';
-	echo '<div style="clear:both;"></div>';
-	echo '<a href="/' .URLencode_path($IMG). '">';
-	echo '<img src="/'.urlencode_path($IMG).'"  height="'.$img_info[$H]*$SCALE.'"></a>';
+	echo '<div style="clear:both;"></div>'.PHP_EOL;
+	echo '<a href="/' .URLencode_path($IMG). '" target="_blank">'.PHP_EOL;
+	echo '<img src="/'.URLencode_path($IMG).'"  height="'.$img_info[$H]*$SCALE.'"></a>'.PHP_EOL;
 }// end show_image() ***********************************************************
 
 
@@ -648,8 +667,8 @@ function Edit_Page_Buttons($text_editable, $too_large_to_edit) { //*************
 
 
 //******************************************************************************
-function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $large_file_message1){ 
-	global $ONESCRIPT, $param1, $param2, $filename, $itypes, $INPUT_SESSIONID;
+function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message){ 
+	global $ONESCRIPT, $param1, $param2, $filename, $itypes, $INPUT_SESSIONID, $EX, $message;
 
 	$param2 = $param1.'&amp;f='.rawurlencode(basename($filename));
 	$param3 = $param2.'&amp;p=edit';
@@ -670,17 +689,31 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $large_file_me
 				echo '<p class="edit_disabled">Non-text or unkown file type. Edit disabled.<br><br></p>';
 
 			}elseif ( $too_large_to_edit ) {
- 				echo '<p class="edit_disabled">'.$large_file_message1.'</p>';
+ 				echo '<p class="edit_disabled">'.$too_large_to_edit_message.'</p>';
 
 			}else{
-				$filecontent = htmlspecialchars(file_get_contents($filename), ENT_SUBSTITUTE,'UTF-8');
-				echo '<input type="hidden" name="filename" id="filename" value="'.htmlspecialchars($filename).'">';
-				echo '<textarea id="file_content" name="content" cols="70" rows="25"
-					onkeyup="Check_for_changes(event);">'.$filecontent.'</textarea>';
+				$filecontent = htmlspecialchars(file_get_contents($filename));
+				$bad_chars = ($filecontent == "" && filesize($filename) > 0);
+				
+				if ($bad_chars){ //did specialchars return an empty string?
+					echo '<pre class="edit_disabled">'.$EX.' File contains an invalid character. Edit and view disabled.<br>';
+					echo ' htmlspecialchars() returned and empty string from what <i>may be</i> an otherwise valid file.<br>';
+					echo ' This behavior can be inconsistant from version to version (of php).<br></pre>';
+				}else{
+					echo '<input type="hidden" name="filename" id="filename" value="'.htmlspecialchars($filename).'">';
+					echo '<textarea id="file_content" name="content" cols="70" rows="25"
+						onkeyup="Check_for_changes(event);">'.$filecontent.'</textarea>';
+				}
 			} //end if !editable /else...
 		} //end if non-image, show textarea
 
 		Edit_Page_Buttons($text_editable, $too_large_to_edit);
+
+	if ($text_editable && !$too_large_to_edit && !$bad_chars) {
+		Edit_Page_scripts();
+		echo '<div style="clear:both;"></div>';
+		echo '<div id="edit_note">NOTE: On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser\'s [Reload].</div>';
+	}
 ?>
 	</form> 
 <?php 
@@ -703,37 +736,34 @@ function Edit_Page() { //*******************************************************
 	if ($too_large_to_edit){$header2 = "Viewing: ";}
 	else                   {$header2 = "Editing: ";}
 
-	$large_file_message1 = 
-'<b>Edit disabled. Filesize &gt; '.number_format($MAX_EDIT_SIZE).' bytes.</b> ($MAX_EDIT_SIZE)<br>
+	$too_large_to_edit_message = 
+'<b>Edit disabled. Filesize &gt; '.number_format($MAX_EDIT_SIZE).' bytes.</b><br>
 Some browsers (on my PC) bog down or become unstable while editing a large file in an HTML &lt;textarea&gt;.<br>
-$MAX_EDIT_SIZE is in the configuration section of OneFileCMS, and may be adjusted as needed.<br>
+Adjust $MAX_EDIT_SIZE in the configuration section of OneFileCMS as needed.<br>
 A simple trial and error test can determine a practical limit for a given browser/computer.';
-	$large_file_message2 = 
-'<b>View disabled. Filesize &gt; '.number_format($MAX_VIEW_SIZE).' bytes.</b> ($MAX_VIEW_SIZE)<br>
+	$too_large_to_view_message = 
+'<b>View disabled. Filesize &gt; '.number_format($MAX_VIEW_SIZE).' bytes.</b><br>
 Click the the file name above to view normally in a browser window.<br>
+Adjust $MAX_VIEW_SIZE in the configuration section of OneFileCMS as needed.<br>
 (The default value for $MAX_VIEW_SIZE is completely arbitrary, and may be adjusted as desired to suit individual perceptions of neccessity.)';
 
 	echo '<h2 id="edit_header">'.$header2;
 	echo '<a class="filename" href="/'.URLencode_path($filename).'" target="_blank">'.htmlentities(basename($filename)).'</a>';
-	echo '</h2>';
+	echo '</h2>'.PHP_EOL;
 
-	Edit_Page_form($ext, $text_editable, $too_large_to_edit, $large_file_message1);
+	Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message);
 
 	if ( in_array( $ext, $itypes) ) { show_image(); }
 
 	echo '<div style="clear:both;"></div>';
 
 	if ( $text_editable && $too_large_to_edit && !$too_large_to_view ) {
-		$filecontent = htmlspecialchars(file_get_contents($filename), ENT_SUBSTITUTE,'UTF-8');
+		$filecontent = htmlspecialchars(file_get_contents($filename), ENT_COMPAT,'UTF-8');
 		echo '<pre class="edit_disabled view_file">'.$filecontent.'</pre>';
 	}elseif ( $text_editable && $too_large_to_view ){
-		echo '<p class="edit_disabled">'.$large_file_message2.'</p>';
+		echo '<p class="edit_disabled">'.$too_large_to_view_message.'</p>';
 	}
-	
-	if ($text_editable && !$too_large_to_edit) {
-		Edit_Page_scripts();
-		echo '<div id="edit_note">NOTE: On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser\'s [Reload].</div>';
-	}
+
 }//End Edit_Page ***************************************************************
 
 
@@ -741,13 +771,13 @@ Click the the file name above to view normally in a browser window.<br>
 
 function Edit_Page_response(){ //***If on Edit page, and [Save] clicked ********
 	global $filename, $message, $EX;
-	$filename = htmlspecialchars_decode($_POST["filename"]);
-	$content  = htmlspecialchars_decode($_POST["content"]);
-	$fp = @fopen($filename, "w");
-	if ($fp) {
-		fwrite($fp, $content);
-		fclose($fp);
-		$message = '<b>File saved...</b>';
+	$filename = $_POST["filename"];
+	$content  = $_POST["content"];
+
+	$bytes = file_put_contents($filename, $content);
+
+	if ($bytes !== false) {
+		$message = '<b>File saved: '.$bytes.' bytes written.</b>';
 	}else{
 		$message = $EX.' <b>There was an error saving file.</b>';
 	}
@@ -786,7 +816,7 @@ function Upload_Page() { //*****************************************************
 function Upload_File_response() { //********************************************
 	global $filename, $message, $EX, $page;
 	$filename    = $_FILES['upload_file']['name'];
-	$destination = htmlspecialchars_decode(Check_path($_POST["upload_destination"]));
+	$destination = Check_path($_POST["upload_destination"]);
 	$page  = "index";
 	$MAXUP1 = ini_get('upload_max_filesize');
 	$MAXUP2 = number_format ($_POST['MAX_FILE_SIZE']).' bytes';
@@ -905,8 +935,8 @@ function Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $msg2, $is
 	//$action = 'copy' or 'rename'. $isfile = 1 if acting on a file, not a folder
 	global $WEB_ROOT, $ipath, $param1, $message, $EX, $page, $filename;
 
-	$old_name = htmlspecialchars_decode(trim($old_name,'/ '));
-	$new_name = htmlspecialchars_decode(trim($new_name,'/ '));
+	$old_name = trim($old_name,'/ ');
+	$new_name = trim($new_name,'/ ');
 	$new_location = dirname($new_name);
 	$filename = $old_name; //default if error
 	if ($isfile) { $page = "edit"; }else{ $page = "index"; }
@@ -930,7 +960,7 @@ function Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $msg2, $is
 		$param1   = '?i='.URLencode_path($ipath);
 	}else{
 		$message .= '<b>'.htmlentities($WEB_ROOT.$old_name).'</b><br>';
-		$message .= $EX.' <b>Error durring '.$msg1.' from the above to the following:</b><br>';
+		$message .= $EX.' <b>Error during '.$msg1.' from the above to the following:</b><br>';
 		$message .= '<b>'.htmlentities($WEB_ROOT.$new_name).'</b>';
 	}
 }//end Copy_Ren_Move_response() ************************************************
@@ -958,7 +988,7 @@ function Delete_File_response(){ //*********************************************
 	global $filename, $message, $EX, $page;
 
 	$page = "index"; //Return to index
-	$filename = htmlspecialchars_decode($_POST["delete_file"]);
+	$filename = $_POST["delete_file"];
 
 	if (unlink($filename)) {
 		$message .= '<b>Deleted file:</b> '.htmlentities(basename($filename));
@@ -1042,7 +1072,7 @@ function Delete_Folder_Page(){ //***********************************************
 function Delete_Folder_response() { //******************************************
 	global $ipath, $param1, $page, $message, $EX;
 	$page = "index"; //Return to index
-	$foldername = htmlspecialchars_decode(trim($_POST["delete_folder"], '/'));
+	$foldername = trim($_POST["delete_folder"], '/');
 
 	if ( !is_empty($ipath) ) {
 		$message .= $EX.' <b>Folder not empty. &nbsp; Folders must be empty before they can be deleted.</b>';
@@ -1456,8 +1486,7 @@ textarea:focus { border: 1px solid #Faa; }
 	width  : 99%;
 	padding: .2em;
 	margin : 0;
-	color: #444;
-	background-color: #F0F0F0;
+	background-color: #FFF000;
 	line-height: 1.4em;
 	}
 
@@ -1664,7 +1693,7 @@ if ($page == "login"){ echo '<div class="login_page">'; }
 <div class="header">
 	<?php echo '<a href="', $ONESCRIPT, '" id="logo">', $config_title; ?></a>
 	<?php echo $version; ?>
-
+	(on&nbsp;php&nbsp;<?php echo phpversion(); ?>)
 	<div class="nav">
 		<a href="/" target="_blank"><?php show_favicon() ?>&nbsp; 
 		<b><?php echo htmlentities($WEBSITE) ?></b>  &nbsp;- &nbsp;

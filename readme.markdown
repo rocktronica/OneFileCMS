@@ -1,10 +1,9 @@
-### June 05, 2012
+### June 08, 2012
 
-# Current stable versions: 1.5, "Lite" 2.1.7, 3.1.7
+# Current stable version: 3.1.8
 
 - 3.0+ : "Full" version - uses svg icons
 - 2.0+ : "Lite" version - uses no icons.
-- 1.5  : style sheet is now part of onfilecms.php file, but still uses external icons.
 
 --------------------------------------------------------------------------------
 
@@ -83,8 +82,8 @@ However, "it's on my to-do list!"...
 
 ## Requirements
 
-- PHP 5.4  
-  (Older 5.x versions may work, but there will be issues editing files with back slashes, among other things.  See php docs on magic_quotes_gpc & stripslashes().)
+- PHP 5.2+
+  (Only tested on versions 5.2.17, 5.3.3, 5.4, and 5.4.3)
 - File permission privileges on your host
 - Javascript enabled browswer
 - And, for OneFileCMS 3+, a browser that supports inline SVG.
@@ -136,16 +135,19 @@ LOGIC TO DETERMINE PAGE ACTION
   
 GENERATE THE PAGE  
     &lt;HTML&gt;  
-  
     ...  
-    Load_Selected_Page($page)  
+    Load\_Selected\_Page($page)  
     ...  
-  
     &lt;/HTML&gt;  
 
 --------------------------------------------------------------------------------
 
 ## Change Log
+
+###3.1.6 thru 3.1.8
+
+- Converted bulk of rest of code into functions (easier to work with)
+- Resolved issue (I hope) with differing versions of PHP and how magic_quotes & stripslashes are handeled.
 
 ### 3.1.2 thru 3.1.5
 
