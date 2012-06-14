@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.1.8.1';
+$version = '3.1.8.2';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -152,7 +152,7 @@ function undo_magic_quotes(){ //************************************************
 
 function Get_GET() { //*** Get main parameters *********************************
 	// i=some/path/,  f=somefile.xyz,  p=somepage
-	global $ipath, $filename, $page, $param1, $message, $EX;
+	global $ipath, $filename, $page, $param1, $param2, $param3, $message, $EX;
 
 	if (isset($_GET["i"])) { $ipath = Check_path($_GET["i"]); }else{ $ipath = ""; }
 
@@ -166,8 +166,8 @@ function Get_GET() { //*** Get main parameters *********************************
 	if (isset($_GET["p"])) { $page = $_GET["p"]; } // default $page set in session startup
 
 	$param1 = '?i='.URLencode_path($ipath);
-
-
+	if ($filename == "") { $param2 = ""; }else{ $param2 = '&amp;f='.rawurlencode(basename($filename)); }
+	if ($page == ""    ) { $param3 = ""; }else{ $param3 = '&amp;p='.$page; }
 }//end Get_GET()****************************************************************
 
 
@@ -264,7 +264,7 @@ function Current_Path_Header(){ //**********************************************
 
 	echo '<h2>';
 		//Root folder of web site.
-		echo '<a href="'.$ONESCRIPT.'" class="path"> '.htmlentities(trim($WEB_ROOT, '/')).' </a>/'.PHP_EOL;
+		echo '<a href="'.$ONESCRIPT.'" class="path"> '.htmlentities(trim($WEB_ROOT, '/')).'</a>/';
 
 		if ($ipath != "" ) { //if not at root, show the rest
 			$path_levels  = explode("/",trim($ipath,'/') );
@@ -273,8 +273,8 @@ function Current_Path_Header(){ //**********************************************
 
 			for ($x=0; $x < $levels; $x++) {
 				$current_path .= $path_levels[$x].'/';
-				echo '<a href="'.$ONESCRIPT.'?i='.URLencode_path($current_path).'" class="path"> ';
-				echo ' '.htmlentities($path_levels[$x]).' </a>/'.PHP_EOL;
+				echo '<a href="'.$ONESCRIPT.'?i='.URLencode_path($current_path).'" class="path">';
+				echo htmlentities($path_levels[$x]).'</a>/';
 			}
 		}//end if (not at root)
 	echo '</h2>';
@@ -284,13 +284,13 @@ function Current_Path_Header(){ //**********************************************
 
 
 function message_box() { //*****************************************************
-	global $ONESCRIPT, $message, $page;
+	global $ONESCRIPT, $param1, $param2, $param3, $message, $page;
 
 	if (isset($message)) {
 ?>
 		<div id="message"><p>
 		<span id="Xbox"><!-- [X] to dismiss message box -->
-			<a id="dismiss" href='<?php echo $ONESCRIPT.$param1; ?>'
+			<a id="dismiss" href='<?php echo $ONESCRIPT.$param1.$param2.$param3; ?>'
  			onclick='document.getElementById("message").innerHTML = " ";return false;'>
 			[X]</a>
 		</span>
@@ -303,7 +303,7 @@ function message_box() { //*****************************************************
 	} //end isset($message)
 	
 	// Used on Edit Page to preserve vertical spacing, so edit area doesn't jump as much.
-	if ($page == "edit") {echo '<style>#message { min-height: 1.8em; }</style>';}
+	if ($page == "edit") {echo '<style>#message { min-height: 1.86em; }</style>';}
 }//end message_box()  **********************************************************
 
 
@@ -1375,13 +1375,13 @@ function Edit_Page_scripts() { //********************************************
 function style_sheet(){ //****************************************************?>
 <style>
 /* --- reset --- */
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,
-cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,dl,dt,dd,ol,ul,li,
-fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td
-{ border : 0; outline: 0; margin : 0; padding: 0;
+* { border : 0; outline: 0; margin : 0; padding: 0;
 font-family: inherit; font-weight: inherit; font-style : inherit;
 font-size  : 100%; vertical-align: baseline; }
+
+
 /* --- general formatting --- */
+
 body { font-size: 1em; background: #DDD; font-family: sans-serif; }
 
 p, table { margin-bottom: .5em; margin-top: .5em;}
@@ -1699,18 +1699,18 @@ hr {
 
 .mono {font-family: courier;}
 
+#upload_file {
+	border: 1px solid #807568;
+	padding: 2px;
+	width: 50em;
+	Xfont: 1em "Courier New", Courier, monospace;
+	}
 
 
 
 
 
-
-
-
-
-
-
-
+.path {padding: 3px 5px 3px 5px} /*TRBL*/
 
 
 </style>
