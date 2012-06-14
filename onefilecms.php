@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.1.8.2';
+$version = '3.1.8.3';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -29,7 +29,7 @@ SOFTWARE.
 *******************************************************************************/
 
 
-if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Tested on 5.3.3 & 5.4"); }
+
 
 // CONFIGURABLE INFO ***********************************************************
 $config_username  = "username";
@@ -44,8 +44,8 @@ $MAX_IMG_W   = 810;   // Max width to display images. (page container = 810)
 $MAX_IMG_H   = 1000;  // Max height.  I don't know, it just looks reasonable.
 
 $MAX_EDIT_SIZE = 150000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
-$MAX_VIEW_SIZE = 1000000; //If file > $MAX_EDIT_SIZE, don't even view in OneFileCMS.
-                          // The max view size is completely arbitray. It was 2am and seemed like a good idea at the time.
+$MAX_VIEW_SIZE = 1000000; // If file > $MAX_EDIT_SIZE, don't even view in OneFileCMS.
+                          // The max view size is completely arbitrary. It was 2am and seemed like a good idea at the time.
 $config_favicon   = "/favicon.ico";
 $config_excluded  = ""; //files to exclude from directory listings- CaSe sEnsaTive!
 
@@ -61,12 +61,12 @@ $EX = '<b>( ! )</b>'; //"EXclaimation point" icon Used in $message's
 
 
 //******************************************************************************
-//Some global values
+//Some global system values
 
-
-
-
-
+if (!defined('PHP_VERSION_ID')) {            //PHP_VERSION_ID only available since 5.2.7
+    $phpversion = explode('.', PHP_VERSION); //PHP_VERSION, however, should be available even in older versions.
+    define('PHP_VERSION_ID', ($phpversion[0] * 10000 + $phpversion[1] * 100 + $phpversion[2]));
+}
 
 $ONESCRIPT = URLencode_path($_SERVER["SCRIPT_NAME"]);
 $DOC_ROOT  = $_SERVER["DOCUMENT_ROOT"].'/';
@@ -744,21 +744,11 @@ function Edit_Page_Buttons($text_editable, $too_large_to_edit) { //*************
 
 //******************************************************************************
 function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message){ 
-	global $ONESCRIPT, $param1, $param2, $filename, $itypes, $INPUT_SESSIONID, $EX, $message;
-
-	$param2 = $param1.'&amp;f='.rawurlencode(basename($filename));
-	$param3 = $param2.'&amp;p=edit';
+	global $ONESCRIPT, $param1, $param2, $param3, $filename, $itypes, $INPUT_SESSIONID, $EX, $message;
 	clearstatcache ();
 ?>
-	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$param3 ?>">
+	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$param1.$param2.$param3 ?>">
 		<?php echo $INPUT_SESSIONID; ?>
-		<p class="file_meta">
-		<span class="meta_size">Filesize: <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; 
-		<span class="meta_time">Updated: <script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1);</script></span><br>
-		</p>
-		<input type="button" id="close1" class="button close" value="Close" onclick="parent.location = '<?php echo $ONESCRIPT.$param1 ?>'">
-		<script>document.getElementById('close1').focus();</script>
-		<div style="clear:both;"></div>
 <?php
 		if ( !in_array( strtolower($ext), $itypes) ) { //If non-image, show textarea
 
@@ -769,17 +759,21 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
  				echo '<p class="edit_disabled">'.$too_large_to_edit_message.'</p>';
 
 			}else{
-				$filecontent = htmlspecialchars(file_get_contents($filename));
+				if (PHP_VERSION_ID  < 50400) {  // 5.4.0
+					$filecontent = htmlspecialchars(file_get_contents($filename));
+				}else{
+					$filecontent = htmlspecialchars(file_get_contents($filename),ENT_SUBSTITUTE);
+				}
 				$bad_chars = ($filecontent == "" && filesize($filename) > 0);
-				
+
 				if ($bad_chars){ //did specialchars return an empty string?
 					echo '<pre class="edit_disabled">'.$EX.' File contains an invalid character. Edit and view disabled.<br>';
 					echo ' htmlspecialchars() returned and empty string from what <i>may be</i> an otherwise valid file.<br>';
-					echo ' This behavior can be inconsistant from version to version (of php).<br></pre>';
+					echo ' This behavior can be inconsistant from version to version of php.<br></pre>';
 				}else{
 					echo '<input type="hidden" name="filename" id="filename" value="'.htmlspecialchars($filename).'">';
 					echo '<textarea id="file_content" name="content" cols="70" rows="25"
-						onkeyup="Check_for_changes(event);">'.$filecontent.'</textarea>';
+						onkeyup="Check_for_changes(event);">'.$filecontent.'</textarea>'.PHP_EOL;
 				}
 			} //end if !editable /else...
 		} //end if non-image, show textarea
@@ -799,7 +793,7 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 
 
 function Edit_Page() { //*******************************************************
-	global $filename, $filecontent, $etypes, $itypes, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE;
+	global $ONESCRIPT, $param1, $filename, $filecontent, $etypes, $itypes, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE;
 
 	//Determine if text editable file type
 	$ext = end( explode(".", strtolower($filename) ) );
@@ -826,7 +820,16 @@ Adjust $MAX_VIEW_SIZE in the configuration section of OneFileCMS as needed.<br>
 	echo '<h2 id="edit_header">'.$header2;
 	echo '<a class="filename" href="/'.URLencode_path($filename).'" target="_blank">'.htmlentities(basename($filename)).'</a>';
 	echo '</h2>'.PHP_EOL;
+?>
+	<p class="file_meta">
+	<span class="meta_size">Filesize: <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; 
+	<span class="meta_time">Updated: <script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1);</script></span><br>
+	</p>
 
+	<input type="button" id="close1" class="button close" value="Close" onclick="parent.location = '<?php echo $ONESCRIPT.$param1 ?>'">
+	<script>document.getElementById('close1').focus();</script>
+	<div style="clear:both;"></div>
+<?php
 	Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message);
 
 	if ( in_array( $ext, $itypes) ) { show_image(); }
