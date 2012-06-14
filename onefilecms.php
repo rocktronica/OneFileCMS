@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.1.8';
+$version = '3.1.8.1';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -29,15 +29,16 @@ SOFTWARE.
 *******************************************************************************/
 
 
-
 if( phpversion() < '5.0.0' ) { exit("OneFileCMS requires PHP5 to operate. Tested on 5.3.3 & 5.4"); }
-
-
 
 // CONFIGURABLE INFO ***********************************************************
 $config_username  = "username";
 $config_password  = "password";
 $config_title     = "OneFileCMS";
+
+
+
+
 
 $MAX_IMG_W   = 810;   // Max width to display images. (page container = 810)
 $MAX_IMG_H   = 1000;  // Max height.  I don't know, it just looks reasonable.
@@ -62,6 +63,11 @@ $EX = '<b>( ! )</b>'; //"EXclaimation point" icon Used in $message's
 //******************************************************************************
 //Some global values
 
+
+
+
+
+
 $ONESCRIPT = URLencode_path($_SERVER["SCRIPT_NAME"]);
 $DOC_ROOT  = $_SERVER["DOCUMENT_ROOT"].'/';
 $WEB_ROOT  = URLencode_path(basename($DOC_ROOT)).'/';
@@ -74,7 +80,6 @@ $itypes   = explode(',', strtolower(str_replace(' ', '', $config_itypes))); //im
 $ftypes   = explode(',', strtolower(str_replace(' ', '', $config_ftypes))); //file types with icons
 $fclasses = explode(',', strtolower(str_replace(' ', '', $config_fclass))); //for file types with icons
 $excluded_list = (explode(",", $config_excluded));
-
 
 $valid_pages = array("login","logout","index","edit","upload","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder" );
 
@@ -92,9 +97,13 @@ function Session_Startup() {//**************************************************
 
 	undo_magic_quotes();
 
+
+
 	if ( isset($_POST["username"]) || isset($_POST["password"]) ) {
 		$_SESSION['username'] = $_POST["username"];
 		$_SESSION['password'] = $_POST["password"];
+
+
 
 		if (($_POST["username"] != $config_username) || ($_POST["password"] != $config_password))
 			{ $message = $EX.' <b>INVALID LOGIN ATTEMPT</b>'; }
@@ -104,12 +113,22 @@ function Session_Startup() {//**************************************************
 		 { $_SESSION['valid'] = "1"; $page = "index"; }
 	else { $_SESSION['valid'] = "0"; $page = "login"; unset($_GET["p"]); session_destroy() ;}
 
-
 	$VALID_POST = ($_SESSION['valid'] == "1" && $_POST["sessionid"] == session_id());
-
 
 	chdir($_SERVER["DOCUMENT_ROOT"]); //Allow OneFileCMS.php to be started from any dir on the site.
 }//End Session_Startup() *******************************************************
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -147,6 +166,8 @@ function Get_GET() { //*** Get main parameters *********************************
 	if (isset($_GET["p"])) { $page = $_GET["p"]; } // default $page set in session startup
 
 	$param1 = '?i='.URLencode_path($ipath);
+
+
 }//end Get_GET()****************************************************************
 
 
@@ -304,12 +325,12 @@ function Upload_New_Rename_Delete_Links() { //**********************************
 
 
 
-function Close_Button($classes) { //********************************************
-	global $ONESCRIPT, $ipath, $param1;
-	echo '<input type="button" class="button '.$classes.'" name="close" value="Close" 
-		onclick="parent.location=\''.$ONESCRIPT.$param1.'\'">';
-	?><script>document.edit_form.elements[1].focus();</script><?php // focus on [Close]
-}// End Close_Button() //*******************************************************
+
+
+
+
+
+
 
 
 
@@ -551,6 +572,60 @@ function show_icon($type){ //***************************************************
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function Login_Page() { //******************************************************
 	global $ONESCRIPT, $message;
 ?>
@@ -642,7 +717,8 @@ function Index_Page(){ //*******************************************************
 
 
 function Edit_Page_Buttons($text_editable, $too_large_to_edit) { //*************
-	global $ONESCRIPT, $param2;
+	global $ONESCRIPT, $param1, $param2;
+	$ACTION = "parent.location = '".$ONESCRIPT.$param1.$param2.'&amp;p=';
 ?>
 	<p class="buttons_right">
 	<?php if ($text_editable && !$too_large_to_edit) { //Show save & reset only if editable file ?> 
@@ -655,10 +731,10 @@ function Edit_Page_Buttons($text_editable, $too_large_to_edit) { //*************
 			document.getElementById('reset').disabled     = "disabled";
 		</script>
 	<?php } ?>
-	<input type="button" class="button" value="Rename/Move" onclick="parent.location='<?php echo $ONESCRIPT.$param2.'&amp;p=rename'; ?>'">
-	<input type="button" class="button" value="Copy"        onclick="parent.location='<?php echo $ONESCRIPT.$param2.'&amp;p=copy'  ; ?>'">
-	<input type="button" class="button" value="Delete"      onclick="parent.location='<?php echo $ONESCRIPT.$param2.'&amp;p=delete'; ?>'">
-	<?php Close_Button(""); ?>
+	<input type="button" class="button" value="Rename/Move" onclick="<?php echo $ACTION.'rename' ?>'">
+	<input type="button" class="button" value="Copy"        onclick="<?php echo $ACTION.'copy' ?>'  ">
+	<input type="button" class="button" value="Delete"      onclick="<?php echo $ACTION.'delete' ?>'">
+	<input type="button" class="button close" value="Close" onclick="parent.location = '<?php echo $ONESCRIPT.$param1 ?>'">
 	</p>
 <?php
 }//end Edit_Page_Buttons()******************************************************
@@ -680,7 +756,8 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 		<span class="meta_size">Filesize: <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; 
 		<span class="meta_time">Updated: <script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1);</script></span><br>
 		</p>
-		<?php Close_Button("close"); ?>
+		<input type="button" id="close1" class="button close" value="Close" onclick="parent.location = '<?php echo $ONESCRIPT.$param1 ?>'">
+		<script>document.getElementById('close1').focus();</script>
 		<div style="clear:both;"></div>
 <?php
 		if ( !in_array( strtolower($ext), $itypes) ) { //If non-image, show textarea
@@ -711,7 +788,6 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 
 	if ($text_editable && !$too_large_to_edit && !$bad_chars) {
 		Edit_Page_scripts();
-		echo '<div style="clear:both;"></div>';
 		echo '<div id="edit_note">NOTE: On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser\'s [Reload].</div>';
 	}
 ?>
@@ -790,21 +866,30 @@ function Upload_Page() { //*****************************************************
 	global $ONESCRIPT, $ipath, $param1, $INPUT_SESSIONID;
 
 	//Determine $MAX_FILE_SIZE to upload
-	$UMF = ini_get('upload_max_filesize'); //assumes  it's < post_max_size. If not, oh well.
-	$KMB = strtoupper(substr($UMF, -1));
+	$upload_max_filesize = ini_get('upload_max_filesize'); //This should be < post_max_size,
+	$post_max_size       = ini_get('post_max_size');       //but, just in case, check both...
 
-	if     ($KMB == "K") { $MAX_FILE_SIZE = $UMF * 1024; }
-	elseif ($KMB == "M") { $MAX_FILE_SIZE = $UMF * 1048576; }
-	elseif ($KMB == "G") { $MAX_FILE_SIZE = $UMF * 1073741824; }
-	else                 { $MAX_FILE_SIZE = $UMF; }
+	function shorthand_to_int($SHORTHAND){ //*******************
+		$KMG = strtoupper(substr($SHORTHAND, -1));
+		if     ($KMG == "K") { return $SHORTHAND * 1024; }
+		elseif ($KMG == "M") { return $SHORTHAND * 1048576; }
+		elseif ($KMG == "G") { return $SHORTHAND * 1073741824; }
+		else                 { return $SHORTHAND; }
+	}//end function shorthand_to_int() *************************
+
+	$UMF = shorthand_to_int($upload_max_filesize);
+	$PMS = shorthand_to_int($post_max_size);
+
+	if ($UMF <= $PMS){ $MAX_FILE_SIZE = $UMF; $max_msg = $upload_max_filesize.' &nbsp; per upload_max_filesize in php.ini.'; }
+	else             { $MAX_FILE_SIZE = $PMS; $max_msg = $post_max_size.' &nbsp; per post_max_size in php.ini'; }
 ?>
 	<h2>Upload File</h2>
-	<p>Note: Maximum upload file size is: <?php echo $UMF; ?></p>
-	<form enctype="multipart/form-data" action="<?php echo $ONESCRIPT.$param1; ?>" method="post">
+	<p>Note: Maximum upload file size is: <?php echo $max_msg; ?></p>
+	<form enctype="multipart/form-data" action="<?php echo $ONESCRIPT.$param1; ?>&amp;p=uploaded" method="post">
 		<?php echo $INPUT_SESSIONID; ?>
 		<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $MAX_FILE_SIZE ?>"> 
 		<input type="hidden" name="upload_destination" value="<?php echo htmlspecialchars($ipath); ?>" >
-		<input name="upload_file" type="file" size="100">
+		<input type="file"   name="upload_file" id="upload_file" size="100">
 		<?php Cancel_Submit_Buttons("Upload","cancel"); ?>
 	</form>
 <?php 
@@ -822,14 +907,14 @@ function Upload_File_response() { //********************************************
 	$MAXUP2 = number_format ($_POST['MAX_FILE_SIZE']).' bytes';
 	$ERROR = $_FILES['upload_file']['error'];
 
-	if     ( $ERROR == 1 ){ $ERRMSG = 'File too large.  upload_max_filesize = '.$MAXUP1.' (From php.ini)';}
-	elseif ( $ERROR == 2 ){ $ERRMSG = 'File too large.  $MAX_FILE_SIZE = '.$MAXUP2.' (From OneFileCMS)';}
-	elseif ( $ERROR == 3 ){ $ERRMSG = 'The uploaded file was only partially uploaded.'; }
-	elseif ( $ERROR == 4 ){ $ERRMSG = 'No file was uploaded. '; }
-	elseif ( $ERROR == 5 ){ $ERRMSG = ''; }
-	elseif ( $ERROR == 6 ){ $ERRMSG = 'Missing a temporary folder.'; }
-	elseif ( $ERROR == 7 ){ $ERRMSG = 'Failed to write file to disk.'; }
-	elseif ( $ERROR == 8 ){ $ERRMSG = 'A PHP extension stopped the file upload.'; }
+	if     ( $ERROR == 1 ){ $ERRMSG = 'Error 1: File too large.  upload_max_filesize = '.$MAXUP1.' (From php.ini)';}
+	elseif ( $ERROR == 2 ){ $ERRMSG = 'Error 2: File too large.  $MAX_FILE_SIZE = '.$MAXUP2.' (From OneFileCMS)';}
+	elseif ( $ERROR == 3 ){ $ERRMSG = 'Error 3: The uploaded file was only partially uploaded.'; }
+	elseif ( $ERROR == 4 ){ $ERRMSG = 'Error 4: No file was uploaded. '; }
+	elseif ( $ERROR == 5 ){ $ERRMSG = 'Error 5. '; }
+	elseif ( $ERROR == 6 ){ $ERRMSG = 'Error 6: Missing a temporary folder.'; }
+	elseif ( $ERROR == 7 ){ $ERRMSG = 'Error 7: Failed to write file to disk.'; }
+	elseif ( $ERROR == 8 ){ $ERRMSG = 'Error 8: A PHP extension stopped the file upload.'; }
 	else                  { $ERRMSG = ''; }
 
 	if (($filename == "")){ 
@@ -843,7 +928,7 @@ function Upload_File_response() { //********************************************
 		if(move_uploaded_file($_FILES['upload_file']['tmp_name'], $savefile)) {
 			$message .= '<br>Upload successful! '.$savefile_msg;
 		} else{
-			$message .= '<br>'.$EX.' <b>Error '.$ERROR.' - Upload failed: </b>'.$ERRMSG.'';
+			$message .= '<br>'.$EX.' <b> Upload failed: </b>'.$ERRMSG.'';
 		}
 	}
 }//end Upload_File_response() **************************************************
@@ -874,6 +959,7 @@ function New_File_response() { //***********************************************
 	$filename = $ipath.$new_name;
 	$page = "index"; // return to index if new file fails
 	
+	$invalid = false;
 	foreach ($INVALID_CHARS_array as $bad_char) {
 		if (strpos($new_name, $bad_char) !== false) { $invalid = true; }
 	}
@@ -958,6 +1044,8 @@ function Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $msg2, $is
 		if ($isfile) { $ipath = Check_path(dirname($filename)); } //if changed,
 		else         { $ipath = Check_path($filename); }          //return to new dir.
 		$param1   = '?i='.URLencode_path($ipath);
+
+
 	}else{
 		$message .= '<b>'.htmlentities($WEB_ROOT.$old_name).'</b><br>';
 		$message .= $EX.' <b>Error during '.$msg1.' from the above to the following:</b><br>';
@@ -1021,6 +1109,7 @@ function New_Folder_response(){ //**********************************************
 	global $ipath, $param1, $page, $message, $EX, $INVALID_CHARS, $INVALID_CHARS_array;
 
 	$new_name = trim($_POST["new_folder"],'/ '); //Trim spaces, and make sure only has a single trailing slash.
+
 
 	foreach ($INVALID_CHARS_array as $bad_char) {
 		if (strpos($new_name, $bad_char) !== false) { $invalid = true; }
@@ -1093,6 +1182,7 @@ function Page_Title(){ //***<title>Page_Title()</title>*************************
 	global $page;
 
 	if     ($page == "login")        { return "Log In";         }
+
 	elseif ($page == "edit")         { return "Edit/View File"; }
 	elseif ($page == "upload")       { return "Upload File";    }
 	elseif ($page == "newfile")      { return "New File";       }
@@ -1112,6 +1202,7 @@ function Load_Selected_Page(){ //***********************************************
 	global $ONESCRIPT, $page;
 
 	if     ($page == "login")        { Login_Page();         }
+
 	elseif ($page == "edit")         { Edit_Page();          }
 	elseif ($page == "upload")       { Upload_Page();        }
 	elseif ($page == "newfile")      { New_File_Page();      }
@@ -1290,10 +1381,7 @@ fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td
 { border : 0; outline: 0; margin : 0; padding: 0;
 font-family: inherit; font-weight: inherit; font-style : inherit;
 font-size  : 100%; vertical-align: baseline; }
-
-
 /* --- general formatting --- */
-
 body { font-size: 1em; background: #DDD; font-family: sans-serif; }
 
 p, table { margin-bottom: .5em; margin-top: .5em;}
@@ -1554,7 +1642,7 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 
 .close        {float: right; margin-bottom: .5em;}
 
-#edit_note    {font-size: .8em; color: #444 ;margin-top: 1em;}
+#edit_note    {font-size: .8em; color: #444 ;margin-top: 1em; clear:both;}
 
 
 
@@ -1610,6 +1698,21 @@ hr {
 .icon {float: left; margin: 0 .3em 0 0;}
 
 .mono {font-family: courier;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
 <?php }//end style_sheet() *****************************************************
 
@@ -1619,6 +1722,8 @@ hr {
 //******************************************************************************
 //******************************************************************************
 //Begin logic to determine page action
+
+
 
 
 Session_Startup(); //***********************************************************
@@ -1632,6 +1737,7 @@ Init_Macros();     //***********************************************************
 
 if ($VALID_POST) { //***********************************************************
 	if     (isset($_FILES['upload_file']['name'])) { Upload_File_response(); }
+
 	elseif (isset($_POST["filename"]     )) { Edit_Page_response(); }
 	elseif (isset($_POST["new_file"]     )) { New_File_response(); }
 	elseif (isset($_POST["copy_file"]    )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["copy_file"], 'copy', 'Copy', 'Copied', 1); } 
@@ -1647,20 +1753,32 @@ if ($VALID_POST) { //***********************************************************
 
 //*** Verify valid $page and/or $filename **************************************
 
-if (!in_array(strtolower($page), $valid_pages)) { $page = "index"; }
+if     (!in_array(strtolower($page), $valid_pages))   { $page = "index"; }
 
-//Don't load login screen if already in a valid session 
-if ( ($page == "login") and ($_SESSION['valid']) ) { $page = "index"; }
+        //Don't load login screen if already in a valid session.
+elseif ( ($page == "login") && ($_SESSION['valid']) ) { $page = "index"; }
 
-if ( $page == "edit" && !is_file($filename) ) { $page = "index"; }
+		//Don't load edit page if $filename doesn't exist.
+elseif ( ($page == "edit")  && !is_file($filename) )  { $page = "index"; }
 
-if ($page == "logout") { $page = "login"; $_SESSION['valid'] = "0";	session_destroy();
-	$message = 'You have successfully logged out.'; }
+elseif ($page == "logout") { $page = "login"; $_SESSION['valid'] = "0";	session_destroy();
+		$message .= 'You have successfully logged out.'; }
 
-if ( ($page == "deletefolder") && !is_empty($ipath) ) { //Don't load delete page if can't delete.
-	$message = $EX.' <b>Folder not empty. &nbsp; Folders must be empty before they can be deleted.</b>';
-	$page = "index";
-}
+		//Don't load delete page if folder not empty.
+elseif ( ($page == "deletefolder") && !is_empty($ipath) ) {
+	   $message .= $EX.' <b>Folder not empty. &nbsp; Folders must be empty before they can be deleted.</b>';
+	   $page = "index";}
+
+		//if size of $_POST > post_max_size, PHP only returns empty $_POST & $_FILE arrays.
+elseif ($page == "uploaded" && !$VALID_POST){
+	   $message .= $EX.'<b> Upload Error.  Total POST data (mostly filesize) exceeded post_max_size = '.ini_get('post_max_size').' (from php.ini).</b>';
+	   $page = "index";}
+
+elseif ( ($page == "edit") && ($filename == trim($ONESCRIPT, '/')) ) { 
+	   if ( $message == "" ){ $BR = ""; }else{ $BR = '<br>';}
+	   $message .= '<style>#message p {background: red; color: white;}</style>';
+	   $message .= $BR.$EX.' <b>CAUTION '.$EX.' You are editing the active copy of OneFileCMS - BACK IT UP &amp; BE CAREFUL !!</b>'; }
+
 //******************************************************************************
 
 
@@ -1710,8 +1828,11 @@ if ($page == "login"){ echo '<div class="login_page">'; }
 
 <?php Load_Selected_Page() ?>
 
+
+
+
+
 <hr>
 </div><!-- end container/login_page -->
-
 </body>
 </html>
