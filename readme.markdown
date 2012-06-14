@@ -1,6 +1,6 @@
-### June 08, 2012
+### June 14, 2012
 
-# Current stable version: 3.1.8
+# Current stable version: 3.1.9
 
 - 3.0+ : "Full" version - uses svg icons
 - 2.0+ : "Lite" version - uses no icons.
@@ -41,8 +41,8 @@ Coupling a utilitarian code editor with basic file managing functions, OneFileCM
 2) Set your username and password - edit them to something less obvious.
 
     // CONFIGURATION INFO
-    $config_username = "username";
-    $config_password = "password";
+    $USERNAME = "username";
+    $PASSWORD = "password";
 
 3) Upload to anywhere on your site!
 
@@ -102,10 +102,11 @@ To report a bug or request a feature, please file an issue via Github. Forks enc
 
 ##Needed/potential/upcoming improvements
 
+- With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
+- Issue with Chrome's XSS filter: Editing some legitimate files with OneFileCMS will trigger the filter and disable most javascript provided functionallity, but only while on edit page of such a file.
 - Connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text during login.
 - Be aware that only some very basic & rudimentary data & error checking is performed.  
   On Windows, for instance, it's possible to create folders that are subsequently inaccessible and undeletable by Windows.  (Yea, I found out the hard way...)
-- With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
 - Multiple login names.
 - Anything else?
 
@@ -144,7 +145,13 @@ GENERATE THE PAGE
 
 ## Change Log
 
-###3.1.6 thru 3.1.8
+### 3.1.9
+
+- Password may now be stored as an encrypted hash, instead of in plain text.
+- Added an "Admin" page to generate password hashes.
+- A bunch of other code tweakin' & improvements.
+
+### 3.1.6 thru 3.1.8
 
 - Converted bulk of rest of code into functions (easier to work with)
 - Resolved issue (I hope) with differing versions of PHP and how magic_quotes & stripslashes are handeled.

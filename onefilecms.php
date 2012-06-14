@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.1.8.3';
+$version = '3.1.9';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -32,13 +32,13 @@ SOFTWARE.
 
 
 // CONFIGURABLE INFO ***********************************************************
-$config_username  = "username";
-$config_password  = "password";
+$USERNAME = 'username';
+
+$PASSWORD = 'password'; //If using $HASHWORD, you may leave this value empty.
+$USE_HASH = 0 ; // If = 0, use $PASSWORD. If = 1, use $HASHWORD. 
+$HASHWORD = 'ff20c771cd8b39d848aa3bb631e880ece7682f98164d5446699cee1b6486fdb3'; //default hash for "password"
+
 $config_title     = "OneFileCMS";
-
-
-
-
 
 $MAX_IMG_W   = 810;   // Max width to display images. (page container = 810)
 $MAX_IMG_H   = 1000;  // Max height.  I don't know, it just looks reasonable.
@@ -73,6 +73,11 @@ $DOC_ROOT  = $_SERVER["DOCUMENT_ROOT"].'/';
 $WEB_ROOT  = URLencode_path(basename($DOC_ROOT)).'/';
 $WEBSITE   = $_SERVER["HTTP_HOST"].'/';
 
+$valid_pages = array("hash", "login","logout","index","edit","upload","uploaded","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder" );
+
+$INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file/folder names. (Space deliminated)
+$INVALID_CHARS_array = explode(' ', $INVALID_CHARS);
+
 //Make arrays out of a few $config_variables for actual use later.
 //Also, remove spaces and make lowercase.
 $etypes   = explode(',', strtolower(str_replace(' ', '', $config_etypes))); //editable file types
@@ -80,36 +85,31 @@ $itypes   = explode(',', strtolower(str_replace(' ', '', $config_itypes))); //im
 $ftypes   = explode(',', strtolower(str_replace(' ', '', $config_ftypes))); //file types with icons
 $fclasses = explode(',', strtolower(str_replace(' ', '', $config_fclass))); //for file types with icons
 $excluded_list = (explode(",", $config_excluded));
-
-$valid_pages = array("login","logout","index","edit","upload","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder" );
-
-$INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file/folder names. (Space deliminated)
-$INVALID_CHARS_array = explode(' ', $INVALID_CHARS);
 //******************************************************************************
 
 
 
 
 function Session_Startup() {//**************************************************
-	global $config_username, $config_password, $message , $page, $VALID_POST;
+	global $USERNAME, $PASSWORD, $HASHWORD, $USE_HASH, $SALT, $message , $page, $VALID_POST;
 
 	session_start();
 
 	undo_magic_quotes();
 
-
+	if ($USE_HASH){ $PASS = $HASHWORD; }else{ $PASS = $PASSWORD; }
 
 	if ( isset($_POST["username"]) || isset($_POST["password"]) ) {
 		$_SESSION['username'] = $_POST["username"];
-		$_SESSION['password'] = $_POST["password"];
 
+		if ($USE_HASH) { $_SESSION['password'] = hashit($_POST["password"]); }
+		else           { $_SESSION['password'] =        $_POST["password"];  }
 
-
-		if (($_POST["username"] != $config_username) || ($_POST["password"] != $config_password))
-			{ $message = $EX.' <b>INVALID LOGIN ATTEMPT</b>'; }
+		if (($_SESSION['username'] != $USERNAME) || ($_SESSION['password'] != $PASS))
+			{ $message .= $EX.' <b>INVALID LOGIN ATTEMPT</b>'; }
 	}
 
-	if (($_SESSION['username'] == $config_username) and ( $_SESSION['password'] == $config_password ))
+	if (($_SESSION['username'] == $USERNAME) && ( $_SESSION['password'] == $PASS ))
 		 { $_SESSION['valid'] = "1"; $page = "index"; }
 	else { $_SESSION['valid'] = "0"; $page = "login"; unset($_GET["p"]); session_destroy() ;}
 
@@ -121,14 +121,14 @@ function Session_Startup() {//**************************************************
 
 
 
-
-
-
-
-
-
-
-
+function hashit($key){ //*******************************************************
+	//This is the super-secret stuff - don't tell anyone!!
+	//If you change anything here, redo the hash for your password.
+	$hash = hash('sha256', trim($key).$salt); // trim off leading & trailing spaces.
+	$salt = 'somerandomesalt';
+	for ( $x=0; $x < 1000; $x++ ) { $hash = hash('sha256', $hash.$salt); }
+	return $hash;
+}//end hashit() ****************************************************************
 
 
 
@@ -338,16 +338,16 @@ function Upload_New_Rename_Delete_Links() { //**********************************
 function Cancel_Submit_Buttons($submit_label, $focus) { //**********************
 	//$submit_label = Rename, Copy, Delete, etc...
 	//$focus is ID of element to receive focus(). (element may be outside this function)
-	global $ONESCRIPT, $ipath, $param1, $filename, $page;
+	global $ONESCRIPT, $ipath, $param1, $param2, $filename, $page;
 
-	// [Cancel] returns to either the current/path, or current/path/file
-	if ($filename != "") { $param1 .= '&f='.rawurlencode(basename($filename)).'&p='.edit; }
+	// [Cancel] returns to either the index, or edit page.
+	if ($filename == "") {$params = "";}else{ $params .= $param2.'&amp;p=edit'; }
 ?>
-	<p>
-		<input type="button" class="button" id="cancel" name="cancel" value="Cancel"
-			onclick="parent.location='<?php echo $ONESCRIPT.$param1; ?>'">
-		<input type="submit" class="button" value="<?php echo $submit_label;?>" style="margin-left: 1.3em;">
-	</p>
+	<p></p>
+	<input type="button" class="button" id="cancel" name="cancel" value="Cancel"
+		onclick="parent.location = '<?php echo $ONESCRIPT.$param1.$params ?>'">
+	<input type="submit" class="button" value="<?php echo $submit_label;?>" style="margin-left: 1.3em;">
+
 <?php
 	if ($focus != ""){ echo '<script>document.getElementById("'.$focus.'").focus();</script>'; }
 
@@ -396,11 +396,11 @@ function show_favicon(){ //*****************************************************
 
 function Init_Macros(){ //*** ($varibale="some reusable chunk of code")*********
 
-global 	$ONESCRIPT, $param1, $INPUT_SESSIONID, $FORM_COMMON, 
+global 	$ONESCRIPT, $param1, $param2, $INPUT_SESSIONID, $FORM_COMMON, 
 		$SVG_icon_circle_plus, $SVG_icon_circle_x, $SVG_icon_pencil, $SVG_icon_img_0;
 
 $INPUT_SESSIONID = '<input type="hidden" name="sessionid" value="'.session_id().'">'.PHP_EOL;
-$FORM_COMMON = '<form method="post" action="'.$ONESCRIPT.$param1.'">'.$INPUT_SESSIONID;
+$FORM_COMMON = '<form method="post" action="'.$ONESCRIPT.$param1.$param2.'">'.$INPUT_SESSIONID;
 
 $SVG_icon_circle_plus = '<circle cx="5" cy="5" r="5" stroke="black" stroke-width="0" fill="#080"/>
 	  <line x1="2" y1="5" x2="8" y2="5" stroke="white" stroke-width="1.5" />
@@ -572,56 +572,56 @@ function show_icon($type){ //***************************************************
 
 
 
+function Hash_Page() { //******************************************************
+	global $DOC_ROOT, $ONESCRIPT, $param1, $message, $INPUT_SESSIONID, $config_title;
+	$params = '?i='.dirname($ONESCRIPT).'&amp;f='.basename($ONESCRIPT).'&amp;p=edit';
+?>
+	<style>#message {font-family: courier; min-height: 3.1em;}
+	li {margin-left: 2em}</style>
+
+	<h2>Generate a Password Hash</h2>
+	
+	<form id="hash" name="hash" method="post" action="<?php echo $ONESCRIPT.$param1.'&amp;p=hash'; ?>">
+		<?php echo $INPUT_SESSIONID; ?>
+		Password to hash:
+		<input type="text" name="whattohash" id="whattohash" value="<?php echo htmlspecialchars($_POST["whattohash"]) ?>">
+		<?php Cancel_Submit_Buttons('Generate hash', 'whattohash') ?>
+ 		<a class="button edit_onefile" href="<?php echo $ONESCRIPT.$params; ?>" >Edit &nbsp;<?php echo $config_title ?></a>
+	</form>
+
+	<div class="info">
+ 	<p>There are two ways to change your OneFileCMS password:<br>
+	<p>
+	1) Simply use the $PASSWORD config variable to store your desired password, and set $USE_HASH = 0 (zero).<br>
+	2) Or, use $HASHWORD to store the hash of your password, and set $USE_HASH = 1.<br>
+
+	<p>Keep in mind that due to a number of widely varied considerations, this is largely an academic excersize.<br>
+	In other words, take the idea that this adds much of an improvement to security with a grain of cryptographic salt...*<br>
+	<p>Anyway, to use the $HASHWORD password option:
+	<ol><li>Type your desired password in the input field above and hit Enter.<br>
+			The hash will be displayed in a yellow message box above that.
+		<li>Copy and paste the new hash to the $HASHWORD variable in the config section.<br>
+			'Make sure the hash ends up in quotes.'<br>
+			Make sure to copy ALL of, and ONLY, the hash (no spaces etc). A double-click should select it...
+		<li>Make sure $USE_HASH is set to 1 (or true).
+		<li>When ready, logout and login.
+	</ol>
+	<p>You can use OneFileCMS to edit itself.  However, be sure to have a backup ready for the inevitable tupo...
+	<p>*Note: While still largely academic, you can improve security a bit more by changing the default salt and/or method used by OneFileCMS to hash the password (and keep 'em secret, of course).<br>
+	PS: Everything I know about security - you just read...
+	</div>
+<?php 
+} //end Hash_Page() ************************************************************
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function Hash_Page_response() { //**********************************************
+	global $SALT, $message;
+	$_POST['whattohash'] = trim($_POST['whattohash']); // trim leading & trailing spaces.
+	$message .= 'Password: '.$_POST['whattohash'].'<br>';
+	$message .= 'Hash &nbsp; &nbsp;: '.hashit($_POST["whattohash"]);
+} //end Hash_Page_response() ***************************************************
 
 
 
@@ -956,7 +956,7 @@ function New_File_Page() { //***************************************************
 
 
 function New_File_response() { //***********************************************
-	global $ipath, $filename, $page, $message, $EX, $INVALID_CHARS, $INVALID_CHARS_array;
+	global $ipath, $param2, $filename, $page, $message, $EX, $INVALID_CHARS, $INVALID_CHARS_array;
 
 	$new_name = trim($_POST["new_file"],'/ '); //Trim spaces and slashes.
 	$filename = $ipath.$new_name;
@@ -980,7 +980,7 @@ function New_File_response() { //***********************************************
 		fclose($handle);
 		$message .= '<b>Created file:</b> '.htmlentities($new_name);
 		$page     = "edit";
-		$param1   = '?i='.URLencode_path($ipath);
+		$param2   = '&amp;f='.rawurlencode(basename($filename));// for Edit_Page() buttons
 	}else{
 		$message .= $EX.' <b>Error - new file not created:<br>';
 		$message .= htmlentities($new_name);
@@ -1022,7 +1022,7 @@ function Copy_Ren_Move_Page($action, $title, $name_id, $isfile) { //******
 //******************************************************************************
 function Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $msg2, $isfile){
 	//$action = 'copy' or 'rename'. $isfile = 1 if acting on a file, not a folder
-	global $WEB_ROOT, $ipath, $param1, $message, $EX, $page, $filename;
+	global $WEB_ROOT, $ipath, $param1, $param2, $message, $EX, $page, $filename;
 
 	$old_name = trim($old_name,'/ ');
 	$new_name = trim($new_name,'/ ');
@@ -1047,8 +1047,8 @@ function Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $msg2, $is
 		if ($isfile) { $ipath = Check_path(dirname($filename)); } //if changed,
 		else         { $ipath = Check_path($filename); }          //return to new dir.
 		$param1   = '?i='.URLencode_path($ipath);
-
-
+		$param2   = '&amp;f='.rawurlencode(basename($filename));
+		$param3   = '&amp;p=edit';
 	}else{
 		$message .= '<b>'.htmlentities($WEB_ROOT.$old_name).'</b><br>';
 		$message .= $EX.' <b>Error during '.$msg1.' from the above to the following:</b><br>';
@@ -1113,7 +1113,7 @@ function New_Folder_response(){ //**********************************************
 
 	$new_name = trim($_POST["new_folder"],'/ '); //Trim spaces, and make sure only has a single trailing slash.
 
-
+	$invalid = false;
 	foreach ($INVALID_CHARS_array as $bad_char) {
 		if (strpos($new_name, $bad_char) !== false) { $invalid = true; }
 	}
@@ -1185,7 +1185,7 @@ function Page_Title(){ //***<title>Page_Title()</title>*************************
 	global $page;
 
 	if     ($page == "login")        { return "Log In";         }
-
+	elseif ($page == "hash")         { return "Hash";           }
 	elseif ($page == "edit")         { return "Edit/View File"; }
 	elseif ($page == "upload")       { return "Upload File";    }
 	elseif ($page == "newfile")      { return "New File";       }
@@ -1205,7 +1205,7 @@ function Load_Selected_Page(){ //***********************************************
 	global $ONESCRIPT, $page;
 
 	if     ($page == "login")        { Login_Page();         }
-
+	elseif ($page == "hash")         { Hash_Page();          }
 	elseif ($page == "edit")         { Edit_Page();          }
 	elseif ($page == "upload")       { Upload_Page();        }
 	elseif ($page == "newfile")      { New_File_Page();      }
@@ -1709,13 +1709,13 @@ hr {
 	Xfont: 1em "Courier New", Courier, monospace;
 	}
 
+#admin {padding: .3em;}
 
-
-
+.info {margin-top: .7em; background: #f9f9f9; padding: .2em .5em;}
 
 .path {padding: 3px 5px 3px 5px} /*TRBL*/
 
-
+.edit_onefile {padding: 5px; float: right;}
 </style>
 <?php }//end style_sheet() *****************************************************
 
@@ -1727,7 +1727,7 @@ hr {
 //Begin logic to determine page action
 
 
-
+if( PHP_VERSION_ID < 50000 ) { exit("OneFileCMS requires PHP5 to operate. Tested on versions 5.2.17, 5.3.3 & 5.4"); }
 
 Session_Startup(); //***********************************************************
 
@@ -1740,13 +1740,13 @@ Init_Macros();     //***********************************************************
 
 if ($VALID_POST) { //***********************************************************
 	if     (isset($_FILES['upload_file']['name'])) { Upload_File_response(); }
-
+	elseif (isset($_POST["whattohash"]   )) { Hash_Page_response(); }
 	elseif (isset($_POST["filename"]     )) { Edit_Page_response(); }
-	elseif (isset($_POST["new_file"]     )) { New_File_response(); }
+	elseif (isset($_POST["new_file"]     )) { New_File_response();  }
 	elseif (isset($_POST["copy_file"]    )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["copy_file"], 'copy', 'Copy', 'Copied', 1); } 
 	elseif (isset($_POST["rename_file"]  )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_file"], 'rename', 'Rename/Move', 'Renamed/Moved', 1); } 
 	elseif (isset($_POST["delete_file"]  )) { Delete_File_response(); }
-	elseif (isset($_POST["new_folder"]   )) { New_Folder_response(); }
+	elseif (isset($_POST["new_folder"]   )) { New_Folder_response();  }
 	elseif (isset($_POST["rename_folder"])) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_folder"], 'rename', 'Rename/Move', 'Renamed/Moved', 0); } 
 	elseif (isset($_POST["delete_folder"])) { Delete_Folder_response(); }
 }//end if ($VALID_POST) ********************************************************
@@ -1806,17 +1806,16 @@ elseif ( ($page == "edit") && ($filename == trim($ONESCRIPT, '/')) ) {
 </head>
 <body>
 
-<?php
-if ($page == "login"){ echo '<div class="login_page">'; }
-				 else{ echo '<div class="container" >'; }
+<?php if ($page == "login"){ echo '<div class="login_page">'; }
+      else                 { echo '<div class="container" >'; }
 ?>
 
 <div class="header">
-	<?php echo '<a href="', $ONESCRIPT, '" id="logo">', $config_title; ?></a>
-	<?php echo $version; ?>
-	(on&nbsp;php&nbsp;<?php echo phpversion(); ?>)
+	<a href="<?php echo $ONESCRIPT.'" id="logo">'.$config_title; ?></a>
+	<?php echo $version.' (on&nbsp;php&nbsp'.phpversion().')'; ?>
+
 	<div class="nav">
-		<a href="/" target="_blank"><?php show_favicon() ?>&nbsp; 
+		<a href="/" target="_blank"><?php show_favicon() ?>&nbsp;
 		<b><?php echo htmlentities($WEBSITE) ?></b>  &nbsp;- &nbsp;
 		Visit Site</a>
 		<?php if ($page != "login") { ?>
@@ -1825,17 +1824,18 @@ if ($page == "login"){ echo '<div class="login_page">'; }
 	</div><div style="clear:both;"></div>
 </div><!-- end header -->
 
-<?php if ( $page != "login" ){ Current_Path_Header(); } ?>
+<?php if ( $page != "login"  &&  $page != "hash" ){ Current_Path_Header(); } ?>
 
 <?php message_box() ?>
 
 <?php Load_Selected_Page() ?>
 
-
-
-
-
 <hr>
+
+<?php if ( ($page != "hash") && ($_SESSION['valid']) ){ 
+		echo '<a id="admin" href="'.$ONESCRIPT.$param1.'&amp;p=hash">Admin</a>'; }
+?>
+
 </div><!-- end container/login_page -->
 </body>
 </html>

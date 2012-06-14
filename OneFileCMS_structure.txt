@@ -4,6 +4,7 @@ SOME STANDARD GLOBAL VARIABLES
 
 MISC FUNCTIONS:
 	Session_Startup()
+	hashit()
 	undo_magic_quotes()
 	Get_GET()
 	URLencode_path()
@@ -13,7 +14,6 @@ MISC FUNCTIONS:
 	Current_Path_Header()
 	message_box()
 	Upload_New_Rename_Delete_Links()
-	Close_Button()
 	Cancel_Submit_Buttons()
 	show_image()
 	show_favicon()
@@ -40,6 +40,8 @@ SVG ICON FUNCTIONS:
 	show_icon()
 
 PAGE & RESPONSE FUNCTIONS:
+	Hash_Page()
+	Hash_Page_response()
 	Login_Page()
 	list_files()
 	Index_Page()
@@ -68,6 +70,7 @@ JAVASCRIPT & STYLESHEET FUNCTIONS:
 	style_sheet()        //css
 	
 LOGIC TO DETERMINE PAGE ACTION
+	Verify good PHP version
 	Call Session_Startup()
 	Call Get_GET()
 	Call Init_Macros()
