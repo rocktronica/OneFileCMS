@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.1.9.01';
+$version = '3.1.9.02';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -36,8 +36,8 @@ $config_title     = "OneFileCMS";
 
 $USERNAME = 'username';
 
-$PASSWORD = ''; //If using $HASHWORD, you may leave this value empty.
-$USE_HASH = 1 ; // If = 0, use $PASSWORD. If = 1, use $HASHWORD. 
+$PASSWORD = 'password'; //If using $HASHWORD, you may leave this value empty.
+$USE_HASH = 0 ; // If = 0, use $PASSWORD. If = 1, use $HASHWORD. 
 $HASHWORD = 'ff20c771cd8b39d848aa3bb631e880ece7682f98164d5446699cee1b6486fdb3'; //default hash for "password"
 
 
@@ -96,25 +96,34 @@ $excluded_list = (explode(",", $config_excluded));
 function Session_Startup() {//**************************************************
 	global $USERNAME, $PASSWORD, $HASHWORD, $USE_HASH, $message , $page, $VALID_POST;
 
+	session_name('OFCMS'); //Change from default ('PHPSESSID')
 	session_start();
 
-	undo_magic_quotes();
-
+	//Validate login
 	if ( isset($_POST["username"]) || isset($_POST["password"]) ) {
 		if ($USE_HASH){ $VALID_PASSWORD = (hashit($_POST['password'] == $HASHWORD)); }
-		else          { $VALID_PASSWORD = (       $_POST['password'] == $PASSWORD);  }
+		else          { $VALID_PASSWORD = (       $_POST['password'] == $PASSWORD) ; }
 
 		if (($_POST["username"] == $USERNAME) && $VALID_PASSWORD ) {
+			session_regenerate_id(true);
 			$_SESSION['valid'] = "1"; $page = "index";
+			$_SESSION['HTTP_USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
 		}else{
-			$_SESSION['valid'] = "0"; $page = "login"; unset($_GET["p"]); session_destroy();
+			$_SESSION['valid'] = "0";
 			$message .= $EX.' <b>INVALID LOGIN ATTEMPT</b>';
 		}
 	}
 
-	if (!$_SESSION['valid']) { session_destroy(); $page = login; }
+	//Just a minor user consistancy check... (every little bit helps a little)
+	if ($_SERVER["HTTP_USER_AGENT"] != $_SESSION['HTTP_USER_AGENT']) { $_SESSION['valid'] = 0; }
 
-	$VALID_POST = ($_SESSION['valid'] == "1" && $_POST["sessionid"] == session_id());
+	if (!$_SESSION['valid']) {
+		session_regenerate_id(true);
+		session_unset(); session_destroy(); session_write_close();
+		$page = login; unset($_GET); unset($_POST);
+	}
+
+	$VALID_POST = ($_SESSION['valid'] && $_POST["sessionid"] == session_id());
 
 	chdir($_SERVER["DOCUMENT_ROOT"]); //Allow OneFileCMS.php to be started from any dir on the site.
 }//End Session_Startup() *******************************************************
@@ -123,7 +132,7 @@ function Session_Startup() {//**************************************************
 
 
 function hashit($key){ //*******************************************************
-	//This is the super-secret stuff - don't tell anyone!!
+	//This is the super-secret stuff - Keep it secret, keep it safe!
 	//If you change anything here, redo the hash for your password.
 	$hash = hash('sha256', trim($key).$salt); // trim off leading & trailing spaces.
 	$salt = 'somerandomesalt';
@@ -154,6 +163,8 @@ function undo_magic_quotes(){ //************************************************
 function Get_GET() { //*** Get main parameters *********************************
 	// i=some/path/,  f=somefile.xyz,  p=somepage
 	global $ipath, $filename, $page, $param1, $param2, $param3, $message, $EX;
+
+	undo_magic_quotes();
 
 	if (isset($_GET["i"])) { $ipath = Check_path($_GET["i"]); }else{ $ipath = ""; }
 
@@ -746,7 +757,6 @@ function Edit_Page_Buttons($text_editable, $too_large_to_edit) { //*************
 //******************************************************************************
 function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message){ 
 	global $ONESCRIPT, $param1, $param2, $param3, $filename, $itypes, $INPUT_SESSIONID, $EX, $message;
-	clearstatcache ();
 ?>
 	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$param1.$param2.$param3 ?>">
 		<?php echo $INPUT_SESSIONID; ?>
@@ -783,7 +793,10 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 
 	if ($text_editable && !$too_large_to_edit && !$bad_chars) {
 		Edit_Page_scripts();
-		echo '<div id="edit_note">NOTE: On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser\'s [Reload].</div>';
+		echo '<div id="edit_note">NOTES:<ol>';
+		echo '<li>On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser\'s [Reload].';
+		echo '<li>Under certain circumstances, Chrome\'s XSS filters may disable some javascript in a page if it even <i>appears</i> to contain inline javascript.  This can affect certain features of the OneFileCMS edit page when editing files that actually contain such code, such as OneFileCMS itself.  However, these files can still be edited and saved with OneFileCMS.  The primary function lost is the incidental change of background colors (red/green) indicating whether or not the file has unsaved changes.  The issue will be noticed after the first save of such a file.';
+		echo '</div>';
 	}
 ?>
 	</form> 
@@ -795,6 +808,7 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 
 function Edit_Page() { //*******************************************************
 	global $ONESCRIPT, $param1, $filename, $filecontent, $etypes, $itypes, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE;
+	clearstatcache ();
 
 	//Determine if text editable file type
 	$ext = end( explode(".", strtolower($filename) ) );
@@ -1578,7 +1592,7 @@ textarea:focus { border: 1px solid #Faa; }
 	width  : 99%;
 	padding: .2em;
 	margin : 0;
-	background-color: #FFF000;
+	background-color: #FFF000; color: #333;
 	line-height: 1.4em;
 	}
 
@@ -1766,6 +1780,8 @@ elseif ( ($page == "login") && ($_SESSION['valid']) ) { $page = "index"; }
 elseif ( ($page == "edit")  && !is_file($filename) )  { $page = "index"; }
 
 elseif ($page == "logout") { $page = "login"; $_SESSION['valid'] = "0";	session_destroy();
+		session_regenerate_id(true);
+		session_unset(); session_destroy(); session_write_close();// setcookie(session_name(),'',0,'/');
 		$message .= 'You have successfully logged out.'; }
 
 		//Don't load delete page if folder not empty.
