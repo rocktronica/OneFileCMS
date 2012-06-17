@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.1.9';
+$version = '3.1.9.01';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -32,13 +32,16 @@ SOFTWARE.
 
 
 // CONFIGURABLE INFO ***********************************************************
+$config_title     = "OneFileCMS";
+
 $USERNAME = 'username';
 
-$PASSWORD = 'password'; //If using $HASHWORD, you may leave this value empty.
-$USE_HASH = 0 ; // If = 0, use $PASSWORD. If = 1, use $HASHWORD. 
+$PASSWORD = ''; //If using $HASHWORD, you may leave this value empty.
+$USE_HASH = 1 ; // If = 0, use $PASSWORD. If = 1, use $HASHWORD. 
 $HASHWORD = 'ff20c771cd8b39d848aa3bb631e880ece7682f98164d5446699cee1b6486fdb3'; //default hash for "password"
 
-$config_title     = "OneFileCMS";
+
+
 
 $MAX_IMG_W   = 810;   // Max width to display images. (page container = 810)
 $MAX_IMG_H   = 1000;  // Max height.  I don't know, it just looks reasonable.
@@ -91,27 +94,25 @@ $excluded_list = (explode(",", $config_excluded));
 
 
 function Session_Startup() {//**************************************************
-	global $USERNAME, $PASSWORD, $HASHWORD, $USE_HASH, $SALT, $message , $page, $VALID_POST;
+	global $USERNAME, $PASSWORD, $HASHWORD, $USE_HASH, $message , $page, $VALID_POST;
 
 	session_start();
 
 	undo_magic_quotes();
 
-	if ($USE_HASH){ $PASS = $HASHWORD; }else{ $PASS = $PASSWORD; }
-
 	if ( isset($_POST["username"]) || isset($_POST["password"]) ) {
-		$_SESSION['username'] = $_POST["username"];
+		if ($USE_HASH){ $VALID_PASSWORD = (hashit($_POST['password'] == $HASHWORD)); }
+		else          { $VALID_PASSWORD = (       $_POST['password'] == $PASSWORD);  }
 
-		if ($USE_HASH) { $_SESSION['password'] = hashit($_POST["password"]); }
-		else           { $_SESSION['password'] =        $_POST["password"];  }
-
-		if (($_SESSION['username'] != $USERNAME) || ($_SESSION['password'] != $PASS))
-			{ $message .= $EX.' <b>INVALID LOGIN ATTEMPT</b>'; }
+		if (($_POST["username"] == $USERNAME) && $VALID_PASSWORD ) {
+			$_SESSION['valid'] = "1"; $page = "index";
+		}else{
+			$_SESSION['valid'] = "0"; $page = "login"; unset($_GET["p"]); session_destroy();
+			$message .= $EX.' <b>INVALID LOGIN ATTEMPT</b>';
+		}
 	}
 
-	if (($_SESSION['username'] == $USERNAME) && ( $_SESSION['password'] == $PASS ))
-		 { $_SESSION['valid'] = "1"; $page = "index"; }
-	else { $_SESSION['valid'] = "0"; $page = "login"; unset($_GET["p"]); session_destroy() ;}
+	if (!$_SESSION['valid']) { session_destroy(); $page = login; }
 
 	$VALID_POST = ($_SESSION['valid'] == "1" && $_POST["sessionid"] == session_id());
 
@@ -1655,7 +1656,7 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 	margin  : 5em auto;
 	border  : 1px solid #807568;
 	padding : 1em 1em 0 1em;
-	width   : 360px;
+	width   : 370px;
 	}
 
 .login_page .nav { margin-top: .5em; }
@@ -1663,11 +1664,11 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 .login_input {
 	border  : 1px solid #807568;
 	padding : 2px 0px 2px 2px;
-	width   : 356px;
+	width   : 366px;
 	font    : 1em "Courier New";
 	}
 
-.login_page input[type="text"]{ width   : 354px; }
+.login_page input[type="text"]{ width   : 364px; }
 
 
 /* --- --- --- */
