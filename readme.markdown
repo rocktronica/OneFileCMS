@@ -1,4 +1,10 @@
-### June 14, 2012
+### June 18, 2012
+
+## error/warning messages get displayed.
+
+- Evidently, default PHP error/warning levels are not the same as what my test setup uses. That is, you may get a bumnch of warnings during failed login attempts, among other things.  THey are nothing to worry about (probably).  Anyway, to disable the warnings, add the following line to the top of onefilecms.php:  
+error_reporting(0);  
+
 
 # Current stable version: 3.1.9
 
