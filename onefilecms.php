@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.1.9.02';
+$version = '3.1.9.03';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -40,8 +40,8 @@ $PASSWORD = 'password'; //If using $HASHWORD, you may leave this value empty.
 $USE_HASH = 0 ; // If = 0, use $PASSWORD. If = 1, use $HASHWORD. 
 $HASHWORD = 'ff20c771cd8b39d848aa3bb631e880ece7682f98164d5446699cee1b6486fdb3'; //default hash for "password"
 
-
-
+$MAX_ATTEMPTS = 3;  //Max failed login attempts before LOGIN_DELAY starts.
+$LOGIN_DELAY  = 30; //In seconds.
 
 $MAX_IMG_W   = 810;   // Max width to display images. (page container = 810)
 $MAX_IMG_H   = 1000;  // Max height.  I don't know, it just looks reasonable.
@@ -78,8 +78,8 @@ $WEBSITE   = $_SERVER["HTTP_HOST"].'/';
 
 $valid_pages = array("hash", "login","logout","index","edit","upload","uploaded","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder" );
 
-$INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file/folder names. (Space deliminated)
-$INVALID_CHARS_array = explode(' ', $INVALID_CHARS);
+$INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file/folder names.
+$INVALID_CHARS_array = explode(' ', $INVALID_CHARS); // (Space deliminated)
 
 //Make arrays out of a few $config_variables for actual use later.
 //Also, remove spaces and make lowercase.
@@ -94,39 +94,72 @@ $excluded_list = (explode(",", $config_excluded));
 
 
 function Session_Startup() {//**************************************************
-	global $USERNAME, $PASSWORD, $HASHWORD, $USE_HASH, $message , $page, $VALID_POST;
+	global $USERNAME, $PASSWORD, $USE_HASH, $HASHWORD, $message , $page, $VALID_POST;
 
 	session_name('OFCMS'); //Change from default ('PHPSESSID')
 	session_start();
 
-	//Validate login
-	if ( isset($_POST["username"]) || isset($_POST["password"]) ) {
-		if ($USE_HASH){ $VALID_PASSWORD = (hashit($_POST['password'] == $HASHWORD)); }
-		else          { $VALID_PASSWORD = (       $_POST['password'] == $PASSWORD) ; }
-
-		if (($_POST["username"] == $USERNAME) && $VALID_PASSWORD ) {
-			session_regenerate_id(true);
-			$_SESSION['valid'] = "1"; $page = "index";
-			$_SESSION['HTTP_USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
-		}else{
-			$_SESSION['valid'] = "0";
-			$message .= $EX.' <b>INVALID LOGIN ATTEMPT</b>';
-		}
-	}
+	//If logging in, validate
+	if ( isset($_POST["username"]) || isset($_POST["password"]) ) { Login_response(); }
 
 	//Just a minor user consistancy check... (every little bit helps a little)
-	if ($_SERVER["HTTP_USER_AGENT"] != $_SESSION['HTTP_USER_AGENT']) { $_SESSION['valid'] = 0; }
+	if ( $_SESSION['USER_AGENT'] != md5($_SERVER["HTTP_USER_AGENT"])) { $_SESSION['valid'] = 0; }
 
-	if (!$_SESSION['valid']) {
-		session_regenerate_id(true);
-		session_unset(); session_destroy(); session_write_close();
-		$page = login; unset($_GET); unset($_POST);
-	}
+	if (!$_SESSION['valid']) { Logout(); }
 
 	$VALID_POST = ($_SESSION['valid'] && $_POST["sessionid"] == session_id());
 
 	chdir($_SERVER["DOCUMENT_ROOT"]); //Allow OneFileCMS.php to be started from any dir on the site.
 }//End Session_Startup() *******************************************************
+
+
+
+
+function Logout(){ //**************************************************
+	global $page;
+	session_regenerate_id(true);
+	session_unset();
+	session_destroy();
+	session_write_close();
+	unset($_GET);
+	unset($_POST);
+	$page = login;
+}//end Logout() *******************************************************
+
+
+
+
+function Login_response() { //**************************************************
+	global $USERNAME, $PASSWORD, $USE_HASH, $HASHWORD, $MAX_ATTEMPTS, $LOGIN_DELAY, $message, $EX, $page, $DOC_ROOT;
+
+	$Login_Attempts = $DOC_ROOT.trim($_SERVER["SCRIPT_NAME"],'/').'.invalid_login_attempts';
+	$attempts       = (int)file_get_contents($Login_Attempts) + 1;
+	clearstatcache();
+	$elapsed        = time() - filemtime($Login_Attempts);
+
+	if ( ($attempts > $MAX_ATTEMPTS) && ($elapsed < $LOGIN_DELAY) ){
+		$message  = $EX.' <b>Too many invalid login attempts. </b><br>Please wait ';
+		$message .= ($LOGIN_DELAY - $elapsed) .' seconds to try again.';
+		$_SESSION['valid'] = '0';
+		return 0;
+	}
+
+	if ($USE_HASH){ $VALID_PASSWORD = (hashit($_POST['password']) == $HASHWORD); }
+	else          { $VALID_PASSWORD = (       $_POST['password']  == $PASSWORD); }
+
+	//Validate login attempt
+	if ( $VALID_PASSWORD && ($_POST['username'] == $USERNAME) ) {
+		session_regenerate_id(true);
+		$_SESSION['USER_AGENT'] = md5($_SERVER['HTTP_USER_AGENT']); //for simple user consistancy check later.
+		$_SESSION['valid'] = '1';
+		$page = "index";
+		unlink($Login_Attempts); //delete invalid login count file
+	}else{
+		Logout();
+		$message .= $EX.' <b>INVALID LOGIN ATTEMPT # '.$attempts.'</b> ';
+		file_put_contents($Login_Attempts, $attempts);
+	}
+}//end Login_response() //******************************************************
 
 
 
@@ -162,7 +195,7 @@ function undo_magic_quotes(){ //************************************************
 
 function Get_GET() { //*** Get main parameters *********************************
 	// i=some/path/,  f=somefile.xyz,  p=somepage
-	global $ipath, $filename, $page, $param1, $param2, $param3, $message, $EX;
+	global $ipath, $filename, $page, $valid_pages, $param1, $param2, $param3, $message, $EX;
 
 	undo_magic_quotes();
 
@@ -175,7 +208,8 @@ function Get_GET() { //*** Get main parameters *********************************
 		if ( !is_file($filename) ) { $filename = ""; $page = "index"; }
 	}else{ $filename = ""; }
 
-	if (isset($_GET["p"])) { $page = $_GET["p"]; } // default $page set in session startup
+	if (isset($_GET["p"])) { $page = $_GET["p"]; } 
+	if (!in_array(strtolower($page), $valid_pages)) { $page = "index"; }
 
 	$param1 = '?i='.URLencode_path($ipath);
 	if ($filename == "") { $param2 = ""; }else{ $param2 = '&amp;f='.rawurlencode(basename($filename)); }
@@ -333,16 +367,6 @@ function Upload_New_Rename_Delete_Links() { //**********************************
 	}
 	echo '</p>';
 }//end Upload_New_Rename_Delete_Links()  ***************************************
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -823,7 +847,7 @@ function Edit_Page() { //*******************************************************
 
 	$too_large_to_edit_message = 
 '<b>Edit disabled. Filesize &gt; '.number_format($MAX_EDIT_SIZE).' bytes.</b><br>
-Some browsers (on my PC) bog down or become unstable while editing a large file in an HTML &lt;textarea&gt;.<br>
+Some browsers (ie: IE) bog down or become unstable while editing a large file in an HTML &lt;textarea&gt;.<br>
 Adjust $MAX_EDIT_SIZE in the configuration section of OneFileCMS as needed.<br>
 A simple trial and error test can determine a practical limit for a given browser/computer.';
 	$too_large_to_view_message = 
@@ -971,7 +995,7 @@ function New_File_Page() { //***************************************************
 
 
 function New_File_response() { //***********************************************
-	global $ipath, $param2, $filename, $page, $message, $EX, $INVALID_CHARS, $INVALID_CHARS_array;
+	global $ipath, $param2, $param3, $filename, $page, $message, $EX, $INVALID_CHARS, $INVALID_CHARS_array;
 
 	$new_name = trim($_POST["new_file"],'/ '); //Trim spaces and slashes.
 	$filename = $ipath.$new_name;
@@ -996,6 +1020,7 @@ function New_File_response() { //***********************************************
 		$message .= '<b>Created file:</b> '.htmlentities($new_name);
 		$page     = "edit";
 		$param2   = '&amp;f='.rawurlencode(basename($filename));// for Edit_Page() buttons
+		$param3   = '&amp;p=edit';                              // for Edit_Page() buttons 
 	}else{
 		$message .= $EX.' <b>Error - new file not created:<br>';
 		$message .= htmlentities($new_name);
@@ -1423,7 +1448,7 @@ a:focus { border: 1px solid #807568; background-color: rgb(255,250,150); }
 
 form p { margin-bottom: .3em; }
 
-label { display: inline-block; width : 6em; font-size : 1em; }
+label { display: inline-block; width : 6em; font-size : 1em; font-weight: bold; }
 
 svg { margin: 0; padding: 0; }
 
@@ -1573,7 +1598,7 @@ table.index_T td {
 input[type="text"] {
 	border: 1px solid #807568;
 	padding: 2px;
-	width: 40em;
+	width: 50em;
 	font: 1em "Courier New", Courier, monospace;
 	}
 
@@ -1701,7 +1726,7 @@ hr {
 	overflow: visible;
 	}
 
-.web_root { font:1.2em Courier; }
+.web_root { font:1em Courier; }
 
 .verify {
 	border: 1px solid #F44;
@@ -1771,17 +1796,14 @@ if ($VALID_POST) { //***********************************************************
 
 //*** Verify valid $page and/or $filename **************************************
 
-if     (!in_array(strtolower($page), $valid_pages))   { $page = "index"; }
-
         //Don't load login screen if already in a valid session.
-elseif ( ($page == "login") && ($_SESSION['valid']) ) { $page = "index"; }
+if     ( ($page == "login") && ($_SESSION['valid']) ) { $page = "index"; }
 
 		//Don't load edit page if $filename doesn't exist.
 elseif ( ($page == "edit")  && !is_file($filename) )  { $page = "index"; }
 
-elseif ($page == "logout") { $page = "login"; $_SESSION['valid'] = "0";	session_destroy();
-		session_regenerate_id(true);
-		session_unset(); session_destroy(); session_write_close();// setcookie(session_name(),'',0,'/');
+elseif ($page == "logout") {
+		Logout();
 		$message .= 'You have successfully logged out.'; }
 
 		//Don't load delete page if folder not empty.
