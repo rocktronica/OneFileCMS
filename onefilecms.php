@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.1.9.03';
+$version = '3.1.9.04';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -29,6 +29,7 @@ SOFTWARE.
 *******************************************************************************/
 
 
+ini_set('display_errors', 'off');
 
 
 // CONFIGURABLE INFO ***********************************************************
@@ -42,6 +43,7 @@ $HASHWORD = 'ff20c771cd8b39d848aa3bb631e880ece7682f98164d5446699cee1b6486fdb3'; 
 
 $MAX_ATTEMPTS = 3;  //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY  = 30; //In seconds.
+
 
 $MAX_IMG_W   = 810;   // Max width to display images. (page container = 810)
 $MAX_IMG_H   = 1000;  // Max height.  I don't know, it just looks reasonable.
@@ -115,7 +117,7 @@ function Session_Startup() {//**************************************************
 
 
 
-function Logout(){ //**************************************************
+function Logout(){ //***********************************************************
 	global $page;
 	session_regenerate_id(true);
 	session_unset();
@@ -123,8 +125,8 @@ function Logout(){ //**************************************************
 	session_write_close();
 	unset($_GET);
 	unset($_POST);
-	$page = login;
-}//end Logout() *******************************************************
+	$page = 'login';
+}//end Logout() ****************************************************************
 
 
 
@@ -167,8 +169,8 @@ function Login_response() { //**************************************************
 function hashit($key){ //*******************************************************
 	//This is the super-secret stuff - Keep it secret, keep it safe!
 	//If you change anything here, redo the hash for your password.
-	$hash = hash('sha256', trim($key).$salt); // trim off leading & trailing spaces.
 	$salt = 'somerandomesalt';
+	$hash = hash('sha256', trim($key).$salt); // trim off leading & trailing spaces.
 	for ( $x=0; $x < 1000; $x++ ) { $hash = hash('sha256', $hash.$salt); }
 	return $hash;
 }//end hashit() ****************************************************************
@@ -895,9 +897,9 @@ function Edit_Page_response(){ //***If on Edit page, and [Save] clicked ********
 	$bytes = file_put_contents($filename, $content);
 
 	if ($bytes !== false) {
-		$message = '<b>File saved: '.$bytes.' bytes written.</b>';
+		$message .= '<b>File saved: '.$bytes.' bytes written.</b>';
 	}else{
-		$message = $EX.' <b>There was an error saving file.</b>';
+		$message .= $EX.' <b>There was an error saving file.</b>';
 	}
 }//end Edit_Page_response() ****************************************************
 
@@ -940,7 +942,7 @@ function Upload_Page() { //*****************************************************
 
 
 
-function Upload_File_response() { //********************************************
+function Upload_response() { //********************************************
 	global $filename, $message, $EX, $page;
 	$filename    = $_FILES['upload_file']['name'];
 	$destination = Check_path($_POST["upload_destination"]);
@@ -973,7 +975,7 @@ function Upload_File_response() { //********************************************
 			$message .= '<br>'.$EX.' <b> Upload failed: </b>'.$ERRMSG.'';
 		}
 	}
-}//end Upload_File_response() **************************************************
+}//end Upload_response() **************************************************
 
 
 
@@ -1779,7 +1781,7 @@ Init_Macros();     //***********************************************************
 
 
 if ($VALID_POST) { //***********************************************************
-	if     (isset($_FILES['upload_file']['name'])) { Upload_File_response(); }
+	if     (isset($_FILES['upload_file']['name'])) { Upload_response(); }
 	elseif (isset($_POST["whattohash"]   )) { Hash_Page_response(); }
 	elseif (isset($_POST["filename"]     )) { Edit_Page_response(); }
 	elseif (isset($_POST["new_file"]     )) { New_File_response();  }
@@ -1855,8 +1857,7 @@ elseif ( ($page == "edit") && ($filename == trim($ONESCRIPT, '/')) ) {
 
 	<div class="nav">
 		<a href="/" target="_blank"><?php show_favicon() ?>&nbsp;
-		<b><?php echo htmlentities($WEBSITE) ?></b>  &nbsp;- &nbsp;
-		Visit Site</a>
+		<b><?php echo htmlentities($WEBSITE) ?></b></a>
 		<?php if ($page != "login") { ?>
 		| <a href="<?php echo $ONESCRIPT ?>?p=logout">Log Out</a>
 		<?php } ?>
@@ -1872,7 +1873,7 @@ elseif ( ($page == "edit") && ($filename == trim($ONESCRIPT, '/')) ) {
 <hr>
 
 <?php if ( ($page != "hash") && ($_SESSION['valid']) ){ 
-		echo '<a id="admin" href="'.$ONESCRIPT.$param1.'&amp;p=hash">Admin</a>'; }
+		echo '<a id="admin" href="'.$ONESCRIPT.$param1.$param2.'&amp;p=hash">Admin</a>'; }
 ?>
 
 </div><!-- end container/login_page -->
