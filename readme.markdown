@@ -1,12 +1,24 @@
-### June 18, 2012
+### June 23, 2012
 
-## error/warning messages get displayed.
+Most of the recent changes have been to increase login and session security. However, I'm slowly learning that there's only so much that can be done, particulary when the base connection is un-encrypted.   Online security, it seems, is a nebulous subject of a rather dubious nature.  Never-the-less, I have tried to do those things that can be done.  
 
-- Evidently, default PHP error/warning levels are not the same as what my test setup uses. That is, you may get a bumnch of warnings during failed login attempts, among other things.  THey are nothing to worry about (probably).  Anyway, to disable the warnings, add the following line to the top of onefilecms.php:  
-error_reporting(0);  
-
-
-# Current stable version: 3.1.9
+So, for those that care, here is a synopsis of the measures that have been employed:
+- A password's hash can now be stored by OneFileCMS, instead of the plain text password.  
+  (The plain text method remains an option for those that just don't care. )
+- A Login delay is triggered after too many invalid attempts.
+- Adjustable max idle time before auto-logout.
+- Check consistancy of user agent during session.
+- Generation of a new session id after login or logout.
+- Set session.use_only_cookies == true.
+- Use httponly cookies
+- Ability to modify the default salt and password hash method.  
+  (Since OneFileCMS is open source, this is recommended)
+    
+Now, keep in mind that while, individually, any one of these measures may not provide much security, collectivly, they're a little better than nothing.  
+  
+Lastly, always remember that some of the most important security measures concern user behavior - such as avoiding the use of un-encrypted wifi connections...
+  
+# Current stable version: 3.1.9.06
 
 - 3.0+ : "Full" version - uses svg icons
 - 2.0+ : "Lite" version - uses no icons.
@@ -60,7 +72,7 @@ You can also change the file name of OneFileCMS.php to something else, such as "
 
 ### Where's the WYSIWYG? What about syntax highlighting?
 
-WYSWIWYG editors have been requested, but probably won’t become standard, as they’d probably make it more than one file, sort of defeating the point of OneFileCMS. Plus, if you’re working in PHP or non-HTML code, they're can be more of a hindrance than an asset.
+WYSWIWYG editors have been requested, but probably won’t become standard, as they’d probably make it more than one file, sort of defeating the "OneFile" point. Plus, if you’re working in PHP or non-HTML code, they're can be more of a hindrance than an asset.
 
 However, just because I don't want to do it, doesn't mean it's impossible.  Look for the Edit_Page_form() function. Its textarea can be modified to work with whatever editor you like. 
 
@@ -82,9 +94,9 @@ Probably not, as that would also most likely make it more than "OneFile".
 
 ### Can I have more than one username/password?
 
-The reason there isn't default support for multiple users is that all of their info will have to be stored together, more or less in plain text, at the top of onefilecms.php. Giving people different usernames and passwords then is sort of futile, since everyone who can log in can view onefilecms's source and config variables.   
-
-However, "it's on my to-do list!"...
+Well, indirectly - yes: Upload or create addional copies of OneFileCMS, but give them different file names.(ie: OneFile1.php and OneFile2.php etc...)  Then, with each copy, maintain different user names and passwords.  Also, so one user does not log out the other, change the session names set in session_startup().  
+  
+Now, since there is no data base or other means of granular control and acess logging, multiple users may be kind of pointless.  On the other hand, having at least one working backup copy of OneFileCMS available is recommended in case the primary copy get's corrupted.
 
 ## Requirements
 
@@ -110,8 +122,9 @@ To report a bug or request a feature, please file an issue via Github. Forks enc
 
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
 - Issue with Chrome's XSS filter: Editing some legitimate files with OneFileCMS will trigger the filter and disable most javascript provided functionallity, but only while on edit page of such a file.
-- Connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text during login.
-- Be aware that only some very basic & rudimentary data & error checking is performed.  
+- Connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text during login.  
+  (However, this is true of most online login systems, unless SSL or the like is employed.)
+- Be aware that only some very basic data & error checking is performed.  (But, it's getting better...)  
   On Windows, for instance, it's possible to create folders that are subsequently inaccessible and undeletable by Windows.  (Yea, I found out the hard way...)
 - Multiple login names.
 - Anything else?

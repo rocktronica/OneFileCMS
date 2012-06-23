@@ -1,7 +1,7 @@
-<?php
+<?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.1.9.05';
+$version = '3.1.9.06';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -38,7 +38,7 @@ ini_set('display_errors', 'off');
 ini_set('log_errors'    , 'off'); //Ok to turn on for trouble-shooting.
 ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.log');
 error_reporting(E_ALL &~ E_STRICT);
-//Determine good folder for session file? Default is the system tmp/, which is not secure.
+//Determine good folder for session file? Default is tmp/, which is not secure.
 //session_save_path($safepath)  or  ini_set('session.save_path', $safepath) 
 
 
@@ -54,10 +54,10 @@ $USE_HASH = 0 ; // If = 0, use $PASSWORD. If = 1, use $HASHWORD.
 $HASHWORD = 'c3e70af96ab1bfc5669280e98b438e1a8c08ca5e0bb3354c05ceaa6f339fd3f6'; //hash for "password"
 $SALT     = 'somerandomsalt';
 
-$MAX_ATTEMPTS = 3;  //Max failed login attempts before LOGIN_DELAY starts.
-$LOGIN_DELAY  = 30; //In seconds.
-
-
+$MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
+$LOGIN_DELAY   = 10;  //In seconds.
+$MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings can limit its max effective value.
+                      //  For instance, 24 minutes is the PHP default for garbage collection.
 $MAX_IMG_W   = 810;  // Max width to display images. (page container = 810)
 $MAX_IMG_H   = 1000; // Max height.  I don't know, it just looks reasonable.
 
@@ -74,7 +74,7 @@ $config_fclass = "bin,img,img,img,img,img,svg,txt,txt,css,php,txt,cfg,cfg ,txt,t
 
 $EX = '<b>( ! )</b>'; //"EXclaimation point" icon Used in $message's
 
-
+$SESSION_NAME = 'OFCMS'; //Also the cookie name. Don't use default ('PHPSESSID')
 // END CONFIGURABLE INFO *******************************************************
 
 
@@ -83,11 +83,11 @@ $EX = '<b>( ! )</b>'; //"EXclaimation point" icon Used in $message's
 //******************************************************************************
 //Some global system values
 
-
+ini_set('session.gc_maxlifetime', $MAX_IDLE_TIME); //in case the default is less.
 
 //PHP_VERSION_ID is better/easier to use when checking current version (it's an actual number, not a string)
 if (!defined('PHP_VERSION_ID')) {            //PHP_VERSION_ID only available since 5.2.7
-    $phpversion = explode('.', PHP_VERSION); //PHP_VERSION, however, should be available even in older versions.
+    $phpversion = explode('.', PHP_VERSION); //PHP_VERSION, however, available even in older versions. (but it's a string)
     define('PHP_VERSION_ID', ($phpversion[0] * 10000 + $phpversion[1] * 100 + $phpversion[2]));
 }
 
@@ -95,7 +95,7 @@ $ONESCRIPT = URLencode_path($_SERVER["SCRIPT_NAME"]);
 $DOC_ROOT  = $_SERVER["DOCUMENT_ROOT"].'/';
 $WEB_ROOT  = URLencode_path(basename($DOC_ROOT)).'/';
 $WEBSITE   = $_SERVER["HTTP_HOST"].'/';
-
+$LOGIN_ATTEMPTS = $DOC_ROOT.trim($_SERVER["SCRIPT_NAME"],'/').'.invalid_login_attempts';
 
 $valid_pages = array("hash", "login","logout","index","edit","upload","uploaded","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder" );
 
@@ -115,7 +115,7 @@ $excluded_list = (explode(",", $config_excluded));
 
 
 function Session_Startup() {//**************************************************
-	global $USERNAME, $PASSWORD, $USE_HASH, $HASHWORD, $message , $page, $VALID_POST;
+	global $USERNAME, $PASSWORD, $USE_HASH, $HASHWORD, $EX, $message , $page, $VALID_POST, $MAX_IDLE_TIME, $SESSION_NAME;
 
 	$limit    = 0; //0 = session.  
 	$path     = dirname($_SERVER['SCRIPT_NAME']);
@@ -124,20 +124,44 @@ function Session_Startup() {//**************************************************
 	$httponly = true;//true = unaccessable via javascript. Some XSS protection.
 	session_set_cookie_params($limit, $path, $domain, $https, $httponly);
 
-	session_name('OFCMS'); //Change from default ('PHPSESSID')
+	session_name($SESSION_NAME);
 	session_start();
 
-	//If logging in, validate
+	//Set primary defaults...
+	$page = 'login'; 
+	if ( !isset($_SESSION['valid']) ) { $_SESSION['valid'] = 0; }
+
+	//Logging in?
 	if ( isset($_POST["username"]) || isset($_POST["password"]) ) { Login_response(); }
 
-	//Just a minor user consistancy check... (every little bit helps a little)
-	if ( $_SESSION['USER_AGENT'] != md5($_SERVER["HTTP_USER_AGENT"])) { $_SESSION['valid'] = 0; }
+	//Verify consistant user agent... (every little bit helps a little bit) 
+	if ( $_SESSION['valid'] && ($_SESSION['USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) ) { Logout(); return; }
 
-	if (!$_SESSION['valid']) { Logout(); }
+	//Check idle time
+ 	if ( $_SESSION['valid'] && isset($_SESSION['last_active_time']) ) {
+		$idle_time = ( time() - $_SESSION['last_active_time'] );
+		if ( $_SESSION['valid'] && ($idle_time > $MAX_IDLE_TIME) ) {
+			Logout();
+			$message .= 'Max idle time exceeded... <br>';
+			return;
+		}
+	}
+	$_SESSION['last_active_time'] = time() ;
 
-	$VALID_POST = ($_SESSION['valid'] && $_POST["sessionid"] == session_id());
+	//If POSTing, verify...
+	$VALID_POST = 0; //Default until verified otherwise
+	if ( $_SESSION['valid'] && isset($_POST['nuonce']) ) { 
+		if ( $_POST['nuonce'] == $_SESSION['nuonce'] ) {
+			$VALID_POST = 1;
+		}else{
+			Logout();
+			$message .= $EX.' <b>INVALID POST</b><br>';
+			return;
+		}
+	}
 
 	session_regenerate_id(true);
+	$_SESSION['nuonce'] = sha1(mt_rand().microtime()); //provided in <forms> to verify POST
 
 	chdir($_SERVER["DOCUMENT_ROOT"]); //Allow OneFileCMS.php to be started from any dir on the site.
 }//End Session_Startup() *******************************************************
@@ -147,10 +171,10 @@ function Session_Startup() {//**************************************************
 
 function hashit($key){ //*******************************************************
 	//This is the super-secret stuff - Keep it secret, keep it safe!
-	//If you change anything here, redo the hash for your password.
-	$salt = 'somerandomesalt';
-	$hash = hash('sha256', trim($key).$salt); // trim off leading & trailing spaces.
-	for ( $x=0; $x < 1000; $x++ ) { $hash = hash('sha256', $hash.$salt); }
+	//If you change anything here, or the $SALT, redo the hash for your password.
+	global $SALT;
+	$hash = hash('sha256', trim($key).$SALT); // trim off leading & trailing spaces.
+	for ( $x=0; $x < 1000; $x++ ) { $hash = hash('sha256', $hash.$SALT); }
 	return $hash;
 }//end hashit() ****************************************************************
 
@@ -165,9 +189,9 @@ function undo_magic_quotes(){ //************************************************
 	} //Note: stripslashes also handles cases when magic_quotes_sybase is on.
 
 	if (get_magic_quotes_gpc()) {
-		$_GET     = strip_array($_GET);
-		$_POST    = strip_array($_POST);
-		$_COOKIE  = strip_array($_COOKIE);
+		if (isset($_GET))    { $_GET     = strip_array($_GET);    }
+		if (isset($_POST))   { $_POST    = strip_array($_POST);   }
+		if (isset($_COOKIE)) { $_COOKIE  = strip_array($_COOKIE); }
 	}
 }//end undo_magic_quotes() *****************************************************
 
@@ -184,7 +208,7 @@ function Get_GET() { //*** Get main parameters *********************************
 
 	if (isset($_GET["f"])) {
 		$filename = $ipath.$_GET["f"];
-		if ( !is_file($filename) && $_SESSION['valid'] )//Don't set $message for login page.
+		if ( !is_file($filename) && $_SESSION['valid'] )//Set $message except for login page.
 			{ $message .= $EX.' <b>File does not exist:</b> '.htmlentities($filename).'<br>'; }
 		if ( !is_file($filename) ) { $filename = ""; $page = "index"; }
 	}else{ $filename = ""; }
@@ -358,7 +382,7 @@ function Cancel_Submit_Buttons($submit_label, $focus) { //**********************
 	global $ONESCRIPT, $ipath, $param1, $param2, $filename, $page;
 
 	// [Cancel] returns to either the index, or edit page.
-	if ($filename == "") {$params = "";}else{ $params .= $param2.'&amp;p=edit'; }
+	if ($filename == "") {$params = "";}else{ $params = $param2.'&amp;p=edit'; }
 ?>
 	<p></p>
 	<input type="button" class="button" id="cancel" name="cancel" value="Cancel"
@@ -391,8 +415,8 @@ function show_image(){ //*******************************************************
 		else                         {$SCALE = $TOOHIGH;}
 	}
 
-	echo '<p class="file_meta">';
-	echo 'Image shown at ~'. round($SCALE*100) .'% of full size.<br>('.$img_info[3].')</p>';
+	echo '<p Xclass="file_meta">';
+	echo 'Image shown at ~'. round($SCALE*100) .'% of full size (W x H = '.$img_info[0].' x '.$img_info[1].').</p>';
 	echo '<div style="clear:both;"></div>'.PHP_EOL;
 	echo '<a href="/' .URLencode_path($IMG). '" target="_blank">'.PHP_EOL;
 	echo '<img src="/'.URLencode_path($IMG).'"  height="'.$img_info[$H]*$SCALE.'"></a>'.PHP_EOL;
@@ -416,7 +440,7 @@ function Init_Macros(){ //*** ($varibale="some reusable chunk of code")*********
 global 	$ONESCRIPT, $param1, $param2, $INPUT_SESSIONID, $FORM_COMMON, 
 		$SVG_icon_circle_plus, $SVG_icon_circle_x, $SVG_icon_pencil, $SVG_icon_img_0;
 
-$INPUT_SESSIONID = '<input type="hidden" name="sessionid" value="'.session_id().'">'.PHP_EOL;
+$INPUT_SESSIONID = '<input type="hidden" name="nuonce" value="'.$_SESSION['nuonce'].'">'.PHP_EOL;
 $FORM_COMMON = '<form method="post" action="'.$ONESCRIPT.$param1.$param2.'">'.$INPUT_SESSIONID;
 
 $SVG_icon_circle_plus = '<circle cx="5" cy="5" r="5" stroke="black" stroke-width="0" fill="#080"/>
@@ -590,7 +614,7 @@ function show_icon($type){ //***************************************************
 
 
 function Hash_Page() { //******************************************************
-	global $DOC_ROOT, $ONESCRIPT, $param1, $message, $INPUT_SESSIONID, $config_title;
+	global $DOC_ROOT, $ONESCRIPT, $param1, $param2, $message, $INPUT_SESSIONID, $config_title;
 	$params = '?i='.dirname($ONESCRIPT).'&amp;f='.basename($ONESCRIPT).'&amp;p=edit';
 ?>
 	<style>#message {font-family: courier; min-height: 3.1em;}
@@ -612,8 +636,10 @@ function Hash_Page() { //******************************************************
 	1) Simply use the $PASSWORD config variable to store your desired password, and set $USE_HASH = 0 (zero).<br>
 	2) Or, use $HASHWORD to store the hash of your password, and set $USE_HASH = 1.<br>
 
-	<p>Keep in mind that due to a number of widely varied considerations, this is largely an academic excersize.<br>
-	In other words, take the idea that this adds much of an improvement to security with a grain of cryptographic salt...*<br>
+	<p>Keep in mind that due to a number of widely varied considerations, this is largely an academic excersize. 
+	That is, take the idea that this adds much of an improvement to security with a grain of cryptographic salt.
+	However, it does eleminate the storage of your password in plain text, which is definitely an improvement.*
+
 	<p>Anyway, to use the $HASHWORD password option:
 	<ol><li>Type your desired password in the input field above and hit Enter.<br>
 			The hash will be displayed in a yellow message box above that.
@@ -623,8 +649,9 @@ function Hash_Page() { //******************************************************
 		<li>Make sure $USE_HASH is set to 1 (or true).
 		<li>When ready, logout and login.
 	</ol>
-	<p>You can use OneFileCMS to edit itself.  However, be sure to have a backup ready for the inevitable tupo...
-	<p>*Note: While still largely academic, you can improve security a bit more by changing the default salt and/or method used by OneFileCMS to hash the password (and keep 'em secret, of course).<br>
+	<p>You can use OneFileCMS to edit itself.  However, be sure to have a backup ready for the inevitable ytpo...
+	<p>
+	*For another small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep 'em secret, of course).  Remever, every little bit helps...<br>
 	PS: Everything I know about security - you just read...
 	</div>
 <?php 
@@ -651,8 +678,10 @@ function Logout(){ //***********************************************************
 	session_write_close();
 	unset($_GET);
 	unset($_POST);
+	$_SESSION['valid'] = 0;
 	$page = 'login';
 }//end Logout() ****************************************************************
+
 
 
 
@@ -681,34 +710,40 @@ function Login_Page() { //******************************************************
 
 
 function Login_response() { //**************************************************
-	global $USERNAME, $PASSWORD, $USE_HASH, $HASHWORD, $MAX_ATTEMPTS, $LOGIN_DELAY, $message, $EX, $page, $DOC_ROOT;
+	global $USERNAME, $PASSWORD, $USE_HASH, $HASHWORD, $MAX_ATTEMPTS, $LOGIN_DELAY, 
+		   $EX, $message, $page, $LOGIN_ATTEMPTS;
 
-	$Login_Attempts = $DOC_ROOT.trim($_SERVER["SCRIPT_NAME"],'/').'.invalid_login_attempts';
-	$attempts       = (int)file_get_contents($Login_Attempts) + 1;
+	$_SESSION['valid'] = 0; // Default to failed login.
+
+	if (!is_file($LOGIN_ATTEMPTS)) { file_put_contents($LOGIN_ATTEMPTS, 0); }
+	$attempts          = (int)file_get_contents($LOGIN_ATTEMPTS); //Don't increment yet...
 	clearstatcache();
-	$elapsed        = time() - filemtime($Login_Attempts);
+	$elapsed           = time() - filemtime($LOGIN_ATTEMPTS);
 
-	if ( ($attempts > $MAX_ATTEMPTS) && ($elapsed < $LOGIN_DELAY) ){
-		$message  = $EX.' <b>Too many invalid login attempts. </b><br>Please wait ';
-		$message .= ($LOGIN_DELAY - $elapsed) .' seconds to try again.';
-		$_SESSION['valid'] = '0';
-		return 0;
+	if ( ($attempts >= $MAX_ATTEMPTS) && ($elapsed < $LOGIN_DELAY) ){ //if already > max, 
+		$message .= $EX.' <b>Too many invalid login attempts. ('.$attempts.')</b><br>';
+		$message .= 'Please wait '.($LOGIN_DELAY - $elapsed) .' seconds to try again. ';
+		return;
 	}
 
+	//Validate login attempt
 	if ($USE_HASH){ $VALID_PASSWORD = (hashit($_POST['password']) == $HASHWORD); }
 	else          { $VALID_PASSWORD = (       $_POST['password']  == $PASSWORD); }
 
-	//Validate login attempt
 	if ( $VALID_PASSWORD && ($_POST['username'] == $USERNAME) ) {
 		session_regenerate_id(true);
-		$_SESSION['USER_AGENT'] = md5($_SERVER['HTTP_USER_AGENT']); //for simple user consistancy check later.
-		$_SESSION['valid'] = '1';
+		$_SESSION['USER_AGENT'] = $_SERVER['HTTP_USER_AGENT']; //for simple user consistancy check later.
+		$_SESSION['valid'] = 1;
 		$page = "index";
-		unlink($Login_Attempts); //delete invalid login count file
+		unlink($LOGIN_ATTEMPTS); //delete invalid attempt count file
 	}else{
-		Logout();
-		$message .= $EX.' <b>INVALID LOGIN ATTEMPT # '.$attempts.'</b> ';
-		file_put_contents($Login_Attempts, $attempts);
+		file_put_contents($LOGIN_ATTEMPTS, ++$attempts); //increment & save attempt
+		if ($attempts >= $MAX_ATTEMPTS) {
+			$message .= $EX.' <b>INVALID LOGIN ATTEMPT #'.$attempts.'</b><br>';
+			$message .= 'Please wait '.$LOGIN_DELAY.' seconds to try again. ';
+		}else{
+			$message .= $EX.' <b>INVALID LOGIN ATTEMPT #'.$attempts.'</b> ';
+		}
 	}
 }//end Login_response() //******************************************************
 
@@ -738,8 +773,7 @@ function list_files() { // ...in a vertical table ******************************
 			<tr>
 				<td>
 					<?php echo '<a href="'.$ONESCRIPT.$param1.'&amp;f='.rawurlencode($file).'&amp;p=edit" >'; ?>
-					<?php show_icon($type); ?>
-					<?php echo  htmlentities($file), '</a>'; ?>
+					<?php show_icon($type); echo  htmlentities($file), '</a>'; ?>
 				</td>
 				<td class="meta_T meta_size">&nbsp;
 					<?php echo number_format(filesize($ipath.$file)); ?> B
@@ -810,7 +844,7 @@ function Edit_Page_Buttons($text_editable, $too_large_to_edit) { //*************
 
 //******************************************************************************
 function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message){ 
-	global $ONESCRIPT, $param1, $param2, $param3, $filename, $itypes, $INPUT_SESSIONID, $EX, $message;
+	global $ONESCRIPT, $param1, $param2, $param3, $filename, $itypes, $INPUT_SESSIONID, $EX, $message, $MAX_IDLE_TIME;
 ?>
 	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$param1.$param2.$param3 ?>">
 		<?php echo $INPUT_SESSIONID; ?>
@@ -848,9 +882,16 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 	if ($text_editable && !$too_large_to_edit && !$bad_chars) {
 		Edit_Page_scripts();
 		echo '<div id="edit_note">NOTES:<ol>';
-		echo '<li>On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser\'s [Reload].';
-		echo '<li>Chrome\'s XSS filters may disable some javascript in a page if it even <i>appears</i> to contain inline javascript in certain places.  This can affect some features of the OneFileCMS edit page when editing files that actually contain such code, such as OneFileCMS itself.  However, these files can still be edited and saved with OneFileCMS.  The primary function lost is the incidental change of background colors (red/green) indicating whether or not the file has unsaved changes.  The issue will be noticed after the first save of such a file.';
-		echo '</div>';
+		//$MAX_IDLE_MINUTES = (round($MAX_IDLE_TIME/60)).' minutes '.(fmod($MAX_IDLE_TIME,60)).' seconds.';
+		$MAX_IDLE_MINUTES = round($MAX_IDLE_TIME/60,1);
+?>
+		<li><b>Remember- your $MAX_IDLE_TIME is <?php echo $MAX_IDLE_MINUTES ?> minutes.</b>
+		(Page time: <script>FileTimeStamp(<?php echo time(); ?>, 0)</script>)<br>
+		In other words, if you are making changes, <b>save your file at least that often, or the changes will be lost</b>.
+		<li>On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser's [Reload].
+		<li>Under certain circumstances, Chrome's XSS filters may disable some javascript in a page if the page even <i>appears</i> to contain inline javascript.  This can affect certain features of the OneFileCMS edit page when editing files that actually contain such code, such as OneFileCMS itself.  However, such files can still be edited and saved with OneFileCMS.  The primary function lost is the incidental change of background colors (red/green) indicating whether or not the file has unsaved changes.  The issue will not be noticed after the first save of such a file.
+		</div>
+<?php
 	}
 ?>
 	</form> 
@@ -1799,29 +1840,27 @@ hr {
 
 if( PHP_VERSION_ID < 50000 ) { exit("OneFileCMS requires PHP5 to operate. Tested on versions 5.2.17, 5.3.3 & 5.4"); }
 
-Session_Startup(); //***********************************************************
+Session_Startup(); 
 
-Get_GET();         //***********************************************************
+if ($_SESSION['valid']) {
 
-Init_Macros();     //***********************************************************
+	Get_GET();  
 
+	Init_Macros();
 
-
-
-if ($VALID_POST) { //***********************************************************
-	if     (isset($_FILES['upload_file']['name'])) { Upload_response(); }
-	elseif (isset($_POST["whattohash"]   )) { Hash_Page_response(); }
-	elseif (isset($_POST["filename"]     )) { Edit_Page_response(); }
-	elseif (isset($_POST["new_file"]     )) { New_File_response();  }
-	elseif (isset($_POST["copy_file"]    )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["copy_file"], 'copy', 'Copy', 'Copied', 1); } 
-	elseif (isset($_POST["rename_file"]  )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_file"], 'rename', 'Rename/Move', 'Renamed/Moved', 1); } 
-	elseif (isset($_POST["delete_file"]  )) { Delete_File_response(); }
-	elseif (isset($_POST["new_folder"]   )) { New_Folder_response();  }
-	elseif (isset($_POST["rename_folder"])) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_folder"], 'rename', 'Rename/Move', 'Renamed/Moved', 0); } 
-	elseif (isset($_POST["delete_folder"])) { Delete_Folder_response(); }
-}//end if ($VALID_POST) ********************************************************
-
-
+	if ($VALID_POST) { //*******************************************************
+		if     (isset($_FILES['upload_file']['name'])) { Upload_response(); }
+		elseif (isset($_POST["whattohash"]   )) { Hash_Page_response();   }
+		elseif (isset($_POST["filename"]     )) { Edit_Page_response();   }
+		elseif (isset($_POST["new_file"]     )) { New_File_response();    }
+		elseif (isset($_POST["copy_file"]    )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["copy_file"], 'copy', 'Copy', 'Copied', 1); } 
+		elseif (isset($_POST["rename_file"]  )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_file"], 'rename', 'Rename/Move', 'Renamed/Moved', 1); } 
+		elseif (isset($_POST["delete_file"]  )) { Delete_File_response(); }
+		elseif (isset($_POST["new_folder"]   )) { New_Folder_response();  }
+		elseif (isset($_POST["rename_folder"])) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_folder"], 'rename', 'Rename/Move', 'Renamed/Moved', 0); } 
+		elseif (isset($_POST["delete_folder"])) { Delete_Folder_response(); }
+	}//end if ($VALID_POST) ****************************************************
+}
 
 
 //*** Verify valid $page and/or $filename **************************************
