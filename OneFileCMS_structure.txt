@@ -1,6 +1,10 @@
+LICENSE
+
+SOME BASIC SECURITY & ERROR LOG SETTINGS
+
 CONFIGURATION SECTION
 
-SOME STANDARD GLOBAL VARIABLES
+OTHER GLOBAL VALUES
 
 MISC FUNCTIONS:
 	Session_Startup()
@@ -42,7 +46,9 @@ SVG ICON FUNCTIONS:
 PAGE & RESPONSE FUNCTIONS:
 	Hash_Page()
 	Hash_Page_response()
+	Logout()
 	Login_Page()
+	Login_Page_response()
 	list_files()
 	Index_Page()
 	Edit_Page_Buttons()
@@ -50,7 +56,7 @@ PAGE & RESPONSE FUNCTIONS:
 	Edit_Page()
 	Edit_Page_response()
 	Upload_Page()
-	Upload_File_response()
+	Upload_response()
 	New_File_Page()
 	New_File_response() 
 	Copy_Ren_Move_Page()
@@ -78,4 +84,4 @@ LOGIC TO DETERMINE PAGE ACTION
 		Do $_POST['someaction'] (<someaction>_response)
 	Validate $page to show
 	
-GENERATE ACTUAL <HTML>...
+GENERATE/OUTPUT <HTML>...

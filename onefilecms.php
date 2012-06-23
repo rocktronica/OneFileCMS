@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.1.9.04';
+$version = '3.1.9.05';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -29,7 +29,19 @@ SOFTWARE.
 *******************************************************************************/
 
 
+
+
+//Some basic security & error log settings
+ini_set('session.use_trans_sid', 0);    //make sure ULR supplied SESSID's are not used
+ini_set('session.use_only_cookies', 1); //Only defaults to 1 (enabled) from 5.3 on
 ini_set('display_errors', 'off');
+ini_set('log_errors'    , 'off'); //Ok to turn on for trouble-shooting.
+ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.log');
+error_reporting(E_ALL &~ E_STRICT);
+//Determine good folder for session file? Default is the system tmp/, which is not secure.
+//session_save_path($safepath)  or  ini_set('session.save_path', $safepath) 
+
+
 
 
 // CONFIGURABLE INFO ***********************************************************
@@ -39,18 +51,19 @@ $USERNAME = 'username';
 
 $PASSWORD = 'password'; //If using $HASHWORD, you may leave this value empty.
 $USE_HASH = 0 ; // If = 0, use $PASSWORD. If = 1, use $HASHWORD. 
-$HASHWORD = 'ff20c771cd8b39d848aa3bb631e880ece7682f98164d5446699cee1b6486fdb3'; //default hash for "password"
+$HASHWORD = 'c3e70af96ab1bfc5669280e98b438e1a8c08ca5e0bb3354c05ceaa6f339fd3f6'; //hash for "password"
+$SALT     = 'somerandomsalt';
 
 $MAX_ATTEMPTS = 3;  //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY  = 30; //In seconds.
 
 
-$MAX_IMG_W   = 810;   // Max width to display images. (page container = 810)
-$MAX_IMG_H   = 1000;  // Max height.  I don't know, it just looks reasonable.
+$MAX_IMG_W   = 810;  // Max width to display images. (page container = 810)
+$MAX_IMG_H   = 1000; // Max height.  I don't know, it just looks reasonable.
 
 $MAX_EDIT_SIZE = 150000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
 $MAX_VIEW_SIZE = 1000000; // If file > $MAX_EDIT_SIZE, don't even view in OneFileCMS.
-                          // The max view size is completely arbitrary. It was 2am and seemed like a good idea at the time.
+                          // The default max view size is completely arbitrary. It was 2am and seemed like a good idea at the time.
 $config_favicon   = "/favicon.ico";
 $config_excluded  = ""; //files to exclude from directory listings- CaSe sEnsaTive!
 
@@ -60,6 +73,8 @@ $config_ftypes = "bin,jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,ini,cfg,conf,asp,j
 $config_fclass = "bin,img,img,img,img,img,svg,txt,txt,css,php,txt,cfg,cfg ,txt,txt,htm,htm";  // number of values. bin is default.
 
 $EX = '<b>( ! )</b>'; //"EXclaimation point" icon Used in $message's
+
+
 // END CONFIGURABLE INFO *******************************************************
 
 
@@ -68,6 +83,9 @@ $EX = '<b>( ! )</b>'; //"EXclaimation point" icon Used in $message's
 //******************************************************************************
 //Some global system values
 
+
+
+//PHP_VERSION_ID is better/easier to use when checking current version (it's an actual number, not a string)
 if (!defined('PHP_VERSION_ID')) {            //PHP_VERSION_ID only available since 5.2.7
     $phpversion = explode('.', PHP_VERSION); //PHP_VERSION, however, should be available even in older versions.
     define('PHP_VERSION_ID', ($phpversion[0] * 10000 + $phpversion[1] * 100 + $phpversion[2]));
@@ -77,6 +95,7 @@ $ONESCRIPT = URLencode_path($_SERVER["SCRIPT_NAME"]);
 $DOC_ROOT  = $_SERVER["DOCUMENT_ROOT"].'/';
 $WEB_ROOT  = URLencode_path(basename($DOC_ROOT)).'/';
 $WEBSITE   = $_SERVER["HTTP_HOST"].'/';
+
 
 $valid_pages = array("hash", "login","logout","index","edit","upload","uploaded","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder" );
 
@@ -98,6 +117,13 @@ $excluded_list = (explode(",", $config_excluded));
 function Session_Startup() {//**************************************************
 	global $USERNAME, $PASSWORD, $USE_HASH, $HASHWORD, $message , $page, $VALID_POST;
 
+	$limit    = 0; //0 = session.  
+	$path     = dirname($_SERVER['SCRIPT_NAME']);
+	$domain   = ''; // '' = hostname
+	$https    = false; 
+	$httponly = true;//true = unaccessable via javascript. Some XSS protection.
+	session_set_cookie_params($limit, $path, $domain, $https, $httponly);
+
 	session_name('OFCMS'); //Change from default ('PHPSESSID')
 	session_start();
 
@@ -111,57 +137,10 @@ function Session_Startup() {//**************************************************
 
 	$VALID_POST = ($_SESSION['valid'] && $_POST["sessionid"] == session_id());
 
+	session_regenerate_id(true);
+
 	chdir($_SERVER["DOCUMENT_ROOT"]); //Allow OneFileCMS.php to be started from any dir on the site.
 }//End Session_Startup() *******************************************************
-
-
-
-
-function Logout(){ //***********************************************************
-	global $page;
-	session_regenerate_id(true);
-	session_unset();
-	session_destroy();
-	session_write_close();
-	unset($_GET);
-	unset($_POST);
-	$page = 'login';
-}//end Logout() ****************************************************************
-
-
-
-
-function Login_response() { //**************************************************
-	global $USERNAME, $PASSWORD, $USE_HASH, $HASHWORD, $MAX_ATTEMPTS, $LOGIN_DELAY, $message, $EX, $page, $DOC_ROOT;
-
-	$Login_Attempts = $DOC_ROOT.trim($_SERVER["SCRIPT_NAME"],'/').'.invalid_login_attempts';
-	$attempts       = (int)file_get_contents($Login_Attempts) + 1;
-	clearstatcache();
-	$elapsed        = time() - filemtime($Login_Attempts);
-
-	if ( ($attempts > $MAX_ATTEMPTS) && ($elapsed < $LOGIN_DELAY) ){
-		$message  = $EX.' <b>Too many invalid login attempts. </b><br>Please wait ';
-		$message .= ($LOGIN_DELAY - $elapsed) .' seconds to try again.';
-		$_SESSION['valid'] = '0';
-		return 0;
-	}
-
-	if ($USE_HASH){ $VALID_PASSWORD = (hashit($_POST['password']) == $HASHWORD); }
-	else          { $VALID_PASSWORD = (       $_POST['password']  == $PASSWORD); }
-
-	//Validate login attempt
-	if ( $VALID_PASSWORD && ($_POST['username'] == $USERNAME) ) {
-		session_regenerate_id(true);
-		$_SESSION['USER_AGENT'] = md5($_SERVER['HTTP_USER_AGENT']); //for simple user consistancy check later.
-		$_SESSION['valid'] = '1';
-		$page = "index";
-		unlink($Login_Attempts); //delete invalid login count file
-	}else{
-		Logout();
-		$message .= $EX.' <b>INVALID LOGIN ATTEMPT # '.$attempts.'</b> ';
-		file_put_contents($Login_Attempts, $attempts);
-	}
-}//end Login_response() //******************************************************
 
 
 
@@ -664,6 +643,20 @@ function Hash_Page_response() { //**********************************************
 
 
 
+function Logout(){ //***********************************************************
+	global $page;
+	session_regenerate_id(true);
+	session_unset();
+	session_destroy();
+	session_write_close();
+	unset($_GET);
+	unset($_POST);
+	$page = 'login';
+}//end Logout() ****************************************************************
+
+
+
+
 function Login_Page() { //******************************************************
 	global $ONESCRIPT, $message;
 ?>
@@ -683,6 +676,41 @@ function Login_Page() { //******************************************************
 	<script>document.getElementById('username').focus();</script>
 <?php 
 } //end Login_Page() ***********************************************************
+
+
+
+
+function Login_response() { //**************************************************
+	global $USERNAME, $PASSWORD, $USE_HASH, $HASHWORD, $MAX_ATTEMPTS, $LOGIN_DELAY, $message, $EX, $page, $DOC_ROOT;
+
+	$Login_Attempts = $DOC_ROOT.trim($_SERVER["SCRIPT_NAME"],'/').'.invalid_login_attempts';
+	$attempts       = (int)file_get_contents($Login_Attempts) + 1;
+	clearstatcache();
+	$elapsed        = time() - filemtime($Login_Attempts);
+
+	if ( ($attempts > $MAX_ATTEMPTS) && ($elapsed < $LOGIN_DELAY) ){
+		$message  = $EX.' <b>Too many invalid login attempts. </b><br>Please wait ';
+		$message .= ($LOGIN_DELAY - $elapsed) .' seconds to try again.';
+		$_SESSION['valid'] = '0';
+		return 0;
+	}
+
+	if ($USE_HASH){ $VALID_PASSWORD = (hashit($_POST['password']) == $HASHWORD); }
+	else          { $VALID_PASSWORD = (       $_POST['password']  == $PASSWORD); }
+
+	//Validate login attempt
+	if ( $VALID_PASSWORD && ($_POST['username'] == $USERNAME) ) {
+		session_regenerate_id(true);
+		$_SESSION['USER_AGENT'] = md5($_SERVER['HTTP_USER_AGENT']); //for simple user consistancy check later.
+		$_SESSION['valid'] = '1';
+		$page = "index";
+		unlink($Login_Attempts); //delete invalid login count file
+	}else{
+		Logout();
+		$message .= $EX.' <b>INVALID LOGIN ATTEMPT # '.$attempts.'</b> ';
+		file_put_contents($Login_Attempts, $attempts);
+	}
+}//end Login_response() //******************************************************
 
 
 
@@ -821,7 +849,7 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 		Edit_Page_scripts();
 		echo '<div id="edit_note">NOTES:<ol>';
 		echo '<li>On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser\'s [Reload].';
-		echo '<li>Under certain circumstances, Chrome\'s XSS filters may disable some javascript in a page if it even <i>appears</i> to contain inline javascript.  This can affect certain features of the OneFileCMS edit page when editing files that actually contain such code, such as OneFileCMS itself.  However, these files can still be edited and saved with OneFileCMS.  The primary function lost is the incidental change of background colors (red/green) indicating whether or not the file has unsaved changes.  The issue will be noticed after the first save of such a file.';
+		echo '<li>Chrome\'s XSS filters may disable some javascript in a page if it even <i>appears</i> to contain inline javascript in certain places.  This can affect some features of the OneFileCMS edit page when editing files that actually contain such code, such as OneFileCMS itself.  However, these files can still be edited and saved with OneFileCMS.  The primary function lost is the incidental change of background colors (red/green) indicating whether or not the file has unsaved changes.  The issue will be noticed after the first save of such a file.';
 		echo '</div>';
 	}
 ?>
@@ -1681,7 +1709,7 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 
 #edit_form    {margin: 0;}
 
-#file_content {height: 24em;}
+#file_content {height: 30em;}
 
 .file_meta	  {float: left;  margin-top: .5em; font-size: 1em; color: #333; font-family: courier;}
 
@@ -1818,7 +1846,7 @@ elseif ($page == "uploaded" && !$VALID_POST){
 	   $message .= $EX.'<b> Upload Error.  Total POST data (mostly filesize) exceeded post_max_size = '.ini_get('post_max_size').' (from php.ini).</b>';
 	   $page = "index";}
 
-elseif ( ($page == "edit") && ($filename == trim($ONESCRIPT, '/')) ) { 
+elseif ( ($page == "edit") && ($filename == trim(rawurldecode($ONESCRIPT), '/')) ) { 
 	   if ( $message == "" ){ $BR = ""; }else{ $BR = '<br>';}
 	   $message .= '<style>#message p {background: red; color: white;}</style>';
 	   $message .= $BR.$EX.' <b>CAUTION '.$EX.' You are editing the active copy of OneFileCMS - BACK IT UP &amp; BE CAREFUL !!</b>'; }
