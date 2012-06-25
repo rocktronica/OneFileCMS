@@ -1,7 +1,7 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.1.9.06';
+$version = '3.1.9.07';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -34,10 +34,10 @@ SOFTWARE.
 //Some basic security & error log settings
 ini_set('session.use_trans_sid', 0);    //make sure ULR supplied SESSID's are not used
 ini_set('session.use_only_cookies', 1); //Only defaults to 1 (enabled) from 5.3 on
+error_reporting(0); // or (E_ALL &~ E_STRICT) if display and/or log are on.
 ini_set('display_errors', 'off');
 ini_set('log_errors'    , 'off'); //Ok to turn on for trouble-shooting.
 ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.log');
-error_reporting(E_ALL &~ E_STRICT);
 //Determine good folder for session file? Default is tmp/, which is not secure.
 //session_save_path($safepath)  or  ini_set('session.save_path', $safepath) 
 
@@ -85,7 +85,7 @@ $SESSION_NAME = 'OFCMS'; //Also the cookie name. Don't use default ('PHPSESSID')
 
 ini_set('session.gc_maxlifetime', $MAX_IDLE_TIME); //in case the default is less.
 
-//PHP_VERSION_ID is better/easier to use when checking current version (it's an actual number, not a string)
+//PHP_VERSION_ID is better to use when checking current version as it's an actual number, not a string.
 if (!defined('PHP_VERSION_ID')) {            //PHP_VERSION_ID only available since 5.2.7
     $phpversion = explode('.', PHP_VERSION); //PHP_VERSION, however, available even in older versions. (but it's a string)
     define('PHP_VERSION_ID', ($phpversion[0] * 10000 + $phpversion[1] * 100 + $phpversion[2]));
@@ -127,8 +127,9 @@ function Session_Startup() {//**************************************************
 	session_name($SESSION_NAME);
 	session_start();
 
-	//Set primary defaults...
+	//Set initial defaults...
 	$page = 'login'; 
+	$VALID_POST = 0;
 	if ( !isset($_SESSION['valid']) ) { $_SESSION['valid'] = 0; }
 
 	//Logging in?
@@ -149,7 +150,6 @@ function Session_Startup() {//**************************************************
 	$_SESSION['last_active_time'] = time() ;
 
 	//If POSTing, verify...
-	$VALID_POST = 0; //Default until verified otherwise
 	if ( $_SESSION['valid'] && isset($_POST['nuonce']) ) { 
 		if ( $_POST['nuonce'] == $_SESSION['nuonce'] ) {
 			$VALID_POST = 1;
@@ -315,7 +315,8 @@ function Current_Path_Header(){ //**********************************************
 
 	echo '<h2>';
 		//Root folder of web site.
-		echo '<a href="'.$ONESCRIPT.'" class="path"> '.htmlentities(trim($WEB_ROOT, '/')).'</a>/';
+		echo '<a id="path_0" href="'.$ONESCRIPT.'" class="path"> '.htmlentities(trim($WEB_ROOT, '/')).'</a>/';
+		$x=0; //need here for focus() in case at webroot.
 
 		if ($ipath != "" ) { //if not at root, show the rest
 			$path_levels  = explode("/",trim($ipath,'/') );
@@ -324,11 +325,12 @@ function Current_Path_Header(){ //**********************************************
 
 			for ($x=0; $x < $levels; $x++) {
 				$current_path .= $path_levels[$x].'/';
-				echo '<a href="'.$ONESCRIPT.'?i='.URLencode_path($current_path).'" class="path">';
+				echo '<a id="path_'.($x+1).'" href="'.$ONESCRIPT.'?i='.URLencode_path($current_path).'" class="path">';
 				echo htmlentities($path_levels[$x]).'</a>/';
 			}
 		}//end if (not at root)
 	echo '</h2>';
+	echo '<script>document.getElementById("path_'.$x.'").focus();</script>';
 }//end Current_Path_Header() //*************************************************
 
 
@@ -367,8 +369,8 @@ function Upload_New_Rename_Delete_Links() { //**********************************
 	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=newfile">'  ; svg_icon_file_new()  ; echo 'New File</a>'   ;
 	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=newfolder">'; svg_icon_folder_new(); echo 'New Folder</a>' ;
 	if ($ipath !== "") { //if at root, don't show Rename & Delete links
-		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=renamefolder">'; svg_icon_folder_ren();echo 'Rename/Move Folder</a>';
-		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=deletefolder">'; svg_icon_folder_del();   echo 'Delete Folder</a>';
+		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=renamefolder">'; svg_icon_folder_ren(); echo 'Rename/Move Folder</a>';
+		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=deletefolder">'; svg_icon_folder_del(); echo 'Delete Folder</a>';
 	}
 	echo '</p>';
 }//end Upload_New_Rename_Delete_Links()  ***************************************
@@ -660,12 +662,12 @@ function Hash_Page() { //******************************************************
 
 
 
-function Hash_Page_response() { //**********************************************
+function Hash_response() { //***************************************************
 	global $SALT, $message;
 	$_POST['whattohash'] = trim($_POST['whattohash']); // trim leading & trailing spaces.
 	$message .= 'Password: '.$_POST['whattohash'].'<br>';
 	$message .= 'Hash &nbsp; &nbsp;: '.hashit($_POST["whattohash"]);
-} //end Hash_Page_response() ***************************************************
+} //end Hash_response() ********************************************************
 
 
 
@@ -779,7 +781,7 @@ function list_files() { // ...in a vertical table ******************************
 					<?php echo number_format(filesize($ipath.$file)); ?> B
 				</td>
 				<td class="meta_T meta_time"> &nbsp;
-					<script>FileTimeStamp(<?php echo filemtime($ipath.$file); ?>);</script>
+					<script>FileTimeStamp(<?php echo filemtime($ipath.$file); ?>, 1, 0);</script>
 				</td>
 			</tr>
 <?php 
@@ -886,8 +888,9 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 		$MAX_IDLE_MINUTES = round($MAX_IDLE_TIME/60,1);
 ?>
 		<li><b>Remember- your $MAX_IDLE_TIME is <?php echo $MAX_IDLE_MINUTES ?> minutes.</b>
-		(Page time: <script>FileTimeStamp(<?php echo time(); ?>, 0)</script>)<br>
+		(Page time: <script>FileTimeStamp(<?php echo time(); ?>, 0, 0)</script>)<br>
 		In other words, if you are making changes, <b>save your file at least that often, or the changes will be lost</b>.
+
 		<li>On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser's [Reload].
 		<li>Under certain circumstances, Chrome's XSS filters may disable some javascript in a page if the page even <i>appears</i> to contain inline javascript.  This can affect certain features of the OneFileCMS edit page when editing files that actually contain such code, such as OneFileCMS itself.  However, such files can still be edited and saved with OneFileCMS.  The primary function lost is the incidental change of background colors (red/green) indicating whether or not the file has unsaved changes.  The issue will not be noticed after the first save of such a file.
 		</div>
@@ -933,7 +936,7 @@ Adjust $MAX_VIEW_SIZE in the configuration section of OneFileCMS as needed.<br>
 ?>
 	<p class="file_meta">
 	<span class="meta_size">Filesize: <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; 
-	<span class="meta_time">Updated: <script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1);</script></span><br>
+	<span class="meta_time">Updated: <script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1, 1);</script></span><br>
 	</p>
 
 	<input type="button" id="close1" class="button close" value="Close" onclick="parent.location = '<?php echo $ONESCRIPT.$param1 ?>'">
@@ -958,7 +961,7 @@ Adjust $MAX_VIEW_SIZE in the configuration section of OneFileCMS as needed.<br>
 
 
 
-function Edit_Page_response(){ //***If on Edit page, and [Save] clicked ********
+function Edit_response(){ //***If on Edit page, and [Save] clicked *************
 	global $filename, $message, $EX;
 	$filename = $_POST["filename"];
 	$content  = $_POST["content"];
@@ -970,7 +973,7 @@ function Edit_Page_response(){ //***If on Edit page, and [Save] clicked ********
 	}else{
 		$message .= $EX.' <b>There was an error saving file.</b>';
 	}
-}//end Edit_Page_response() ****************************************************
+}//end Edit_response() *********************************************************
 
 
 
@@ -1011,7 +1014,7 @@ function Upload_Page() { //*****************************************************
 
 
 
-function Upload_response() { //********************************************
+function Upload_response() { //*************************************************
 	global $filename, $message, $EX, $page;
 	$filename    = $_FILES['upload_file']['name'];
 	$destination = Check_path($_POST["upload_destination"]);
@@ -1044,7 +1047,7 @@ function Upload_response() { //********************************************
 			$message .= '<br>'.$EX.' <b> Upload failed: </b>'.$ERRMSG.'';
 		}
 	}
-}//end Upload_response() **************************************************
+}//end Upload_response() *******************************************************
 
 
 
@@ -1101,7 +1104,7 @@ function New_File_response() { //***********************************************
 
 
 
-function Copy_Ren_Move_Page($action, $title, $name_id, $isfile) { //******
+function Copy_Ren_Move_Page($action, $title, $name_id, $isfile) { //************
 	//$action = 'Copy' or 'Rename'. $isfile = 1 if acting on a file, not a folder
 	global $WEB_ROOT, $ipath, $filename, $FORM_COMMON;
 	if ($isfile) { $old_name = $filename; }else{ $old_name = $ipath; }
@@ -1340,7 +1343,7 @@ function Time_Stamp_scripts() {  ?>
 function pad(num){ if ( num < 10 ){ num = "0" + num; }; return num; }
 
 
-function FileTimeStamp(php_filemtime, show_offset){
+function FileTimeStamp(php_filemtime, show_date, show_offset){
 
 	//php's filemtime returns seconds, javascript's date() uses milliseconds.
 	var FileMTime = php_filemtime * 1000; 
@@ -1353,8 +1356,9 @@ function FileTimeStamp(php_filemtime, show_offset){
 	var MINS  = pad(TIMESTAMP.getMinutes());
 	var SECS  = pad(TIMESTAMP.getSeconds());
 
-	if( HOURS < 12){ AMPM = "am"; }
-	else           { AMPM = "pm"; HOURS = HOURS - 12; }
+	if ( HOURS < 12) { AMPM = "am"; }
+	else             { AMPM = "pm"; }
+	if ( HOURS > 12 ) {HOURS = HOURS - 12; }
 	HOURS = pad(HOURS);
 
 	var GMT_offset = -(TIMESTAMP.getTimezoneOffset()); //Yes, I know - seems wrong, but it's works.
@@ -1365,9 +1369,13 @@ function FileTimeStamp(php_filemtime, show_offset){
 	var offset_MINS  = pad( NEG * GMT_offset % 60 );
 	var offset_FULL  = "UTC " + SIGN + offset_HOURS + ":" + offset_MINS;
 
-	if (show_offset){ var DATETIME = YEAR+"-"+MONTH+"-"+DATE+" &nbsp;"+HOURS+":"+MINS+":"+SECS+" "+AMPM+" ("+offset_FULL+")"; }
-	else            { var DATETIME = YEAR+"-"+MONTH+"-"+DATE+" &nbsp;"+HOURS+":"+MINS+":"+SECS+" "+AMPM; }
-	
+	FULLDATE = YEAR + "-" + MONTH + "-" + DATE;
+	FULLTIME = HOURS + ":" + MINS + ":" + SECS + " " + AMPM;
+
+	var               DATETIME = FULLTIME;
+	if (show_date)  { DATETIME = FULLDATE + " &nbsp;" + FULLTIME;}
+	if (show_offset){ DATETIME += " ("+offset_FULL+")"; }
+		
 	document.write( DATETIME );
 
 }//end FileTimeStamp(php_filemtime)
@@ -1490,8 +1498,8 @@ function style_sheet(){ //****************************************************?>
 <style>
 /* --- reset --- */
 * { border : 0; outline: 0; margin : 0; padding: 0;
-font-family: inherit; font-weight: inherit; font-style : inherit;
-font-size  : 100%; vertical-align: baseline; }
+    font-family: inherit; font-weight: inherit; font-style : inherit;
+    font-size  : 100%; vertical-align: baseline; }
 
 
 /* --- general formatting --- */
@@ -1827,7 +1835,9 @@ hr {
 .path {padding: 3px 5px 3px 5px} /*TRBL*/
 
 .edit_onefile {padding: 5px; float: right;}
+
 </style>
+
 <?php }//end style_sheet() *****************************************************
 
 
@@ -1850,13 +1860,13 @@ if ($_SESSION['valid']) {
 
 	if ($VALID_POST) { //*******************************************************
 		if     (isset($_FILES['upload_file']['name'])) { Upload_response(); }
-		elseif (isset($_POST["whattohash"]   )) { Hash_Page_response();   }
-		elseif (isset($_POST["filename"]     )) { Edit_Page_response();   }
-		elseif (isset($_POST["new_file"]     )) { New_File_response();    }
+		elseif (isset($_POST["whattohash"]   )) { Hash_response();          }
+		elseif (isset($_POST["filename"]     )) { Edit_response();          }
+		elseif (isset($_POST["new_file"]     )) { New_File_response();      }
 		elseif (isset($_POST["copy_file"]    )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["copy_file"], 'copy', 'Copy', 'Copied', 1); } 
 		elseif (isset($_POST["rename_file"]  )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_file"], 'rename', 'Rename/Move', 'Renamed/Moved', 1); } 
-		elseif (isset($_POST["delete_file"]  )) { Delete_File_response(); }
-		elseif (isset($_POST["new_folder"]   )) { New_Folder_response();  }
+		elseif (isset($_POST["delete_file"]  )) { Delete_File_response();   }
+		elseif (isset($_POST["new_folder"]   )) { New_Folder_response();    }
 		elseif (isset($_POST["rename_folder"])) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_folder"], 'rename', 'Rename/Move', 'Renamed/Moved', 0); } 
 		elseif (isset($_POST["delete_folder"])) { Delete_Folder_response(); }
 	}//end if ($VALID_POST) ****************************************************
