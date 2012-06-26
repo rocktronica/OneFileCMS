@@ -21,6 +21,7 @@ MISC FUNCTIONS:
 	Cancel_Submit_Buttons()
 	show_image()
 	show_favicon()
+	Timeout_Timer()
 	Init_Macros()
 
 SVG ICON FUNCTIONS:
@@ -71,9 +72,10 @@ PAGE & RESPONSE FUNCTIONS:
 	Load_Selected_Page()
 
 JAVASCRIPT & STYLESHEET FUNCTIONS:
-	Time_Stamp_scripts() //Javascript functions
-	Edit_Page_scripts()  //Javascript functions
-	style_sheet()        //css
+	Timer_scripts()
+	Time_Stamp_scripts()
+	Edit_Page_scripts()
+	style_sheet()
 	
 LOGIC TO DETERMINE PAGE ACTION
 	Verify good PHP version

@@ -1,5 +1,11 @@
-### June 23, 2012
+### June 25, 2012
 
+### Unable to upload current version to the download page.
+
+- If you are interested in obtaining the current version - 3.2.0, just get it from the list of project files.  For some reason, whenever I try to upload it to the download page, I get the error:  
+  "Something went wrong that shouldn't have. Please try again or contact support if the problem persists."  
+  
+  
 Most of the recent changes have been to increase login and session security. However, I'm slowly learning that there's only so much that can be done, particulary when the base connection is un-encrypted.   Online security, it seems, is a nebulous subject of a rather dubious nature.  Never-the-less, I have tried to do those things that can be done.  
 
 So, for those that care, here is a synopsis of the measures that have been employed:
@@ -18,7 +24,7 @@ Now, keep in mind that while, individually, any one of these measures may not pr
   
 Lastly, always remember that some of the most important security measures concern user behavior - such as avoiding the use of un-encrypted wifi connections...
   
-# Current stable version: 3.1.9.06
+# Current stable version: 3.2.0
 
 - 3.0+ : "Full" version - uses svg icons
 - 2.0+ : "Lite" version - uses no icons.
@@ -163,6 +169,12 @@ GENERATE THE PAGE
 --------------------------------------------------------------------------------
 
 ## Change Log
+
+### 3.2.0
+
+- Added a few security improvements.
+- Added "timeout" timer as a warning to save edits before they're lost.
+
 
 ### 3.1.9
 

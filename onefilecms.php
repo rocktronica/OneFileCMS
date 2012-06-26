@@ -1,7 +1,7 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.1.9.07';
+$version = '3.2.0';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -57,7 +57,7 @@ $SALT     = 'somerandomsalt';
 $MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;  //In seconds.
 $MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings can limit its max effective value.
-                      //  For instance, 24 minutes is the PHP default for garbage collection.
+					  //  For instance, 24 minutes is the PHP default for garbage collection.
 $MAX_IMG_W   = 810;  // Max width to display images. (page container = 810)
 $MAX_IMG_H   = 1000; // Max height.  I don't know, it just looks reasonable.
 
@@ -437,13 +437,34 @@ function show_favicon(){ //*****************************************************
 
 
 
+function Timeout_Timer($TIMER, $CLASS) { //***************************************************
+	global $MAX_IDLE_TIME;
+?> 
+	<span id='<?php echo $TIMER ?>' class='<?php echo $CLASS ?>'></span>
+	<script>
+		// Setup the countdown timer
+		var SESSION_last_active_time = <?php echo $_SESSION['last_active_time'] ?>;
+		var MAX_IDLE_TIME = <?php echo $MAX_IDLE_TIME ?>; //value also used in timer()
+		var countdown = MAX_IDLE_TIME;  //start value for countdown
+		var Timer = document.getElementById("<?php echo $TIMER ?>");
+		UpdateTimer(); //initialize display
+
+		//start the timer()
+		var counter = setInterval("timer()",1000); //1000 = 1 second 
+	</script>
+<?php
+} //end Timeout_Timer() //******************************************************
+
+
+
+
 function Init_Macros(){ //*** ($varibale="some reusable chunk of code")*********
 
-global 	$ONESCRIPT, $param1, $param2, $INPUT_SESSIONID, $FORM_COMMON, 
+global 	$ONESCRIPT, $param1, $param2, $INPUT_NUONCE, $FORM_COMMON, 
 		$SVG_icon_circle_plus, $SVG_icon_circle_x, $SVG_icon_pencil, $SVG_icon_img_0;
 
-$INPUT_SESSIONID = '<input type="hidden" name="nuonce" value="'.$_SESSION['nuonce'].'">'.PHP_EOL;
-$FORM_COMMON = '<form method="post" action="'.$ONESCRIPT.$param1.$param2.'">'.$INPUT_SESSIONID;
+$INPUT_NUONCE = '<input type="hidden" name="nuonce" value="'.$_SESSION['nuonce'].'">'.PHP_EOL;
+$FORM_COMMON = '<form method="post" action="'.$ONESCRIPT.$param1.$param2.'">'.$INPUT_NUONCE;
 
 $SVG_icon_circle_plus = '<circle cx="5" cy="5" r="5" stroke="black" stroke-width="0" fill="#080"/>
 	  <line x1="2" y1="5" x2="8" y2="5" stroke="white" stroke-width="1.5" />
@@ -616,7 +637,7 @@ function show_icon($type){ //***************************************************
 
 
 function Hash_Page() { //******************************************************
-	global $DOC_ROOT, $ONESCRIPT, $param1, $param2, $message, $INPUT_SESSIONID, $config_title;
+	global $DOC_ROOT, $ONESCRIPT, $param1, $param2, $message, $INPUT_NUONCE, $config_title;
 	$params = '?i='.dirname($ONESCRIPT).'&amp;f='.basename($ONESCRIPT).'&amp;p=edit';
 ?>
 	<style>#message {font-family: courier; min-height: 3.1em;}
@@ -625,7 +646,7 @@ function Hash_Page() { //******************************************************
 	<h2>Generate a Password Hash</h2>
 	
 	<form id="hash" name="hash" method="post" action="<?php echo $ONESCRIPT.$param1.'&amp;p=hash'; ?>">
-		<?php echo $INPUT_SESSIONID; ?>
+		<?php echo $INPUT_NUONCE; ?>
 		Password to hash:
 		<input type="text" name="whattohash" id="whattohash" value="<?php echo htmlspecialchars($_POST["whattohash"]) ?>">
 		<?php Cancel_Submit_Buttons('Generate hash', 'whattohash') ?>
@@ -752,7 +773,7 @@ function Login_response() { //**************************************************
 
 
 
-function list_files() { // ...in a vertical table ******************************
+function List_Files() { // ...in a vertical table ******************************
 //called from Index Page
 
 	global $ONESCRIPT, $ipath, $param1, $ftypes, $fclasses, $excluded_list;
@@ -788,7 +809,7 @@ function list_files() { // ...in a vertical table ******************************
 		}//end if !is_dir...
 	}//end foreach file
 	echo '</table>';
-}//end list_files() ************************************************************
+}//end List_Files() ************************************************************
 
 
 
@@ -809,7 +830,7 @@ function Index_Page(){ //*******************************************************
 
 	Upload_New_Rename_Delete_Links();
 
-	list_files();
+	List_Files();
 
 	Upload_New_Rename_Delete_Links();
 
@@ -820,7 +841,8 @@ function Index_Page(){ //*******************************************************
 
 function Edit_Page_Buttons($text_editable, $too_large_to_edit) { //*************
 	global $ONESCRIPT, $param1, $param2;
-	$ACTION = "parent.location = '".$ONESCRIPT.$param1.$param2.'&amp;p=';
+	$Button = '<input type="button" class="button" value=';
+	$ACTION = 'onclick="parent.location = \''.$ONESCRIPT.$param1.$param2.'&amp;p=';
 ?>
 	<p class="buttons_right">
 	<?php if ($text_editable && !$too_large_to_edit) { //Show save & reset only if editable file ?> 
@@ -833,10 +855,10 @@ function Edit_Page_Buttons($text_editable, $too_large_to_edit) { //*************
 			document.getElementById('reset').disabled     = "disabled";
 		</script>
 	<?php } ?>
-	<input type="button" class="button" value="Rename/Move" onclick="<?php echo $ACTION.'rename' ?>'">
-	<input type="button" class="button" value="Copy"        onclick="<?php echo $ACTION.'copy' ?>'  ">
-	<input type="button" class="button" value="Delete"      onclick="<?php echo $ACTION.'delete' ?>'">
-	<input type="button" class="button close" value="Close" onclick="parent.location = '<?php echo $ONESCRIPT.$param1 ?>'">
+	<?php echo $Button.'"Rename/Move" '.$ACTION ?>rename'">
+	<?php echo $Button.'"Copy"        '.$ACTION ?>copy'"  >
+	<?php echo $Button.'"Delete"      '.$ACTION ?>delete'">
+	<?php echo $Button.'"Close"       ' ?>onclick="parent.location = '<?php echo $ONESCRIPT.$param1 ?>'">
 	</p>
 <?php
 }//end Edit_Page_Buttons()******************************************************
@@ -846,10 +868,10 @@ function Edit_Page_Buttons($text_editable, $too_large_to_edit) { //*************
 
 //******************************************************************************
 function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message){ 
-	global $ONESCRIPT, $param1, $param2, $param3, $filename, $itypes, $INPUT_SESSIONID, $EX, $message, $MAX_IDLE_TIME;
+	global $ONESCRIPT, $param1, $param2, $param3, $filename, $itypes, $INPUT_NUONCE, $EX, $message, $MAX_IDLE_TIME;
 ?>
 	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$param1.$param2.$param3 ?>">
-		<?php echo $INPUT_SESSIONID; ?>
+		<?php echo $INPUT_NUONCE; ?>
 <?php
 		if ( !in_array( strtolower($ext), $itypes) ) { //If non-image, show textarea
 
@@ -883,16 +905,20 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 
 	if ($text_editable && !$too_large_to_edit && !$bad_chars) {
 		Edit_Page_scripts();
-		echo '<div id="edit_note">NOTES:<ol>';
-		//$MAX_IDLE_MINUTES = (round($MAX_IDLE_TIME/60)).' minutes '.(fmod($MAX_IDLE_TIME,60)).' seconds.';
-		$MAX_IDLE_MINUTES = round($MAX_IDLE_TIME/60,1);
+		$SEC = fmod($MAX_IDLE_TIME,60);  if ($SEC == 0) { $SEC = "00"; };
+		$MIN = floor($MAX_IDLE_TIME/60); if ($MIN == 0) { $MIN = "00"; };
+		$MAX_MIN_SEC = $MIN.':'.$SEC;
 ?>
-		<li><b>Remember- your $MAX_IDLE_TIME is <?php echo $MAX_IDLE_MINUTES ?> minutes.</b>
-		(Page time: <script>FileTimeStamp(<?php echo time(); ?>, 0, 0)</script>)<br>
-		In other words, if you are making changes, <b>save your file at least that often, or the changes will be lost</b>.
+		<div id="edit_notes">NOTES:<ol>
+		<li><b>Remember- your $MAX_IDLE_TIME is <?php echo $MAX_MIN_SEC ?>.
+		<?php Timeout_Timer('timer', 'xtra'); ?> <?php // Countdown to session timeout...?>
+		So save changes before the clock runs out, or the changes will be lost!</b><br>
+
+		<?php //The following line is just a static time stamp of when the idle time runs out. ?>
+		<?php //echo '<b class="xtra">&nbsp;<script>FileTimeStamp('.(time()+$MAX_IDLE_TIME).', 0, 0)</script>  </b>,'?>
 
 		<li>On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser's [Reload].
-		<li>Under certain circumstances, Chrome's XSS filters may disable some javascript in a page if the page even <i>appears</i> to contain inline javascript.  This can affect certain features of the OneFileCMS edit page when editing files that actually contain such code, such as OneFileCMS itself.  However, such files can still be edited and saved with OneFileCMS.  The primary function lost is the incidental change of background colors (red/green) indicating whether or not the file has unsaved changes.  The issue will not be noticed after the first save of such a file.
+		<li>Chrome's XSS filters may disable some javascript in a page if the page even <i>appears</i> to contain inline javascript in certain contexts.  This can affect some features of the OneFileCMS edit page when editing files that legitimately contain such code, such as OneFileCMS itself.  However, such files can still be edited and saved with OneFileCMS.  The primary function lost is the incidental change of background colors (red/green) indicating whether or not the file has unsaved changes.  The issue will be noticed after the first save of such a file.
 		</div>
 <?php
 	}
@@ -939,7 +965,7 @@ Adjust $MAX_VIEW_SIZE in the configuration section of OneFileCMS as needed.<br>
 	<span class="meta_time">Updated: <script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1, 1);</script></span><br>
 	</p>
 
-	<input type="button" id="close1" class="button close" value="Close" onclick="parent.location = '<?php echo $ONESCRIPT.$param1 ?>'">
+	<input type="button" id="close1" class="button" value="Close" onclick="parent.location = '<?php echo $ONESCRIPT.$param1 ?>'">
 	<script>document.getElementById('close1').focus();</script>
 	<div style="clear:both;"></div>
 <?php
@@ -979,7 +1005,7 @@ function Edit_response(){ //***If on Edit page, and [Save] clicked *************
 
 
 function Upload_Page() { //*****************************************************
-	global $ONESCRIPT, $ipath, $param1, $INPUT_SESSIONID;
+	global $ONESCRIPT, $ipath, $param1, $INPUT_NUONCE;
 
 	//Determine $MAX_FILE_SIZE to upload
 	$upload_max_filesize = ini_get('upload_max_filesize'); //This should be < post_max_size,
@@ -1002,7 +1028,7 @@ function Upload_Page() { //*****************************************************
 	<h2>Upload File</h2>
 	<p>Note: Maximum upload file size is: <?php echo $max_msg; ?></p>
 	<form enctype="multipart/form-data" action="<?php echo $ONESCRIPT.$param1; ?>&amp;p=uploaded" method="post">
-		<?php echo $INPUT_SESSIONID; ?>
+		<?php echo $INPUT_NUONCE; ?>
 		<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $MAX_FILE_SIZE ?>"> 
 		<input type="hidden" name="upload_destination" value="<?php echo htmlspecialchars($ipath); ?>" >
 		<input type="file"   name="upload_file" id="upload_file" size="100">
@@ -1335,13 +1361,53 @@ function Load_Selected_Page(){ //***********************************************
 
 
 
-//******************************************************************************
-function Time_Stamp_scripts() {  ?>
+function Timer_scripts() { //***************************************************
+?><script>
 
-<script>//Dispaly file's timestamp in user's local time 
-
+//pad() is also used by the Time_Stamp_scripts()
 function pad(num){ if ( num < 10 ){ num = "0" + num; }; return num; }
 
+function UpdateTimer() {
+
+	var Seconds = countdown ;
+
+	var Days = Math.floor(Seconds / 86400); Seconds = Seconds % 86400;
+	var Hours = Math.floor(Seconds / 3600); Seconds = Seconds % 3600;
+	var Minutes = Math.floor(Seconds / 60); Seconds = Seconds % 60;
+
+	if (Days == 0) { Days = "" }else{ Days = Days + "d :"}
+	if (Days == 0 && Hours == 0){ Hours = ""}else{ Hours = pad(Hours) + ":"}
+
+	var Time_Left = Days + Hours + pad(Minutes) + ":" + pad(Seconds);
+
+	Timer.innerHTML = Time_Left;
+}
+
+
+function timer() {
+
+	//If your pc was suspended or hibernated, the js timer doesn't know that...
+	//This will also account for poor timing by the timer() & setInterval()...
+	current_time = Math.round(new Date().getTime()/1000); //js uses milliseconds
+	if ( (SESSION_last_active_time + MAX_IDLE_TIME) < current_time ) { countdown = 0 ; }
+
+	if ( --countdown < 1) {
+		Timer.innerHTML = 'SESSION EXPIRED';
+		alert('The session was terminated due to inactivity.');
+		clearInterval(counter);
+		return;
+	}
+	UpdateTimer();
+}
+</script>
+<?php }//end Timer_scripts() ***************************************************
+
+
+
+
+function Time_Stamp_scripts() { //**********************************************
+?>
+<script>//Dispaly file's timestamp in user's local time 
 
 function FileTimeStamp(php_filemtime, show_date, show_offset){
 
@@ -1380,12 +1446,12 @@ function FileTimeStamp(php_filemtime, show_date, show_offset){
 
 }//end FileTimeStamp(php_filemtime)
 </script>
-<?php }//end Time_Stamp_scripts() ******************************************
+<?php }//end Time_Stamp_scripts() **********************************************
 
 
 
 
-function Edit_Page_scripts() { //********************************************
+function Edit_Page_scripts() { //***********************************************
 ?>
 	<!--======== Provide feedback re: unsaved changes ========-->
 	<script>
@@ -1411,7 +1477,7 @@ function Edit_Page_scripts() { //********************************************
 
 	function Reset_file_status_indicators() {
 		changed = false;
-		File_textarea.style.backgroundColor = "#eFe";  //light green
+		File_textarea.style.backgroundColor = "#F6FFF6";  //light green
 		Save_File_button.style.backgroundColor = "";
 		Save_File_button.style.borderColor = "";
 		Save_File_button.style.borderWidth = "1px";
@@ -1488,8 +1554,7 @@ function Edit_Page_scripts() { //********************************************
 	
 	Reset_file_status_indicators()
 	</script>
-
-<?php }//End Edit_Page_scripts() ********************************************
+<?php }//End Edit_Page_scripts() ***********************************************
 
 
 
@@ -1689,7 +1754,7 @@ textarea {
 	height: 30em;
 	}
 
-textarea:focus { border: 1px solid #Faa; }
+textarea:focus { border: 1px solid #Fdd; }
 
 .edit_disabled { 
 	border : 1px solid #807568;
@@ -1714,7 +1779,7 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 
 
 .buttons_right         { float: right; }
-.buttons_right .button { margin-left: 7px; }
+.buttons_right .button { margin-left: .5em; }
 
 .button {
 	border : 1px solid #807568;
@@ -1762,9 +1827,9 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 
 .file_meta	  {float: left;  margin-top: .5em; font-size: 1em; color: #333; font-family: courier;}
 
-.close        {float: right; margin-bottom: .5em;}
+#close1       {float: right; margin-bottom: .5em;}
 
-#edit_note    {font-size: .8em; color: #444 ;margin-top: 1em; clear:both;}
+#edit_notes   {font-size: .8em; color: #333 ;margin-top: 1em; clear:both;}
 
 
 
@@ -1832,12 +1897,16 @@ hr {
 
 .info {margin-top: .7em; background: #f9f9f9; padding: .2em .5em;}
 
-.path {padding: 3px 5px 3px 5px} /*TRBL*/
+.path {padding: 1px 5px 1px 5px} /*TRBL*/
 
 .edit_onefile {padding: 5px; float: right;}
 
-</style>
+.xtra {color: red; background: white; font-weight: bold;}
 
+#timer {border: 1px solid gray; padding: .1em .5em;}
+
+.timeout {float:right; font-size: .95em; color: #333}
+</style>
 <?php }//end style_sheet() *****************************************************
 
 
@@ -1921,6 +1990,8 @@ elseif ( ($page == "edit") && ($filename == trim(rawurldecode($ONESCRIPT), '/'))
 
 <?php if ( ($page == "index") || ($page == "edit") ) { Time_Stamp_scripts(); } ?>
 
+<?php Timer_scripts() ?>
+
 </head>
 <body>
 
@@ -1949,8 +2020,16 @@ elseif ( ($page == "edit") && ($filename == trim(rawurldecode($ONESCRIPT), '/'))
 
 <hr>
 
-<?php if ( ($page != "hash") && ($_SESSION['valid']) ){ 
-		echo '<a id="admin" href="'.$ONESCRIPT.$param1.$param2.'&amp;p=hash">Admin</a>'; }
+<?php
+//Admin link
+if ( ($page != "hash") && ($_SESSION['valid']) ){
+echo '<a id="admin" href="'.$ONESCRIPT.$param1.$param2.'&amp;p=hash">Admin</a>'; }
+
+//Countdown timer...
+if ( $page != "edit" && $page != login) {
+	Timeout_Timer('timer', 'timeout');
+	echo '<span class="timeout">Session time out in:&nbsp;</span>';
+} 
 ?>
 
 </div><!-- end container/login_page -->
