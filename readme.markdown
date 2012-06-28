@@ -1,5 +1,7 @@
+# Current stable version: 3.2.1
+
 ### June 28, 2012
-  
+
 Most of the recent changes have been to increase login and session security. However, I'm slowly learning that there's only so much that can be done, particulary when the base connection is un-encrypted.   Online security, it seems, is a nebulous subject of a rather dubious nature.  Never-the-less, I have tried to do those things that can be done.  
 
 So, for those that care, here is a synopsis of the measures that have been employed:
@@ -18,8 +20,6 @@ Now, keep in mind that while, individually, any one of these measures may not pr
   
 Lastly, always remember that some of the most important security measures concern user behavior - such as avoiding the use of un-encrypted wifi connections...
   
-# Current stable version: 3.2.1
-
 - 3+ : "Full" version - uses svg icons
 - 2+ : "Lite" version - uses no icons.
 
