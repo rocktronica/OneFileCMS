@@ -1,7 +1,7 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.2.1';
+$version = '3.2.2';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -32,9 +32,9 @@ SOFTWARE.
 
 
 //Some basic security & error log settings
-ini_set('session.use_trans_sid', 0);    //make sure ULR supplied SESSID's are not used
+ini_set('session.use_trans_sid', 0);    //make sure URL supplied SESSID's are not used
 ini_set('session.use_only_cookies', 1); //Only defaults to 1 (enabled) from 5.3 on
-error_reporting(0); // or (E_ALL &~ E_STRICT) if display and/or log are on.
+error_reporting(E_ALL &~ E_STRICT); //0, or (E_ALL &~ E_STRICT) if display and/or log are on.
 ini_set('display_errors', 'off');
 ini_set('log_errors'    , 'off'); //Ok to turn on for trouble-shooting.
 ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.log');
@@ -55,7 +55,7 @@ $HASHWORD = 'c3e70af96ab1bfc5669280e98b438e1a8c08ca5e0bb3354c05ceaa6f339fd3f6'; 
 $SALT     = 'somerandomsalt';
 
 $MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
-$LOGIN_DELAY   = 10;  //In seconds.
+$LOGIN_DELAY   = 30;  //In seconds.
 $MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings may limit its max effective value.
 					  //  For instance, 24 minutes is the PHP default for garbage collection.
 $MAX_IMG_W   = 810;  // Max width to display images. (page container = 810)
@@ -67,7 +67,13 @@ $MAX_VIEW_SIZE = 1000000; // If file > $MAX_EDIT_SIZE, don't even view in OneFil
 $config_favicon   = "/favicon.ico";
 $config_excluded  = ""; //files to exclude from directory listings- CaSe sEnsaTive!
 
-$config_etypes = "html,htm,xhtml,php,css,js,txt,text,cfg,conf,ini,csv,svg"; //Editable file types.
+$config_etypes = "html,htm,xhtml,php,css,js,txt,text,cfg,conf,ini,csv,svg,log"; //Editable file types.
+$config_stypes = "*"; // Shown types; only files of the given types should show up in the file-listing
+	// Use $config_stypes exactly like $config_etypes (list of extensions separated by semicolons).
+	// If $config_stypes is set to null - by intention or by error - OFCMS will only display folders.
+	// If $config_stypes is set to the *-wildcard (as per default), all files will show up.
+	// If $config_stypes is set to "html,htm" for example, only file with the extension "html" or "htm" will get listed.
+
 $config_itypes = "jpg,gif,png,bmp,ico"; //image types to display on edit page.
 $config_ftypes = "bin,jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,ini,cfg,conf,asp,js ,htm,html"; // _ftype & _fclass must have same
 $config_fclass = "bin,img,img,img,img,img,svg,txt,txt,css,php,txt,cfg,cfg ,txt,txt,htm,htm";  // number of values. bin is default.
@@ -104,6 +110,9 @@ $INVALID_CHARS_array = explode(' ', $INVALID_CHARS); // (Space deliminated)
 
 //Make arrays out of a few $config_variables for actual use later.
 //Also, remove spaces and make lowercase.
+$SHOWALLFILES = $stypes = false;
+  if ($config_stypes == '*') { $SHOWALLFILES = true; }
+  else { $stypes   = explode(',', strtolower(str_replace(' ', '', $config_stypes))); }//shown file types
 $etypes   = explode(',', strtolower(str_replace(' ', '', $config_etypes))); //editable file types
 $itypes   = explode(',', strtolower(str_replace(' ', '', $config_itypes))); //images types to display
 $ftypes   = explode(',', strtolower(str_replace(' ', '', $config_ftypes))); //file types with icons
@@ -115,7 +124,7 @@ $excluded_list = (explode(",", $config_excluded));
 
 
 function Session_Startup() {//**************************************************
-	global $USERNAME, $PASSWORD, $USE_HASH, $HASHWORD, $EX, $message , $page, $VALID_POST, $MAX_IDLE_TIME, $SESSION_NAME;
+	global $USERNAME, $PASSWORD, $USE_HASH, $HASHWORD, $page, $VALID_POST, $MAX_IDLE_TIME, $SESSION_NAME;
  
 	$limit    = 0; //0 = session.  
 	$path     = dirname($_SERVER['SCRIPT_NAME']);
@@ -156,7 +165,7 @@ function Verify_IDLE_POST_etc() { //********************************************
 	//Check idle time
  	if ( isset($_SESSION['last_active_time']) ) {
 		$idle_time = ( time() - $_SESSION['last_active_time'] );
-		if ( $_SESSION['valid'] && ($idle_time > $MAX_IDLE_TIME) ) {
+		if ( $idle_time > $MAX_IDLE_TIME ) {
 			Logout();
 			$message .= 'Session expired. <br>';
 		}
@@ -217,9 +226,9 @@ function Get_GET() { //*** Get main parameters *********************************
 
 	if (isset($_GET["f"])) {
 		$filename = $ipath.$_GET["f"];
+		if ( !is_file($filename) ) { $filename = ""; $page = "index"; }
 		if ( !is_file($filename) && $_SESSION['valid'] )//Set $message except for login page.
 			{ $message .= $EX.' <b>File does not exist:</b> '.htmlentities($filename).'<br>'; }
-		if ( !is_file($filename) ) { $filename = ""; $page = "index"; }
 	}else{ $filename = ""; }
 
 	if (isset($_GET["p"])) { $page = $_GET["p"]; } 
@@ -287,7 +296,7 @@ function is_empty($path){ //****************************************************
 	for($i = 3; $i; $i--) { $empty = (readdir($dh) === FALSE); }
 	closedir($dh);
 	return $empty;
-}//end is_emtpy() //************************************************************
+}//end is_empty() //************************************************************
 
 
 
@@ -413,7 +422,7 @@ function show_image(){ //*******************************************************
 	$IMG = $filename;
 	$img_info = getimagesize($IMG);
 
-	$W=0; $H=1;
+	$W=0; $H=1; //indexes for $img_info[]
 	$SCALE = 1; $TOOWIDE = 0; $TOOHIGH = 0;
 	if ($img_info[$W] > $MAX_IMG_W) { $TOOWIDE = ( $MAX_IMG_W/$img_info[$W] );}
 	if ($img_info[$H] > $MAX_IMG_H) { $TOOHIGH = ( $MAX_IMG_H/$img_info[$H] );}
@@ -421,7 +430,7 @@ function show_image(){ //*******************************************************
 	if ($TOOHIGH || $TOOWIDE) {
 		if     (!$TOOWIDE)           {$SCALE = $TOOHIGH;}
 		elseif (!$TOOHIGH)           {$SCALE = $TOOWIDE;}
-		elseif ($TOOHIGH > $TOOWIDE) {$SCALE = $TOOWIDE;} //ex:if (.90 > .50)
+		elseif ($TOOHIGH > $TOOWIDE) {$SCALE = $TOOWIDE;} //ex: if (.90 > .50)
 		else                         {$SCALE = $TOOHIGH;}
 	}
 
@@ -637,6 +646,7 @@ function show_icon($type){ //***************************************************
 function Hash_Page() { //******************************************************
 	global $DOC_ROOT, $ONESCRIPT, $param1, $param2, $message, $INPUT_NUONCE, $config_title;
 	$params = '?i='.dirname($ONESCRIPT).'&amp;f='.basename($ONESCRIPT).'&amp;p=edit';
+	if (!isset($_POST['whattohash'])) { $_POST['whattohash'] = ''; }
 ?>
 	<style>#message {font-family: courier; min-height: 3.1em;}
 	li {margin-left: 2em}</style>
@@ -654,12 +664,12 @@ function Hash_Page() { //******************************************************
 	<div class="info">
  	<p>There are two ways to change your OneFileCMS password:<br>
 	<p>
-	1) Simply use the $PASSWORD config variable to store your desired password, and set $USE_HASH = 0 (zero).<br>
+	1) Use the $PASSWORD config variable to store your desired password, and set $USE_HASH = 0 (zero).<br>
 	2) Or, use $HASHWORD to store the hash of your password, and set $USE_HASH = 1.<br>
 
 	<p>Keep in mind that due to a number of widely varied considerations, this is largely an academic excersize. 
 	That is, take the idea that this adds much of an improvement to security with a grain of cryptographic salt.
-	However, it does eleminate the storage of your password in plain text, which is always a good thing.*
+	However, it does eleminate the storage of your password in plain text, which is a good thing*
 
 	<p>Anyway, to use the $HASHWORD password option:
 	<ol><li>Type your desired password in the input field above and hit Enter.<br>
@@ -682,10 +692,10 @@ function Hash_Page() { //******************************************************
 
 
 function Hash_response() { //***************************************************
-	global $SALT, $message;
+	global $message;
 	$_POST['whattohash'] = trim($_POST['whattohash']); // trim leading & trailing spaces.
-	$message .= 'Password: '.$_POST['whattohash'].'<br>';
-	$message .= 'Hash &nbsp; &nbsp;: '.hashit($_POST["whattohash"]);
+	$message .= 'Password: '.htmlspecialchars($_POST['whattohash']).'<br>';
+	$message .= 'Hash &nbsp; &nbsp;: '.htmlspecialchars(hashit($_POST["whattohash"]));
 } //end Hash_response() ********************************************************
 
 
@@ -773,7 +783,7 @@ function Login_response() { //**************************************************
 function List_Files() { // ...in a vertical table ******************************
 //called from Index Page
 
-	global $ONESCRIPT, $ipath, $param1, $ftypes, $fclasses, $excluded_list;
+	global $ONESCRIPT, $ipath, $param1, $ftypes, $fclasses, $excluded_list, $stypes, $SHOWALLFILES;
 
 	$files = scandir('./'.$ipath);
 	natcasesort($files);
@@ -783,11 +793,14 @@ function List_Files() { // ...in a vertical table ******************************
 		
 		$excluded = FALSE;
 		if (in_array(basename($file), $excluded_list)) { $excluded = TRUE; };
-		
-		if (!is_dir($ipath.$file) && !$excluded) {
 
-			//Determine file type & set cooresponding icon type.
-			$ext = end( explode(".", strtolower($file)) );
+		//Get file type & check against $stypes (files types to show)
+		$ext = end( explode(".", strtolower($file)) );
+		if ($SHOWALLFILES || in_array($ext, $stypes)) { $SHOWTYPE = TRUE; } else { $SHOWTYPE = FALSE; }
+		
+		if ( $SHOWTYPE && !is_dir($ipath.$file) && !$excluded ) {
+			
+			//Set icon type based on file type ($ext).
 			$type = $fclasses[array_search($ext, $ftypes)];
 ?>
 			<tr>
@@ -1269,7 +1282,6 @@ function New_Folder_response(){ //**********************************************
 		$message .= $EX.' <b>Folder already exists: ';
 		$message .= htmlentities($new_ipath).'</b>';
 	}elseif (mkdir($new_ipath)) {
-
 		$message .= '<b>Created folder:</b> '.htmlentities($new_name);
 		$ipath    = $new_ipath;  //return to new folder
 		$param1   = '?i='.URLencode_path($ipath);
@@ -1383,6 +1395,12 @@ function Countdown(count, End_Time, Timer_ID, Timer_CLASS, Action){
 	var params = count + ', "' + End_Time + '", "' + Timer_ID + '", "' + Timer_CLASS + '", "' + Action + '"';
 
 	Timer.innerHTML = FormatTime(count);
+
+	if ( (count < 120) && (Action != "") ) { //Two minute warning...
+		Timer.style.backgroundColor = "white";
+		Timer.style.color = "red";
+		Timer.style.fontWeight = "900";
+	}
 
 	if ( count < 1 ) {
 		if ( Action == 'LOGOUT') { 
@@ -1853,7 +1871,7 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 	border  : 1px solid #807568;
 	padding : 2px 0px 2px 2px;
 	width   : 366px;
-	font    : 1em "Courier New";
+	font    : 1em courier;
 	}
 
 .login_page input[type="text"]{ width   : 364px; }
@@ -1864,7 +1882,6 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 	border: 1px solid #807568;
 	padding: 2px;
 	width: 50em;
-	Xfont: 1em "Courier New", Courier, monospace;
 	}
 
 
