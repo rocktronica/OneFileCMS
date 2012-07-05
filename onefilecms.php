@@ -1,7 +1,7 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.2.2.1';
+$version = '3.2.3';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -33,13 +33,13 @@ SOFTWARE.
 
 //Some basic security & error log settings
 ini_set('session.use_trans_sid', 0);    //make sure URL supplied SESSID's are not used
-ini_set('session.use_only_cookies', 1); //Only defaults to 1 (enabled) from 5.3 on
+ini_set('session.use_only_cookies', 1); //make sure URL supplied SESSID's are not used
 error_reporting(E_ALL &~ E_STRICT); //0, or (E_ALL &~ E_STRICT) if display and/or log are on.
 ini_set('display_errors', 'off');
 ini_set('log_errors'    , 'off'); //Ok to turn on for trouble-shooting.
 ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.log');
 //Determine good folder for session file? Default is tmp/, which is not secure.
-//session_save_path($safepath)  or  ini_set('session.save_path', $safepath) 
+//session_save_path($safepath)  or  ini_set('session.save_path', $safepath)
 
 
 
@@ -55,7 +55,7 @@ $HASHWORD = 'c3e70af96ab1bfc5669280e98b438e1a8c08ca5e0bb3354c05ceaa6f339fd3f6'; 
 $SALT     = 'somerandomsalt';
 
 $MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
-$LOGIN_DELAY   = 30;  //In seconds.
+$LOGIN_DELAY   = 10;  //In seconds.
 $MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings may limit its max effective value.
 					  //  For instance, 24 minutes is the PHP default for garbage collection.
 $MAX_IMG_W   = 810;  // Max width to display images. (page container = 810)
@@ -93,7 +93,7 @@ if (is_file($config_file)) {
 	# Parse file
 	$settings = parse_ini_file($config_file);
 
-	# Configure, which variables can get overwritten by the config file:
+	# Configure which variables can get overwritten by the config file:
 	$overwritable_variables = array(
 		'config_title',
 		'USERNAME',
@@ -466,7 +466,7 @@ function show_image(){ //*******************************************************
 
 	echo '<p Xclass="file_meta">';
 	echo 'Image shown at ~'. round($SCALE*100) .'% of full size (W x H = '.$img_info[0].' x '.$img_info[1].').</p>';
-	echo '<div style="clear:both;"></div>'.PHP_EOL;
+	echo '<div style="clear:both"></div>'.PHP_EOL;
 	echo '<a href="/' .URLencode_path($IMG). '" target="_blank">'.PHP_EOL;
 	echo '<img src="/'.URLencode_path($IMG).'"  height="'.$img_info[$H]*$SCALE.'"></a>'.PHP_EOL;
 }// end show_image() ***********************************************************
@@ -699,20 +699,20 @@ function Hash_Page() { //******************************************************
 
 	<p>Keep in mind that due to a number of widely varied considerations, this is largely an academic excersize. 
 	That is, take the idea that this adds much of an improvement to security with a grain of cryptographic salt.
-	However, it does eleminate the storage of your password in plain text, which is a good thing*
+	However, it does eleminate the storage of your password in plain text, which is a good thing.
 
 	<p>Anyway, to use the $HASHWORD password option:
 	<ol><li>Type your desired password in the input field above and hit Enter.<br>
 			The hash will be displayed in a yellow message box above that.
 		<li>Copy and paste the new hash to the $HASHWORD variable in the config section.<br>
-			'Make sure the hash ends up in quotes.'<br>
-			Make sure to copy ALL of, and ONLY, the hash (no spaces etc). A double-click should select it...
+			Make sure to copy ALL of, and ONLY, the hash (no leading or trailing spaces etc).<br>
+			A double-click should select it...<br>
 		<li>Make sure $USE_HASH is set to 1 (or true).
 		<li>When ready, logout and login.
 	</ol>
 	<p>You can use OneFileCMS to edit itself.  However, be sure to have a backup ready for the inevitable ytpo...
 	<p>
-	*For another small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep 'em secret, of course).  Remever, every little bit helps...<br>
+	For another small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep 'em secret, of course).  Remever, every little bit helps...<br>
 	PS: Everything I know about security - you just read...
 	</div>
 <?php 
@@ -775,10 +775,13 @@ function Login_response() { //**************************************************
 
 	$_SESSION = array();    //make sure it's empty
 	$_SESSION['valid'] = 0; //Default to failed login.
+	$attempts = 0;
+	$elapsed  = 0;
 
-	if (!is_file($LOGIN_ATTEMPTS)) { file_put_contents($LOGIN_ATTEMPTS, 0); }
-	$attempts = (int)file_get_contents($LOGIN_ATTEMPTS); //Don't increment yet...
-	$elapsed  = time() - filemtime($LOGIN_ATTEMPTS);
+	if (is_file($LOGIN_ATTEMPTS)) { //Check for prior failed attempts
+		$attempts = (int)file_get_contents($LOGIN_ATTEMPTS); //Don't increment yet...
+		$elapsed  = time() - filemtime($LOGIN_ATTEMPTS);
+	}
 
 	if ($attempts > 0) { $message .= '<b>There have been '.$attempts.' invalid login attempts.</b><br>';}
 	if ( ($attempts >= $MAX_ATTEMPTS) && ($elapsed < $LOGIN_DELAY) ){
@@ -791,13 +794,13 @@ function Login_response() { //**************************************************
 	else           { $VALID_PASSWORD = (       $_POST['password']  == $PASSWORD); }
 
 	//validate login.  Ignore attempt if username & password are blank. 
-	if ( ($_POST['password'] == "") && ($_POST['username'] == "") )  { return;
+	if ( ($_POST['password'] == "") && ($_POST['username'] == "") )  { ; //
 	}elseif ( $VALID_PASSWORD && ($_POST['username'] == $USERNAME) ) {
 		session_regenerate_id(true);
 		$_SESSION['USER_AGENT'] = $_SERVER['HTTP_USER_AGENT']; //for user consistancy check.
 		$_SESSION['valid'] = 1;
 		$page = "index";
-		unlink($LOGIN_ATTEMPTS); //delete invalid attempt count file
+		if ( is_file($LOGIN_ATTEMPTS) ) { unlink($LOGIN_ATTEMPTS); } //delete invalid attempt count file
 	}else{
 		file_put_contents($LOGIN_ATTEMPTS, ++$attempts); //increment & save attempt
 		$message  = $EX.' <b>INVALID LOGIN ATTEMPT #'.$attempts.'</b><br>';
@@ -884,9 +887,9 @@ function Edit_Page_Buttons($text_editable, $too_large_to_edit) { //*************
 	$Button = '<input type="button" class="button" value=';
 	$ACTION = 'onclick="parent.location = \''.$ONESCRIPT.$param1.$param2.'&amp;p=';
 ?>
-	<p class="buttons_right">
+	<div class="edit_btns_bottom">
 	<?php if ($text_editable && !$too_large_to_edit) { //Show save & reset only if editable file ?> 
-		<?php echo Timeout_Timer($MAX_IDLE_TIME, 'timer1','timer xtra', 'LOGOUT'); ?>
+		<?php echo Timeout_Timer($MAX_IDLE_TIME, 'timer1','timer', 'LOGOUT'); ?>
 		<input type="submit" class="button" value="Save"                  onclick="submitted = true;" id="save_file">
 		<input type="button" class="button" value="Reset - loose changes" onclick="Reset_File()"      id="reset">
 		<script>
@@ -900,9 +903,36 @@ function Edit_Page_Buttons($text_editable, $too_large_to_edit) { //*************
 	<?php echo $Button.'"Copy"        '.$ACTION ?>copy'"  >
 	<?php echo $Button.'"Delete"      '.$ACTION ?>delete'">
 	<?php echo $Button.'"Close"       ' ?>onclick="parent.location = '<?php echo $ONESCRIPT.$param1 ?>'">
-	</p>
+	</div>
 <?php
 }//end Edit_Page_Buttons()******************************************************
+
+
+
+
+function Edit_Page_Notes() { //*************************************************
+	global $MAX_IDLE_TIME;
+			$SEC = $MAX_IDLE_TIME;
+			$HRS = floor($SEC/3600);
+			$SEC = fmod($SEC,3600);
+			$MIN = floor($SEC/60);   if ($MIN < 10) { $MIN = "0".$MIN; };
+			$SEC = fmod($SEC,60);    if ($SEC < 10) { $SEC = "0".$SEC; };
+			$HRS_MIN_SEC = $HRS.':'.$MIN.':'.$SEC;
+?>
+			<div id="edit_notes">NOTES:
+			<ol>
+			<li><b>Remember- your $MAX_IDLE_TIME is <?php echo $HRS_MIN_SEC ?>.
+			So save changes before the clock runs out, or the changes will be lost!</b><br>
+
+			<?php //The following line is just a static time stamp of when the idle time runs out. ?>
+			<?php //echo '<b>&nbsp;<script>FileTimeStamp('.(time()+$MAX_IDLE_TIME).', 0, 0)</script>  </b>,'?>
+
+			<li>On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser's [Reload].
+			<li>Chrome's XSS filters may disable some javascript in a page if the page even <i>appears</i> to contain inline javascript in certain contexts.  This can affect some features of the OneFileCMS edit page when editing files that legitimately contain such code, such as OneFileCMS itself.  However, such files can still be edited and saved with OneFileCMS.  The primary function lost is the incidental change of background colors (red/green) indicating whether or not the file has unsaved changes.  The issue will be noticed after the first save of such a file.
+			</ol>
+			</div>
+<?php 
+}//end Edit_Page_Notes() { //***************************************************
 
 
 
@@ -914,9 +944,9 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$param1.$param2.$param3 ?>">
 		<?php echo $INPUT_NUONCE; ?>
 <?php
-		if ( !in_array( strtolower($ext), $itypes) ) { //If non-image, show textarea
+		if ( !in_array( strtolower($ext), $itypes) ) { //If non-image...
 
-			if (!$text_editable) { // If non-text file, disable textarea
+			if (!$text_editable) { // If non-text file...
 				echo '<p class="edit_disabled">Non-text or unkown file type. Edit disabled.<br><br></p>';
 
 			}elseif ( $too_large_to_edit ) {
@@ -930,13 +960,13 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 				}
 				$bad_chars = ($filecontent == "" && filesize($filename) > 0);
 
-				if ($bad_chars){ //did specialchars return an empty string?
+				if ($bad_chars){ //did htmlspecialchars return an empty string?
 					echo '<pre class="edit_disabled">'.$EX.' File contains an invalid character. Edit and view disabled.<br>';
 					echo ' htmlspecialchars() returned and empty string from what <i>may be</i> an otherwise valid file.<br>';
 					echo ' This behavior can be inconsistant from version to version of php.<br></pre>';
 				}else{
 					echo '<input type="hidden" name="filename" id="filename" value="'.htmlspecialchars($filename).'">';
-					echo '<textarea id="file_content" name="content" cols="70" rows="25"
+					echo '<textarea id="file_contents" name="content" cols="70" rows="25"
 						onkeyup="Check_for_changes(event);">'.$filecontent.'</textarea>'.PHP_EOL;
 				}
 			} //end if !editable /else...
@@ -944,28 +974,10 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 
 		Edit_Page_Buttons($text_editable, $too_large_to_edit);
 
-		if ($text_editable && !$too_large_to_edit && !$bad_chars) {
-			Edit_Page_scripts();
-			$SEC = $MAX_IDLE_TIME;
-			$HRS = floor($SEC/3600);
-			$SEC = fmod($SEC,3600);
-			$MIN = floor($SEC/60);   if ($MIN < 10) { $MIN = "0".$MIN; };
-			$SEC = fmod($SEC,60);    if ($SEC < 10) { $SEC = "0".$SEC; };
-			$HRS_MIN_SEC = $HRS.':'.$MIN.':'.$SEC;
-?>
-			<div id="edit_notes">NOTES:<ol>
-			<li><b>Remember- your $MAX_IDLE_TIME is <?php echo $HRS_MIN_SEC ?>.
-			So save changes before the clock runs out, or the changes will be lost!</b><br>
-
-			<?php //The following line is just a static time stamp of when the idle time runs out. ?>
-			<?php //echo '<b class="xtra">&nbsp;<script>FileTimeStamp('.(time()+$MAX_IDLE_TIME).', 0, 0)</script>  </b>,'?>
-
-			<li>On some browsers, such as Chrome, if you click the browser [Back] then browser [Forward] (or vice versa), the file state may not be accurate.  To correct, click the browser's [Reload].
-			<li>Chrome's XSS filters may disable some javascript in a page if the page even <i>appears</i> to contain inline javascript in certain contexts.  This can affect some features of the OneFileCMS edit page when editing files that legitimately contain such code, such as OneFileCMS itself.  However, such files can still be edited and saved with OneFileCMS.  The primary function lost is the incidental change of background colors (red/green) indicating whether or not the file has unsaved changes.  The issue will be noticed after the first save of such a file.
-			</div>
-		<?php } ?>
-	</form> 
-<?php 
+		Edit_Page_scripts();
+?>	</form>
+<?php
+	if ($text_editable && !$too_large_to_edit && !$bad_chars) { Edit_Page_Notes(); }
 }//end Edit_Page_form() ********************************************************
 
 
@@ -977,14 +989,14 @@ function Edit_Page() { //*******************************************************
 
 	//Determine if text editable file type
 	$ext = end( explode(".", strtolower($filename) ) );
-	if (in_array($ext, $etypes)) { $text_editable = TRUE;  }
-	else                         { $text_editable = FALSE; }
+	if ( in_array($ext, $etypes) ) { $text_editable = TRUE;  }
+	else                           { $text_editable = FALSE; }
 	
 	$too_large_to_edit = (filesize($filename) > $MAX_EDIT_SIZE);
 	$too_large_to_view = (filesize($filename) > $MAX_VIEW_SIZE);
 	
-	if ($too_large_to_edit){$header2 = "Viewing: ";}
-	else                   {$header2 = "Editing: ";}
+	if ( $too_large_to_edit ) { $header2 = "Viewing: "; }
+	else                      { $header2 = "Editing: "; }
 
 	$too_large_to_edit_message = 
 '<b>Edit disabled. Filesize &gt; '.number_format($MAX_EDIT_SIZE).' bytes.</b><br>
@@ -993,36 +1005,44 @@ Adjust $MAX_EDIT_SIZE in the configuration section of OneFileCMS as needed.<br>
 A simple trial and error test can determine a practical limit for a given browser/computer.';
 	$too_large_to_view_message = 
 '<b>View disabled. Filesize &gt; '.number_format($MAX_VIEW_SIZE).' bytes.</b><br>
-Click the the file name above to view normally in a browser window.<br>
+Click the the file name above to view as normally rendered in a browser window.<br>
 Adjust $MAX_VIEW_SIZE in the configuration section of OneFileCMS as needed.<br>
-(The default value for $MAX_VIEW_SIZE is completely arbitrary, and may be adjusted as desired to suit individual perceptions of neccessity.)';
+(The default value is completely arbitrary, and may be adjusted as desired to suit individual perceptions of reality.)';
 
 	echo '<h2 id="edit_header">'.$header2;
 	echo '<a class="filename" href="/'.URLencode_path($filename).'" target="_blank">'.htmlentities(basename($filename)).'</a>';
 	echo '</h2>'.PHP_EOL;
 ?>
-	<p class="file_meta">
-	<span class="meta_size">Filesize: <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; 
-	<span class="meta_time">Updated: <script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1, 1);</script></span><br>
-	</p>
+	<div class="edit_btns_top">
+		<div class="file_meta">
+			<span class="meta_size">Filesize: <?php echo number_format(filesize($filename)); ?> bytes</span> &nbsp; 
+			<span class="meta_time">Updated: <script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1, 1);</script></span><br>
+		</div>
 
-	<input type="button" id="close1" class="button" value="Close" onclick="parent.location = '<?php echo $ONESCRIPT.$param1 ?>'">
-	<script>document.getElementById('close1').focus();</script>
-	<div style="clear:both;"></div>
+		<div class="buttons_right">
+			<?php if ( $text_editable ) { ?>
+				<input type="button" id="wide_view" class="button" value="Wide View" onclick="Wide_View();">
+			<?php } ?>
+			<input type="button" id="close1" class="button" value="Close" 
+				onclick="parent.location = '<?php echo $ONESCRIPT.$param1 ?>'">
+			<script>document.getElementById('close1').focus();</script>
+		</div>
+		<div style="clear:both"></div>
+	</div>
 <?php
 	Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message);
-
+	
 	if ( in_array( $ext, $itypes) ) { show_image(); }
 
-	echo '<div style="clear:both;"></div>';
+	echo '<div style="clear:both"></div>';
 
-	if ( $text_editable && $too_large_to_edit && !$too_large_to_view ) {
-		$filecontent = htmlspecialchars(file_get_contents($filename), ENT_COMPAT,'UTF-8');
-		echo '<pre class="edit_disabled view_file">'.$filecontent.'</pre>';
-	}elseif ( $text_editable && $too_large_to_view ){
+	if     ( $text_editable && $too_large_to_view ) {
 		echo '<p class="edit_disabled">'.$too_large_to_view_message.'</p>';
 	}
-
+	elseif ( $text_editable && $too_large_to_edit ){ 
+		$filecontent = htmlspecialchars(file_get_contents($filename), ENT_COMPAT,'UTF-8');
+		echo '<pre class="edit_disabled view_file">'.$filecontent.'</pre>';
+	}
 }//End Edit_Page ***************************************************************
 
 
@@ -1453,7 +1473,8 @@ function Start_Countdown(count, ID, CLASS, Action){
 	Countdown(count, Time_End, ID, CLASS, Action); //(seconds to count, id of element)
 }
 </script>
-<?php }//end Timer_scripts() ***************************************************
+<?php 
+}//end Timer_scripts() *********************************************************
 
 
 
@@ -1475,8 +1496,7 @@ function FileTimeStamp(php_filemtime, show_date, show_offset){
 	var MINS  = pad(TIMESTAMP.getMinutes());
 	var SECS  = pad(TIMESTAMP.getSeconds());
 
-	if ( HOURS < 12) { AMPM = "am"; }
-	else             { AMPM = "pm"; }
+	if ( HOURS < 12) { AMPM = "am"; } else { AMPM = "pm"; }
 	if ( HOURS > 12 ) {HOURS = HOURS - 12; }
 	HOURS = pad(HOURS);
 
@@ -1499,7 +1519,8 @@ function FileTimeStamp(php_filemtime, show_date, show_offset){
 
 }//end FileTimeStamp(php_filemtime)
 </script>
-<?php }//end Time_Stamp_scripts() **********************************************
+<?php 
+}//end Time_Stamp_scripts() ****************************************************
 
 
 
@@ -1508,15 +1529,29 @@ function Edit_Page_scripts() { //***********************************************
 ?>
 	<!--======== Provide feedback re: unsaved changes ========-->
 	<script>
-	    
-	var File_textarea    = document.getElementById('file_content');
+	
+	var File_textarea    = document.getElementById('file_contents');
 	var Save_File_button = document.getElementById('save_file');
 	var Reset_button     = document.getElementById('reset');
+	var Main_div		 = document.getElementById('main');
+	var Wide_View_button = document.getElementById('wide_view');
 
+	var main_width_default = Main_div.style.width ;
 	var start_value = File_textarea.value;
 	var submitted   = false
 	var changed     = false;
 
+
+	function Wide_View() {
+		//File_textarea.style.width = '100%';
+		if (Main_div.style.width == '95%') {
+			Main_div.style.width = main_width_default;
+			Wide_View_button.value = 'Wide View';
+		}else{
+			Main_div.style.width = '95%';
+			Wide_View_button.value = 'Normal View';
+		}
+	}
 
 
 	// The following events only apply when the element is active.
@@ -1602,12 +1637,13 @@ function Edit_Page_scripts() { //***********************************************
 		}
 		File_textarea.value = start_value;
 		Reset_file_status_indicators();
-		setSelRange(File_textarea, 0, 0) //MOve cursor to start of textarea.
+		setSelRange(File_textarea, 0, 0) //Move cursor to start of textarea.
 	}
 	
 	Reset_file_status_indicators()
 	</script>
-<?php }//End Edit_Page_scripts() ***********************************************
+<?php 
+}//End Edit_Page_scripts() *****************************************************
 
 
 
@@ -1662,7 +1698,7 @@ pre { /*Used around test output when trouble shooting*/
 .container {
 	border : 0px solid #807568;
 	width  : 810px;
-	margin : 0em auto;
+	margin : 0 auto 2em auto;
 	}
 
 
@@ -1799,21 +1835,11 @@ input[type="text"] {
 	font: 1em "Courier New", Courier, monospace;
 	}
 
-textarea {
-	border: 1px solid #999;
-	font  : .95em "Courier New", Courier, monospace;
-	margin: 0 0 0 0; /*T R B L*/
-	width : 99.5%;
-	height: 30em;
-	}
-
-textarea:focus { border: 1px solid #Fdd; }
-
 .edit_disabled { 
 	border : 1px solid #807568;
 	width  : 99%;
 	padding: .2em;
-	margin : 0;
+	margin : .5em 0 0 0;
 	background-color: #FFF000; color: #333;
 	line-height: 1.4em;
 	}
@@ -1876,11 +1902,17 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 
 #edit_form    {margin: 0;}
 
-#file_content {height: 30em;}
+#file_contents {
+	border: 1px solid #999;
+	font  : .95em "Courier New", Courier, monospace;
+	margin: 0 0 0 0; /*T R B L*/
+	width : 99.7%;
+	height: 30em;
+}
 
-.file_meta	  {float: left;  margin-top: .5em; font-size: 1em; color: #333; font-family: courier;}
+#file_contents:focus { border: 1px solid #Fdd; }
 
-#close1       {float: right; margin-bottom: .5em;}
+.file_meta	  {float: left;  margin-top: .5em; font-size: 1em; color: #333; } /*font-family: courier;*/
 
 #edit_notes   {font-size: .8em; color: #333 ;margin-top: 1em; clear:both;}
 
@@ -1952,13 +1984,17 @@ hr { /*-- -- -- -- -- -- --*/
 
 .edit_onefile {padding: 5px; float: right;}
 
-.xtra {color: red; background: #EEE;}
-
 .timer {border: 1px solid gray; padding: 3px .5em 4px .5em;}
 
-.timeout {float:right; font-size: .95em; color: #333}
+.timeout {float:right; font-size: .95em; color: #333; }
+
+.edit_btns_top    { margin: .2em 0 .5em 0;}
+
+.edit_btns_bottom { margin: .6em 0 0 0; float: right; }
+.edit_btns_bottom .button { margin-left: .5em; }
 </style>
-<?php }//end style_sheet() *****************************************************
+<?php 
+}//end style_sheet() ***********************************************************
 
 
 
@@ -2046,8 +2082,8 @@ if ($_SESSION['valid']) {
 </head>
 <body>
 
-<?php if ($page == "login"){ echo '<div class="login_page">'; }
-      else                 { echo '<div class="container" >'; }
+<?php if ($page == "login"){ echo '<div id="main" class="login_page">'; }
+      else                 { echo '<div id="main" class="container" >'; }
 ?>
 
 <div class="header">
@@ -2060,7 +2096,7 @@ if ($_SESSION['valid']) {
 		<?php if ($page != "login") { ?>
 		| <a href="<?php echo $ONESCRIPT ?>?p=logout">Log Out</a>
 		<?php } ?>
-	</div><div style="clear:both;"></div>
+	</div><div style="clear:both"></div>
 </div><!-- end header -->
 
 <?php if ( $page != "login"  &&  $page != "hash" ) { Current_Path_Header(); } ?>

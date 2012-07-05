@@ -1,32 +1,12 @@
-<<<<<<< HEAD
-# Current stable version: 3.2.2
-=======
 # Current stable version: 3.2.3
->>>>>>> 4c97063efc47e8bb1c0789f620e88d2dcf2c5427
 
-### July 1, 2012
+### July 5, 2012
 
+Partly to prepare for future capabilities, the ability to process an exteranal config file was added.  It is not required, so OneFileCMS is still one file,  but it adds some flexibility.  
+  
 Most of the recent changes have been to increase login and session security. However, I'm slowly learning that there's only so much that can be done, particulary when the base connection is un-encrypted.   Online security, it seems, is a nebulous subject of a rather dubious nature.  Never-the-less, I have tried to do those things that can be done.  
-
-So, for those that care, here is a synopsis of the measures that have been employed:
-- A password's hash can now be stored by OneFileCMS, instead of the plain text password.  
-  (The plain text method remains an option for those that just don't care. )
-- A Login delay is triggered after too many invalid attempts.
-- Adjustable max idle time before auto-logout.
-- Check consistancy of user agent during session.
-- Generation of a new session id after login or logout.
-- Set session.use_only_cookies == true.
-- Use httponly cookies
-- Ability to modify the default salt and password hash method.  
-  (Since OneFileCMS is open source, this is recommended)
-    
-Now, keep in mind that while, individually, any one of these measures may not provide much security, collectivly, they're a little better than nothing.  
+However, always remember that of the most important security measures concern user behavior - such as avoiding the use of un-encrypted wifi connections...
   
-Lastly, always remember that some of the most important security measures concern user behavior - such as avoiding the use of un-encrypted wifi connections...
-  
-- 3+ : "Full" version - uses svg icons
-- 2+ : "Lite" version - uses no icons.
-
 --------------------------------------------------------------------------------
 
 # OneFileCMS
@@ -52,7 +32,9 @@ Coupling a utilitarian code editor with basic file managing functions, OneFileCM
  
 - All the basic features of an FTP application like renaming, deleting, copying, and uploading
   _(Of course, for more complex processes like batch renaming or mass uploads/deletions, you're going to want to break out an actual FTP program.)_
-- Alert if you try to leave without saving your edits
+- Alert if you try to leave without saving your edits.
+- A Login delay after too many invalid attempts.
+- Adjustable idle time before auto-logout.
 - Easily modifiable & re-brandable.
 - Possibly the easiest installation process ever!
 
@@ -94,7 +76,7 @@ Well, because "OneFileFileManagerTextEditor" just doesn't have the same ring to 
 
 ### Multi-Language Support?
 
-Probably not, as that would also most likely make it more than "OneFile".
+Possibly! (But not yet...)
 
 ### Can I have more than one username/password?
 
@@ -124,13 +106,13 @@ To report a bug or request a feature, please file an issue via Github. Forks enc
 
 ##Needed/potential/upcoming improvements
 
+- Multiple languages support
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
 - Issue with Chrome's XSS filter: Editing some legitimate files with OneFileCMS will trigger the filter and disable much of the javascript provided functionallity, but only while on edit page with such a file, and only after a [Save].
 - Connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text during login.  
   (However, this is true of most online login systems, unless SSL or the like is employed.)
 - Be aware that only some very basic data & error checking is performed.  (But, it's getting better...)  
   On Windows, for instance, it's possible to create folders that are subsequently inaccessible and undeletable by Windows.  (Yea, I found out the hard way...)
-- Multiple languages support
 - Anything else?
 
 --------------------------------------------------------------------------------
@@ -168,13 +150,13 @@ GENERATE THE PAGE
 
 ## Change Log
 
-<<<<<<< HEAD
-=======
 ### 3.2.3
 
-- Added support for a configuration file (ofcms.ini)
+- Thanks to github.com/codeless: added the ability to process a seperate config file.  
+  (This is just an option for flexibility, and is not required)
+- Added a [Wide View] button to Edit page.
+- Some minor code improvement & css tweaking.
 
->>>>>>> 4c97063efc47e8bb1c0789f620e88d2dcf2c5427
 ### 3.2.2
 
 - Thanks to github.com/codeless: added a configurable whitelist of files to show.
@@ -201,12 +183,12 @@ GENERATE THE PAGE
 
 ### 3.1.6 thru 3.1.8
 
-- Converted bulk of rest of code into functions (easier to work with)
+- Converted bulk of rest of code into functions (easier to work with).
 - Resolved issue (I hope) with differing versions of PHP and how magic_quotes & stripslashes are handeled.
 
 ### 3.1.2 thru 3.1.5
 
-- Added file size limits to the Edit/View page. (Some browsers don't like large files in an HTML textarea.
+- Added file size limits to the Edit/View page. (Some browsers don't like large files in an HTML textarea.)
 - Added some data validation to _GET parameters
 - Some misc code cleanup & organization etc.
 - And other misc stuff...
