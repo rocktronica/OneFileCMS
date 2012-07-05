@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Current stable version: 3.2.2
+=======
+# Current stable version: 3.2.3
+>>>>>>> 4c97063efc47e8bb1c0789f620e88d2dcf2c5427
 
 ### July 1, 2012
 
@@ -164,6 +168,13 @@ GENERATE THE PAGE
 
 ## Change Log
 
+<<<<<<< HEAD
+=======
+### 3.2.3
+
+- Added support for a configuration file (ofcms.ini)
+
+>>>>>>> 4c97063efc47e8bb1c0789f620e88d2dcf2c5427
 ### 3.2.2
 
 - Thanks to github.com/codeless: added a configurable whitelist of files to show.

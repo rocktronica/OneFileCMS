@@ -1,7 +1,7 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.2.2';
+$version = '3.2.2.1';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -82,6 +82,36 @@ $EX = '<b>( ! )</b>'; //EXclaimation point "icon" Used in $message's
 
 $SESSION_NAME = 'OFCMS'; //Also the cookie name. Change if using multiple copies of OneFileCMS.
 // End CONFIGURABLE INFO *******************************************************
+
+
+
+
+// PROCESSING CONFIGURATION FILE ***********************************************
+# Check if a configuration file does exist:
+$config_file = 'ofcms.ini';
+if (is_file($config_file)) {
+	# Parse file
+	$settings = parse_ini_file($config_file);
+
+	# Configure, which variables can get overwritten by the config file:
+	$overwritable_variables = array(
+		'config_title',
+		'USERNAME',
+		'PASSWORD',
+		'USE_HASH',
+		'HASHWORD',
+		'SALT',
+		'config_stypes');
+
+	# Loop through options and overwrite default configuration
+	foreach($settings as $key => $value) {
+		# Check if variable can get overwritten:
+		if (in_array($key, $overwritable_variables)) {
+			$GLOBALS[$key] = $value;
+		}
+	}
+}
+// End PROCESSING CONFIGURATION FILE *******************************************
 
 
 
