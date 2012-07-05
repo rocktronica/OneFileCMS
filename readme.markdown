@@ -2,7 +2,7 @@
 
 ### July 5, 2012
 
-Partly to prepare for future capabilities, the ability to process an exteranal config file was added.  It is not required, so OneFileCMS is still one file,  but it adds some flexibility.  
+Partly to prepare for future capabilities, the ability to process an external config file was added.  It is not required, so OneFileCMS is still one file,  but it adds some flexibility.  
   
 Most of the recent changes have been to increase login and session security. However, I'm slowly learning that there's only so much that can be done, particulary when the base connection is un-encrypted.   Online security, it seems, is a nebulous subject of a rather dubious nature.  Never-the-less, I have tried to do those things that can be done.  
 However, always remember that of the most important security measures concern user behavior - such as avoiding the use of un-encrypted wifi connections...
