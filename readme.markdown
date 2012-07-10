@@ -1,11 +1,9 @@
-# Current stable version: 3.2.3
+# Current stable version: 3.3.0
 
-### July 5, 2012
+### July 10, 2012
 
-Partly to prepare for future capabilities, the ability to process an external config file was added.  It is not required, so OneFileCMS is still one file,  but it adds some flexibility.  
-  
-Most of the recent changes have been to increase login and session security. However, I'm slowly learning that there's only so much that can be done, particulary when the base connection is un-encrypted.   Online security, it seems, is a nebulous subject of a rather dubious nature.  Never-the-less, I have tried to do those things that can be done.  
-However, always remember that of the most important security measures concern user behavior - such as avoiding the use of un-encrypted wifi connections...
+Added support for optional external language files.  The default, English, is included directly in OneFileCMS, of course.  Now to get some translations...  
+A sample language file is included in the repo for reference for anyone that may be interested.
   
 --------------------------------------------------------------------------------
 
@@ -68,7 +66,7 @@ Yes, of course!
 
 I may not have the time/bandwidth/inclination to implement every feature, but I'll do what I can. If it's urgent, contact me.  
 
-Otherwise, try [forking the file and submitting your changes to me](https://github.com/blog/844-forking-with-the-edit-button).
+In anycase, try [forking the file and submitting your changes to me](https://github.com/blog/844-forking-with-the-edit-button).
 
 ### This is basically just a file manager with a text editor. Why is it being called a Content Management System?
 
@@ -76,11 +74,11 @@ Well, because "OneFileFileManagerTextEditor" just doesn't have the same ring to 
 
 ### Multi-Language Support?
 
-Possibly! (But not yet...)
+Yes!  (But only English is included so far...)
 
 ### Can I have more than one username/password?
 
-Yes!  Well, sort of, indirectly.  Upload or create addional copies of OneFileCMS, but give them different file names.(ie: OneFile1.php and OneFile2.php etc...)  Then, with each copy, maintain different user names and passwords.  Also, so one user does not log out the other, change the session names.  
+Yes!  Well, sort of - indirectly.  Upload or create addional copies of OneFileCMS, but give them different file names.(ie: OneFile1.php and OneFile2.php etc...)  Then, with each copy, maintain different user names and passwords.  Also, so one user does not log out the other, change the session names.  
   
 Now, since there is no database or other means of granular control and acess logging, multiple users may be kind of pointless.  On the other hand, having at least one working backup copy of OneFileCMS available is recommended in case the primary copy gets corrupted.
 
@@ -90,7 +88,8 @@ Now, since there is no database or other means of granular control and acess log
   (Only tested on versions 5.2.17, 5.3.3, 5.4, and 5.4.3)
 - File permission privileges on your host
 - Javascript enabled browswer
-- And, for OneFileCMS 3+, a browser that supports inline SVG.
+- And, for OneFileCMS 3+, a browser that supports inline SVG.  
+  (Even if your browser doesn't support SVG, OneFileCMS will still work, just without any icons.)
 
 ## Credit, License, Et Cetera
 
@@ -106,7 +105,6 @@ To report a bug or request a feature, please file an issue via Github. Forks enc
 
 ##Needed/potential/upcoming improvements
 
-- Multiple languages support
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
 - Issue with Chrome's XSS filter: Editing some legitimate files with OneFileCMS will trigger the filter and disable much of the javascript provided functionallity, but only while on edit page with such a file, and only after a [Save].
 - Connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text during login.  
@@ -122,33 +120,33 @@ To report a bug or request a feature, please file an issue via Github. Forks enc
 CONFIGURATION SECTION  
   
 SOME STANDARD GLOBAL VARIABLES  
-  
+
+DEFAULT LANGUAGE
+
 SESSION & MISC FUNCTIONS  
   
 SVG ICON FUNCTIONS  
   
 PAGE & RESPONSE FUNCTIONS  
-    Index, Upload, New, Copy, Rename, etc...  
   
-JAVASCRIPT & STYLESHEET FUNCTIONS  
+JAVASCRIPT FUNCTIONS  
+  
+STYLESHEET  
   
 LOGIC TO DETERMINE PAGE ACTION  
-    Call Session\_Startup()  
-    Call Get\_GET()  
-    Call Init\_Macros()  
-    If $VALID\_POST, do $\_POST['someaction']  
-    Validate which $page to show  
   
-GENERATE THE PAGE  
-    &lt;HTML&gt;  
-    ...  
-    Load\_Selected\_Page($page)  
-    ...  
-    &lt;/HTML&gt;  
+GENERATE/OUTPUT THE PAGE  
 
 --------------------------------------------------------------------------------
 
 ## Change Log
+
+### 3.3.0
+
+- Added support for optional external language files.   Now to get some translations...  
+- The default, English, is included directly in OneFileCMS, of course.
+- A sample language file (English) is included in the repo for reference for anyone that may be interested.
+
 
 ### 3.2.3
 
@@ -267,12 +265,13 @@ GENERATE THE PAGE
 
 ### 1.1.6
 
-- Breadcrumb navigation (courtesy of [Self-Evident](https://github.com/Self-Evident/)), CSS file and some minor changes to it<br />
-  Installation is still as usual, but, now, if you have _onefilecms.css_ in the same folder as _onefilecms.php_, it'll be linked instead of the normal [http://onefilecms.com/style.css](http://onefilecms.com/style.css).
+- Breadcrumb navigation (courtesy of [Self-Evident](https://github.com/Self-Evident/)), CSS file and some minor changes to it
+- Installation is still as usual, but now, if you have _onefilecms.css_ in the same folder as _onefilecms.php_, it'll be linked instead of the normal [http://onefilecms.com/style.css](http://onefilecms.com/style.css).
 
 ### 1.1.5
 
-- Fixed a disallowed redirect vulnerability<br />Many thanks to Abhi M Balakrishnan from [OWASP Mantra Team](http://www.getmantra.com/) for his help
+- Fixed a disallowed redirect vulnerability  
+Many thanks to Abhi M Balakrishnan from [OWASP Mantra Team](http://www.getmantra.com/) for his help
 
 ### 1.1.4
 
