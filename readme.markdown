@@ -1,9 +1,16 @@
 # Current stable version: 3.3.0
 
-### July 10, 2012
+### July 13, 2012
 
-Added support for optional external language files.  The default, English, is included directly in OneFileCMS, of course.  Now to get some translations...  
-A sample language file is included in the repo for reference for anyone that may be interested.
+Fixed a "minor" issue after adding multi-language support- OneFileCMS stopped working altogether on versions of PHP < 5.3.  
+  
+But it's all good now! (I hope...)
+
+Also, a dedicated team of translators is hard at work, so OneFile will soon actually be available in many (ie: one) other languages!  
+
+### July 10, 2012
+Added support for optional external language files.  The default (English) is included directly in OneFileCMS, of course.  Now to get some translations...  (hint... hint...)
+(A sample language file is included in the repo as reference for anyone that may be interested.)
   
 --------------------------------------------------------------------------------
 
