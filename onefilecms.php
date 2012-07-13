@@ -1,7 +1,7 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '<font color=red><b>3.3.01.BETA</b></font>';  //#####
+$version = '3.3.01';  //#####
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
