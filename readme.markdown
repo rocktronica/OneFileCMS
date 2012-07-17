@@ -1,17 +1,10 @@
-# Current stable version: 3.3.01
+# Current stable version: 3.3.02
 
-### July 13, 2012
+### July 17, 2012
 
-Fixed a "minor" issue after adding multi-language support- OneFileCMS stopped working altogether on versions of PHP < 5.3.  
-  
-But it's all good now! (I hope...)
+Thanks to github.com/codeless for a German language file!
 
-Also, a dedicated team of translators is hard at work, so OneFile will soon actually be available in many (ie: one) other languages!  
 
-### July 10, 2012
-Added support for optional external language files.  The default (English) is included directly in OneFileCMS, of course.  Now to get some translations...  (hint... hint...)
-(A sample language file is included in the repo as reference for anyone that may be interested.)
-  
 --------------------------------------------------------------------------------
 
 # OneFileCMS
@@ -147,6 +140,14 @@ GENERATE/OUTPUT THE PAGE
 --------------------------------------------------------------------------------
 
 ## Change Log
+
+### 3.3.02
+
+- Added German language file courtesy of github.com/codeless.
+
+### 3.3.01
+
+- Fixed a "minor" issue after adding multi-language support- OneFileCMS stopped working altogether on versions of PHP < 5.3.
 
 ### 3.3.0
 
