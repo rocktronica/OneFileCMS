@@ -1,8 +1,13 @@
 # Current stable version: 3.3.02
 
-### July 17, 2012
+### July 20, 2012
 
-Thanks to github.com/codeless for a German language file!
+Just a couple minor improvments:  
+- "Wide View" option on Edit page now persists across saves
+- Hopefully improved handling of language files.  Kinda' like "online security", "multi-language support" is a nebulous and a bit finicky.
+  
+- And, thanks again to [codeless](http://github.com/codeless) for the German language file!
+
 
 
 --------------------------------------------------------------------------------
@@ -74,7 +79,7 @@ Well, because "OneFileFileManagerTextEditor" just doesn't have the same ring to 
 
 ### Multi-Language Support?
 
-Yes!  (But only English is included so far...)
+Yes!  (But only English and German is available so far...)
 
 ### Can I have more than one username/password?
 
@@ -141,9 +146,14 @@ GENERATE/OUTPUT THE PAGE
 
 ## Change Log
 
+### 3.3.03
+
+- "Wide View" option on Edit page now persists across saves.
+- Improved handling of language files.  However, kinda' like "online security", "multi-language support" is nebulous and a bit finicky.
+
 ### 3.3.02
 
-- Added German language file courtesy of github.com/codeless.
+- Added German language file courtesy of [codeless](http://github.com/codeless).
 
 ### 3.3.01
 

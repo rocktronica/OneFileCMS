@@ -12,6 +12,7 @@ LANGUAGE SETTINGS
 
 MISC FUNCTIONS:
 	hsc()
+	hte()
 	Load_Default_Language()
 	Session_Startup()
 	Verify_IDLE_POST_etc()
