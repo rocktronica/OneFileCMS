@@ -1,7 +1,7 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.3.03';  //#####
+$version = 'Version 3.3.04';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -55,11 +55,14 @@ $HASHWORD = 'c3e70af96ab1bfc5669280e98b438e1a8c08ca5e0bb3354c05ceaa6f339fd3f6'; 
 $SALT     = 'somerandomsalt';
 
 $LANGUAGE = "OneFileCMS.LANG.EN.ini"; //Filename of language settings. Leave blank for built-in default.
-
+									  //If file is not found, built-in default will be used.
 $MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;  //In seconds.
 $MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings may limit its max effective value.
 					  //  For instance, 24 minutes is the PHP default for garbage collection.
+
+$MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.
+$WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked
 
 $MAX_IMG_W   = 810;  // Max width to display images. (page container = 810)
 $MAX_IMG_H   = 1000; // Max height.  I don't know, it just looks reasonable.
@@ -81,19 +84,27 @@ $config_itypes = "jpg,gif,png,bmp,ico"; //image types to display on edit page.
 $config_ftypes = "bin,jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,ini,cfg,conf,asp,js ,htm,html"; // _ftype & _fclass must have same
 $config_fclass = "bin,img,img,img,img,img,svg,txt,txt,css,php,txt,cfg,cfg ,txt,txt,htm,htm";  // number of values. bin is default.
 
-$MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.
-$WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked
 $EX = '<b>( ! )</b> '; //EXclaimation point "icon" Used in $message's
 
 $SESSION_NAME = 'OFCMS'; //Also the cookie name. Change if using multiple copies of OneFileCMS.
 
-$config_file = 'ofcms.ini'; //External config file, if there is one.
+$config_file = 'OFCMS_config.php'; //External config file, if there is one.
 // End CONFIGURABLE INFO *******************************************************
 
 
 
 
-// PROCESS CONFIGURATION FILE **************************************************
+//* PROCESS CONFIGURATION FILE **************************************************
+/*
+  If an external config file is used to store your password and/or hash, make sure
+  to save the file with php as the extension, and begin the file as follows:
+
+;<?php die();
+
+  Otherwise, the file - along with your password, is world readable.
+  For details, see the php documentation and comments on parse_ini_file()
+*/
+
 # Check for an external configuration file:
 if (is_file($config_file)) {
 	# Parse file
@@ -167,7 +178,7 @@ function hte($input) { return htmlentities($input); }//end hte()****************
 
 
 function Default_Language() { // ***********************************************
-	return(' 
+	return('
 ;// OneFileCMS Language Settings
 
 LANGUAGE = "English (default)"
@@ -207,7 +218,9 @@ Folder = "Folder"
 
 Log_In  = "Log In"
 Log_Out = "Log Out"
+
 Hash    = "Hash"
+pass_to_hash  = "Password to hash:"
 Generate_Hash = "Generate Hash"
 
 save_1      = "Save"
@@ -380,7 +393,7 @@ session_expired = "SESSION EXPIRED"
 unload_unsaved  = "               Unsaved changes will be lost!"
 confirm_reset   = "Reset file and loose unsaved changes?"
 
-OFCMS_requires  = "OneFileCMS requires PHP5. Tested on versions 5.2.8, 5.3.3 & 5.4.3."
+OFCMS_requires  = "OneFileCMS requires PHP5. Tested on versions 5.2.8, 5.3.3 & 5.4.4."
 
 logout_msg       = "You have successfully logged out."
 folder_del_msg   = "Folder not empty.   Folders must be empty before they can be deleted."
@@ -390,13 +403,47 @@ edit_caution_01  = "CAUTION"
 edit_caution_02  = "You are editing the active copy of OneFileCMS - BACK IT UP & BE CAREFUL !!"
 
 time_out_txt = "Session time out in:"
-	');
+	');//end of return();
 }//end Default_Language() ******************************************************
 
 
 
 
-function Session_Startup() {//**************************************************
+function Load_Language() { //***************************************************
+	global $_, $LANGUAGE;
+
+	// Load Default Language settings
+	if ( function_exists('parse_ini_string') ) {  //only available since php 5.3
+		$_ = parse_ini_string( Default_Language() );
+
+	} else {
+		$tmpfile = basename($_SERVER["SCRIPT_NAME"]).'.DEFAULT_LANG.INI';
+		file_put_contents( $tmpfile, Default_Language() );
+		$_ = parse_ini_file( $tmpfile );
+		unlink($tmpfile);
+	}//end Load Default Language settings
+
+
+	//If specified in config, check for & load external $LANGUAGE settings
+	if ( is_file($LANGUAGE) ) {
+
+		$_TEMP = parse_ini_file($LANGUAGE); //Use a temp array for external values
+
+		//check for any missing settings & use values from default
+		foreach($_ as $key => $value) {
+			if ( !isset($_TEMP[$key]) ) { $_TEMP[$key] = $_[$key]; }
+		}
+		$_ = $_TEMP;  //Switch from default settings to corrected file settings
+	
+		unset($_TEMP);
+	}//end load external language settings
+
+}//end Load_Language(){} //*****************************************************
+
+
+
+
+function Session_Startup() { //*************************************************
 	global $USERNAME, $PASSWORD, $USE_HASH, $HASHWORD, $page, $VALID_POST, $MAX_IDLE_TIME, $SESSION_NAME, $message;
 
 	$limit    = 0; //0 = session.  
@@ -931,7 +978,7 @@ function Hash_Page() { //******************************************************
 	
 	<form id="hash" name="hash" method="post" action="<?php echo $ONESCRIPT.$param1.'&amp;p=hash'; ?>">
 		<?php echo $INPUT_NUONCE; ?>
-		Password to hash:
+		<?php echo $_['pass_to_hash'] ?>
 		<input type="text" name="whattohash" id="whattohash" value="<?php echo hsc($_POST["whattohash"]) ?>">
 		<?php Cancel_Submit_Buttons(hsc($_['Generate_Hash']), 'whattohash') ?>
  		<a class="button edit_onefile" href="<?php echo $ONESCRIPT.$params; ?>" ><?php echo hsc($_['Edit']).' '.$config_title ?></a>
@@ -1122,7 +1169,7 @@ function Index_Page(){ //*******************************************************
 
 
 
-function Edit_Page_buttons_top($text_editable){ //******************************
+function Edit_Page_buttons_top($text_editable,$file_ENC){ //***********
 	global $_, $ONESCRIPT, $param1, $filename;
 ?>
 	<div class="edit_btns_top">
@@ -1131,7 +1178,8 @@ function Edit_Page_buttons_top($text_editable){ //******************************
 				<?php echo hsc($_['meta_txt_01']).' '.number_format(filesize($filename)).' '.hsc($_['meta_txt_02']); ?>
 			</span>	&nbsp;
 			<span class="file_time">
-				<?php echo hsc($_['meta_txt_03']) ?> <script>FileTimeStamp(<?php echo filemtime($filename); ?>, 1, 1);</script>
+				<?php echo hsc($_['meta_txt_03']).'<script>FileTimeStamp('.filemtime($filename).', 1, 1);</script>'; ?>
+				<?php echo '&nbsp; '.$file_ENC; ?>
 			</span><br>
 		</div>
 
@@ -1181,7 +1229,7 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
 
 //******************************************************************************
 function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message){ 
-	global $_, $ONESCRIPT, $param1, $param2, $param3, $filename, $itypes, $INPUT_NUONCE, $EX, $message, $MAX_IDLE_TIME;
+	global $_, $ONESCRIPT, $param1, $param2, $param3, $filename, $itypes, $INPUT_NUONCE, $EX,  $raw_contents;
 ?>
 	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$param1.$param2.$param3 ?>">
 		<?php echo $INPUT_NUONCE; ?>
@@ -1196,9 +1244,9 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 
 			}else{
 				if (PHP_VERSION_ID  < 50400) {  // 5.4.0
-					$filecontents = hsc(file_get_contents($filename));
+					$filecontents = hsc($raw_contents);
 				}else{
-					$filecontents = htmlspecialchars(file_get_contents($filename),ENT_SUBSTITUTE | ENT_QUOTES, 'UTF-8');
+					$filecontents = htmlspecialchars($raw_contents,ENT_SUBSTITUTE | ENT_QUOTES, 'UTF-8');
 				}
 				$bad_chars = ($filecontents == "" && filesize($filename) > 0);
 
@@ -1250,7 +1298,7 @@ function Edit_Page_Notes() { //*************************************************
 
 
 function Edit_Page() { //*******************************************************
-	global $_, $ONESCRIPT, $param1, $filename, $filecontents, $etypes, $itypes, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE;
+	global $_, $ONESCRIPT, $param1, $filename, $filecontents, $etypes, $itypes, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $raw_contents;
 	clearstatcache ();
 
 	//Determine if text editable file type
@@ -1260,7 +1308,15 @@ function Edit_Page() { //*******************************************************
 	
 	$too_large_to_edit = (filesize($filename) > $MAX_EDIT_SIZE);
 	$too_large_to_view = (filesize($filename) > $MAX_VIEW_SIZE);
-	
+
+	if ($text_editable && !$too_large_to_view) {
+		$raw_contents = file_get_contents($filename);
+		$file_ENC = mb_detect_encoding($raw_contents); //ASCII, UTF-8, etc...
+	}else{
+		$file_ENC = ""; 
+		$raw_contents = "";
+	}
+
 	if ( $too_large_to_edit ) { $header2 = hsc($_['edit_h2_1']); }
 	else                      { $header2 = hsc($_['edit_h2_2']); }
 
@@ -1276,7 +1332,7 @@ hsc($_['too_large_to_view_02']).'<br>'.hsc($_['too_large_to_view_03']).'<br>'.hs
 	echo '<a class="filename" href="/'.URLencode_path($filename).'" target="_blank">'.hte(basename($filename)).'</a>';
 	echo '</h2>'.PHP_EOL;
 
-	Edit_Page_buttons_top($text_editable);
+	Edit_Page_buttons_top($text_editable, $file_ENC);
 
 	Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message);
 	
@@ -1671,6 +1727,27 @@ function Load_Selected_Page(){ //***********************************************
 	elseif ($page == "deletefolder") { Delete_Folder_Page(); }
 	else                             { Index_Page();         } //default
 }//end Load_Selected_Page() ****************************************************
+
+
+
+
+function Respond_to_POST() {//**************************************************
+	global $_, $VALID_POST;
+
+	if ($VALID_POST) { 
+		if     (isset($_FILES['upload_file']['name'])) { Upload_response(); }
+		elseif (isset($_POST["whattohash"]   )) { Hash_response();          }
+		elseif (isset($_POST["filename"]     )) { Edit_response();          }
+		elseif (isset($_POST["new_file"]     )) { New_File_response();      }
+		elseif (isset($_POST["copy_file"]    )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["copy_file"], 'copy', hsc($_['Copy']), hsc($_['Copied']), 1); } 
+		elseif (isset($_POST["rename_file"]  )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_file"],   'rename', hsc($_['Ren_Move']), hsc($_['Ren_Moved']), 1); } 
+		elseif (isset($_POST["delete_file"]  )) { Delete_File_response();   }
+		elseif (isset($_POST["new_folder"]   )) { New_Folder_response();    }
+		elseif (isset($_POST["rename_folder"])) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_folder"], 'rename', hsc($_['Ren_Move']), hsc($_['Ren_Moved']), 0); } 
+		elseif (isset($_POST["delete_folder"])) { Delete_Folder_response(); }
+	}//end if ($VALID_POST) 
+
+}//end Respond_to_POST() *******************************************************
 
 
 
@@ -2287,24 +2364,10 @@ hr { /*-- -- -- -- -- -- --*/
 //Begin logic to determine page action
 
 
-//If OneFileCMS is found to work on earlier PHP versions, please let the author know. Thank you.
+//Require PHP5.  Earliest test version the author has is 5.2.8
 if( PHP_VERSION_ID < 50000 ) { exit( hsc($_['OFCMS_requires']) ); }
 
-
-// Load language settings
-if ( is_file($LANGUAGE) ) {
-	$_ = parse_ini_file($LANGUAGE);
-
-} elseif ( function_exists('parse_ini_string') ) {  //only available since php 5.3
-	$_ = parse_ini_string( Default_Language() );
-
-} else {
-	$tmpfile = basename($_SERVER["SCRIPT_NAME"]).'.DEFAULT_LANG.INI';
-	file_put_contents( $tmpfile, Default_Language() );
-	$_ = parse_ini_file( $tmpfile );
-	unlink($tmpfile);
-}//end Load language settings
-	
+Load_Language();
 
 Session_Startup();
 
@@ -2316,20 +2379,7 @@ if ($_SESSION['valid']) {
 
 	Init_Macros();
 
-	if ($VALID_POST) { //*******************************************************
-		if     (isset($_FILES['upload_file']['name'])) { Upload_response(); }
-		elseif (isset($_POST["whattohash"]   )) { Hash_response();          }
-		elseif (isset($_POST["filename"]     )) { Edit_response();          }
-		elseif (isset($_POST["new_file"]     )) { New_File_response();      }
-		elseif (isset($_POST["copy_file"]    )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["copy_file"], 'copy', hsc($_['Copy']), hsc($_['Copied']), 1); } 
-		elseif (isset($_POST["rename_file"]  )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_file"],   'rename', hsc($_['Ren_Move']), hsc($_['Ren_Moved']), 1); } 
-		elseif (isset($_POST["delete_file"]  )) { Delete_File_response();   }
-		elseif (isset($_POST["new_folder"]   )) { New_Folder_response();    }
-		elseif (isset($_POST["rename_folder"])) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_folder"], 'rename', hsc($_['Ren_Move']), hsc($_['Ren_Moved']), 0); } 
-		elseif (isset($_POST["delete_folder"])) { Delete_Folder_response(); }
-	}//end if ($VALID_POST) ****************************************************
-
-
+	Respond_to_POST();
 
 	//*** Verify valid $page and/or $filename **********************************
 
@@ -2414,7 +2464,7 @@ header('Content-type: text/html; charset=UTF-8');
 if ( $page != "login" ) { 
 	echo '<hr>';
 	echo Timeout_Timer($MAX_IDLE_TIME, 'timer0', 'timer timeout', 'LOGOUT');
-	echo '<span class="timeout">'.hsc($_['time_out_txt']).' </span>';
+	echo '<span class="timeout">'.hsc($_['time_out_txt']).'&nbsp; </span>';
 }
 
 //Admin link

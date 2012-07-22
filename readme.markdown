@@ -1,15 +1,27 @@
-# Current stable version: 3.3.02
+# Current stable version: 3.3.04
 
-### July 20, 2012
+### July 21, 2012
 
-Just a couple minor improvments:  
-- "Wide View" option on Edit page now persists across saves
-- Hopefully improved handling of language files.  Kinda' like "online security", "multi-language support" is a nebulous and a bit finicky.
+#### Security issue if using external .ini config file for password storage  
+If an external config file is used to store your password and/or hash, make sure to save the file with php as the extension, and begin the file as follows:  
   
+;<?php die();  
+  
+Otherwise, the file - along with your password, is world readable. For details, see the php documentation and comments on parse_ini_file().
+
+
+#### Language files
+
+- Thanks to [fermuch](http://github.com/fermuch) for the Spanish language file!  
 - And, thanks again to [codeless](http://github.com/codeless) for the German language file!
 
 
+#### A couple of recent minor improvments:  
+- "Wide View" option on Edit page now persists across saves
+- Hopefully improved handling of language files.  Kinda' like "online security", "multi-language support" is a nebulous and a bit finicky.
 
+
+  
 --------------------------------------------------------------------------------
 
 # OneFileCMS
@@ -79,7 +91,7 @@ Well, because "OneFileFileManagerTextEditor" just doesn't have the same ring to 
 
 ### Multi-Language Support?
 
-Yes!  (But only English, Spanish and German is available so far...)
+Yes!  (But only English and German are available so far. (Spanish cominmg soon!) )
 
 ### Can I have more than one username/password?
 
@@ -145,6 +157,12 @@ GENERATE/OUTPUT THE PAGE
 --------------------------------------------------------------------------------
 
 ## Change Log
+
+### 
+
+- Added Spanish language file courtesy of [fermuch](https//github.com/fermuch).
+- Some misc code improvements.
+- Added notes regarding using .ini file for password storage.
 
 ### 3.3.03
 

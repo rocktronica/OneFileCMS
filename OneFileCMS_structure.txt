@@ -1,3 +1,5 @@
+Version 3.3.04
+
 LICENSE
 
 SOME BASIC SECURITY & ERROR LOG SETTINGS
@@ -8,12 +10,11 @@ GET EXTERNAL CONFIG (if exists)
 
 OTHER GLOBAL VALUES
 
-LANGUAGE SETTINGS
-
 MISC FUNCTIONS:
 	hsc()
 	hte()
-	Load_Default_Language()
+	Default_Language()
+	Load_Language()
 	Session_Startup()
 	Verify_IDLE_POST_etc()
 	hashit()
@@ -80,6 +81,7 @@ PAGE & RESPONSE FUNCTIONS:
 	Delete_Folder_response() 
 	Page_Title()
 	Load_Selected_Page()
+	Respond_to_POST()
 
 JAVASCRIPT & STYLESHEET FUNCTIONS:
 	Timer_scripts()
@@ -89,12 +91,11 @@ JAVASCRIPT & STYLESHEET FUNCTIONS:
 
 LOGIC TO DETERMINE PAGE ACTION
 	Verify good PHP version
-	Get language settings
+	Call Load_Language()
 	Call Session_Startup()
 	Call Get_GET()
 	Call Init_Macros()
-	If VALID_POST 
-		Do $_POST['someaction'] (<someaction>_response)
-	Validate $page to show
+	Call Respond_to_POST()
+	Validate $page & $filename to show
 
 GENERATE/OUTPUT <HTML>...  
