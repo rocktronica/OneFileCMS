@@ -1,6 +1,6 @@
-# Current stable version: 3.3.04
+# Current stable version: 3.3.05
 
-### July 21, 2012
+### July 24, 2012
 
 #### Security issue if using external .ini config file for password storage  
 If an external config file is used to store your password and/or hash, make sure to save the file with php as the extension, and begin the file as follows:  
@@ -13,10 +13,12 @@ Otherwise, the file - along with your password, is world readable. For details, 
 #### Language files
 
 - Thanks to [fermuch](http://github.com/fermuch) for the Spanish language file!  
-- And, thanks again to [codeless](http://github.com/codeless) for the German language file!
+- Thanks to [codeless](http://github.com/codeless) for the German language file!
 
 
-#### A couple of recent minor improvments:  
+#### Recent improvments:  
+- Added a few settings to the language files to adjust certain css values if needed.  
+  In some instances, some langauges may use significantly longer words or phrases than others.  So, a smaller font or less spacing may be desirable in those places to preserve page layout.  
 - "Wide View" option on Edit page now persists across saves
 - Hopefully improved handling of language files.  Kinda' like "online security", "multi-language support" is a nebulous and a bit finicky.
 
@@ -158,7 +160,12 @@ GENERATE/OUTPUT THE PAGE
 
 ## Change Log
 
-### 
+### 3.3.05
+
+- Added a few settings to the language files to adjust certain css values if needed.  In some instances, some langauges may use significantly longer words or phrases than others.  So, a smaller font or less spacing may be desirable in those places to preserve page layout.   
+- And, of course, some minor code improvements hear and there.
+
+### 3.3.04
 
 - Added Spanish language file courtesy of [fermuch](https//github.com/fermuch).
 - Some misc code improvements.
