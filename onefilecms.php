@@ -1,7 +1,7 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = 'Version 3.3.04';
+$version = 'Version 3.3.05';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -34,10 +34,10 @@ SOFTWARE.
 //Some basic security & error log settings
 ini_set('session.use_trans_sid', 0);    //make sure URL supplied SESSID's are not used
 ini_set('session.use_only_cookies', 1); //make sure URL supplied SESSID's are not used
-error_reporting(0); //0 for none, or (E_ALL &~ E_STRICT) to display and/or log errors.
-ini_set('display_errors', 'off'); //Only turn on for trouble-shooting.
-ini_set('log_errors'    , 'off'); //Only turn on for trouble-shooting.
-ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.log');
+error_reporting(0); //0 for none, or (E_ALL &~ E_STRICT) for trouble-shooting.
+ini_set('display_errors', 'off');         //Only turn on for trouble-shooting.
+ini_set('log_errors'    , 'off');         //Only turn on for trouble-shooting.
+ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
 //Determine good folder for session file? Default is tmp/, which is not secure, but it may not be a serious concern. 
 //session_save_path($safepath)  or  ini_set('session.save_path', $safepath)
 
@@ -54,8 +54,9 @@ $USE_HASH = 0 ; // If = 0, use $PASSWORD. If = 1, use $HASHWORD.
 $HASHWORD = 'c3e70af96ab1bfc5669280e98b438e1a8c08ca5e0bb3354c05ceaa6f339fd3f6'; //hash for "password"
 $SALT     = 'somerandomsalt';
 
-$LANGUAGE = "OneFileCMS.LANG.EN.ini"; //Filename of language settings. Leave blank for built-in default.
-									  //If file is not found, built-in default will be used.
+$LANGUAGE_FILE = "OneFileCMS.LANG.EN.ini"; //Filename of language settings. Leave blank for built-in default.
+									       //If file is not found, built-in default will be used.
+
 $MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;  //In seconds.
 $MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings may limit its max effective value.
@@ -192,6 +193,19 @@ LANGUAGE = "English (default)"
 ;// Remember to slash-escape double quotes that may be within a value:  \" 
 ;// And, for any values used directly in Default_Language() in onefilecms.php,
 ;// single quotes must also be escaped:   \'
+
+
+;// In some instances, some langauges may use significantly longer words or phrases than others.
+;// So, a smaller font or less spacing may be desirable in those places to preserve page layout.
+;//
+front_links_font_size =  "1em"; //Buttons on Index page.
+front_links_margin_R  =  "1em";
+button_font_size      = ".9em"; //Buttons on Edit page.
+button_margin_L       = ".5em";
+button_padding        = "4px 10px";
+image_info_font_size  =  "1em"; //show_img_msg_01 & _02 
+image_info_pos        = ""; //If 1 or true, moves the info down a line for more space.
+
 
 Upload_File = "Upload File"
 New_File    = "New File"
@@ -410,7 +424,7 @@ time_out_txt = "Session time out in:"
 
 
 function Load_Language() { //***************************************************
-	global $_, $LANGUAGE;
+	global $_, $LANGUAGE_FILE;
 
 	// Load Default Language settings
 	if ( function_exists('parse_ini_string') ) {  //only available since php 5.3
@@ -424,10 +438,10 @@ function Load_Language() { //***************************************************
 	}//end Load Default Language settings
 
 
-	//If specified in config, check for & load external $LANGUAGE settings
-	if ( is_file($LANGUAGE) ) {
+	//If specified in config, check for & load external $LANGUAGE_FILE settings
+	if ( is_file($LANGUAGE_FILE) ) {
 
-		$_TEMP = parse_ini_file($LANGUAGE); //Use a temp array for external values
+		$_TEMP = parse_ini_file($LANGUAGE_FILE); //Use a temp array for external values
 
 		//check for any missing settings & use values from default
 		foreach($_ as $key => $value) {
@@ -437,7 +451,6 @@ function Load_Language() { //***************************************************
 	
 		unset($_TEMP);
 	}//end load external language settings
-
 }//end Load_Language(){} //*****************************************************
 
 
@@ -479,7 +492,7 @@ function Session_Startup() { //*************************************************
 function Verify_IDLE_POST_etc() { //********************************************
 	global $_, $EX, $message, $VALID_POST, $MAX_IDLE_TIME;
 
-	//Verify consistant user agent... (every little bit helps a little bit) 
+	//Verify consistant user agent... (every little bit helps every little bit) 
 	if ( ($_SESSION['USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) ) { Logout(); }
 
 	//Check idle time
@@ -497,8 +510,8 @@ function Verify_IDLE_POST_etc() { //********************************************
 	if ( isset($_POST['nuonce']) ) { 
 		if ( $_POST['nuonce'] == $_SESSION['nuonce'] ) {
 			$VALID_POST = 1;
-		}else{
-			Logout(); //If it exists, but doesn't match - something's wrong.
+		}else{ //If it exists but doesn't match - something's wrong.
+			Logout();
 			$message .= $EX.'<b>'.hsc($_['verify_msg_02']).'</b><br>';
 		}
 	}
@@ -723,7 +736,7 @@ function Cancel_Submit_Buttons($submit_label, $focus) { //**********************
 	if ($filename == "") {$params = "";}else{ $params = $param2.'&amp;p=edit'; }
 ?>
 	<p> 
-	<input type="button" class="button" id="cancel" name="cancel" value="<?php echo hsc($_['Cancel']) ?>"
+	<input type="button" class="button" id="cancel" value="<?php echo hsc($_['Cancel']) ?>"
 		onclick="parent.location = '<?php echo $ONESCRIPT.$param1.$params ?>'">
 	<input type="submit" class="button" value="<?php echo $submit_label;?>" style="margin-left: 1.3em;">
 <?php 
@@ -741,22 +754,23 @@ function show_image(){ //*******************************************************
 	$img_info = getimagesize($IMG);
 
 	$W=0; $H=1; //indexes for $img_info[]
-	$SCALE = 1; $TOOWIDE = 0; $TOOHIGH = 0;
-	if ($img_info[$W] > $MAX_IMG_W) { $TOOWIDE = ( $MAX_IMG_W/$img_info[$W] );}
-	if ($img_info[$H] > $MAX_IMG_H) { $TOOHIGH = ( $MAX_IMG_H/$img_info[$H] );}
+	$SCALE = 1; $SCALE_W = 1; $SCALE_H = 1;
+	if ($img_info[$W] > $MAX_IMG_W) { $SCALE_W = ( $MAX_IMG_W/$img_info[$W] );}
+	if ($img_info[$H] > $MAX_IMG_H) { $SCALE_H = ( $MAX_IMG_H/$img_info[$H] );}
 	
-	if ($TOOHIGH || $TOOWIDE) {
-		if     (!$TOOWIDE)           {$SCALE = $TOOHIGH;}
-		elseif (!$TOOHIGH)           {$SCALE = $TOOWIDE;}
-		elseif ($TOOHIGH > $TOOWIDE) {$SCALE = $TOOWIDE;} //ex: if (.90 > .50)
-		else                         {$SCALE = $TOOHIGH;}
-	}
+	//Set $SCALE to the more restrictive scale.
+	if   ( $SCALE_W > $SCALE_H ) { $SCALE = $SCALE_H; } //ex: if (.90 > .50)
+	else                         { $SCALE = $SCALE_W; } //If _H >= _W, or both are 1
 
-	echo '<p>';
-	echo hsc($_['show_img_msg_01']).round($SCALE*100).hsc($_['show_img_msg_02']).' '.$img_info[0].' x '.$img_info[1].').</p>';
+	//For languages with longer words that don't fit next to [Wide] & [Close] buttons.
+	if ($_['image_info_pos']){ echo '<div style="clear:both"></div>'.PHP_EOL; }
+
+	echo '<p class="image_info">';
+	echo hsc($_['show_img_msg_01']).round($SCALE*100).
+	hsc($_['show_img_msg_02']).' '.$img_info[0].' x '.$img_info[1].').</p>';
 	echo '<div style="clear:both"></div>'.PHP_EOL;
 	echo '<a href="/' .URLencode_path($IMG). '" target="_blank">'.PHP_EOL;
-	echo '<img src="/'.URLencode_path($IMG).'"  height="'.$img_info[$H]*$SCALE.'"></a>'.PHP_EOL;
+	echo '<img src="/'.URLencode_path($IMG).'"  height="'.($img_info[$H] * $SCALE).'"></a>'.PHP_EOL;
 }// end show_image() ***********************************************************
 
 
@@ -978,7 +992,7 @@ function Hash_Page() { //******************************************************
 	
 	<form id="hash" name="hash" method="post" action="<?php echo $ONESCRIPT.$param1.'&amp;p=hash'; ?>">
 		<?php echo $INPUT_NUONCE; ?>
-		<?php echo $_['pass_to_hash'] ?>
+		<?php echo hsc($_['pass_to_hash']) ?>
 		<input type="text" name="whattohash" id="whattohash" value="<?php echo hsc($_POST["whattohash"]) ?>">
 		<?php Cancel_Submit_Buttons(hsc($_['Generate_Hash']), 'whattohash') ?>
  		<a class="button edit_onefile" href="<?php echo $ONESCRIPT.$params; ?>" ><?php echo hsc($_['Edit']).' '.$config_title ?></a>
@@ -1115,7 +1129,8 @@ function List_Files() { // ...in a vertical table ******************************
 		if (in_array(basename($file), $excluded_list)) { $excluded = TRUE; };
 
 		//Get file type & check against $stypes (files types to show)
-		$ext = end( explode(".", strtolower($file)) );
+		$filename_parts = explode(".", strtolower($file));
+		$ext = end($filename_parts);
 		if ($SHOWALLFILES || in_array($ext, $stypes)) { $SHOWTYPE = TRUE; } else { $SHOWTYPE = FALSE; }
 		
 		if ( $SHOWTYPE && !is_dir($ipath.$file) && !$excluded ) {
@@ -1208,7 +1223,7 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
 	<?php if ($text_editable && !$too_large_to_edit) { //Show save & reset only if editable file ?> 
 		<?php echo Timeout_Timer($MAX_IDLE_TIME, 'timer1','timer', 'LOGOUT'); ?>
 		<input type="submit" class="button" value="Save"                  onclick="submitted = true;" id="save_file">
-		<input type="button" class="button" value="<?php echo $_['reset']?>" onclick="Reset_File()"      id="reset">
+		<input type="button" class="button" value="<?php echo hsc($_['reset']) ?>" onclick="Reset_File()"      id="reset">
 		<script>
 			//Set disabled here instead of via input attribute in case js is disabled.
 			//If js is disabled, user would be unable to save changes.
@@ -1302,7 +1317,8 @@ function Edit_Page() { //*******************************************************
 	clearstatcache ();
 
 	//Determine if text editable file type
-	$ext = end( explode(".", strtolower($filename) ) );
+	$filename_parts = explode(".", strtolower($filename));
+	$ext = end($filename_parts);
 	if ( in_array($ext, $etypes) ) { $text_editable = TRUE;  }
 	else                           { $text_editable = FALSE; }
 	
@@ -1313,7 +1329,7 @@ function Edit_Page() { //*******************************************************
 		$raw_contents = file_get_contents($filename);
 		$file_ENC = mb_detect_encoding($raw_contents); //ASCII, UTF-8, etc...
 	}else{
-		$file_ENC = ""; 
+		$file_ENC     = ""; 
 		$raw_contents = "";
 	}
 
@@ -1781,7 +1797,7 @@ function Countdown(count, End_Time, Timer_ID, Timer_CLASS, Action){
 	Timer.innerHTML = FormatTime(count);
 
 	if ( (count < 120) && (Action != "") ) { //Two minute warning...
-		document.getElementById('message').innerHTML = "<?php echo $timeout_warning ?>";
+		document.getElementById('message').innerHTML = "<?php echo addslashes($timeout_warning) ?>";
 		Timer.style.backgroundColor = "white";
 		Timer.style.color = "red";
 		Timer.style.fontWeight = "900";
@@ -1865,12 +1881,11 @@ function Edit_Page_scripts() { //***********************************************
 	
 	//Determine edit_view width
 	$current_view = $MAIN_WIDTH;
-	if ( isset($_COOKIE['edit_view']) && 
-	   ( $_COOKIE['edit_view'] == $MAIN_WIDTH || $_COOKIE['edit_view'] == $WIDE_VIEW_WIDTH)) {
-
-		$current_view = $_COOKIE['edit_view'];
+	if ( isset($_COOKIE['edit_view']) ) {
+		if ( ($_COOKIE['edit_view'] == $MAIN_WIDTH) || ($_COOKIE['edit_view'] == $WIDE_VIEW_WIDTH) ) {
+			$current_view = $_COOKIE['edit_view'];
+		}
 	}
-	
 ?>
 	<!--======== Provide feedback re: unsaved changes ========-->
 	<script>
@@ -2005,7 +2020,7 @@ function Edit_Page_scripts() { //***********************************************
 
 
 function style_sheet(){ //******************************************************
-global $MAIN_WIDTH;
+global $_, $MAIN_WIDTH;
 ?>
 <style>
 /* --- reset --- */
@@ -2169,8 +2184,8 @@ table.index_T td {
 	display: inline-block;
 	border : 1px solid #807568;
 	height      : 1em;
-	font-size   : 1em;
-	margin-right: 1em;
+	font-size   : <?php echo $_['front_links_font_size'] ?>; /*Default 1em */
+	margin-right: <?php echo $_['front_links_margin_R']  ?>; /*Default 1em */
 	padding     : 3px 5px 5px 4px; /*TRBL*/
 	background-color: #EEE;
 	}
@@ -2205,11 +2220,11 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 .buttons_right .button { margin-left: .5em; }
 
 .button {
-	border : 1px solid #807568;
-	padding: 4px 10px;
 	cursor : pointer;
-	color      : black;
-	font-size  : .9em;
+	border : 1px solid #807568;
+	color  : black;
+	padding    : <?php echo $_['button_padding']   ?>; /*Default 4px 10px */
+	font-size  : <?php echo $_['button_font_size'] ?>; /*Default .9em     */
 	font-family: sans-serif;
 	background-color: #EEE;  /*#d4d4d4*/
 	}
@@ -2267,7 +2282,7 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 
 #file_contents:focus { border: 1px solid #Fdd; }
 
-.file_meta	{ float: left; margin-top: .6em; font-size: .95em; color: #333; }
+.file_meta	{ float: left; margin-top: .6em; font-size: .95em; color: #222; }
 
 #edit_notes { font-size: .8em; color: #333 ;margin-top: 1em; clear:both; }
 
@@ -2332,7 +2347,7 @@ hr { /*-- -- -- -- -- -- --*/
 
 #admin {padding: .3em;}
 
-.web_root { font:1em Courier; }
+.web_root { font: 1em Courier; }
 
 .icon {float: left; margin: 0 .3em 0 0;}
 
@@ -2346,12 +2361,14 @@ hr { /*-- -- -- -- -- -- --*/
 
 .timer { border: 1px solid gray; padding: 3px .5em 4px .5em; }
 
-.timeout {float:right; font-size: .95em; color: #333; }
+.timeout { float:right; font-size: .95em; color: #333; }
 
 .edit_btns_top    { margin: .2em 0 .5em 0;}
 
+.image_info {color: #222; font-size: <?php echo $_['image_info_font_size'] ?> ;} /*Default is 1em*/
+
 .edit_btns_bottom { float: right; margin-bottom: .65em; }
-.edit_btns_bottom .button { margin-left: .5em; }
+.edit_btns_bottom .button { margin-left: <?php echo $_['button_margin_L'] ?>; } /*Default is .5em*/
 </style>
 <?php 
 }//end style_sheet() ***********************************************************
@@ -2375,7 +2392,7 @@ if ($_SESSION['valid']) {
 
 	undo_magic_quotes();
 
-	Get_GET();  
+	Get_GET();
 
 	Init_Macros();
 
@@ -2435,6 +2452,50 @@ header('Content-type: text/html; charset=UTF-8');
 
 </head>
 <body>
+
+
+
+
+<? //######################################################################## ?>
+<?php
+if ( (ini_get('display_errors') == 'on') ||
+	 (ini_get('log_errors') == 'on')     ||
+	 (error_reporting() != 0) )
+{
+	echo '<style>.E_BOX {color:red; font-size:.8em; font-weight: 900;'.
+		'border: 1px solid black; background-color: white;'.
+		'padding: 0 0 .2em .5em;'.
+	
+		'}</style>';
+	echo '<p class="E_BOX">';
+	echo 'Display errors is: '        .ini_get('display_errors').'. &nbsp; ';
+	echo 'Log errors is: '            .ini_get('log_errors')    .'. &nbsp; ';
+	//echo 'Error reporting is set to: '.error_reporting()        .'. &nbsp; ';
+
+	$E_level = error_reporting(); $spc = " &nbsp;  &nbsp; ";
+	if ( ($E_level &     1) ==     1 ) { $E_types  = 'E_ERROR'.$spc;            }
+	if ( ($E_level &     2) ==     2 ) { $E_types .= 'E_WARNING'.$spc;          }
+	if ( ($E_level &     4) ==     4 ) { $E_types .= 'E_PARSE'.$spc;            }
+	if ( ($E_level &     8) ==     8 ) { $E_types .= 'E_NOTICE'.$spc;           }
+	if ( ($E_level &    16) ==    16 ) { $E_types .= 'E_CORE_ERROR'.$spc;       }
+	if ( ($E_level &    32) ==    32 ) { $E_types .= 'E_CORE_WARNING'.$spc;     }
+	if ( ($E_level &    64) ==    64 ) { $E_types .= 'E_COMPILE_ERROR'.$spc;    }
+	if ( ($E_level &   128) ==   128 ) { $E_types .= 'E_COMPILE_WARNING'.$spc;  }
+	if ( ($E_level &   256) ==   256 ) { $E_types .= 'E_USER_ERROR'.$spc;       }
+	if ( ($E_level &   512) ==   512 ) { $E_types .= 'E_USER_WARNING'.$spc;     }
+	if ( ($E_level &  1024) ==  1024 ) { $E_types .= 'E_USER_NOTICE'.$spc;      }
+	if ( ($E_level &  2048) ==  2048 ) { $E_types .= 'E_STRICT'.$spc;           }
+	if ( ($E_level &  4096) ==  4096 ) { $E_types .= 'E_RECOVERABLE_ERROR'.$spc;}
+	if ( ($E_level &  8192) ==  8192 ) { $E_types .= 'E_DEPRECATED'.$spc;       }
+	if ( ($E_level & 16384) == 16384 ) { $E_types .= 'E_USER_DEPRECATED'.$spc;  }
+	echo '<span style="font-size: .8em;">'.$E_types.'</span>';
+	echo '</p>';
+}//end if
+?>
+<? //######################################################################## ?>
+
+
+
 
 <?php if ($page == "login"){ echo '<div id="main" class="login_page">'; }
       else                 { echo '<div id="main" class="container" >'; }
