@@ -1,7 +1,7 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = 'Version 3.3.05';
+$version = 'Version 3.3.05a';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -2452,50 +2452,6 @@ header('Content-type: text/html; charset=UTF-8');
 
 </head>
 <body>
-
-
-
-
-<? //######################################################################## ?>
-<?php
-if ( (ini_get('display_errors') == 'on') ||
-	 (ini_get('log_errors') == 'on')     ||
-	 (error_reporting() != 0) )
-{
-	echo '<style>.E_BOX {color:red; font-size:.8em; font-weight: 900;'.
-		'border: 1px solid black; background-color: white;'.
-		'padding: 0 0 .2em .5em;'.
-	
-		'}</style>';
-	echo '<p class="E_BOX">';
-	echo 'Display errors is: '        .ini_get('display_errors').'. &nbsp; ';
-	echo 'Log errors is: '            .ini_get('log_errors')    .'. &nbsp; ';
-	//echo 'Error reporting is set to: '.error_reporting()        .'. &nbsp; ';
-
-	$E_level = error_reporting(); $spc = " &nbsp;  &nbsp; ";
-	if ( ($E_level &     1) ==     1 ) { $E_types  = 'E_ERROR'.$spc;            }
-	if ( ($E_level &     2) ==     2 ) { $E_types .= 'E_WARNING'.$spc;          }
-	if ( ($E_level &     4) ==     4 ) { $E_types .= 'E_PARSE'.$spc;            }
-	if ( ($E_level &     8) ==     8 ) { $E_types .= 'E_NOTICE'.$spc;           }
-	if ( ($E_level &    16) ==    16 ) { $E_types .= 'E_CORE_ERROR'.$spc;       }
-	if ( ($E_level &    32) ==    32 ) { $E_types .= 'E_CORE_WARNING'.$spc;     }
-	if ( ($E_level &    64) ==    64 ) { $E_types .= 'E_COMPILE_ERROR'.$spc;    }
-	if ( ($E_level &   128) ==   128 ) { $E_types .= 'E_COMPILE_WARNING'.$spc;  }
-	if ( ($E_level &   256) ==   256 ) { $E_types .= 'E_USER_ERROR'.$spc;       }
-	if ( ($E_level &   512) ==   512 ) { $E_types .= 'E_USER_WARNING'.$spc;     }
-	if ( ($E_level &  1024) ==  1024 ) { $E_types .= 'E_USER_NOTICE'.$spc;      }
-	if ( ($E_level &  2048) ==  2048 ) { $E_types .= 'E_STRICT'.$spc;           }
-	if ( ($E_level &  4096) ==  4096 ) { $E_types .= 'E_RECOVERABLE_ERROR'.$spc;}
-	if ( ($E_level &  8192) ==  8192 ) { $E_types .= 'E_DEPRECATED'.$spc;       }
-	if ( ($E_level & 16384) == 16384 ) { $E_types .= 'E_USER_DEPRECATED'.$spc;  }
-	echo '<span style="font-size: .8em;">'.$E_types.'</span>';
-	echo '</p>';
-}//end if
-?>
-<? //######################################################################## ?>
-
-
-
 
 <?php if ($page == "login"){ echo '<div id="main" class="login_page">'; }
       else                 { echo '<div id="main" class="container" >'; }
