@@ -1,6 +1,6 @@
-# Current stable version: 3.3.05
+# Current stable version: 3.3.05a
 
-### July 24, 2012
+### July 25, 2012
 
 #### Security issue if using external .ini config file for password storage  
 If an external config file is used to store your password and/or hash, make sure to save the file with php as the extension, and begin the file as follows:  
@@ -159,6 +159,11 @@ GENERATE/OUTPUT THE PAGE
 --------------------------------------------------------------------------------
 
 ## Change Log
+
+
+### 3.3.05a
+
+- Just removed some trouble-shooting code that was left in unintentionally.
 
 ### 3.3.05
 
