@@ -1,4 +1,4 @@
-Version 3.3.04
+Version 3.3.06
 
 LICENSE
 
@@ -8,7 +8,7 @@ CONFIGURATION SECTION
 
 GET EXTERNAL CONFIG (if exists)
 
-OTHER GLOBAL VALUES
+OTHER GLOBAL/SYSTEM VALUES
 
 MISC FUNCTIONS:
 	hsc()
@@ -25,6 +25,7 @@ MISC FUNCTIONS:
 	is_empty()
 	ordinalize()
 	Current_Path_Header()
+	Page_Header()
 	message_box()
 	Upload_New_Rename_Delete_Links()
 	Cancel_Submit_Buttons()
@@ -72,6 +73,7 @@ PAGE & RESPONSE FUNCTIONS:
 	New_File_Page()
 	New_File_response() 
 	Copy_Ren_Move_Page()
+	Set_Input_width()
 	Copy_Ren_Move_response()
 	Delete_File_Page()
 	Delete_File_response()

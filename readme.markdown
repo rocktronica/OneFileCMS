@@ -1,4 +1,10 @@
-# Current stable version: 3.3.05a
+# Current stable version: 3.3.06
+
+### July 31, 2012
+
+- For reasons of security, consistancy, & code simplicity, the format of external config files (if used) is now php, instead of ini. This permits a simple copy & paste between an external config file & onefilecms.php.  
+  A config file must begin with "<?php".  And, for security reasons, external config files should also end in ".php".  Otherwise, your webserver may server up the file as plain text, exposing the contents.
+
 
 ### July 25, 2012
 
@@ -48,7 +54,7 @@ Coupling a utilitarian code editor with basic file managing functions, OneFileCM
 ## Features
  
 - All the basic features of an FTP application like renaming, deleting, copying, and uploading
-  _(Of course, for more complex processes like batch renaming or mass uploads/deletions, you're going to want to break out an actual FTP program.)_
+  _(Of course, for more complex processes like batch renaming or mass uploads/deletions, you're going to want to use an actual FTP program.)_
 - Alert if you try to leave without saving your edits.
 - A Login delay after too many invalid attempts.
 - Adjustable idle time before auto-logout.
@@ -59,17 +65,17 @@ Coupling a utilitarian code editor with basic file managing functions, OneFileCM
 
 1) Download [this file](https://raw.github.com/Self-Evident/OneFileCMS/master/onefilecms.php).
 
-2) Set your username and password - edit them to something less obvious.
+2) Set your username and password (to something a bit less obvious).  
 
-    // CONFIGURATION INFO
-    $USERNAME = "username";
-    $PASSWORD = "password";
+    // CONFIGURATION INFO  
+    $USERNAME = "username";  
+    $PASSWORD = "password";  
 
 3) Upload to anywhere on your site!
 
 Depending on how your web stack is set up, you may also have to modify the file permissions of your site's folders to allow OneFileCMS to modify and create files. ([More about that here.](http://catcode.com/teachmod/)) Make sure onefilecms.php and its parent folder are allowed to execute, with CHMOD at 755. Check with your host if you're not sure, and be aware of any inherent security concerns.
 
-You can also change the file name of OneFileCMS.php to something else, such as "Admin.php" . _(Be careful making it a folder's default file: your server may get stuck in redirects.)_
+You can also change the file name of OneFileCMS.php to something else, such as "Admin.php" . _(Be careful about making it a folder's default file: your server may get stuck in redirects.)_
 
 ## FAQ
 
@@ -83,9 +89,7 @@ However, just because I don't want to do it, doesn't mean it's impossible.  Look
 
 Yes, of course!
 
-I may not have the time/bandwidth/inclination to implement every feature, but I'll do what I can. If it's urgent, contact me.  
-
-In anycase, try [forking the file and submitting your changes to me](https://github.com/blog/844-forking-with-the-edit-button).
+I may not have the time/bandwidth/inclination to implement every feature, but I 'll do what I can. If it's urgent, contact me.  
 
 ### This is basically just a file manager with a text editor. Why is it being called a Content Management System?
 
@@ -93,34 +97,36 @@ Well, because "OneFileFileManagerTextEditor" just doesn't have the same ring to 
 
 ### Multi-Language Support?
 
-Yes!  (But only English and German are available so far. (Spanish cominmg soon!) )
+Yes!  (But only English, German and Spanish are available so far.)
 
 ### Can I have more than one username/password?
 
-Yes!  Well, sort of - indirectly.  Upload or create addional copies of OneFileCMS, but give them different file names.(ie: OneFile1.php and OneFile2.php etc...)  Then, with each copy, maintain different user names and passwords.  Also, so one user does not log out the other, change the session names.  
+Yes!  Well, sort of - indirectly.  Upload or create addional copies of OneFileCMS, but give them different file names.(ie: OneFile1.php and OneFile2.php etc...)  Then, with each copy, maintain different user names and passwords.  Also, so that one user does not log out the other, change the $session_name config variables.  
   
 Now, since there is no database or other means of granular control and acess logging, multiple users may be kind of pointless.  On the other hand, having at least one working backup copy of OneFileCMS available is recommended in case the primary copy gets corrupted.
 
 ## Requirements
 
 - PHP 5.2+
-  (Only tested on versions 5.2.17, 5.3.3, 5.4, and 5.4.3)
+  (Only tested on versions 5.2.8, 5.2.17, 5.3.3, and 5.4 + )
 - File permission privileges on your host
 - Javascript enabled browswer
 - And, for OneFileCMS 3+, a browser that supports inline SVG.  
-  (Even if your browser doesn't support SVG, OneFileCMS will still work, just without any icons.)
+  (However, even if your browser doesn't support inline SVG, OneFileCMS will still work, just without any icons.)
 
-## Credit, License, Et Cetera
+## Credit, License, Et Cetera  
 
-Original concept and development by github.com/rocktronica
+Original concept and development by github.com/rocktronica  
 
-Written in PHP, JavaScript, HTML, CSS, and SVG.
+Written in PHP, JavaScript, HTML, CSS, and SVG.  
 
-Available under the MIT and BSD licenses.
+Available under the MIT and BSD licenses.  
 
-Icons for versions thru 1.1.6 by [famfamfam](http://www.famfamfam.com/).
+Icons for versions thru 1.1.6 by [famfamfam](http://www.famfamfam.com/).  
 
-To report a bug or request a feature, please file an issue via Github. Forks encouraged!
+To report a bug or request a feature, please file an issue via Github.  
+
+And, of course, please feel free to fork away!  
 
 ##Needed/potential/upcoming improvements
 
@@ -129,7 +135,7 @@ To report a bug or request a feature, please file an issue via Github. Forks enc
 - Connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text during login.  
   (However, this is true of most online login systems, unless SSL or the like is employed.)
 - Be aware that only some very basic data & error checking is performed.  (But, it's getting better...)  
-  On Windows, for instance, it's possible to create folders that are subsequently inaccessible and undeletable by Windows.  (Yea, I found out the hard way...)
+  On Windows, for instance, it's possible to create folders that are subsequently inaccessible and undeletable by Windows.  (Yea, I found out the hard way...)  (However, I *think* this issue is fixed.)
 - Anything else?
 
 --------------------------------------------------------------------------------
@@ -138,10 +144,10 @@ To report a bug or request a feature, please file an issue via Github. Forks enc
   
 CONFIGURATION SECTION  
   
-SOME STANDARD GLOBAL VARIABLES  
-
-DEFAULT LANGUAGE
-
+SYSTEM GLOBAL VARIABLES (non-configurable)  
+  
+DEFAULT LANGUAGE  
+  
 SESSION & MISC FUNCTIONS  
   
 SVG ICON FUNCTIONS  
@@ -160,6 +166,11 @@ GENERATE/OUTPUT THE PAGE
 
 ## Change Log
 
+### 3.3.06
+
+- Increased hash iterations from 1000 to 10000.  (I've read that lots of iterations help slow down brute force p/w recovery)
+- Format for external config files is now just php (instead of ini).
+- Some miscellaneous code & css improvements.
 
 ### 3.3.05a
 
@@ -254,8 +265,8 @@ GENERATE/OUTPUT THE PAGE
 
 ### 2.0
 
-- OneFileCMS is now actually ONE FILE! No external style sheets or icons.
-  __(Of course, external style sheets & icons can be added back in, if you like.)__
+- OneFileCMS is now actually ONE FILE! No external style sheets or icons.  
+  (Of course, external style sheets & icons can be added back in, if you like.)
 
 - This is OneFileCMS "Lite", and will be maintained along with v3.0
 

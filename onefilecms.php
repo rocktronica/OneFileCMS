@@ -1,7 +1,7 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = 'Version 3.3.05a';
+$version = '3.3.06';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -51,11 +51,11 @@ $USERNAME = 'username';
 
 $PASSWORD = 'password'; //If using $HASHWORD, you may leave this value empty.
 $USE_HASH = 0 ; // If = 0, use $PASSWORD. If = 1, use $HASHWORD. 
-$HASHWORD = 'c3e70af96ab1bfc5669280e98b438e1a8c08ca5e0bb3354c05ceaa6f339fd3f6'; //hash for "password"
+$HASHWORD = 'a6ca7f88bd5efc706d38047cc5844d2b11f86242c01e0c89a1c656dbe2dd1866'; //hash for "password"
 $SALT     = 'somerandomsalt';
 
-$LANGUAGE_FILE = "OneFileCMS.LANG.EN.ini"; //Filename of language settings. Leave blank for built-in default.
-									       //If file is not found, built-in default will be used.
+//$LANGUAGE_FILE = "OneFileCMS.LANG.EN.ini"; //Filename of language settings. Leave blank for built-in default.
+					 //If file is not found, built-in default will be used.
 
 $MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;  //In seconds.
@@ -65,12 +65,12 @@ $MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings may li
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.
 $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked
 
-$MAX_IMG_W   = 810;  // Max width to display images. (page container = 810)
-$MAX_IMG_H   = 1000; // Max height.  I don't know, it just looks reasonable.
+$MAX_IMG_W   = 810;  //Max width to display images. (page container = 810)
+$MAX_IMG_H   = 1000; //Max height.  I don't know, it just looks reasonable.
 
 $MAX_EDIT_SIZE = 150000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
 $MAX_VIEW_SIZE = 1000000; // If file > $MAX_EDIT_SIZE, don't even view in OneFileCMS.
-                          // The default max view size is completely arbitrary. It was 2am and seemed like a good idea at the time.
+                          // The default max view size is completely arbitrary. Basically, it was 2am and seemed like a good idea at the time.
 $config_favicon   = "/favicon.ico";
 $config_excluded  = ""; //files to exclude from directory listings- CaSe sEnsaTive!
 
@@ -89,54 +89,21 @@ $EX = '<b>( ! )</b> '; //EXclaimation point "icon" Used in $message's
 
 $SESSION_NAME = 'OFCMS'; //Also the cookie name. Change if using multiple copies of OneFileCMS.
 
-$config_file = 'OFCMS_config.php'; //External config file, if there is one.
+//$config_file = 'OFCMS_config.SAMPLE.php'; //External config file, if there is one.
+	//Format for external config file is basic php:
+	// < ? php                    //(without the spaces around the ?, of course)
+	// $option1 = "value";
+	// etc...
 // End CONFIGURABLE INFO *******************************************************
 
 
 
 
-//* PROCESS CONFIGURATION FILE **************************************************
-/*
-  If an external config file is used to store your password and/or hash, make sure
-  to save the file with php as the extension, and begin the file as follows:
-
-;<?php die();
-
-  Otherwise, the file - along with your password, is world readable.
-  For details, see the php documentation and comments on parse_ini_file()
-*/
-
-# Check for an external configuration file:
-if (is_file($config_file)) {
-	# Parse file
-	$settings = parse_ini_file($config_file);
-
-	# Configure which variables can get overwritten by the config file:
-	$overwritable_variables = array(
-		'config_title',
-		'USERNAME',
-		'PASSWORD',
-		'USE_HASH',
-		'HASHWORD',
-		'SALT',
-		'LANGUAGE',
-		'config_stypes');
-
-	# Loop through options and overwrite default configuration
-	foreach($settings as $key => $value) {
-		# Check if variable can get overwritten:
-		if (in_array($key, $overwritable_variables)) {
-			$GLOBALS[$key] = $value;
-		}
-	}
-}
-// End PROCESS CONFIGURATION FILE **********************************************
-
-
-
-
 //******************************************************************************
-//Some global system values
+//System values & setup
+
+//If there is one, include external config file. 
+if ( isset($config_file) && is_file($config_file) ) { include($config_file); }
 
 ini_set('session.gc_maxlifetime', $MAX_IDLE_TIME + 100); //in case the default is less.
 
@@ -525,7 +492,7 @@ function hashit($key){ //*******************************************************
 	//If you change anything here, or the $SALT, redo the hash for your password.
 	global $SALT;
 	$hash = hash('sha256', trim($key).$SALT); // trim off leading & trailing spaces.
-	for ( $x=0; $x < 1000; $x++ ) { $hash = hash('sha256', $hash.$SALT); }
+	for ( $x=0; $x < 10000; $x++ ) { $hash = hash('sha256', $hash.$SALT); }
 	return $hash;
 }//end hashit() ****************************************************************
 
@@ -685,6 +652,27 @@ function Current_Path_Header(){ //**********************************************
 
 
 
+function Page_Header(){ //******************************************************
+	global  $_, $ONESCRIPT, $page, $WEBSITE, $config_title, $version;
+?>
+	<div class="header">
+		<a href="<?php echo $ONESCRIPT?>" id="logo"><?php echo $config_title; ?></a>
+		<?php echo $version.' ('.hsc($_['on_']).'&nbsp;php&nbsp;'.phpversion().')'; ?>
+
+		<div class="nav">
+			<a href="/" target="_blank"><?php echo show_favicon() ?>&nbsp;
+			<b><?php echo hte($WEBSITE) ?></b></a>
+			<?php if ($page != "login") { ?>
+			| <a href="<?php echo $ONESCRIPT ?>?p=logout"><?php echo hsc($_['Log_Out']) ?></a>
+			<?php } ?>
+		</div><div style="clear:both"></div>
+	</div><!-- end header -->
+<?php
+}//end Page_Header(){ **********************************************************
+
+
+
+
 function message_box() { //*****************************************************
 	global $ONESCRIPT, $param1, $param2, $param3, $message, $page;
 
@@ -779,7 +767,7 @@ function show_image(){ //*******************************************************
 function show_favicon(){ //*****************************************************
 	global $config_favicon, $DOC_ROOT;
 	if (file_exists($DOC_ROOT.$config_favicon)) { 
-		echo '<img src="'.URLencode_path($config_favicon).'" alt="">';
+		return '<img src="'.URLencode_path($config_favicon).'" alt="">';
 	}
 }// end show_favicon() *********************************************************
 
@@ -1193,7 +1181,7 @@ function Edit_Page_buttons_top($text_editable,$file_ENC){ //***********
 				<?php echo hsc($_['meta_txt_01']).' '.number_format(filesize($filename)).' '.hsc($_['meta_txt_02']); ?>
 			</span>	&nbsp;
 			<span class="file_time">
-				<?php echo hsc($_['meta_txt_03']).'<script>FileTimeStamp('.filemtime($filename).', 1, 1);</script>'; ?>
+				<?php echo hsc($_['meta_txt_03']).' <script>FileTimeStamp('.filemtime($filename).', 1, 1);</script>'; ?>
 				<?php echo '&nbsp; '.$file_ENC; ?>
 			</span><br>
 		</div>
@@ -1429,7 +1417,7 @@ function Upload_response() { //*************************************************
 	$destination = Check_path($_POST["upload_destination"]);
 	$page  = "index";
 	$MAXUP1 = ini_get('upload_max_filesize');
-	$MAXUP2 = number_format($_POST['MAX_FILE_SIZE']).hsc($_['bytes_01']);
+	$MAXUP2 = number_format($_POST['MAX_FILE_SIZE']).' '.hsc($_['meta_txt_02']);
 	$ERROR = $_FILES['upload_file']['error'];
 
 	if     ( $ERROR == 1 ){ $ERRMSG = hsc($_['upload_err_01a']).' upload_max_filesize = '.$MAXUP1.' '.hsc($_['upload_err_01b']);}
@@ -1513,12 +1501,44 @@ function New_File_response() { //***********************************************
 
 
 
+function Set_Input_width() { //*************************************************
+	global $WEB_ROOT, $MAIN_WIDTH;
+$WEB_ROOT = 'www/';
+	// (width of <input type=text>) = $MAIN_WIDTH - (Width of $WEB_ROOT)
+	// $MAIN_WIDTH may be in em, px, or pt.
+	// Width of 1 character = .625em = 10px = 7.5pt  (1em = 16px = 12pt)
+
+	$root_enc =  mb_detect_encoding($WEB_ROOT);
+	$root_len = (mb_strlen($WEB_ROOT, $root_enc) + 1); //+1 for good measure.
+	$main_width = $MAIN_WIDTH * 1;   //set in config section. Default is 810px.
+	$main_units = substr($MAIN_WIDTH, -2); //should be em, px, or pt
+
+	//convert to em
+	if     ( $main_units == "px") {  $main_width = $main_width / 16 ;}
+	elseif ( $main_units == "pt") {  $main_width = $main_width / 12 ;}
+	else                          {  $main_width = $main_width      ;}
+
+	//convert to em
+	$root_len = $root_len *.625;
+
+	$input_type_text_width = ($main_width - $root_len).'em';
+
+	echo '<style>input[type="text"] {width: '.$input_type_text_width.';}</style>';
+
+}//end Set_Input_width() *******************************************************
+
+
+
+
 function Copy_Ren_Move_Page($action, $title, $name_id, $isfile) { //************
 	//$action = 'Copy' or 'Rename'. $isfile = 1 if acting on a file, not a folder
 	global $_, $WEB_ROOT, $ipath, $filename, $FORM_COMMON;
+
 	if ($isfile) { $old_name = $filename; }else{ $old_name = $ipath; }
 	if ($isfile) { $new_name = $filename; }else{ $new_name = $ipath; }
 	//if ($action == "Copy" ) { $new_name = ordinalize($ipath, basename($filename), $msg); }
+
+	Set_Input_width();
 ?>
 	<h2><?php echo $action.' '.$title ?></h2>
 
@@ -1526,12 +1546,11 @@ function Copy_Ren_Move_Page($action, $title, $name_id, $isfile) { //************
 
 	<?php echo $FORM_COMMON ?>
 
-		<label><?php echo hsc($_['CRM_txt_02']) ?></label>
+		<label><?php echo hsc($_['CRM_txt_02']) ?></label><br>
 		<span class="web_root"><?php echo hte($WEB_ROOT); ?></span><input type="text" 
 			name="old_name" value="<?php echo hsc($old_name); ?>" readonly="readonly">
-
-
-		<label><?php echo hsc($_['CRM_txt_03']) ?></label>
+		<br>
+		<label><?php echo hsc($_['CRM_txt_03']) ?></label><br>
 		<span class="web_root"><?php echo hte($WEB_ROOT); ?></span><input type="text" 
 			name="<?php echo $name_id ?>" id="<?php echo $name_id ?>" 
 			value="<?php echo hsc($new_name); ?>">
@@ -1948,7 +1967,7 @@ function Edit_Page_scripts() { //***********************************************
 
 
 	window.onbeforeunload = function() {
-		if ( changed && !submitted) { 
+		if ( changed && !submitted ) { 
 			//FF4+ Ingores the supplied msg below & only uses a system msg for the prompt.
 			return "<?php echo addslashes($_['unload_unsaved']) ?>";
 		}
@@ -2020,7 +2039,7 @@ function Edit_Page_scripts() { //***********************************************
 
 
 function style_sheet(){ //******************************************************
-global $_, $MAIN_WIDTH;
+	global $_, $MAIN_WIDTH;
 ?>
 <style>
 /* --- reset --- */
@@ -2052,7 +2071,7 @@ a       { border: 1px solid transparent; color: rgb(100,45,0); text-decoration: 
 a:hover { border: 1px solid #807568; background-color: rgb(255,250,150); }
 a:focus { border: 1px solid #807568; background-color: rgb(255,250,150); }
 
-label { display: inline-block; width : 6em; font-size : 1em; font-weight: bold; }
+label { display: inline-block; font-size : 1em; font-weight: bold; }
 
 svg { margin: 0; padding: 0; }
 
@@ -2178,7 +2197,7 @@ table.index_T td {
 
 
 
-/*  [Upload File] [New File] [New Folder] etc... */
+/*  front_links:  [Upload File] [New File] [New Folder] etc... */
 
 .front_links a {
 	display: inline-block;
@@ -2198,11 +2217,11 @@ table.index_T td {
 
 
 input[type="text"] {
-	border: 1px solid #807568;
-	margin-bottom: .6em;
+	width  : 99.5%;
+	border : 1px solid #807568;
 	padding: 2px;
-	width: 50em;
-	font: 1em "Courier New", Courier, monospace;
+	margin-bottom: .6em;
+	font   : 1em "Courier New", Courier, monospace;
 	}
 
 
@@ -2289,7 +2308,6 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 .notes      { margin-bottom: .4em; }
 
 
-
 /* --- log in --- */
 
 .login_page {
@@ -2310,15 +2328,6 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 	}
 
 .login_page input[type="text"]{ width   : 364px; }
-
-
-
-#upload_file {
-	border: 1px solid #807568;
-	margin-bottom: .6em;
-	padding: 2px;
-	width: 50em;
-	}
 
 
 hr { /*-- -- -- -- -- -- --*/
@@ -2365,10 +2374,12 @@ hr { /*-- -- -- -- -- -- --*/
 
 .edit_btns_top    { margin: .2em 0 .5em 0;}
 
-.image_info {color: #222; font-size: <?php echo $_['image_info_font_size'] ?> ;} /*Default is 1em*/
+.image_info {color: #222; font-size: <?php echo $_['image_info_font_size'] ?> ;}/*Default is 1em*/
 
 .edit_btns_bottom { float: right; margin-bottom: .65em; }
 .edit_btns_bottom .button { margin-left: <?php echo $_['button_margin_L'] ?>; } /*Default is .5em*/
+
+#upload_file { margin-bottom: .6em; }
 </style>
 <?php 
 }//end style_sheet() ***********************************************************
@@ -2400,26 +2411,27 @@ if ($_SESSION['valid']) {
 
 	//*** Verify valid $page and/or $filename **********************************
 
-		//Don't load login screen if already in a valid session.
+	//Don't load login screen if already in a valid session.
 	if     ( $_SESSION['valid'] && ($page == "login") )  { $page = "index"; }
 
-		//Don't load edit page if $filename doesn't exist.
+	//Don't load edit page if $filename doesn't exist.
 	elseif ( ($page == "edit")  && !is_file($filename) ) { $page = "index"; }
 
 	elseif ($page == "logout") {
 		Logout();
 		$message .= hsc($_['logout_msg']); }
 
-		//Don't load delete page if folder not empty.
+	//Don't load delete page if folder not empty.
 	elseif ( ($page == "deletefolder") && !is_empty($ipath) ) {
 		$message .= $EX.'<b>'.hsc($_['folder_del_msg']).'</b>';
 		$page = "index";}
 
-		//if size of $_POST > post_max_size, PHP only returns empty $_POST & $_FILE arrays.
+	//if size of $_POST > post_max_size, PHP only returns empty $_POST & $_FILE arrays.
 	elseif ($page == "uploaded" && !$VALID_POST){
 		$message .= $EX.'<b> '.hsc($_['upload_error_01a']).' '.ini_get('post_max_size').'</b> '.hsc($_['upload_error_01b']).'';
 		$page = "index";}
 
+	//If editing OneFileCMS itself, show red message box with white text.
 	elseif ( ($page == "edit") && ($filename == trim(rawurldecode($ONESCRIPT), '/')) ) { 
 		if ( $message == "" ) { $BR = ""; } else { $BR = '<br>';}
 		$message .= '<style>#message p {background: red; color: white;}</style>';
@@ -2457,18 +2469,7 @@ header('Content-type: text/html; charset=UTF-8');
       else                 { echo '<div id="main" class="container" >'; }
 ?>
 
-<div class="header">
-	<a href="<?php echo $ONESCRIPT.'" id="logo">'.$config_title; ?></a>
-	<?php echo $version.' ('.hsc($_['on_']).'&nbsp;php&nbsp'.phpversion().')'; ?>
-
-	<div class="nav">
-		<a href="/" target="_blank"><?php show_favicon() ?>&nbsp;
-		<b><?php echo hte($WEBSITE) ?></b></a>
-		<?php if ($page != "login") { ?>
-		| <a href="<?php echo $ONESCRIPT ?>?p=logout"><?php echo hsc($_['Log_Out']) ?></a>
-		<?php } ?>
-	</div><div style="clear:both"></div>
-</div><!-- end header -->
+<?php Page_Header() ?>
 
 <?php if ( $page != "login"  &&  $page != "hash" ) { Current_Path_Header(); } ?>
 
