@@ -1,9 +1,13 @@
-# Current stable version: 3.3.06
+# Current stable version: 3.3.07
+
+### Auguest 1, 2012
+
+- For reasons of required content, consistancy, & code simplicity, the format for language files is now php, instead of ini. While the ini format is cleaner looking and a bit easier to read, there are a few deal-breakers as far as using it to contain values for language strings (as used in OFCMS). Those issues, along with some general considerations of various pros & cons, are (or soon will be) detailed on the wiki page.
 
 ### July 31, 2012
 
-- For reasons of security, consistancy, & code simplicity, the format of external config files (if used) is now php, instead of ini. This permits a simple copy & paste between an external config file & onefilecms.php.  
-  A config file must begin with "<?php".  And, for security reasons, external config files should also end in ".php".  Otherwise, your webserver may server up the file as plain text, exposing the contents.
+- For reasons of security, consistancy, & code simplicity, the format for external config files (if used) is now php, instead of ini. This permits a simple copy & paste between an external config file & onefilecms.php.  
+  A config file must begin with "<?php".  And, for security reasons, external config file names should end in ".php".  Otherwise, your webserver may serve up the file as plain text, exposing the contents, such as username and password.
 
 
 ### July 25, 2012
@@ -26,7 +30,7 @@ Otherwise, the file - along with your password, is world readable. For details, 
 - Added a few settings to the language files to adjust certain css values if needed.  
   In some instances, some langauges may use significantly longer words or phrases than others.  So, a smaller font or less spacing may be desirable in those places to preserve page layout.  
 - "Wide View" option on Edit page now persists across saves
-- Hopefully improved handling of language files.  Kinda' like "online security", "multi-language support" is a nebulous and a bit finicky.
+- Hopefully improved handling of language files.  Kinda' like "online security", "multi-language support" is nebulous and a bit finicky.
 
 
   
@@ -116,7 +120,11 @@ Now, since there is no database or other means of granular control and acess log
 
 ## Credit, License, Et Cetera  
 
+Maintained by github/Self-Evident  
+
 Original concept and development by github.com/rocktronica  
+
+Contributors: A. M Balakrishnan, github.com/codeless, github.com/fermuch  
 
 Written in PHP, JavaScript, HTML, CSS, and SVG.  
 
@@ -144,7 +152,7 @@ And, of course, please feel free to fork away!
   
 CONFIGURATION SECTION  
   
-SYSTEM GLOBAL VARIABLES (non-configurable)  
+SYSTEM GLOBAL VARIABLES  
   
 DEFAULT LANGUAGE  
   
@@ -165,6 +173,11 @@ GENERATE/OUTPUT THE PAGE
 --------------------------------------------------------------------------------
 
 ## Change Log
+
+### 3.3.07
+
+- Language file formats are now php instead of ini.
+- Minor improvement to version checking.
 
 ### 3.3.06
 
