@@ -1,7 +1,7 @@
-<?php 
+<?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$version = '3.3.06';
+$OFCMS_version = '3.3.07';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -31,7 +31,8 @@ SOFTWARE.
 
 
 
-//Some basic security & error log settings
+//Some basic security & error log settings**************************************
+ob_start(); //Catch any early output. Closed prior to page output.
 ini_set('session.use_trans_sid', 0);    //make sure URL supplied SESSID's are not used
 ini_set('session.use_only_cookies', 1); //make sure URL supplied SESSID's are not used
 error_reporting(0); //0 for none, or (E_ALL &~ E_STRICT) for trouble-shooting.
@@ -40,6 +41,7 @@ ini_set('log_errors'    , 'off');         //Only turn on for trouble-shooting.
 ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
 //Determine good folder for session file? Default is tmp/, which is not secure, but it may not be a serious concern. 
 //session_save_path($safepath)  or  ini_set('session.save_path', $safepath)
+//******************************************************************************
 
 
 
@@ -54,8 +56,8 @@ $USE_HASH = 0 ; // If = 0, use $PASSWORD. If = 1, use $HASHWORD.
 $HASHWORD = 'a6ca7f88bd5efc706d38047cc5844d2b11f86242c01e0c89a1c656dbe2dd1866'; //hash for "password"
 $SALT     = 'somerandomsalt';
 
-//$LANGUAGE_FILE = "OneFileCMS.LANG.EN.ini"; //Filename of language settings. Leave blank for built-in default.
-					 //If file is not found, built-in default will be used.
+//$LANGUAGE_FILE = "OneFileCMS.LANG.EN.php"; //Filename of language settings. Leave blank for built-in default.
+				    //If file is not found, the built-in default will be used.
 
 $MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;  //In seconds.
@@ -102,16 +104,24 @@ $SESSION_NAME = 'OFCMS'; //Also the cookie name. Change if using multiple copies
 //******************************************************************************
 //System values & setup
 
+//Require PHP5.  Earliest version the author has for testing is 5.2.8 (50208)
+define('PHP_VERSION_ID_REQUIRED',50000); //Ex: 5.1.23 is 50123
+define('PHP_VERSION_REQUIRED'  ,'5.0 + '); //Used in die() message.
+
+//The predefined constant PHP_VERSION_ID has only been available since 5.2.7.
+//So, convert PHP_VERSION (a string) to PHP_VERSION_ID (a number).
+//Ex: 5.1.23 converts to 50123.
+if (!defined('PHP_VERSION_ID')) {  
+	$phpversion = explode('.', PHP_VERSION);
+	define('PHP_VERSION_ID', ($phpversion[0] * 10000 + $phpversion[1] * 100 + $phpversion[2]));
+}
+
+$TO_WARNING = 120; //Seconds until $timeout_warning is displayed.
+
 //If there is one, include external config file. 
 if ( isset($config_file) && is_file($config_file) ) { include($config_file); }
 
 ini_set('session.gc_maxlifetime', $MAX_IDLE_TIME + 100); //in case the default is less.
-
-//PHP_VERSION_ID is better to use when checking current version as it's an actual number, not a string.
-if (!defined('PHP_VERSION_ID')) {            //PHP_VERSION_ID only available since 5.2.7
-    $phpversion = explode('.', PHP_VERSION); //PHP_VERSION, however, available even in older versions. (but it's a string)
-    define('PHP_VERSION_ID', ($phpversion[0] * 10000 + $phpversion[1] * 100 + $phpversion[2]));
-}
 
 $ONESCRIPT = URLencode_path($_SERVER["SCRIPT_NAME"]);
 $DOC_ROOT  = $_SERVER["DOCUMENT_ROOT"].'/';
@@ -146,245 +156,245 @@ function hte($input) { return htmlentities($input); }//end hte()****************
 
 
 function Default_Language() { // ***********************************************
-	return('
-;// OneFileCMS Language Settings
+	global $_;
+// OneFileCMS Language Settings v3.3.07
 
-LANGUAGE = "English (default)"
+$_['LANGUAGE'] = 'English (default)';
 
-;// These are the default values included directly in onefilecms.php.
-;//
-;// If no translation or value is desired for a particular setting, do not delete
-;// the actual setting variable, just set it to an empty string.
-;// For example:  some_unused_setting = ""
-;//
-;// Remember to slash-escape double quotes that may be within a value:  \" 
-;// And, for any values used directly in Default_Language() in onefilecms.php,
-;// single quotes must also be escaped:   \'
-
-
-;// In some instances, some langauges may use significantly longer words or phrases than others.
-;// So, a smaller font or less spacing may be desirable in those places to preserve page layout.
-;//
-front_links_font_size =  "1em"; //Buttons on Index page.
-front_links_margin_R  =  "1em";
-button_font_size      = ".9em"; //Buttons on Edit page.
-button_margin_L       = ".5em";
-button_padding        = "4px 10px";
-image_info_font_size  =  "1em"; //show_img_msg_01 & _02 
-image_info_pos        = ""; //If 1 or true, moves the info down a line for more space.
+// These are the default values included directly in onefilecms.php.
+//
+// If no translation or value is desired for a particular setting, do not delete
+// the actual setting variable, just set it to an empty string.
+// For example:  $_['some_unused_setting'] = '';
+//
+// Remember to slash-escape any single quotes that may be within a value:  \'
+// The back-slash itself, if to be part of the text to display, may or may not
+// also need to be escaped:  \\
 
 
-Upload_File = "Upload File"
-New_File    = "New File"
-Ren_Move    = "Rename/Move"
-Ren_Moved   = "Renamed/Moved"
-New_Folder  = "New Folder"
-Ren_Folder  = "Rename/Move Folder"
-Del_Folder  = "Delete Folder"
+// In some instances, some langauges may use significantly longer words or phrases than others.
+// So, a smaller font or less spacing may be desirable in those places to preserve page layout.
+//
+$_['front_links_font_size'] =  '1em'; //Buttons on Index page.
+$_['front_links_margin_R']  =  '1em';
+$_['button_font_size']      = '.9em'; //Buttons on Edit page.
+$_['button_margin_L']       = '.5em';
+$_['button_padding']        = '4px 10px';
+$_['image_info_font_size']  =  '1em'; //show_img_msg_01  &  _02 
+$_['image_info_pos']        = ''; //If 1 or true, moves the info down a line for more space.
 
-Admin  = "Admin"
-Enter  = "Enter"
-Edit   = "Edit"
-Close  = "Close"
-Cancel = "Cancel"
-Upload = "Upload"
-Create = "Create"
-Copy   = "Copy"
-Copied = "Copied"
-Rename = "Rename"
-Delete = "Delete"
-DELETE = "DELETE"
-File   = "File"
-Folder = "Folder"
 
-Log_In  = "Log In"
-Log_Out = "Log Out"
+$_['Upload_File'] = 'Upload File';
+$_['New_File']    = 'New File';
+$_['Ren_Move']    = 'Rename/Move';
+$_['Ren_Moved']   = 'Renamed/Moved';
+$_['New_Folder']  = 'New Folder';
+$_['Ren_Folder']  = 'Rename/Move Folder';
+$_['Del_Folder']  = 'Delete Folder';
 
-Hash    = "Hash"
-pass_to_hash  = "Password to hash:"
-Generate_Hash = "Generate Hash"
+$_['Admin']  = 'Admin';
+$_['Enter']  = 'Enter';
+$_['Edit']   = 'Edit';
+$_['Close']  = 'Close';
+$_['Cancel'] = 'Cancel';
+$_['Upload'] = 'Upload';
+$_['Create'] = 'Create';
+$_['Copy']   = 'Copy';
+$_['Copied'] = 'Copied';
+$_['Rename'] = 'Rename';
+$_['Delete'] = 'Delete';
+$_['DELETE'] = 'DELETE';
+$_['File']   = 'File';
+$_['Folder'] = 'Folder';
 
-save_1      = "Save"
-save_2      = "SAVE CHANGES!"
-reset       = "Reset - loose changes"
-Wide_View   = "Wide View"
-Normal_View = "Normal View"
+$_['Log_In']  = 'Log In';
+$_['Log_Out'] = 'Log Out';
 
-on_      = "on"
+$_['Hash']    = 'Hash';
+$_['pass_to_hash']  = 'Password to hash:';
+$_['Generate_Hash'] = 'Generate Hash';
 
-verify_msg_01 = "Session expired."
-verify_msg_02 = "INVALID POST"
+$_['save_1']      = 'Save';
+$_['save_2']      = 'SAVE CHANGES!';
+$_['reset']       = 'Reset - loose changes';
+$_['Wide_View']   = 'Wide View';
+$_['Normal_View'] = 'Normal View';
 
-get_get_msg_01 = "File does not exist:"
+$_['on_']      = 'on';
 
-check_path_msg_01 = "Directory does not exist: "
+$_['verify_msg_01'] = 'Session expired.';
+$_['verify_msg_02'] = 'INVALID POST';
 
-ord_msg_01 = "A file with that name already exists in the target directory."
-ord_msg_02 = "Saving as"
+$_['get_get_msg_01'] = 'File does not exist:';
 
-show_img_msg_01 = "Image shown at ~"
-show_img_msg_02 = "% of full size (W x H ="
+$_['check_path_msg_01'] = 'Directory does not exist: ';
 
-hash_h2     = "Generate a Password Hash"
-hash_txt_01 = "There are two ways to change your OneFileCMS password:"
-hash_txt_02 = "1) Use the $PASSWORD config variable to store your desired password, and set $USE_HASH = 0 (zero)."
-hash_txt_03 = "2) Or, use $HASHWORD to store the hash of your password, and set $USE_HASH = 1."
-hash_txt_04 = "Keep in mind that due to a number of widely varied considerations, this is largely an academic excersize. That is, take the idea that this adds much of an improvement to security with a grain of cryptographic salt.	However, it does eleminate the storage of your password in plain text, which is a good thing."
-hash_txt_05 = "Anyway, to use the $HASHWORD password option:"
-hash_txt_06 = "Type your desired password in the input field above and hit Enter."
-hash_txt_07 = "The hash will be displayed in a yellow message box above that."
-hash_txt_08 = "Copy and paste the new hash to the $HASHWORD variable in the config section."
-hash_txt_09 = "Make sure to copy ALL of, and ONLY, the hash (no leading or trailing spaces etc)."
-hash_txt_10 = "A double-click should select it..."
-hash_txt_11 = "Make sure $USE_HASH is set to 1 (or true)."
-hash_txt_12 = "When ready, logout and login."
-hash_txt_13 = "You can use OneFileCMS to edit itself.  However, be sure to have a backup ready for the inevitable ytpo..."
-hash_txt_14 = "For another small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep \'em secret, of course).  Remever, every little bit helps..."
+$_['ord_msg_01'] = 'A file with that name already exists in the target directory.';
+$_['ord_msg_02'] = 'Saving as';
 
-hash_msg_01 = "Password: "
-hash_msg_02 = "Hash    : "
+$_['show_img_msg_01'] = 'Image shown at ~';
+$_['show_img_msg_02'] = '% of full size (W x H =';
 
-login_h2     = "Log In"
-login_txt_01 = "Username:"
-login_txt_02 = "Password:"
+$_['hash_h2']     = 'Generate a Password Hash';
+$_['hash_txt_01'] = 'There are two ways to change your OneFileCMS password:';
+$_['hash_txt_02'] = '1) Use the $PASSWORD config variable to store your desired password, and set $USE_HASH = 0 (zero).';
+$_['hash_txt_03'] = '2) Or, use $HASHWORD to store the hash of your password, and set $USE_HASH = 1.';
+$_['hash_txt_04'] = 'Keep in mind that due to a number of widely varied considerations, this is largely an academic excersize. That is, take the idea that this adds much of an improvement to security with a grain of cryptographic salt.	However, it does eleminate the storage of your password in plain text, which is a good thing.';
+$_['hash_txt_05'] = 'Anyway, to use the $HASHWORD password option:';
+$_['hash_txt_06'] = 'Type your desired password in the input field above and hit Enter.';
+$_['hash_txt_07'] = 'The hash will be displayed in a yellow message box above that.';
+$_['hash_txt_08'] = 'Copy and paste the new hash to the $HASHWORD variable in the config section.';
+$_['hash_txt_09'] = 'Make sure to copy ALL of, and ONLY, the hash (no leading or trailing spaces etc).';
+$_['hash_txt_10'] = 'A double-click should select it...';
+$_['hash_txt_11'] = 'Make sure $USE_HASH is set to 1 (or true).';
+$_['hash_txt_12'] = 'When ready, logout and login.';
+$_['hash_txt_13'] = 'You can use OneFileCMS to edit itself.  However, be sure to have a backup ready for the inevitable ytpo...';
+$_['hash_txt_14'] = 'For another small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep \'em secret, of course).  Remever, every little bit helps...';
 
-login_msg_01a = "There have been "
-login_msg_01b = "invalid login attempts."
-login_msg_02a = "Please wait"
-login_msg_02b = "seconds to try again."
-login_msg_03  = "INVALID LOGIN ATTEMPT #"
+$_['hash_msg_01'] = 'Password: ';
+$_['hash_msg_02'] = 'Hash    : ';
 
-edit_note_00  = "NOTES:"
-edit_note_01a = "Remember- your"
-edit_note_01b = "is"
-edit_note_02  = "So save changes before the clock runs out, or the changes will be lost!"
-edit_note_03  = "With some browsers, such as Chrome, if you click the browser [Back] then browser [Forward], the file state may not be accurate.  To correct, click the browser\'s [Reload]."
-edit_note_04  = "Chrome may disable some javascript in a page if the page even appears to contain inline javascript in certain contexts.  This can affect some features of the OneFileCMS edit page when editing files that legitimately contain such code, such as OneFileCMS itself.  However, such files can still be edited and saved with OneFileCMS.  The primary function lost is the incidental change of background colors (red/green) indicating whether or not the file has unsaved changes.  The issue will be noticed after the first save of such a file."
+$_['login_h2']     = 'Log In';
+$_['login_txt_01'] = 'Username:';
+$_['login_txt_02'] = 'Password:';
 
-edit_h2_1   = "Viewing:"
-edit_h2_2   = "Editing:"
-edit_txt_01 = "Non-text or unkown file type. Edit disabled."
-edit_txt_02 = "File possibly contains an invalid character. Edit and view disabled."
-edit_txt_03 = "htmlspecialchars() returned an empty string from what may be an otherwise valid file."
-edit_txt_04 = "This behavior can be inconsistant from version to version of php."
+$_['login_msg_01a'] = 'There have been ';
+$_['login_msg_01b'] = 'invalid login attempts.';
+$_['login_msg_02a'] = 'Please wait';
+$_['login_msg_02b'] = 'seconds to try again.';
+$_['login_msg_03']  = 'INVALID LOGIN ATTEMPT #';
 
-too_large_to_edit_01a = "Edit disabled. Filesize >"
-too_large_to_edit_01b = "bytes."
-too_large_to_edit_02 = "Some browsers (ie: IE) bog down or become unstable while editing a large file in an HTML <textarea>."
-too_large_to_edit_03 = "Adjust $MAX_EDIT_SIZE in the configuration section of OneFileCMS as needed."
-too_large_to_edit_04 = "A simple trial and error test can determine a practical limit for a given browser/computer."
+$_['edit_note_00']  = 'NOTES:';
+$_['edit_note_01a'] = 'Remember- your';
+$_['edit_note_01b'] = 'is';
+$_['edit_note_02']  = 'So save changes before the clock runs out, or the changes will be lost!';
+$_['edit_note_03']  = 'With some browsers, such as Chrome, if you click the browser [Back] then browser [Forward], the file state may not be accurate.  To correct, click the browser\'s [Reload].';
+$_['edit_note_04']  = 'Chrome may disable some javascript in a page if the page even appears to contain inline javascript in certain contexts.  This can affect some features of the OneFileCMS edit page when editing files that legitimately contain such code, such as OneFileCMS itself.  However, such files can still be edited and saved with OneFileCMS.  The primary function lost is the incidental change of background colors (red/green) indicating whether or not the file has unsaved changes.  The issue will be noticed after the first save of such a file.';
 
-too_large_to_view_01a = "View disabled. Filesize >"
-too_large_to_view_01b = "bytes."
-too_large_to_view_02 = "Click the the file name above to view as normally rendered in a browser window."
-too_large_to_view_03 = "Adjust $MAX_VIEW_SIZE in the configuration section of OneFileCMS as needed."
-too_large_to_view_04 = "(The default value for $MAX_VIEW_SIZE is completely arbitrary, and may be adjusted as desired.)"
+$_['edit_h2_1']   = 'Viewing:';
+$_['edit_h2_2']   = 'Editing:';
+$_['edit_txt_01'] = 'Non-text or unkown file type. Edit disabled.';
+$_['edit_txt_02'] = 'File possibly contains an invalid character. Edit and view disabled.';
+$_['edit_txt_03'] = 'htmlspecialchars() returned an empty string from what may be an otherwise valid file.';
+$_['edit_txt_04'] = 'This behavior can be inconsistant from version to version of php.';
 
-meta_txt_01 = "Filesize:"
-meta_txt_02 = "bytes."
-meta_txt_03 = "Updated:"
+$_['too_large_to_edit_01a'] = 'Edit disabled. Filesize >';
+$_['too_large_to_edit_01b'] = 'bytes.';
+$_['too_large_to_edit_02']  = 'Some browsers (ie: IE) bog down or become unstable while editing a large file in an HTML <textarea>.';
+$_['too_large_to_edit_03']  = 'Adjust $MAX_EDIT_SIZE in the configuration section of OneFileCMS as needed.';
+$_['too_large_to_edit_04']  = 'A simple trial and error test can determine a practical limit for a given browser/computer.';
 
-edit_msg_01 = "File saved:"
-edit_msg_02 = "bytes written."
-edit_msg_03 = "There was an error saving file."
+$_['too_large_to_view_01a'] = 'View disabled. Filesize >';
+$_['too_large_to_view_01b'] = 'bytes.';
+$_['too_large_to_view_02']  = 'Click the file name above to view as normally rendered in a browser window.';
+$_['too_large_to_view_03']  = 'Adjust $MAX_VIEW_SIZE in the configuration section of OneFileCMS as needed.';
+$_['too_large_to_view_04']  = '(The default value for $MAX_VIEW_SIZE is completely arbitrary, and may be adjusted as desired.)';
 
-upload_h2     = "Upload File"
-upload_txt_01 = "per upload_max_filesize in php.ini."
-upload_txt_02 = "per post_max_size in php.ini"
-upload_txt_03 = "Note: Maximum upload file size is:"
+$_['meta_txt_01'] = 'Filesize:';
+$_['meta_txt_02'] = 'bytes.';
+$_['meta_txt_03'] = 'Updated:';
 
-upload_err_01a = "Error 1: File too large."
-upload_err_01b = "(From php.ini)"
-upload_err_02a = "Error 2: File too large."
-upload_err_02b = "(From OneFileCMS)"
-upload_err_03  = "Error 3: The uploaded file was only partially uploaded."
-upload_err_04  = "Error 4: No file was uploaded."
-upload_err_05  = "Error 5:"
-upload_err_06  = "Error 6: Missing a temporary folder."
-upload_err_07  = "Error 7: Failed to write file to disk."
-upload_err_08  = "Error 8: A PHP extension stopped the file upload."
+$_['edit_msg_01'] = 'File saved:';
+$_['edit_msg_02'] = 'bytes written.';
+$_['edit_msg_03'] = 'There was an error saving file.';
 
-upload_msg_01 = "No file selected for upload."
-upload_msg_02 = "Destination folder does not exist: "
-upload_msg_03 = "Upload cancelled."
-upload_msg_04 = "Uploading:"
-upload_msg_05 = "Upload successful!"
-upload_msg_06 = "Upload failed:"
+$_['upload_h2']     = 'Upload File';
+$_['upload_txt_01'] = 'per upload_max_filesize in php.ini.';
+$_['upload_txt_02'] = 'per post_max_size in php.ini';
+$_['upload_txt_03'] = 'Note: Maximum upload file size is:';
 
-new_file_h2     = "New File"
-new_file_txt_01 = "File will be created in the current folder."
-new_file_txt_02 = "Some invalid characters are: "
+$_['upload_err_01a'] = 'Error 1: File too large.';
+$_['upload_err_01b'] = '(From php.ini)';
+$_['upload_err_02a'] = 'Error 2: File too large.';
+$_['upload_err_02b'] = '(From OneFileCMS)';
+$_['upload_err_03']  = 'Error 3: The uploaded file was only partially uploaded.';
+$_['upload_err_04']  = 'Error 4: No file was uploaded.';
+$_['upload_err_05']  = 'Error 5:';
+$_['upload_err_06']  = 'Error 6: Missing a temporary folder.';
+$_['upload_err_07']  = 'Error 7: Failed to write file to disk.';
+$_['upload_err_08']  = 'Error 8: A PHP extension stopped the file upload.';
 
-new_file_msg_01 = "New file not created:"
-new_file_msg_02 = "Name contains invalid character(s):"
-new_file_msg_03 = "New file not created - no name given"
-new_file_msg_04 = "File already exists:"
-new_file_msg_05 = "Created file:"
-new_file_msg_06 = "Error - new file not created:"
+$_['upload_msg_01'] = 'No file selected for upload.';
+$_['upload_msg_02'] = 'Destination folder does not exist: ';
+$_['upload_msg_03'] = 'Upload cancelled.';
+$_['upload_msg_04'] = 'Uploading:';
+$_['upload_msg_05'] = 'Upload successful!';
+$_['upload_msg_06'] = 'Upload failed:';
 
-CRM_txt_01  = "To move a file or folder, change the path/to/folder/or_file. The new location must already exist."
-CRM_txt_02  = "Old name:"
-CRM_txt_03  = "New name:"
+$_['new_file_h2']     = 'New File';
+$_['new_file_txt_01'] = 'File will be created in the current folder.';
+$_['new_file_txt_02'] = 'Some invalid characters are: ';
 
-CRM_msg_01 = "Error - new parent location does not exist:"
-CRM_msg_02 = "Error - source file does not exist:"
-CRM_msg_03 = "Error - target filename already exists:"
-CRM_msg_04 = "to"
-CRM_msg_05a = "Error during"
-CRM_msg_05b = "from the above to the following:"
+$_['new_file_msg_01'] = 'New file not created:';
+$_['new_file_msg_02'] = 'Name contains invalid character(s):';
+$_['new_file_msg_03'] = 'New file not created - no name given';
+$_['new_file_msg_04'] = 'File already exists:';
+$_['new_file_msg_05'] = 'Created file:';
+$_['new_file_msg_06'] = 'Error - new file not created:';
 
-delete_h2     = "Delete File"
-delete_txt_01 = "Are you sure?"
+$_['CRM_txt_01']  = 'To move a file or folder, change the path/to/folder/or_file. The new location must already exist.';
+$_['CRM_txt_02']  = 'Old name:';
+$_['CRM_txt_03']  = 'New name:';
 
-delete_msg_01 = "Deleted file:"
-delete_msg_02 = "Error deleting"
+$_['CRM_msg_01']  = 'Error - new parent location does not exist:';
+$_['CRM_msg_02']  = 'Error - source file does not exist:';
+$_['CRM_msg_03']  = 'Error - target filename already exists:';
+$_['CRM_msg_04']  = 'to';
+$_['CRM_msg_05a'] = 'Error during';
+$_['CRM_msg_05b'] = 'from the above to the following:';
 
-new_folder_h2    = "New Folder"
-new_folder_txt_1 = "Folder will be created in the current folder."
-new_folder_txt_2 = "Some invalid characters are:"
+$_['delete_h2']     = 'Delete File';
+$_['delete_txt_01'] = 'Are you sure?';
 
-new_folder_msg_01 = "New folder not created:"
-new_folder_msg_02 = "Name contains invalid character(s):"
-new_folder_msg_03 = "New folder not created - no name given."
-new_folder_msg_04 = "Folder already exists:"
-new_folder_msg_05 = "Created folder:"
-new_folder_msg_06 = "Error - new folder not created:"
+$_['delete_msg_01'] = 'Deleted file:';
+$_['delete_msg_02'] = 'Error deleting';
 
-delete_folder_h2     = "Delete Folder"
-delete_folder_txt_01 = "Are you sure?"
+$_['new_folder_h2']    = 'New Folder';
+$_['new_folder_txt_1'] = 'Folder will be created in the current folder.';
+$_['new_folder_txt_2'] = 'Some invalid characters are:';
 
-delete_folder_msg_01 = "Folder not empty.   Folders must be empty before they can be deleted."
-delete_folder_msg_02 = "Deleted folder:"
-delete_folder_msg_03 = "an error occurred during delete."
+$_['new_folder_msg_01'] = 'New folder not created:';
+$_['new_folder_msg_02'] = 'Name contains invalid character(s):';
+$_['new_folder_msg_03'] = 'New folder not created - no name given.';
+$_['new_folder_msg_04'] = 'Folder already exists:';
+$_['new_folder_msg_05'] = 'Created folder:';
+$_['new_folder_msg_06'] = 'Error - new folder not created:';
 
-page_title_login      = "Log In"
-page_title_hash       = "Hash Page"
-page_title_edit       = "Edit/View File"
-page_title_upload     = "Upload File"
-page_title_new_file   = "New File"
-page_title_copy       = "Copy File"
-page_title_ren        = "Rename File"
-page_title_del        = "Delete File"
-page_title_folder_new = "New Folder"
-page_title_folder_ren = "Rename/Move Folder"
-page_title_folder_del = "Delete Folder"
+$_['delete_folder_h2']     = 'Delete Folder';
+$_['delete_folder_txt_01'] = 'Are you sure?';
 
-session_warning = "Warning: Session timeout soon!"
-session_expired = "SESSION EXPIRED"
-unload_unsaved  = "               Unsaved changes will be lost!"
-confirm_reset   = "Reset file and loose unsaved changes?"
+$_['delete_folder_msg_01'] = 'Folder not empty.   Folders must be empty before they can be deleted.';
+$_['delete_folder_msg_02'] = 'Deleted folder:';
+$_['delete_folder_msg_03'] = 'an error occurred during delete.';
 
-OFCMS_requires  = "OneFileCMS requires PHP5. Tested on versions 5.2.8, 5.3.3 & 5.4.4."
+$_['page_title_login']      = 'Log In';
+$_['page_title_hash']       = 'Hash Page';
+$_['page_title_edit']       = 'Edit/View File';
+$_['page_title_upload']     = 'Upload File';
+$_['page_title_new_file']   = 'New File';
+$_['page_title_copy']       = 'Copy File';
+$_['page_title_ren']        = 'Rename File';
+$_['page_title_del']        = 'Delete File';
+$_['page_title_folder_new'] = 'New Folder';
+$_['page_title_folder_ren'] = 'Rename/Move Folder';
+$_['page_title_folder_del'] = 'Delete Folder';
 
-logout_msg       = "You have successfully logged out."
-folder_del_msg   = "Folder not empty.   Folders must be empty before they can be deleted."
-upload_error_01a = "Upload Error.  Total POST data (mostly filesize) exceeded post_max_size ="
-upload_error_01b = "(from php.ini)"
-edit_caution_01  = "CAUTION"
-edit_caution_02  = "You are editing the active copy of OneFileCMS - BACK IT UP & BE CAREFUL !!"
+$_['session_warning'] = 'Warning: Session timeout soon!';
+$_['session_expired'] = 'SESSION EXPIRED';
+$_['unload_unsaved']  = '               Unsaved changes will be lost!';
+$_['confirm_reset']   = 'Reset file and loose unsaved changes?';
 
-time_out_txt = "Session time out in:"
-	');//end of return();
+$_['OFCMS_requires']  = 'OneFileCMS requires PHP';
+
+$_['logout_msg']       = 'You have successfully logged out.';
+$_['folder_del_msg']   = 'Folder not empty.   Folders must be empty before they can be deleted.';
+$_['upload_error_01a'] = 'Upload Error.  Total POST data (mostly filesize) exceeded post_max_size =';
+$_['upload_error_01b'] = '(from php.ini)';
+$_['edit_caution_01']  = 'CAUTION';
+$_['edit_caution_02']  = 'You are editing the active copy of OneFileCMS - BACK IT UP & BE CAREFUL !!';
+
+$_['time_out_txt'] = 'Session time out in:';
+
 }//end Default_Language() ******************************************************
 
 
@@ -394,37 +404,18 @@ function Load_Language() { //***************************************************
 	global $_, $LANGUAGE_FILE;
 
 	// Load Default Language settings
-	if ( function_exists('parse_ini_string') ) {  //only available since php 5.3
-		$_ = parse_ini_string( Default_Language() );
-
-	} else {
-		$tmpfile = basename($_SERVER["SCRIPT_NAME"]).'.DEFAULT_LANG.INI';
-		file_put_contents( $tmpfile, Default_Language() );
-		$_ = parse_ini_file( $tmpfile );
-		unlink($tmpfile);
-	}//end Load Default Language settings
-
+	Default_Language();
 
 	//If specified in config, check for & load external $LANGUAGE_FILE settings
-	if ( is_file($LANGUAGE_FILE) ) {
+	if ( isset($LANGUAGE_FILE) && is_file($LANGUAGE_FILE) ) { include($LANGUAGE_FILE); }
 
-		$_TEMP = parse_ini_file($LANGUAGE_FILE); //Use a temp array for external values
-
-		//check for any missing settings & use values from default
-		foreach($_ as $key => $value) {
-			if ( !isset($_TEMP[$key]) ) { $_TEMP[$key] = $_[$key]; }
-		}
-		$_ = $_TEMP;  //Switch from default settings to corrected file settings
-	
-		unset($_TEMP);
-	}//end load external language settings
 }//end Load_Language(){} //*****************************************************
 
 
 
 
 function Session_Startup() { //*************************************************
-	global $USERNAME, $PASSWORD, $USE_HASH, $HASHWORD, $page, $VALID_POST, $MAX_IDLE_TIME, $SESSION_NAME, $message;
+	global $SESSION_NAME, $page, $VALID_POST, $message;
 
 	$limit    = 0; //0 = session.  
 	$path     = dirname($_SERVER['SCRIPT_NAME']);
@@ -653,11 +644,11 @@ function Current_Path_Header(){ //**********************************************
 
 
 function Page_Header(){ //******************************************************
-	global  $_, $ONESCRIPT, $page, $WEBSITE, $config_title, $version;
+	global  $_, $ONESCRIPT, $page, $WEBSITE, $config_title, $OFCMS_version;
 ?>
 	<div class="header">
 		<a href="<?php echo $ONESCRIPT?>" id="logo"><?php echo $config_title; ?></a>
-		<?php echo $version.' ('.hsc($_['on_']).'&nbsp;php&nbsp;'.phpversion().')'; ?>
+		<?php echo $OFCMS_version.' ('.hsc($_['on_']).'&nbsp;php&nbsp;'.phpversion().')'; ?>
 
 		<div class="nav">
 			<a href="/" target="_blank"><?php echo show_favicon() ?>&nbsp;
@@ -1058,8 +1049,8 @@ function Login_Page() { //******************************************************
 
 
 function Login_response() { //**************************************************
-	global $_, $EX, $message, $page, $LOGIN_ATTEMPTS, 
-		   $USERNAME, $PASSWORD, $USE_HASH, $HASHWORD, $MAX_ATTEMPTS, $LOGIN_DELAY;
+	global $_, $EX, $message, $page, $LOGIN_ATTEMPTS, $MAX_ATTEMPTS, $LOGIN_DELAY, 
+		   $USERNAME, $PASSWORD, $USE_HASH, $HASHWORD;
 
 	$_SESSION = array();    //make sure it's empty
 	$_SESSION['valid'] = 0; //Default to failed login.
@@ -1077,6 +1068,10 @@ function Login_response() { //**************************************************
 		$message .= hsc($_['login_msg_02a']).' '.Timeout_Timer(($LOGIN_DELAY - $elapsed), 'timer0', '', '').' '.hsc($_['login_msg_02b']);
 		return;
 	}
+
+	//Trim any incidental leading or trailing spaces before validating.
+	$_POST['password'] = trim($_POST['password'],' ');
+	$_POST['username'] = trim($_POST['username'],' ');
 
 	//Validate password
 	if ($USE_HASH) { $VALID_PASSWORD = (hashit($_POST['password']) == $HASHWORD); }
@@ -1115,7 +1110,7 @@ function List_Files() { // ...in a vertical table ******************************
 		
 		$excluded = FALSE;
 		if (in_array(basename($file), $excluded_list)) { $excluded = TRUE; };
-
+		
 		//Get file type & check against $stypes (files types to show)
 		$filename_parts = explode(".", strtolower($file));
 		$ext = end($filename_parts);
@@ -1172,7 +1167,7 @@ function Index_Page(){ //*******************************************************
 
 
 
-function Edit_Page_buttons_top($text_editable,$file_ENC){ //***********
+function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
 	global $_, $ONESCRIPT, $param1, $filename;
 ?>
 	<div class="edit_btns_top">
@@ -1301,7 +1296,7 @@ function Edit_Page_Notes() { //*************************************************
 
 
 function Edit_Page() { //*******************************************************
-	global $_, $ONESCRIPT, $param1, $filename, $filecontents, $etypes, $itypes, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $raw_contents;
+	global $_, $filename, $filecontents, $raw_contents, $etypes, $itypes, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE;
 	clearstatcache ();
 
 	//Determine if text editable file type
@@ -1417,7 +1412,7 @@ function Upload_response() { //*************************************************
 	$destination = Check_path($_POST["upload_destination"]);
 	$page  = "index";
 	$MAXUP1 = ini_get('upload_max_filesize');
-	$MAXUP2 = number_format($_POST['MAX_FILE_SIZE']).' '.hsc($_['meta_txt_02']);
+	$MAXUP2 = number_format($_POST['MAX_FILE_SIZE']).' '.hsc($_['meta_txt_02']); 
 	$ERROR = $_FILES['upload_file']['error'];
 
 	if     ( $ERROR == 1 ){ $ERRMSG = hsc($_['upload_err_01a']).' upload_max_filesize = '.$MAXUP1.' '.hsc($_['upload_err_01b']);}
@@ -1788,7 +1783,7 @@ function Respond_to_POST() {//**************************************************
 
 
 function Timer_scripts() { //***************************************************
-	global $_, $page;
+	global $_, $page, $TO_WARNING;
 	
 	$timeout_warning = '<p><b>'.hsc($_['session_warning']).'</b></p>';
 ?>
@@ -1815,7 +1810,7 @@ function Countdown(count, End_Time, Timer_ID, Timer_CLASS, Action){
 
 	Timer.innerHTML = FormatTime(count);
 
-	if ( (count < 120) && (Action != "") ) { //Two minute warning...
+	if ( (count < <?php echo $TO_WARNING ?>) && (Action != "") ) { //Two minute warning...
 		document.getElementById('message').innerHTML = "<?php echo addslashes($timeout_warning) ?>";
 		Timer.style.backgroundColor = "white";
 		Timer.style.color = "red";
@@ -1870,12 +1865,12 @@ function FileTimeStamp(php_filemtime, show_date, show_offset){
 	if ( HOURS > 12 ) {HOURS = HOURS - 12; }
 	HOURS = pad(HOURS);
 
-	var GMT_offset = -(TIMESTAMP.getTimezoneOffset()); //Yes, I know - seems wrong, but it's works.
+	var GMT_offset = -(TIMESTAMP.getTimezoneOffset()); //Yes, I know- seems wrong, but its works.
 
 	if (GMT_offset < 0) { NEG=-1; SIGN="-"; } else { NEG=1; SIGN="+"; } 
 
 	var offset_HOURS = Math.floor(NEG*GMT_offset/60);
-	var offset_MINS  = pad( NEG * GMT_offset % 60 );
+	var offset_MINS  = pad( NEG * (GMT_offset % 60) );
 	var offset_FULL  = "UTC " + SIGN + offset_HOURS + ":" + offset_MINS;
 
 	FULLDATE = YEAR + "-" + MONTH + "-" + DATE;
@@ -2391,11 +2386,11 @@ hr { /*-- -- -- -- -- -- --*/
 //******************************************************************************
 //Begin logic to determine page action
 
-
-//Require PHP5.  Earliest test version the author has is 5.2.8
-if( PHP_VERSION_ID < 50000 ) { exit( hsc($_['OFCMS_requires']) ); }
-
 Load_Language();
+
+if( PHP_VERSION_ID < PHP_VERSION_ID_REQUIRED ) {
+	exit( 'PHP '.PHP_VERSION.'<br>'.hsc($_['OFCMS_requires']).' '.PHP_VERSION_REQUIRED );
+}
 
 Session_Startup();
 
@@ -2409,10 +2404,10 @@ if ($_SESSION['valid']) {
 
 	Respond_to_POST();
 
-	//*** Verify valid $page and/or $filename **********************************
+	//*** Verify valid $page and/or $filename ********
 
-	//Don't load login screen if already in a valid session.
-	if     ( $_SESSION['valid'] && ($page == "login") )  { $page = "index"; }
+	//Don't load login screen when already in a valid session.
+	if     ( $page == "login" )  { $page = "index"; }
 
 	//Don't load edit page if $filename doesn't exist.
 	elseif ( ($page == "edit")  && !is_file($filename) ) { $page = "index"; }
@@ -2437,14 +2432,20 @@ if ($_SESSION['valid']) {
 		$message .= '<style>#message p {background: red; color: white;}</style>';
 		$message .= $EX.'<b>'.hsc($_['edit_caution_01']).' '.$EX.hsc($_['edit_caution_02']).'</b>';
 	}
-	//**************************************************************************
-}//end if $_SESSION[valid] *****************************************************
+	//end verify $page and/or $filename **************
+}//end if $_SESSION[valid] *************************************
+
+//Get any early output. Should be blank unless trouble-shooting.
+$early_output = ob_get_clean(); 
+//end logic to determine page action *******************************************
 
 
 
 
 //******************************************************************************
 //******************************************************************************
+//Output page contents
+
 header('Content-type: text/html; charset=UTF-8');
 
 ?><!DOCTYPE html>

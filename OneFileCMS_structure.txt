@@ -1,4 +1,4 @@
-Version 3.3.06
+Version 3.3.07
 
 LICENSE
 
@@ -93,11 +93,11 @@ JAVASCRIPT & STYLESHEET FUNCTIONS:
 
 LOGIC TO DETERMINE PAGE ACTION
 	Verify good PHP version
-	Call Load_Language()
-	Call Session_Startup()
-	Call Get_GET()
-	Call Init_Macros()
-	Call Respond_to_POST()
+	Load_Language()
+	Session_Startup()
+	Get_GET()
+	Init_Macros()
+	Respond_to_POST()
 	Validate $page & $filename to show
 
 GENERATE/OUTPUT <HTML>...  
