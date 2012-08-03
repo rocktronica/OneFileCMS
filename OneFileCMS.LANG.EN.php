@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.3.07
+// OneFileCMS Language Settings v3.3.08
 
 $_['LANGUAGE'] = 'English';
 
@@ -236,3 +236,10 @@ $_['edit_caution_01']  = 'CAUTION';
 $_['edit_caution_02']  = 'You are editing the active copy of OneFileCMS - BACK IT UP & BE CAREFUL !!';
 
 $_['time_out_txt'] = 'Session time out in:';
+
+$_['error_reporting_01'] = 'Display errors is';
+$_['error_reporting_02'] = 'Log errors is';
+$_['error_reporting_03'] = 'Error reporting is set to';
+$_['error_reporting_04'] = 'Showing error types';
+$_['error_reporting_05'] = 'Unexpected early output';
+$_['error_reporting_06'] = '(nothing, not even white-space, should have been output yet)';

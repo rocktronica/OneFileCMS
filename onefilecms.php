@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.3.07';
+$OFCMS_version = '3.3.08';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -395,21 +395,14 @@ $_['edit_caution_02']  = 'You are editing the active copy of OneFileCMS - BACK I
 
 $_['time_out_txt'] = 'Session time out in:';
 
+$_['error_reporting_01'] = 'Display errors is';
+$_['error_reporting_02'] = 'Log errors is';
+$_['error_reporting_03'] = 'Error reporting is set to';
+$_['error_reporting_04'] = 'Showing error types';
+$_['error_reporting_05'] = 'Unexpected early output';
+$_['error_reporting_06'] = '(nothing, not even white-space, should have been output yet)';
+
 }//end Default_Language() ******************************************************
-
-
-
-
-function Load_Language() { //***************************************************
-	global $_, $LANGUAGE_FILE;
-
-	// Load Default Language settings
-	Default_Language();
-
-	//If specified in config, check for & load external $LANGUAGE_FILE settings
-	if ( isset($LANGUAGE_FILE) && is_file($LANGUAGE_FILE) ) { include($LANGUAGE_FILE); }
-
-}//end Load_Language(){} //*****************************************************
 
 
 
@@ -486,6 +479,64 @@ function hashit($key){ //*******************************************************
 	for ( $x=0; $x < 10000; $x++ ) { $hash = hash('sha256', $hash.$SALT); }
 	return $hash;
 }//end hashit() ****************************************************************
+
+
+
+
+function Error_reporting_and_early_output($show_status = 0, $show_types = 0) {//
+	global $_, $early_output;
+
+	$E_level = error_reporting();
+	$E_types = '';
+	$spc = ' &nbsp; '; // or '<br>' or PHP_EOL or whatever...
+	if ( ($E_level &     1) ==     1 ) { $E_types  = 'E_ERROR'            .$spc; }
+	if ( ($E_level &     2) ==     2 ) { $E_types .= 'E_WARNING'          .$spc; }
+	if ( ($E_level &     4) ==     4 ) { $E_types .= 'E_PARSE'            .$spc; }
+	if ( ($E_level &     8) ==     8 ) { $E_types .= 'E_NOTICE'           .$spc; }
+	if ( ($E_level &    16) ==    16 ) { $E_types .= 'E_CORE_ERROR'       .$spc; }
+	if ( ($E_level &    32) ==    32 ) { $E_types .= 'E_CORE_WARNING'     .$spc; }
+	if ( ($E_level &    64) ==    64 ) { $E_types .= 'E_COMPILE_ERROR'    .$spc; }
+	if ( ($E_level &   128) ==   128 ) { $E_types .= 'E_COMPILE_WARNING'  .$spc; }
+	if ( ($E_level &   256) ==   256 ) { $E_types .= 'E_USER_ERROR'       .$spc; }
+	if ( ($E_level &   512) ==   512 ) { $E_types .= 'E_USER_WARNING'     .$spc; }
+	if ( ($E_level &  1024) ==  1024 ) { $E_types .= 'E_USER_NOTICE'      .$spc; }
+	if ( ($E_level &  2048) ==  2048 ) { $E_types .= 'E_STRICT'           .$spc; }
+	if ( ($E_level &  4096) ==  4096 ) { $E_types .= 'E_RECOVERABLE_ERROR'.$spc; }
+	if ( ($E_level &  8192) ==  8192 ) { $E_types .= 'E_DEPRECATED'       .$spc; }
+	if ( ($E_level & 16384) == 16384 ) { $E_types .= 'E_USER_DEPRECATED'  .$spc; }
+	if ( ($E_level & 32768) == 32768 ) { $E_types .= 'E_ALL'              .$spc; }
+
+	if ( $show_status && ((ini_get('display_errors') == 'on') ||
+		 (ini_get('log_errors')     == 'on') ||
+		 (error_reporting()         !=  0  )) )
+	{
+?>		<style>
+		.E_box {margin: 0;	 background-color: #Faa; font-size: 1em;
+				padding: 4px 5px 5px 5px; border: 0 solid white; }
+		</style>
+<?php
+		echo '<p class="E_box"><b>PHP '.PHP_VERSION.$spc;
+		echo $_['error_reporting_01'].': '.ini_get('display_errors').'.'.$spc;
+		echo $_['error_reporting_02'].': '.ini_get('log_errors')    .'.'.$spc;
+		echo $_['error_reporting_03'].': '.error_reporting()        .'.'.$spc;
+		echo 'E_ALL = '.E_ALL.$spc.'</b>';
+		
+		if ($show_types) {
+			echo '<br><b>'.$_['error_reporting_04'].': </b>';
+			echo '<span style="font: 400 .8em arial">'.$E_types.'</span>';
+		}
+		echo '</p>';
+	}//end if (error reporting on)
+
+	//$early_output is contents of ob_get_clean(), just before page output.
+	if (strlen($early_output) > 0 ) {
+		echo '<pre style="background-color: #Fdd; border: 1px solid #Faa;"><b>';
+		echo $_['error_reporting_05'].'</b> ';
+		echo $_['error_reporting_06'].'<b>:</b> ';
+		echo '<span style="background-color: white; border: 1px solid white">';
+		echo hte($early_output).'</span></pre>';
+	}
+}//end Error_reporting_and_early_output() //************************************
 
 
 
@@ -667,7 +718,7 @@ function Page_Header(){ //******************************************************
 function message_box() { //*****************************************************
 	global $ONESCRIPT, $param1, $param2, $param3, $message, $page;
 
-	if (isset($message)) {
+	if (isset($message) && (strlen($message) > 0)) {
 ?>
 		<div id="message"><p>
 		<span id="Xbox"><!-- [X] to dismiss message box -->
@@ -2034,7 +2085,6 @@ function Edit_Page_scripts() { //***********************************************
 
 
 function style_sheet(){ //******************************************************
-	global $_, $MAIN_WIDTH;
 ?>
 <style>
 /* --- reset --- */
@@ -2070,11 +2120,11 @@ label { display: inline-block; font-size : 1em; font-weight: bold; }
 
 svg { margin: 0; padding: 0; }
 
-pre { /*Used around test output when trouble shooting*/
+pre {
 	background: white;
-	border: 1px solid #807568;
-	padding: .5em;
-	margin: 0;
+	border    : 1px solid #807568;
+	padding   : .2em;
+	margin    : 0;
 	}
 
 
@@ -2082,7 +2132,7 @@ pre { /*Used around test output when trouble shooting*/
 
 .container {
 	border : 0px solid #807568;
-	width  : <?php echo $MAIN_WIDTH ?>;
+	width  : 810px;
 	margin : 0 auto 2em auto;
 	}
 
@@ -2198,8 +2248,8 @@ table.index_T td {
 	display: inline-block;
 	border : 1px solid #807568;
 	height      : 1em;
-	font-size   : <?php echo $_['front_links_font_size'] ?>; /*Default 1em */
-	margin-right: <?php echo $_['front_links_margin_R']  ?>; /*Default 1em */
+	font-size   : 1em;
+	margin-right: 1em;
 	padding     : 3px 5px 5px 4px; /*TRBL*/
 	background-color: #EEE;
 	}
@@ -2237,8 +2287,8 @@ input[disabled]:hover { background-color: rgb(236,233,216);  }
 	cursor : pointer;
 	border : 1px solid #807568;
 	color  : black;
-	padding    : <?php echo $_['button_padding']   ?>; /*Default 4px 10px */
-	font-size  : <?php echo $_['button_font_size'] ?>; /*Default .9em     */
+	padding    : 4px 10px;
+	font-size  : .9em;
 	font-family: sans-serif;
 	background-color: #EEE;  /*#d4d4d4*/
 	}
@@ -2369,10 +2419,10 @@ hr { /*-- -- -- -- -- -- --*/
 
 .edit_btns_top    { margin: .2em 0 .5em 0;}
 
-.image_info {color: #222; font-size: <?php echo $_['image_info_font_size'] ?> ;}/*Default is 1em*/
+.image_info {color: #222; font-size: 1em ;}
 
 .edit_btns_bottom { float: right; margin-bottom: .65em; }
-.edit_btns_bottom .button { margin-left: <?php echo $_['button_margin_L'] ?>; } /*Default is .5em*/
+.edit_btns_bottom .button { margin-left: .5em; }
 
 #upload_file { margin-bottom: .6em; }
 </style>
@@ -2382,11 +2432,46 @@ hr { /*-- -- -- -- -- -- --*/
 
 
 
+function Language_and_config_adjusted_styles() {//******************************
+	global $_, $MAIN_WIDTH;
+?>
+<style>
+.container { width: <?php echo $MAIN_WIDTH ?>; } /*Default is 810px*/
+
+.button {
+	padding  : <?php echo $_['button_padding']   ?>; /*Default 4px 10px */
+	font-size: <?php echo $_['button_font_size'] ?>; /*Default .9em     */
+	}
+
+.front_links a {
+	font-size   : <?php echo $_['front_links_font_size'] ?>; /*Default 1em */
+	margin-right: <?php echo $_['front_links_margin_R']  ?>; /*Default 1em */
+	}
+
+.image_info {				/*Default is 1em*/
+	color: #222; font-size: <?php echo $_['image_info_font_size'] ?>; 
+	}
+
+.edit_btns_bottom .button {
+	margin-left: <?php echo $_['button_margin_L'] ?>; /*Default is .5em*/
+	}
+</style>
+<?php
+}//end Language_and_config_adjusted_styles() //*********************************
+
+
+
+
 //******************************************************************************
 //******************************************************************************
 //Begin logic to determine page action
 
-Load_Language();
+
+Default_Language(); // Load Default Language settings
+
+//If specified in config, check for & load external $LANGUAGE_FILE
+if ( isset($LANGUAGE_FILE) && is_file($LANGUAGE_FILE) ) { include($LANGUAGE_FILE); }
+
 
 if( PHP_VERSION_ID < PHP_VERSION_ID_REQUIRED ) {
 	exit( 'PHP '.PHP_VERSION.'<br>'.hsc($_['OFCMS_requires']).' '.PHP_VERSION_REQUIRED );
@@ -2435,8 +2520,6 @@ if ($_SESSION['valid']) {
 	//end verify $page and/or $filename **************
 }//end if $_SESSION[valid] *************************************
 
-//Get any early output. Should be blank unless trouble-shooting.
-$early_output = ob_get_clean(); 
 //end logic to determine page action *******************************************
 
 
@@ -2444,10 +2527,12 @@ $early_output = ob_get_clean();
 
 //******************************************************************************
 //******************************************************************************
-//Output page contents
+//Get any early output. Should be blank unless trouble-shooting.
+$early_output = ob_get_clean(); 
 
 header('Content-type: text/html; charset=UTF-8');
 
+//Output page contents
 ?><!DOCTYPE html>
 
 <html>
@@ -2457,7 +2542,9 @@ header('Content-type: text/html; charset=UTF-8');
 
 <title><?php echo $config_title.' - '.Page_Title() ?></title>
 
-<?php style_sheet(); ?>
+<?php style_sheet() ?>
+
+<?php Language_and_config_adjusted_styles() ?>
 
 <?php Timer_scripts() ?>
 
@@ -2465,6 +2552,8 @@ header('Content-type: text/html; charset=UTF-8');
 
 </head>
 <body>
+
+<?php Error_reporting_and_early_output(1,0) ?>
 
 <?php if ($page == "login"){ echo '<div id="main" class="login_page">'; }
       else                 { echo '<div id="main" class="container" >'; }

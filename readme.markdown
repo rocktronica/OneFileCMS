@@ -1,6 +1,6 @@
-# Current stable version: 3.3.07
+# Current stable version: 3.3.08
 
-### Auguest 1, 2012
+### Auguest 3, 2012
 
 - For reasons of required content, consistancy, & code simplicity, the format for language files is now php, instead of ini. While the ini format is cleaner looking and a bit easier to read, there are a few deal-breakers as far as using it to contain values for language strings (as used in OFCMS). Those issues, along with some general considerations of various pros & cons, are (or soon will be) detailed on the wiki page.
 
@@ -173,6 +173,11 @@ GENERATE/OUTPUT THE PAGE
 --------------------------------------------------------------------------------
 
 ## Change Log
+
+### 3.3.08
+
+- Added some basic error handling and now using buffering to capture errant early output.
+- Seperate function to handle dynamic css values.
 
 ### 3.3.07
 
