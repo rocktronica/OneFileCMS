@@ -1,8 +1,13 @@
-# Current stable version: 3.3.08
+# Current stable version: 3.3.09
+
+### Auguest 6, 2012
+
+- I just noticed that a function OneFile uses has only been available since PHP 5.1.  So, I guess that's the new minimum required version. (Even though further down this page 5.2 is listed at the minimum version)
+
 
 ### Auguest 3, 2012
 
-- For reasons of required content, consistancy, & code simplicity, the format for language files is now php, instead of ini. While the ini format is cleaner looking and a bit easier to read, there are a few deal-breakers as far as using it to contain values for language strings (as used in OFCMS). Those issues, along with some general considerations of various pros & cons, are (or soon will be) detailed on the wiki page.
+- For reasons of required content, consistancy, & code simplicity, the format for language files is now php, instead of ini. While the ini format is cleaner looking and a bit easier to read, there are a few deal-breakers as far as using it to contain values for language strings (as used in OFCMS). Those issues, along with some general considerations of various pros & cons, are detailed on the wiki page.
 
 ### July 31, 2012
 

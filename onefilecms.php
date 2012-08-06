@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.3.08';
+$OFCMS_version = '3.3.09';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -105,8 +105,8 @@ $SESSION_NAME = 'OFCMS'; //Also the cookie name. Change if using multiple copies
 //System values & setup
 
 //Require PHP5.  Earliest version the author has for testing is 5.2.8 (50208)
-define('PHP_VERSION_ID_REQUIRED',50000); //Ex: 5.1.23 is 50123
-define('PHP_VERSION_REQUIRED'  ,'5.0 + '); //Used in die() message.
+define('PHP_VERSION_ID_REQUIRED',50100);   //Ex: 5.1.23 is 50123
+define('PHP_VERSION_REQUIRED'  ,'5.1 + '); //Used in exit() message.
 
 //The predefined constant PHP_VERSION_ID has only been available since 5.2.7.
 //So, convert PHP_VERSION (a string) to PHP_VERSION_ID (a number).
@@ -484,6 +484,8 @@ function hashit($key){ //*******************************************************
 
 
 function Error_reporting_and_early_output($show_status = 0, $show_types = 0) {//
+//Display the status of error_reporting(), and ini_get() of display_errors & log_errors.
+//Also displays any early output caught by ob_start().
 	global $_, $early_output;
 
 	$E_level = error_reporting();
@@ -504,11 +506,10 @@ function Error_reporting_and_early_output($show_status = 0, $show_types = 0) {//
 	if ( ($E_level &  4096) ==  4096 ) { $E_types .= 'E_RECOVERABLE_ERROR'.$spc; }
 	if ( ($E_level &  8192) ==  8192 ) { $E_types .= 'E_DEPRECATED'       .$spc; }
 	if ( ($E_level & 16384) == 16384 ) { $E_types .= 'E_USER_DEPRECATED'  .$spc; }
-	if ( ($E_level & 32768) == 32768 ) { $E_types .= 'E_ALL'              .$spc; }
 
-	if ( $show_status && ((ini_get('display_errors') == 'on') ||
-		 (ini_get('log_errors')     == 'on') ||
-		 (error_reporting()         !=  0  )) )
+	if ( $show_status && ( (error_reporting() !=  0) ||
+						   (ini_get('display_errors') == 'on') || 
+						   (ini_get('log_errors') == 'on') ) )
 	{
 ?>		<style>
 		.E_box {margin: 0;	 background-color: #Faa; font-size: 1em;
@@ -588,7 +589,7 @@ function URLencode_path($path){ // don't encode the forward slashes ************
 	$path_array = explode('/',$path);
 	$path = "";
 	foreach ($path_array as $level) { $path .= rawurlencode($level).'/'; }
-	$path = rtrim($path,'/').$TS;  //end with $TS only if started with one
+	$path = rtrim($path,'/').$TS;  //ends with $TS only if started with one
 	return $path;
 }//end URLencode_path($path) ***************************************************
 
@@ -768,7 +769,7 @@ function Cancel_Submit_Buttons($submit_label, $focus) { //**********************
 	<p> 
 	<input type="button" class="button" id="cancel" value="<?php echo hsc($_['Cancel']) ?>"
 		onclick="parent.location = '<?php echo $ONESCRIPT.$param1.$params ?>'">
-	<input type="submit" class="button" value="<?php echo $submit_label;?>" style="margin-left: 1.3em;">
+	<input type="submit" class="button" value="<?php echo $submit_label;?>" style="margin-left: 1em;">
 <?php 
 	if ($focus != ""){ echo '<script>document.getElementById("'.$focus.'").focus();</script>'; }
 	//Do not close the <p> tag yet/here. Need to leave it open for edit btn on hash page.
@@ -797,7 +798,7 @@ function show_image(){ //*******************************************************
 
 	echo '<p class="image_info">';
 	echo hsc($_['show_img_msg_01']).round($SCALE*100).
-	hsc($_['show_img_msg_02']).' '.$img_info[0].' x '.$img_info[1].').</p>';
+		 hsc($_['show_img_msg_02']).' '.$img_info[0].' x '.$img_info[1].').</p>';
 	echo '<div style="clear:both"></div>'.PHP_EOL;
 	echo '<a href="/' .URLencode_path($IMG). '" target="_blank">'.PHP_EOL;
 	echo '<img src="/'.URLencode_path($IMG).'"  height="'.($img_info[$H] * $SCALE).'"></a>'.PHP_EOL;
@@ -896,7 +897,7 @@ return '<svg class="icon icon_file" xmlns="http://www.w3.org/2000/svg" version="
 
 
 
-function svg_icon_txt_0($border, $lines, $fill, $extra){ //*********************
+function svg_icon_txt_0($border, $lines, $fill, $extra = ""){ //****************
 return '<svg class="icon icon_file" xmlns="http://www.w3.org/2000/svg" version="1.1" width="14" height="16">
 	<rect x = "0" y = "0" width = "14" height = "16" 
 	fill="'.$fill.'" stroke="'.$border.'" stroke-width="2" />
@@ -910,22 +911,22 @@ return '<svg class="icon icon_file" xmlns="http://www.w3.org/2000/svg" version="
 
 
 
-function svg_icon_txt(){ return svg_icon_txt_0('#333', '#000', '#FFF', ''); } //*******
+function svg_icon_txt(){ return svg_icon_txt_0('#333', '#000', '#FFF'); } //****
 
-function svg_icon_htm(){ return svg_icon_txt_0('#444', '#222', '#FABEAA', ''); } //**** rgb(250,190,170)
+function svg_icon_htm(){ return svg_icon_txt_0('#444', '#222', '#FABEAA'); } //* rgb(250,190,170)
 
-function svg_icon_php(){ return svg_icon_txt_0('#333', '#111', '#C3C3FF', ''); } //**** rgb(195,195,225)
+function svg_icon_php(){ return svg_icon_txt_0('#333', '#111', '#C3C3FF'); } //* rgb(195,195,225)
 
-function svg_icon_css(){ return svg_icon_txt_0('#333', '#111', '#FFE1A5', ''); } //**** rgb(255,225,165)
+function svg_icon_css(){ return svg_icon_txt_0('#333', '#111', '#FFE1A5'); } //* rgb(255,225,165)
 
-function svg_icon_cfg(){ return svg_icon_txt_0('#444', '#111', '#DDD', ''); } //*******
+function svg_icon_cfg(){ return svg_icon_txt_0('#444', '#111', '#DDD'); } //****
 
 
 
 function svg_icon_upload(){ //**************************************************
 	$extra = '<g transform="scale(1.1) translate(1.75,4)">
 		<polygon points="6,0  12,6  8,6  8,11  4,11  4,6  0,6" 
-		stroke-width="1" stroke="white" fill="green" /></g>';
+		stroke-width="1" stroke="white" fill="green" /></g>'; //up arrow
 
 	return svg_icon_txt_0('#333', 'black', 'white', $extra);
 } //end svg_icon_upload() ******************************************************
@@ -950,7 +951,7 @@ global $SVG_icon_circle_x;
 
 
 
-function svg_icon_folder_0($extra){ //******************************************
+function svg_icon_folder_0($extra = ""){ //*************************************
 
  return '<svg class="icon icon_fldr" xmlns="http://www.w3.org/2000/svg" version="1.1" width="18" height="14">
 	<path  d="M0.5, 1  L8,1  L9,2  L9,3  L16.5,3  L17,3.5  L17,13.5  L.5,13.5  L.5,.5" 
@@ -1549,7 +1550,7 @@ function New_File_response() { //***********************************************
 
 function Set_Input_width() { //*************************************************
 	global $WEB_ROOT, $MAIN_WIDTH;
-$WEB_ROOT = 'www/';
+
 	// (width of <input type=text>) = $MAIN_WIDTH - (Width of $WEB_ROOT)
 	// $MAIN_WIDTH may be in em, px, or pt.
 	// Width of 1 character = .625em = 10px = 7.5pt  (1em = 16px = 12pt)
@@ -1627,12 +1628,12 @@ function Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $msg2, $is
 		$message .= $EX.'<b>'.$msg1.' '.hsc($_['CRM_msg_02']).'</b><br>';
 		$message .= hte($filename);
 	}elseif (file_exists($new_name)) {
-		$message .= $EX.'<b>'.$msg1.' '.hsc($_['CRM_msg_03']).'<br>';
-		$message .= hte($WEB_ROOT.$new_name).'</b>';
+		$message .= $EX.'<b>'.$msg1.' '.hsc($_['CRM_msg_03']).'</b><br>';
+		$message .= hte($WEB_ROOT.$new_name).'<br>';
 	}elseif ($action($old_name, $new_name)) {
-		$message .= '<b>'.hte($WEB_ROOT.$old_name).'</b><br>';
-		$message .= ' --- '.$msg2.' '.hsc($_['CRM_msg_04']).' ---<br>';
-		$message .= '<b>'.hte($WEB_ROOT.$new_name).'</b><br>';
+		$message .= hte($WEB_ROOT.$old_name).'<br>';
+		$message .= '<b> --- '.$msg2.' '.hsc($_['CRM_msg_04']).' ---</b><br>';
+		$message .= hte($WEB_ROOT.$new_name).'<br>';
 		$filename = $new_name; //so edit page knows what to edit
 		if ($isfile) { $ipath = Check_path(dirname($filename)); } //if changed,
 		else         { $ipath = Check_path($filename); }          //return to new dir.
@@ -1640,9 +1641,9 @@ function Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $msg2, $is
 		$param2   = '&amp;f='.rawurlencode(basename($filename));
 		$param3   = '&amp;p=edit';
 	}else{
-		$message .= '<b>'.hte($WEB_ROOT.$old_name).'</b><br>';
+		$message .= hte($WEB_ROOT.$old_name).'<br>';
 		$message .= $EX.'<b>'.hsc($_['CRM_msg_05a']).' '.$msg1.' '.hsc($_['CRM_msg_05b']).'</b><br>';
-		$message .= '<b>'.hte($WEB_ROOT.$new_name).'</b>';
+		$message .= hte($WEB_ROOT.$new_name).'<br>';
 	}
 }//end Copy_Ren_Move_response() ************************************************
 
