@@ -1,4 +1,4 @@
-Version 3.3.08
+Version 3.3.10
 
 LICENSE
 
@@ -6,25 +6,26 @@ SOME BASIC SECURITY & ERROR LOG SETTINGS
 
 CONFIGURATION SECTION
 
-GET EXTERNAL CONFIG (if exists)
-
 OTHER GLOBAL/SYSTEM VALUES
 
 MISC FUNCTIONS:
 	hsc()
 	hte()
 	Default_Language()
-	Load_Language()
 	Session_Startup()
 	Verify_IDLE_POST_etc()
 	hashit()
 	Error_reporting_and_early_output()
+	Current_Path_Header()
+	Update_Recent_Pages()
 	undo_magic_quotes()
 	Get_GET()
 	URLencode_path()
 	Check_path()
 	is_empty()
 	ordinalize()
+
+PAGE CHUNK FUNCTIONS
 	Current_Path_Header()
 	Page_Header()
 	message_box()
@@ -33,6 +34,7 @@ MISC FUNCTIONS:
 	show_image()
 	show_favicon()
 	Timeout_Timer()
+
 	Init_Macros()
 
 SVG ICON FUNCTIONS:
@@ -56,6 +58,7 @@ SVG ICON FUNCTIONS:
 	show_icon()
 
 PAGE & RESPONSE FUNCTIONS:
+	Admin_Page()
 	Hash_Page()
 	Hash_Page_response()
 	Logout()
@@ -95,7 +98,8 @@ JAVASCRIPT & STYLESHEET FUNCTIONS:
 
 LOGIC TO DETERMINE PAGE ACTION
 	Verify good PHP version
-	Load_Language()
+	Default_Language()
+	If external language file, load it
 	Session_Startup()
 	Get_GET()
 	Init_Macros()

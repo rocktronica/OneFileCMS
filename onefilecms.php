@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.3.09';
+$OFCMS_version = '3.3.10';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -129,7 +129,7 @@ $WEB_ROOT  = URLencode_path(basename($DOC_ROOT)).'/';
 $WEBSITE   = $_SERVER["HTTP_HOST"].'/';
 $LOGIN_ATTEMPTS = $DOC_ROOT.trim($_SERVER["SCRIPT_NAME"],'/').'.invalid_login_attempts';
 
-$valid_pages = array("hash", "login","logout","index","edit","upload","uploaded","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder" );
+$valid_pages = array("admin", "hash", "login","logout","index","edit","upload","uploaded","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder" );
 
 $INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file/folder names.
 $INVALID_CHARS_array = explode(' ', $INVALID_CHARS); // (Space deliminated)
@@ -234,6 +234,8 @@ $_['ord_msg_02'] = 'Saving as';
 
 $_['show_img_msg_01'] = 'Image shown at ~';
 $_['show_img_msg_02'] = '% of full size (W x H =';
+
+$_['admin_h2'] = 'Administration';
 
 $_['hash_h2']     = 'Generate a Password Hash';
 $_['hash_txt_01'] = 'There are two ways to change your OneFileCMS password:';
@@ -368,6 +370,7 @@ $_['delete_folder_msg_02'] = 'Deleted folder:';
 $_['delete_folder_msg_03'] = 'an error occurred during delete.';
 
 $_['page_title_login']      = 'Log In';
+$_['page_title_admin']      = 'Administration';
 $_['page_title_hash']       = 'Hash Page';
 $_['page_title_edit']       = 'Edit/View File';
 $_['page_title_upload']     = 'Upload File';
@@ -538,6 +541,45 @@ function Error_reporting_and_early_output($show_status = 0, $show_types = 0) {//
 		echo hte($early_output).'</span></pre>';
 	}
 }//end Error_reporting_and_early_output() //************************************
+
+
+
+
+function Update_Recent_Pages($pop_current = 0) { //*****************************
+	global $page;
+
+	$recent_pages = array("");
+	$pages = 0; //Index to recent_page
+	
+	if (!isset($_SESSION['recent_pages'])) { $_SESSION['recent_pages'] = array(""); }
+	$pages = count($_SESSION['recent_pages']) - 1;
+
+	//Reverse so index [0] is oldest page (re-reversed at end of function)
+	$_SESSION['recent_pages'] = array_reverse($_SESSION['recent_pages']);
+
+	if ($pop_current)
+	{
+		//Sometimes we just want to discard the most recent page.
+		array_pop($_SESSION['recent_pages']);
+	}
+	elseif ( $page != $_SESSION['recent_pages'][$pages] )
+	{
+		//Add new page to arrray of recent_pages
+		//if (new page) == (prior page) (from a page reload etc.), don't update
+		$_SESSION['recent_pages'][$pages+1] = $page;
+		$pages = count($_SESSION['recent_pages']);
+	}
+
+	//Only need 3 most recent pages (increase if needed)
+	if ($pages > 3) { array_shift($_SESSION['recent_pages']); }
+
+	//Reverse order so the current page is index [0]
+	$_SESSION['recent_pages'] = array_reverse($_SESSION['recent_pages']);
+	
+	//admin_ipath is not needed on index page
+	if ($page == "index") { unset($_SESSION['admin_ipath']); }
+
+}//end Update_Recent_Pages() ***************************************************
 
 
 
@@ -761,10 +803,18 @@ function Upload_New_Rename_Delete_Links() { //**********************************
 function Cancel_Submit_Buttons($submit_label, $focus) { //**********************
 	//$submit_label = Rename, Copy, Delete, etc...
 	//$focus is ID of element to receive focus(). (element may be outside this function)
-	global $_, $ONESCRIPT, $ipath, $param1, $param2, $filename, $page;
+	global $_, $ONESCRIPT, $ipath, $param1, $param2, $filename, $page, $message;
 
-	// [Cancel] returns to either the index, or edit page.
-	if ($filename == "") {$params = "";}else{ $params = $param2.'&amp;p=edit'; }
+	//Cancel returns to either admin, edit, or index page.
+	if ($_SESSION['recent_pages'][1] == "admin") { $params = '&amp;p=admin'; }
+	elseif  ($filename != "")               { $params = $param2.'&amp;p=edit'; }
+	else                                    { $params = ""; }
+
+	//If came from edit page via admin page, drop this page from recent_pages
+	//This helps preserve ipath prior to admin page
+	if ( ($_SESSION['recent_pages'][2] == "admin") && ($_SESSION['recent_pages'][1] == "edit") ) {
+		Update_Recent_Pages(1); //1 or true = drop current page from recent_pages
+	}
 ?>
 	<p> 
 	<input type="button" class="button" id="cancel" value="<?php echo hsc($_['Cancel']) ?>"
@@ -772,7 +822,8 @@ function Cancel_Submit_Buttons($submit_label, $focus) { //**********************
 	<input type="submit" class="button" value="<?php echo $submit_label;?>" style="margin-left: 1em;">
 <?php 
 	if ($focus != ""){ echo '<script>document.getElementById("'.$focus.'").focus();</script>'; }
-	//Do not close the <p> tag yet/here. Need to leave it open for edit btn on hash page.
+
+	//Do not close the <p> tag yet/here. Leave it open for potential content on individual pages.
 }// End Cancel_Submit_Buttons() //**********************************************
 
 
@@ -1011,9 +1062,39 @@ function show_icon($type){ //***************************************************
 
 
 
+function Admin_Page() { //******************************************************
+	global $_, $ONESCRIPT, $ipath, $filename, $param1, $param2, $EX, $message, $config_title;
+
+	$_SESSION['admin_ipath']  = $ipath; //Used so after Edit OneFile, returns to ipath user expects.
+
+	// [Close] returns to either the index or edit page.
+	$params = "";
+	if ($filename != "") { $params = $param2.'&amp;p=edit'; }
+
+	$edit_params = '?i='.URLencode_path(dirname($ONESCRIPT)).'&amp;f='.rawurlencode(basename($ONESCRIPT)).'&amp;p=edit';
+?>
+	<h2><?php echo hsc($_['admin_h2']) ?></h2>
+<span class="admin_buttons">
+	<input type="button" class="button" id="cancel"    value="<?php echo hsc($_['Close']) ?>"
+		onclick="parent.location = '<?php echo $ONESCRIPT.$param1.$params ?>'">
+
+	<input type="button" class="button" id="hash"      value="<?php echo hsc('Hash Page') ?>"
+		onclick="parent.location = '<?php echo $ONESCRIPT.$param1.'&amp;p=hash' ?>'">
+
+	<input type="button" class="button" id="editOFCMS" value="<?php echo hsc($_['Edit'].' '.$config_title) ?>"
+		onclick="parent.location = '<?php echo $ONESCRIPT.$edit_params ?>'">
+</span>
+<?php
+	echo '<script>document.getElementById("cancel").focus();</script>';
+return;
+}//end Admin_Page() ************************************************************
+
+
+
+
 function Hash_Page() { //******************************************************
 	global $_, $DOC_ROOT, $ONESCRIPT, $param1, $param2, $message, $INPUT_NUONCE, $config_title;
-	$params = '?i='.dirname($ONESCRIPT).'&amp;f='.basename($ONESCRIPT).'&amp;p=edit';
+
 	if (!isset($_POST['whattohash'])) { $_POST['whattohash'] = ''; }
 ?>
 	<style>#message {font-family: courier; min-height: 3.1em;}
@@ -1026,7 +1107,6 @@ function Hash_Page() { //******************************************************
 		<?php echo hsc($_['pass_to_hash']) ?>
 		<input type="text" name="whattohash" id="whattohash" value="<?php echo hsc($_POST["whattohash"]) ?>">
 		<?php Cancel_Submit_Buttons(hsc($_['Generate_Hash']), 'whattohash') ?>
- 		<a class="button edit_onefile" href="<?php echo $ONESCRIPT.$params; ?>" ><?php echo hsc($_['Edit']).' '.$config_title ?></a>
 	</form>
 
 	<div class="info">
@@ -1061,7 +1141,7 @@ function Hash_response() { //***************************************************
 	global $_, $message;
 	$_POST['whattohash'] = trim($_POST['whattohash']); // trim leading & trailing spaces.
 	$message .= hsc($_['hash_msg_01']).' '.hsc($_POST['whattohash']).'<br>';
-	$message .= hsc($_['hash_msg_02']).hashit($_POST["whattohash"]); //NO SPACE between msg_02 & hash!
+	$message .= hsc($_['hash_msg_02']).hashit($_POST["whattohash"]).'<br>'; //NO SPACE between msg_02 & hash!
 } //end Hash_response() ********************************************************
 
 
@@ -1221,6 +1301,11 @@ function Index_Page(){ //*******************************************************
 
 function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
 	global $_, $ONESCRIPT, $param1, $filename;
+
+	//For [Close] button if came from admin page
+	$params = $param1;
+	if ($_SESSION['recent_pages'][1] == "admin") { $params = '?i='.URLencode_path($_SESSION['admin_ipath']).'&amp;p=admin'; }
+
 ?>
 	<div class="edit_btns_top">
 		<div class="file_meta">
@@ -1238,7 +1323,7 @@ function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
 				<input type="button" id="wide_view" class="button" value="<?php echo hsc($_['Wide_View']) ?>" onclick="Wide_View();">
 			<?php } ?>
 			<input type="button" id="close1" class="button" value="<?php echo hsc($_['Close']) ?>" 
-				onclick="parent.location = '<?php echo $ONESCRIPT.$param1 ?>'">
+				onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
 			<script>document.getElementById('close1').focus();</script>
 		</div>
 		<div style="clear:both"></div>
@@ -1253,6 +1338,10 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
 	global $_, $ONESCRIPT, $param1, $param2, $MAX_IDLE_TIME;
 	$Button = '<input type="button" class="button" value="';
 	$ACTION = '" onclick="parent.location = \''.$ONESCRIPT.$param1.$param2.'&amp;p=';
+
+	//For [Close] button if came from admin page
+	$params = $param1;
+	if ($_SESSION['recent_pages'][1] == "admin") { $params = '?i='.URLencode_path($_SESSION['admin_ipath']).'&amp;p=admin'; }
 ?>
 	<div class="edit_btns_bottom">
 	<?php if ($text_editable && !$too_large_to_edit) { //Show save & reset only if editable file ?> 
@@ -1269,7 +1358,7 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
 	<?php echo $Button.hsc($_['Ren_Move']).$ACTION ?>rename'">
 	<?php echo $Button.hsc($_['Copy'])    .$ACTION ?>copy'"  >
 	<?php echo $Button.hsc($_['Delete'])  .$ACTION ?>delete'">
-	<?php echo $Button.hsc($_['Close']) ?>" onclick="parent.location = '<?php echo $ONESCRIPT.$param1 ?>'">
+	<?php echo $Button.hsc($_['Close']) ?>" onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
 	</div>
 <?php
 }//end Edit_Page_buttons()******************************************************
@@ -1777,6 +1866,7 @@ function Page_Title(){ //***<title>Page_Title()</title>*************************
 	global $_, $page;
 
 	if     ($page == "login")        { return hsc($_['page_title_login']);     }
+	elseif ($page == "admin")        { return hsc($_['page_title_admin']);     }
 	elseif ($page == "hash")         { return hsc($_['page_title_hash']);      }
 	elseif ($page == "edit")         { return hsc($_['page_title_edit']);      }
 	elseif ($page == "upload")       { return hsc($_['page_title_upload']);    }
@@ -1797,6 +1887,7 @@ function Load_Selected_Page(){ //***********************************************
 	global $_, $ONESCRIPT, $page;
 
 	if     ($page == "login")        { Login_Page();         }
+	elseif ($page == "admin")        { Admin_Page();         }
 	elseif ($page == "hash")         { Hash_Page();          }
 	elseif ($page == "edit")         { Edit_Page();          }
 	elseif ($page == "upload")       { Upload_Page();        }
@@ -2402,7 +2493,7 @@ hr { /*-- -- -- -- -- -- --*/
 
 #admin {padding: .3em;}
 
-.web_root { font: 1em Courier; }
+.web_root {font: 1em Courier;}
 
 .icon {float: left; margin: 0 .3em 0 0;}
 
@@ -2424,6 +2515,8 @@ hr { /*-- -- -- -- -- -- --*/
 
 .edit_btns_bottom { float: right; margin-bottom: .65em; }
 .edit_btns_bottom .button { margin-left: .5em; }
+
+.admin_buttons .button { margin-right: .5em; }
 
 #upload_file { margin-bottom: .6em; }
 </style>
@@ -2516,9 +2609,12 @@ if ($_SESSION['valid']) {
 	elseif ( ($page == "edit") && ($filename == trim(rawurldecode($ONESCRIPT), '/')) ) { 
 		if ( $message == "" ) { $BR = ""; } else { $BR = '<br>';}
 		$message .= '<style>#message p {background: red; color: white;}</style>';
-		$message .= $EX.'<b>'.hsc($_['edit_caution_01']).' '.$EX.hsc($_['edit_caution_02']).'</b>';
+		$message .= $EX.'<b>'.hsc($_['edit_caution_01']).' '.$EX.hsc($_['edit_caution_02']).'</b><br>';
 	}
 	//end verify $page and/or $filename **************
+
+	Update_Recent_Pages();
+
 }//end if $_SESSION[valid] *************************************
 
 //end logic to determine page action *******************************************
@@ -2554,7 +2650,7 @@ header('Content-type: text/html; charset=UTF-8');
 </head>
 <body>
 
-<?php Error_reporting_and_early_output(1,0) ?>
+<?php Error_reporting_and_early_output(1,0);  ?>
 
 <?php if ($page == "login"){ echo '<div id="main" class="login_page">'; }
       else                 { echo '<div id="main" class="container" >'; }
@@ -2562,7 +2658,7 @@ header('Content-type: text/html; charset=UTF-8');
 
 <?php Page_Header() ?>
 
-<?php if ( $page != "login"  &&  $page != "hash" ) { Current_Path_Header(); } ?>
+<?php if ( $page != "login"  &&  $page != "admin"  &&  $page != "hash" ) { Current_Path_Header(); } ?>
 
 <?php message_box() ?>
 
@@ -2577,8 +2673,8 @@ if ( $page != "login" ) {
 }
 
 //Admin link
-if ( ($page != "login") && ($page != "hash") ){
-	echo '<a id="admin" href="'.$ONESCRIPT.$param1.$param2.'&amp;p=hash">'.hsc($_['Admin']).'</a>';
+if ( ($page != "login") && ($page != "hash") && ($page != "admin") ){
+	echo '<a id="admin" href="'.$ONESCRIPT.$param1.$param2.'&amp;p=admin">'.hsc($_['Admin']).'</a>';
 }
 ?>
 

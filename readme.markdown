@@ -1,4 +1,9 @@
-# Current stable version: 3.3.09
+# Current stable version: 3.3.10
+
+### Auguest 7, 2012
+
+- Created an actual "Admin" page that has links to admin functions: Hash Page, Edit OneFileCMS, and (soon) Change Password.
+
 
 ### Auguest 6, 2012
 
@@ -178,6 +183,14 @@ GENERATE/OUTPUT THE PAGE
 --------------------------------------------------------------------------------
 
 ## Change Log
+
+### 3.3.10
+
+- Created an actual "Admin" page that has links to admin functions: Hash Page, Edit OneFileCMS, and (soon) Change Password.
+
+### 3.3.09 
+
+- Minor code improvements & cleanup.
 
 ### 3.3.08
 
