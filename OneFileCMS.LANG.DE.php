@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.3.07
+// OneFileCMS Language Settings v3.3.11
 //
 $_['LANGUAGE'] = 'Deutsch';
 
@@ -28,8 +28,8 @@ $_['image_info_pos']        = '1'; //If 1 or true, moves the info down a line fo
 
 $_['Upload_File'] = 'Datei heraufladen';
 $_['New_File']    = 'Datei erstellen';
-$_['Ren_Move']    = 'Umbenennen/Verschieben';
-$_['Ren_Moved']   = 'Umbenannt/Verschoben';
+$_['Ren_Move']    = 'Umbenennen / Verschieben';
+$_['Ren_Moved']   = 'Umbenannt / Verschoben';
 $_['New_Folder']  = 'Neuer Ordner';
 $_['Ren_Folder']  = 'Ordner umbenennen/verschieben';
 $_['Del_Folder']  = 'Ordner löschen';
@@ -43,7 +43,7 @@ $_['Upload'] = 'Heraufladen';
 $_['Create'] = 'Erstellen';
 $_['Copy']   = 'Kopieren';
 $_['Copied'] = 'Kopiert';
-$_['Rename'] = 'Umbenennen';
+$_['Rename'] = 'Umbenennen / Verschoben';
 $_['Delete'] = 'Löschen';
 $_['DELETE'] = 'LÖSCHEN';
 $_['File']   = 'Datei';
@@ -68,6 +68,7 @@ $_['verify_msg_01'] = 'Sitzung abgelaufen.';
 $_['verify_msg_02'] = 'UNGÜLTIGE DATENSENDUNG';
 
 $_['get_get_msg_01'] = 'Die Datei wurde nicht gefunden:';
+$_['get_get_msg_02'] = 'Invalid page request.';
 
 $_['check_path_msg_01'] = 'Das Verzeichnis wurde nicht gefunden: ';
 
@@ -77,7 +78,6 @@ $_['ord_msg_02'] = 'Speichern als';
 $_['show_img_msg_01'] = 'Die Bilddarstellung entspricht ~';
 $_['show_img_msg_02'] = '% der wahren Größe (W x H = ';
 
-$_['hash_h2']     = 'Streuwertgenerierung für das Passwort';
 $_['hash_txt_01'] = 'Es gibt zwei Wege, wie Sie Ihr OneFileCMS-Passwort ändern können:';
 $_['hash_txt_02'] = '1) Verwenden Sie die Konfigurationsvariable $PASSWORD, um Ihr gewünschtes Passwort zu speichern. In diesem Fall sollte $USE_HASH auf 0 gesetzt werden.';
 $_['hash_txt_03'] = '2) Oder Sie verwenden die Konfigurationsvariable $HASHWORD, um den Streuwert Ihres Passwortes zu speichern. Setzen Sie $USE_HASH in diesem Fall auf 1.';
@@ -94,9 +94,8 @@ $_['hash_txt_13'] = 'Sie können auch OneFileCMS selbst bearbeiten.  Legen Sie a
 $_['hash_txt_14'] = 'Eine weitere, kleine Sicherheitsvorkehrung wäre, das Salz oder die Methode für die Streuwertgenerierung von OneFileCMS zu ändern.';
 
 $_['hash_msg_01'] = 'Passwort: ';
-$_['hash_msg_02'] = 'Streuwert    : ';
+$_['hash_msg_02'] = 'Streuwert: ';
 
-$_['login_h2']     = 'Anmelden';
 $_['login_txt_01'] = 'Benutzername:';
 $_['login_txt_02'] = 'Password:';
 
@@ -140,7 +139,6 @@ $_['edit_msg_01'] = 'Die Datei wurde gespeichert: ';
 $_['edit_msg_02'] = 'Bytes geschrieben.';
 $_['edit_msg_03'] = 'Bei dem Versuch die Datei zu speichern trat ein Fehler auf.';
 
-$_['upload_h2']     = 'Datei heraufladen';
 $_['upload_txt_01'] = '  per upload_max_filesize in php.ini.';
 $_['upload_txt_02'] = 'per post_max_size in php.ini';
 $_['upload_txt_03'] = 'Anmerkung: Die maximale Dateigröße für das Heraufladen von Dateien beträgt: ';
@@ -163,7 +161,6 @@ $_['upload_msg_04'] = 'Heraufladen: ';
 $_['upload_msg_05'] = 'Das Heraufladen war erfolgreich! ';
 $_['upload_msg_06'] = 'Das Heraufladen ist fehlgeschlagen: ';
 
-$_['new_file_h2'] = 'Neue Datei';
 $_['new_file_txt_01'] = 'Die Datei wird im aktuellen Ordner erstellt.  ';
 $_['new_file_txt_02'] = 'Ungültige Zeichen für Dateinamen sind: ';
 
@@ -185,13 +182,11 @@ $_['CRM_msg_04']  = ' zu ';
 $_['CRM_msg_05a'] = 'Fehler während ';
 $_['CRM_msg_05b'] = ' des folgenden Vorgangs:';
 
-$_['delete_h2'] = 'Datei löschen';
 $_['delete_txt_01'] = 'Sind Sie sicher?';
 
 $_['delete_msg_01'] = 'Gelöschte Datei:';
 $_['delete_msg_02'] = 'Während des Löschvorgangs trat ein Fehler auf ';
 
-$_['new_folder_h2'] = 'Neuer Ordner';
 $_['new_folder_txt_1'] = 'Der neue Ordner wird als Unterordner des aktuellen Ordners angelegt.  ';
 $_['new_folder_txt_2'] = 'Ungültige Zeichen für Ordnernamen sind: ';
 
@@ -202,7 +197,6 @@ $_['new_folder_msg_04'] = 'Der Ordner besteht bereits: ';
 $_['new_folder_msg_05'] = 'Ordner erstellt:';
 $_['new_folder_msg_06'] = 'Fehler - der Ordner konnte nicht erstellt werden: ';
 
-$_['delete_folder_h2']     = 'Ordner löschen';
 $_['delete_folder_txt_01'] = 'Sind Sie sicher?';
 
 $_['delete_folder_msg_01'] = 'Der Ordner ist nicht leer.   Bevor ein Ordner gelöscht werden kann, muss er geleert werden.';
@@ -210,7 +204,9 @@ $_['delete_folder_msg_02'] = 'Gelöschter Ordner:';
 $_['delete_folder_msg_03'] = 'während des Löschvorgangs trat ein Fehler auf.';
 
 $_['page_title_login']      = 'Anmelden';
+$_['page_title_admin']      = 'Administration Options';
 $_['page_title_hash']       = 'Hash Page';
+
 $_['page_title_edit']       = 'Datei bearbeiten/betrachten';
 $_['page_title_upload']     = 'Datei heraufladen';
 $_['page_title_new_file']   = 'Neue Datei';
@@ -236,3 +232,10 @@ $_['edit_caution_01']  = 'ACHTUNG ';
 $_['edit_caution_02']  = ' Sie bearbeiten gerade die aktive Version von OneFileCMS - Sichern Sie den Code und seien Sie vorsichtig !!';
 
 $_['time_out_txt'] = 'Automatischer Sitzungsstopp in:';
+
+$_['error_reporting_01'] = 'Display errors is';
+$_['error_reporting_02'] = 'Log errors is';
+$_['error_reporting_03'] = 'Error reporting is set to';
+$_['error_reporting_04'] = 'Showing error types';
+$_['error_reporting_05'] = 'Unexpected early output';
+$_['error_reporting_06'] = '(nothing, not even white-space, should have been output yet)';

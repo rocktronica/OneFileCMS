@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.3.08
+// OneFileCMS Language Settings v3.3.11
 
 $_['LANGUAGE'] = 'English';
 
@@ -28,10 +28,10 @@ $_['image_info_pos']        = ''; //If 1 or true, moves the info down a line for
 
 $_['Upload_File'] = 'Upload File';
 $_['New_File']    = 'New File';
-$_['Ren_Move']    = 'Rename/Move';
-$_['Ren_Moved']   = 'Renamed/Moved';
+$_['Ren_Move']    = 'Rename / Move';
+$_['Ren_Moved']   = 'Renamed / Moved';
 $_['New_Folder']  = 'New Folder';
-$_['Ren_Folder']  = 'Rename/Move Folder';
+$_['Ren_Folder']  = 'Rename / Move Folder';
 $_['Del_Folder']  = 'Delete Folder';
 
 $_['Admin']  = 'Admin';
@@ -43,7 +43,7 @@ $_['Upload'] = 'Upload';
 $_['Create'] = 'Create';
 $_['Copy']   = 'Copy';
 $_['Copied'] = 'Copied';
-$_['Rename'] = 'Rename';
+$_['Rename'] = 'Rename / Move';
 $_['Delete'] = 'Delete';
 $_['DELETE'] = 'DELETE';
 $_['File']   = 'File';
@@ -68,6 +68,7 @@ $_['verify_msg_01'] = 'Session expired.';
 $_['verify_msg_02'] = 'INVALID POST';
 
 $_['get_get_msg_01'] = 'File does not exist:';
+$_['get_get_msg_02'] = 'Invalid page request.';
 
 $_['check_path_msg_01'] = 'Directory does not exist: ';
 
@@ -77,7 +78,6 @@ $_['ord_msg_02'] = 'Saving as';
 $_['show_img_msg_01'] = 'Image shown at ~';
 $_['show_img_msg_02'] = '% of full size (W x H =';
 
-$_['hash_h2']     = 'Generate a Password Hash';
 $_['hash_txt_01'] = 'There are two ways to change your OneFileCMS password:';
 $_['hash_txt_02'] = '1) Use the $PASSWORD config variable to store your desired password, and set $USE_HASH = 0 (zero).';
 $_['hash_txt_03'] = '2) Or, use $HASHWORD to store the hash of your password, and set $USE_HASH = 1.';
@@ -91,12 +91,11 @@ $_['hash_txt_10'] = 'A double-click should select it...';
 $_['hash_txt_11'] = 'Make sure $USE_HASH is set to 1 (or true).';
 $_['hash_txt_12'] = 'When ready, logout and login.';
 $_['hash_txt_13'] = 'You can use OneFileCMS to edit itself.  However, be sure to have a backup ready for the inevitable ytpo...';
-$_['hash_txt_14'] = 'For another small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep them secret, of course).  Remever, every little bit helps...';
+$_['hash_txt_14'] = 'For another small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep \'em secret, of course).  Remever, every little bit helps...';
 
 $_['hash_msg_01'] = 'Password: ';
 $_['hash_msg_02'] = 'Hash    : ';
 
-$_['login_h2']     = 'Log In';
 $_['login_txt_01'] = 'Username:';
 $_['login_txt_02'] = 'Password:';
 
@@ -122,15 +121,15 @@ $_['edit_txt_04'] = 'This behavior can be inconsistant from version to version o
 
 $_['too_large_to_edit_01a'] = 'Edit disabled. Filesize >';
 $_['too_large_to_edit_01b'] = 'bytes.';
-$_['too_large_to_edit_02'] = 'Some browsers (ie: IE) bog down or become unstable while editing a large file in an HTML <textarea>.';
-$_['too_large_to_edit_03'] = 'Adjust $MAX_EDIT_SIZE in the configuration section of OneFileCMS as needed.';
-$_['too_large_to_edit_04'] = 'A simple trial and error test can determine a practical limit for a given browser/computer.';
+$_['too_large_to_edit_02']  = 'Some browsers (ie: IE) bog down or become unstable while editing a large file in an HTML <textarea>.';
+$_['too_large_to_edit_03']  = 'Adjust $MAX_EDIT_SIZE in the configuration section of OneFileCMS as needed.';
+$_['too_large_to_edit_04']  = 'A simple trial and error test can determine a practical limit for a given browser/computer.';
 
 $_['too_large_to_view_01a'] = 'View disabled. Filesize >';
 $_['too_large_to_view_01b'] = 'bytes.';
-$_['too_large_to_view_02'] = 'Click the file name above to view as normally rendered in a browser window.';
-$_['too_large_to_view_03'] = 'Adjust $MAX_VIEW_SIZE in the configuration section of OneFileCMS as needed.';
-$_['too_large_to_view_04'] = '(The default value for $MAX_VIEW_SIZE is completely arbitrary, and may be adjusted as desired.)';
+$_['too_large_to_view_02']  = 'Click the file name above to view as normally rendered in a browser window.';
+$_['too_large_to_view_03']  = 'Adjust $MAX_VIEW_SIZE in the configuration section of OneFileCMS as needed.';
+$_['too_large_to_view_04']  = '(The default value for $MAX_VIEW_SIZE is completely arbitrary, and may be adjusted as desired.)';
 
 $_['meta_txt_01'] = 'Filesize:';
 $_['meta_txt_02'] = 'bytes.';
@@ -140,7 +139,6 @@ $_['edit_msg_01'] = 'File saved:';
 $_['edit_msg_02'] = 'bytes written.';
 $_['edit_msg_03'] = 'There was an error saving file.';
 
-$_['upload_h2']     = 'Upload File';
 $_['upload_txt_01'] = 'per upload_max_filesize in php.ini.';
 $_['upload_txt_02'] = 'per post_max_size in php.ini';
 $_['upload_txt_03'] = 'Note: Maximum upload file size is:';
@@ -163,7 +161,6 @@ $_['upload_msg_04'] = 'Uploading:';
 $_['upload_msg_05'] = 'Upload successful!';
 $_['upload_msg_06'] = 'Upload failed:';
 
-$_['new_file_h2']     = 'New File';
 $_['new_file_txt_01'] = 'File will be created in the current folder.';
 $_['new_file_txt_02'] = 'Some invalid characters are: ';
 
@@ -178,20 +175,18 @@ $_['CRM_txt_01']  = 'To move a file or folder, change the path/to/folder/or_file
 $_['CRM_txt_02']  = 'Old name:';
 $_['CRM_txt_03']  = 'New name:';
 
-$_['CRM_msg_01'] = 'Error - new parent location does not exist:';
-$_['CRM_msg_02'] = 'Error - source file does not exist:';
-$_['CRM_msg_03'] = 'Error - target filename already exists:';
-$_['CRM_msg_04'] = 'to';
+$_['CRM_msg_01']  = 'Error - new parent location does not exist:';
+$_['CRM_msg_02']  = 'Error - source file does not exist:';
+$_['CRM_msg_03']  = 'Error - target filename already exists:';
+$_['CRM_msg_04']  = 'to';
 $_['CRM_msg_05a'] = 'Error during';
 $_['CRM_msg_05b'] = 'from the above to the following:';
 
-$_['delete_h2']     = 'Delete File';
 $_['delete_txt_01'] = 'Are you sure?';
 
 $_['delete_msg_01'] = 'Deleted file:';
 $_['delete_msg_02'] = 'Error deleting';
 
-$_['new_folder_h2']    = 'New Folder';
 $_['new_folder_txt_1'] = 'Folder will be created in the current folder.';
 $_['new_folder_txt_2'] = 'Some invalid characters are:';
 
@@ -202,7 +197,6 @@ $_['new_folder_msg_04'] = 'Folder already exists:';
 $_['new_folder_msg_05'] = 'Created folder:';
 $_['new_folder_msg_06'] = 'Error - new folder not created:';
 
-$_['delete_folder_h2']     = 'Delete Folder';
 $_['delete_folder_txt_01'] = 'Are you sure?';
 
 $_['delete_folder_msg_01'] = 'Folder not empty.   Folders must be empty before they can be deleted.';
@@ -210,15 +204,17 @@ $_['delete_folder_msg_02'] = 'Deleted folder:';
 $_['delete_folder_msg_03'] = 'an error occurred during delete.';
 
 $_['page_title_login']      = 'Log In';
-$_['page_title_hash']       = 'Hash Page';
-$_['page_title_edit']       = 'Edit/View File';
+$_['page_title_admin']      = 'Administration Options';
+$_['page_title_hash']       = 'Generate a Password Hash';
+
+$_['page_title_edit']       = 'Edit / View File';
 $_['page_title_upload']     = 'Upload File';
 $_['page_title_new_file']   = 'New File';
 $_['page_title_copy']       = 'Copy File';
-$_['page_title_ren']        = 'Rename File';
+$_['page_title_ren']        = 'Rename / Move File';
 $_['page_title_del']        = 'Delete File';
 $_['page_title_folder_new'] = 'New Folder';
-$_['page_title_folder_ren'] = 'Rename/Move Folder';
+$_['page_title_folder_ren'] = 'Rename / Move Folder';
 $_['page_title_folder_del'] = 'Delete Folder';
 
 $_['session_warning'] = 'Warning: Session timeout soon!';

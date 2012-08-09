@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.3.07
+// OneFileCMS Language Settings v3.3.11
 
 $_['LANGUAGE'] = 'Espanõla';
 
@@ -28,10 +28,10 @@ $_['image_info_pos']        = ''; //If 1 or true, moves the info down a line for
 
 $_['Upload_File'] = 'Subir Archivo';
 $_['New_File']    = 'Archivo Nuevo';
-$_['Ren_Move']    = 'Renombrar/Mover';
+$_['Ren_Move']    = 'Renombrar / Mover';
 $_['Ren_Moved']   = 'Renombrado/Movido';
 $_['New_Folder']  = 'Carpeta Nueva';
-$_['Ren_Folder']  = 'Renombrar/Mover Carpeta';
+$_['Ren_Folder']  = 'Renombrar / Mover Carpeta';
 $_['Del_Folder']  = 'Borrar Carpeta';
 
 $_['Admin']  = 'Administrador';
@@ -43,7 +43,7 @@ $_['Upload'] = 'Subir';
 $_['Create'] = 'Crear';
 $_['Copy']   = 'Copiar';
 $_['Copied'] = 'Copiado';
-$_['Rename'] = 'Renombrar';
+$_['Rename'] = 'Renombrar / Mover';
 $_['Delete'] = 'Eliminar';
 $_['DELETE'] = 'ELIMINAR';
 $_['File']   = 'Archivo';
@@ -68,6 +68,7 @@ $_['verify_msg_01'] = 'Sesión expirada.';
 $_['verify_msg_02'] = 'POST INVÁLIDO';
 
 $_['get_get_msg_01'] = 'El archivo no existe:';
+$_['get_get_msg_02'] = 'Invalid page request.';
 
 $_['check_path_msg_01'] = 'El directorio no existe: ';
 
@@ -77,7 +78,6 @@ $_['ord_msg_02'] = 'Guardando como';
 $_['show_img_msg_01'] = 'Imagen mostrada a ~';
 $_['show_img_msg_02'] = '% del tamaño (W x H =';
 
-$_['hash_h2']     = 'Generar una Cadena de Contraseña';
 $_['hash_txt_01'] = 'Existen dos formas de cambiar tu contraseña:';
 $_['hash_txt_02'] = '1) Cambiando la variable $PASSWORD y asignando $USE_HASH = 0 (cero).';
 $_['hash_txt_03'] = '2) O, usando $HASHWORD para almacenar tu contraseña, y luego asignar $USE_HASH = 1.';
@@ -96,7 +96,6 @@ $_['hash_txt_14'] = 'Para otro tip de seguridad, cambiá la llave de seguridad y
 $_['hash_msg_01'] = 'Contraseña: ';
 $_['hash_msg_02'] = 'Cadena    : ';
 
-$_['login_h2']     = 'Iniciar sesión';
 $_['login_txt_01'] = 'Usuario:';
 $_['login_txt_02'] = 'Contraseña:';
 
@@ -140,7 +139,6 @@ $_['edit_msg_01'] = 'Archivo Guardado:';
 $_['edit_msg_02'] = 'bytes escritos.';
 $_['edit_msg_03'] = 'Ocurrió un error guardando el archivo.';
 
-$_['upload_h2']     = 'Subir Archivo';
 $_['upload_txt_01'] = 'por upload_max_filesize en php.ini.';
 $_['upload_txt_02'] = 'por post_max_size en php.ini';
 $_['upload_txt_03'] = 'Nota: El tamaño máximo de subida es de:';
@@ -163,7 +161,6 @@ $_['upload_msg_04'] = 'Subiendo:';
 $_['upload_msg_05'] = '¡Subida satisfactoria!';
 $_['upload_msg_06'] = 'Subida fallida: ';
 
-$_['new_file_h2']     = 'Archivo Nuevo';
 $_['new_file_txt_01'] = 'Se creará un archivo nuevo en la carpeta actual.';
 $_['new_file_txt_02'] = 'Algunos caracteres inválidos son: ';
 
@@ -178,20 +175,18 @@ $_['CRM_txt_01']  = 'Para mover un archivo o carpeta, cambiá el camino/hacia/la
 $_['CRM_txt_02']  = 'Nombre antiguo:';
 $_['CRM_txt_03']  = 'Nuevo nombre:';
 
-$_['CRM_msg_01'] = 'Error - la localización padre no existe:';
-$_['CRM_msg_02'] = 'Error - el archivo inicial no existe:';
-$_['CRM_msg_03'] = 'Error - el archivo de objetivo no existe:';
-$_['CRM_msg_04'] = 'hacia';
+$_['CRM_msg_01']  = 'Error - la localización padre no existe:';
+$_['CRM_msg_02']  = 'Error - el archivo inicial no existe:';
+$_['CRM_msg_03']  = 'Error - el archivo de objetivo no existe:';
+$_['CRM_msg_04']  = 'hacia';
 $_['CRM_msg_05a'] = 'Error durante';
 $_['CRM_msg_05b'] = 'desde arriba a lo siguiente:';
 
-$_['delete_h2']     = 'Eliminar Archivo';
 $_['delete_txt_01'] = '¿Estás seguro?';
 
 $_['delete_msg_01'] = 'Archivo Eliminado:';
 $_['delete_msg_02'] = 'Error eliminando';
 
-$_['new_folder_h2']    = 'Nueva Carpeta';
 $_['new_folder_txt_1'] = 'La carpeta se creará dentro de la carpeta actual.';
 $_['new_folder_txt_2'] = 'Algunos caracteres inválidos son:';
 
@@ -202,7 +197,6 @@ $_['new_folder_msg_04'] = 'La carpeta ya existe:';
 $_['new_folder_msg_05'] = 'Carpeta creada:';
 $_['new_folder_msg_06'] = 'Error - carpeta nueva no creada:';
 
-$_['delete_folder_h2']     = 'Eliminar Carpeta';
 $_['delete_folder_txt_01'] = '¿Estás seguro?';
 
 $_['delete_folder_msg_01'] = 'Carpeta no vacía.   Las carpetas deben estar vacías antes de ser eliminadas.';
@@ -210,15 +204,17 @@ $_['delete_folder_msg_02'] = 'Carpeta eliminada:';
 $_['delete_folder_msg_03'] = 'ocurrió un error eliminándola.';
 
 $_['page_title_login']      = 'Iniciar Sesión';
-$_['page_title_hash']       = 'Página de Cadena';
-$_['page_title_edit']       = 'Editar/Ver Archivo';
+$_['page_title_admin']      = 'Administration Options';
+$_['page_title_hash']       = 'Generar una Cadena de Contraseña';
+
+$_['page_title_edit']       = 'Editar / Ver Archivo';
 $_['page_title_upload']     = 'Subir Archivo';
 $_['page_title_new_file']   = 'Nuevo Archivo';
 $_['page_title_copy']       = 'Copiar Archivo';
-$_['page_title_ren']        = 'Renombrar Archivo';
+$_['page_title_ren']        = 'Renombrar  / Mover Archivo';
 $_['page_title_del']        = 'Eliminar Archivo';
 $_['page_title_folder_new'] = 'Nueva Carpeta';
-$_['page_title_folder_ren'] = 'Renombrar/Mover Carpeta';
+$_['page_title_folder_ren'] = 'Renombrar / Mover Carpeta';
 $_['page_title_folder_del'] = 'Eliminar Carpeta';
 
 $_['session_warning'] = 'Advertencia: ¡La sesión terminará pronto!';
@@ -236,3 +232,10 @@ $_['edit_caution_01']  = 'PRECAUCIÓN';
 $_['edit_caution_02']  = 'Estás editando la copia activa de OneFileCMS - ¡HACÉ UNA COPIA DE SEGURIDAD Y TENÉ CUIDADO!';
 
 $_['time_out_txt'] = 'Tiempo de Espera de Sesión Agotado:';
+
+$_['error_reporting_01'] = 'Display errors is';
+$_['error_reporting_02'] = 'Log errors is';
+$_['error_reporting_03'] = 'Error reporting is set to';
+$_['error_reporting_04'] = 'Showing error types';
+$_['error_reporting_05'] = 'Unexpected early output';
+$_['error_reporting_06'] = '(nothing, not even white-space, should have been output yet)';
