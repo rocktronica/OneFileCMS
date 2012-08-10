@@ -1,4 +1,4 @@
-Version 3.3.10
+Version 3.3.12
 
 LICENSE
 
@@ -24,6 +24,7 @@ MISC FUNCTIONS:
 	Check_path()
 	is_empty()
 	ordinalize()
+	Search_Replace_Line()
 
 PAGE CHUNK FUNCTIONS
 	Current_Path_Header()
@@ -61,6 +62,8 @@ PAGE & RESPONSE FUNCTIONS:
 	Admin_Page()
 	Hash_Page()
 	Hash_Page_response()
+	Change_Password_Page()
+	Change_Password_response()
 	Logout()
 	Login_Page()
 	Login_Page_response()

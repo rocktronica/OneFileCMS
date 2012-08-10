@@ -1,4 +1,9 @@
-# Current stable version: 3.3.10
+# Current stable version: 3.3.12
+
+### Auguest 10, 2012
+
+- Added password update screen, so manual editing of OneFileCMS is not required (but is still possible, of course).
+
 
 ### Auguest 7, 2012
 
@@ -84,6 +89,8 @@ Coupling a utilitarian code editor with basic file managing functions, OneFileCM
     // CONFIGURATION INFO  
     $USERNAME = "username";  
     $PASSWORD = "password";  
+  
+	(To change the password, use the Change Password screen found on the Admin page.)
 
 3) Upload to anywhere on your site!
 
@@ -183,6 +190,11 @@ GENERATE/OUTPUT THE PAGE
 --------------------------------------------------------------------------------
 
 ## Change Log
+
+### 3.3.11 - 3.3.12
+
+- Added Change Password screen.
+- Improved validation of $_GET parameters & other general code improvements.
 
 ### 3.3.10
 
