@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.3.13';
+$OFCMS_version = '3.3.14';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -49,7 +49,7 @@ ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
 // CONFIGURABLE INFO ***********************************************************
 $config_title = "OneFileCMS";
 
-$USERNAME = 'username';
+$USERNAME = "username";
 $HASHWORD = "a6ca7f88bd5efc706d38047cc5844d2b11f86242c01e0c89a1c656dbe2dd1866"; //"password"
 $SALT     = 'somerandomsalt';
 
@@ -58,8 +58,8 @@ $SALT     = 'somerandomsalt';
 
 $MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;  //In seconds.
-$MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings may limit its max effective value.
-					  //  For instance, 24 minutes is the PHP default for garbage collection.
+$MAX_IDLE_TIME = 60000; //In seconds. 600 = 10 minutes.  Other PHP settings may limit its max effective value.
+						//  For instance, 24 minutes is the PHP default for garbage collection.
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.
 $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked
 
@@ -125,7 +125,7 @@ $WEB_ROOT  = URLencode_path(basename($DOC_ROOT)).'/';
 $WEBSITE   = $_SERVER["HTTP_HOST"].'/';
 $LOGIN_ATTEMPTS = $DOC_ROOT.trim($_SERVER["SCRIPT_NAME"],'/').'.invalid_login_attempts';
 
-$valid_pages = array("login","logout","admin","hash","changepw","index","edit","upload","uploaded","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder" );
+$valid_pages = array("login","logout","admin","hash","changepw","changeun","index","edit","upload","uploaded","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder" );
 
 $INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file/folder names.
 $INVALID_CHARS_array = explode(' ', $INVALID_CHARS); // (Space deliminated)
@@ -153,7 +153,7 @@ function hte($input) { return htmlentities($input, ENT_QUOTES, 'UTF-8'); }//end 
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.3.13  //*** A few values are no longer used and are commented out. ***
+// OneFileCMS Language Settings v3.3.14  //*** A few values are no longer used and are commented out. ***
 
 $_['LANGUAGE'] = 'English (default)';
 
@@ -203,6 +203,8 @@ $_['DELETE'] = 'DELETE';
 $_['File']   = 'File';
 $_['Folder'] = 'Folder';
 $_['Submit'] = 'Submit Request';
+$_['Username'] = 'Username';
+$_['Password'] = 'Password';
 
 $_['Log_In']  = 'Log In';
 $_['Log_Out'] = 'Log Out';
@@ -387,7 +389,7 @@ $_['page_title_login']      = 'Log In';
 $_['page_title_admin']      = 'Administration Options';
 $_['page_title_hash']       = 'Generate a Password Hash';
 $_['page_title_change_pw']  = 'Change Password';
-
+$_['page_title_change_un']  = 'Change Username';
 $_['page_title_edit']       = 'Edit / View File';
 $_['page_title_upload']     = 'Upload File';
 $_['page_title_new_file']   = 'New File';
@@ -427,9 +429,20 @@ $_['admin_txt_04'] = 'As of version 3.3.13, OneFileCMS no longer maintains a pla
 //$_['admin_txt_08'] = '2) Or, use $HASHWORD to store the hash of your password, and set $USE_HASH = 1.';
 //$_['admin_txt_10'] = '($PASSWORD, $USE_HASH, and $HASHWORD, are variables in the configuration section of the OneFileCMS source file.)';
 //$_['admin_txt_12'] = 'Option 2 is recommended, and is method used by the [Change Password] page. However, keep in mind that, due to a number of considerations, this is largely an academic excersize. That is, take the idea that it adds much of an improvement to security with a grain of cryptographic salt. Never-the-less, it does eliminate the storage of your password in plain text, which is generally considered to be a good thing.';
-$_['admin_txt_12'] = 'However, keep in mind that this is largely academic due to a number of considerations. That is, take the idea that it adds much of an improvement to security, for this application, with a grain of cryptographic salt. Never-the-less, it does eliminate the storage of your password in plain text (if that option was used was used), which is generally considered to be a good thing.';
+$_['admin_txt_12'] = 'However, keep in mind that, due to a number of considerations, this change was largely an academic exersize. That is, in this application, take the idea that it adds much of an improvement to security with a grain of cryptographic salt. Never-the-less, it does eliminate the storage of your password in plain text (if that option was used), which is generally considered to be a good thing.';
 $_['admin_txt_14'] = 'For another small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep them secret, of course). Every little bit helps...';
 $_['admin_txt_16'] = 'Also, you can still use OneFileCMS to edit itself. However, be sure to have a backup ready for the inevitable ytpo...';
+
+$_['un_change']  = 'Change Username';
+$_['un_new']     = 'New Username';
+$_['un_confirm'] = 'Confirm New Username';
+
+$_['change_un_01'] = 'Username NOT changed:';
+
+$_['change_un_04'] = '"New" and "Confirm New" usernames do not match.';
+$_['change_un_05'] = 'No new or confirm usernames entered.';
+$_['change_un_06'] = 'Username must contain at least one non-space character.';
+$_['change_un_07'] = 'Username changed!';
 }//end Default_Language() ******************************************************
 
 
@@ -1131,8 +1144,8 @@ function Admin_Page() { //******************************************************
 	<input type="button" class="button" id="changepw" value="<?php echo hsc($_['pw_change']) ?>"
 		onclick="parent.location = '<?php echo $ONESCRIPT.$param1.'&amp;p=changepw' ?>'">
 
-
-
+	<input type="button" class="button" id="changeun" value="<?php echo hsc($_['un_change']) ?>"
+		onclick="parent.location = '<?php echo $ONESCRIPT.$param1.'&amp;p=changeun' ?>'">
 
 	<input type="button" class="button" id="editOFCMS" value="<?php echo hsc($_['Edit'].' '.$config_title) ?>"
 		onclick="parent.location = '<?php echo $ONESCRIPT.$edit_params ?>'">
@@ -1178,7 +1191,7 @@ function Hash_Page() { //******************************************************
 			<?php echo hsc($_['hash_txt_10']) ?><br>
 		<li><?php echo hsc($_['hash_txt_12']) ?>
 	</ol>
-
+	
 	<?php echo $PWUN_RULES ?>
 	</div>
 <?php 
@@ -1201,28 +1214,41 @@ function Hash_response() { //***************************************************
 
 
 
-function Change_Password_Page() { //********************************************
-	global $_, $DOC_ROOT, $ONESCRIPT, $param1, $message, $INPUT_NUONCE, $config_title, $PWUN_RULES;
-	$params = '?i='.dirname($ONESCRIPT).'&amp;f='.basename($ONESCRIPT).'&amp;p=edit';
-	if (!isset($_POST['whattohash'])) { $_POST['whattohash'] = ''; }
+function Change_PWUN_Page($config_key) { //*************************************
+	// $config_key must= "pw" or "un"
+	global $_, $EX, $DOC_ROOT, $ONESCRIPT, $param1, $message, $INPUT_NUONCE, $config_title, $PWUN_RULES;
+	
+	if ($config_key == "pw") {
+		$type = "password";
+		$page_title    = hsc($_['page_title_change_pw']);
+		$label_new     = hsc($_['pw_new']);
+		$label_confirm = hsc($_['pw_confirm']);
+	}elseif ($config_key == "un"){
+		$type = "text";
+		$page_title    = hsc($_['page_title_change_un']);
+		$label_new     = hsc($_['un_new']);
+		$label_confirm = hsc($_['un_confirm']);
+	}
 ?>
 	<style></style>
 
-	<h2><?php echo hsc($_['pw_change']) ?></h2>
+	<h2><?php echo $page_title ?></h2>
 	
-	<form id="hash" name="hash" method="post" action="<?php echo $ONESCRIPT.$param1.'&amp;p=changepw'; ?>">
+	<form id="change" name="<?php echo $config_key ?>" method="post" action="<?php echo $ONESCRIPT.$param1.'&amp;p=changepw'; ?>">
+		<input type="hidden" name="<?php echo $config_key ?>" value="">
+		
 		<?php echo $INPUT_NUONCE; ?>
 		
 		<?php echo hsc($_['pw_current']) ?><br>
 		<input type="password" name="current_pw" id="current_pw" value="">
 		
-		<?php echo hsc($_['pw_new']) ?><br>
-		<input type="password" name="new_pw1"    id="new_pw1"    value="">
+		<?php echo $label_new ?><br>
+		<input type="<?php echo $type ?>" name="new1" id="new1" value="">
 		
-		<?php echo hsc($_['pw_confirm']) ?><br>
-		<input type="password" name="new_pw2"    id="new_pw2"    value="">
+		<?php echo $label_confirm ?><br>
+		<input type="<?php echo $type ?>" name="new2" id="new2" value="">
 		
-		<?php Cancel_Submit_Buttons(hsc($_['pw_change']), 'current_pw') ?>
+		<?php Cancel_Submit_Buttons(hsc($_['Submit']), 'current_pw') ?>
 	</form>
 
 	<div class="info">
@@ -1231,103 +1257,89 @@ function Change_Password_Page() { //********************************************
 	<p><?php echo hsc($_['pw_txt_10']) ?>
 	</div>
 <?php 
-} //end Change_Password_Page() *************************************************
+} //end Change_PWUN_Page() *****************************************************
 
 
 
 
+function Update_config($search_for, $replace_with) {//********************
+	global  $DOC_ROOT, $ONESCRIPT, $HASHWORD;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function Search_Replace_Line($haystack, $needle, $replace){ //******************
-	//Search start of each $line in (array)$haystack for (string)$needle.
-	//If match found, replace $line with $replace, end search.
-	//Return updated $haystack.
-	$search_len = strlen($needle);
-	foreach ($haystack as $key => $line) {
-		if ( substr($line,0,$search_len) == $needle ) {
-			$haystack[$key] = $replace;
-			break 1; //only replace first occurrance of $needle
-		}
-	}
-	return $haystack;
-}//end Search_Replace_Line() //*************************************************
-
-
-
-
-function Change_Password_response(){ //*****************************************
-	//Update $PASSWORD, $HASHWORD & $USE_HASH in $ONESCRIPT
-	global $_, $HASHWORD, $DOC_ROOT, $ONESCRIPT, $EX, $message, $page;
-
-	$current_pass = trim($_POST['current_pw']); // trim leading & trailing spaces.
-	$new_pass     = trim($_POST['new_pw1']);
-	$confirm_pass = trim($_POST['new_pw2']);
-
-	//If NO p/w's entered, do nothing.
-	if ( ($current_pass == "") && ($new_pass == "") && ($confirm_pass == "") ) {
-		$page = "changepw";
-		return;
-		
-	//If NO NEW p/w's entered, , display $message to that effect.
-	}elseif ( ($new_pass == "") && ($confirm_pass == "") ) {
-		$message .= $EX.'<b>'.hsc($_['change_pw_01']).' </b>'.hsc($_['change_pw_06']).'<br>';
-		$page = 'changepw';
-		return;
-		
-	//If New & Confirm p/w's don't match, display $message to that effect.
-	}elseif ($new_pass != $confirm_pass) {
-		$message .= $EX.'<b>'.hsc($_['change_pw_01']).' </b>'.hsc($_['change_pw_04']).'<br>';
-		$page = 'changepw'; 
-		return;
-		
-	//If New == Confirm, but incorrect current p/w, logout.
-	}elseif (hashit($current_pass) != $HASHWORD) {
-		$message .= $EX.'<b>'.hsc($_['change_pw_01']).'</b><br>';
-		$message .= hsc($_['change_pw_02']).'<br>';
-		Logout();
-		return;
-		
-	//Else change password (HASHWORD, actually)
-	} else {
-		$HASHWORD = hashit($new_pass);
-		$message .= $EX.'<b>'.hsc($_['change_pw_07']).'</b>';
-		$page = "admin"; //Return to Admin page if change successful.
-	}
-
-	//Update OneFileCMS with new $HASHWORD *****************************
-	
 	$ONESCRIPT_contents = file_get_contents($DOC_ROOT.$ONESCRIPT);
 	//Convert any CR+NL to only newline.
 	$ONESCRIPT_contents = str_replace("\r\n", "\n", $ONESCRIPT_contents);
 	$ONESCRIPT_lines = explode("\n", "".$ONESCRIPT_contents);
 
-	$search_for   = '$HASHWORD '; //include space after $HASHWORD
-	$replace_with = '$HASHWORD = "'.$HASHWORD.'";';
-	$ONESCRIPT_lines = Search_Replace_Line($ONESCRIPT_lines, $search_for, $replace_with);
-	
-	$ONESCRIPT_contents = implode("\n", $ONESCRIPT_lines);
-	copy($DOC_ROOT.$ONESCRIPT, $DOC_ROOT.$ONESCRIPT.'.BACKUP.PHP');
-	file_put_contents($DOC_ROOT.$ONESCRIPT,$ONESCRIPT_contents);
-}//end Change_Password_response() //********************************************
+	//Search start of each $line in (array)$ONESCRIPT_lines for (string)$search_for.
+	//If match found, replace $line with $replace_with, end search.
+	$search_len = strlen($search_for);
+	foreach ($ONESCRIPT_lines as $key => $line) {
+		if ( substr($line,0,$search_len) == $search_for ) {
+			$ONESCRIPT_lines[$key] = $replace_with;
+			break 1; //only replace first occurrance of $search_for
+		}
+	}
+
+	$updated_contents = implode("\n", $ONESCRIPT_lines);
+	file_put_contents($DOC_ROOT.$ONESCRIPT, $updated_contents);
+}//end Update_config() *********************************************************
+
+
+
+
+function Change_PWUN_response($PWUN){ //****************************************
+	//Update $HASHWORD $ONESCRIPT
+	global $_, $HASHWORD, $DOC_ROOT, $ONESCRIPT, $EX, $message, $page;
+
+	if     ($PWUN == "pw") { $error1  = hsc($_['change_pw_01']); }
+	elseif ($PWUN == "un") { $error1  = hsc($_['change_un_01']); }
+	else                   { $message .= 'Invalid parameter for Change_PWUN_response()'; return; }
+
+	// trim leading & trailing white-space from input values
+	$current_pass = trim($_POST['current_pw']);
+	$new_pwun     = trim($_POST['new1']);
+	$confirm_pwun = trim($_POST['new2']);
+
+	//If nothing entered, do nothing.
+	if ( ($current_pass == "") && ($new_pwun == "") && ($confirm_pwun == "") ) {
+		$page = "changepw";
+		
+	//If no new & confirm values entered, display $message to that effect.
+	}elseif ( ($new_pwun == "") && ($confirm_pwun == "") ) {
+		$message .= $EX.'<b>'.$error1.' </b>'.hsc($_['pw_txt_02']).'<br>';
+		$page = 'changepw';
+		
+	//If new & Confirm values don't match, display $message to that effect.
+	}elseif ($new_pwun != $confirm_pwun) {
+		$message .= $EX.'<b>'.$error1.' </b>'.hsc($_['change_pw_04']).'<br>';
+		$page = 'changepw'; 
+		
+	//If incorrect current p/w, logout.  (new == confirm at this point)
+	}elseif (hashit($current_pass) != $HASHWORD) {
+		$message .= $EX.'<b>'.$error1.'</b><br>'.hsc($_['change_pw_02']).'<br>';
+		Logout();
+		
+	//If changing password ($HASHWORD, actually)
+	}elseif ($PWUN == "pw") {
+		$HASHWORD = hashit($new_pwun);	
+		$search_for   = '$HASHWORD '; //include space after $HASHWORD
+		$replace_with = '$HASHWORD = "'.$HASHWORD.'";';
+		Update_config($search_for, $replace_with);
+		
+		$message .= $EX.'<b>'.hsc($_['change_pw_07']).'</b>';
+		$page = "admin"; //Return to Admin page.
+		
+	//Else change username...
+	}else{
+		$USERNAME = $new_pwun;
+		$search_for   = '$USERNAME '; //include space after $HASHWORD
+		$replace_with = '$USERNAME = "'.$USERNAME.'";';
+		Update_config($search_for, $replace_with);
+
+		$message .= $EX.'<b>'.hsc($_['change_un_07']).'</b>';
+		$page = "admin"; //Return to Admin page.
+	}
+}//end Change_PWUN_response() //************************************************
 
 
 
@@ -2057,7 +2069,7 @@ function Page_Title(){ //***<title>Page_Title()</title>*************************
 	elseif ($page == "admin")        { return hsc($_['page_title_admin']);     }
 	elseif ($page == "hash")         { return hsc($_['page_title_hash']);      }
 	elseif ($page == "changepw")     { return hsc($_['page_title_change_pw']); }
-
+	elseif ($page == "changeun")     { return hsc($_['page_title_change_un']); }
 	elseif ($page == "edit")         { return hsc($_['page_title_edit']);      }
 	elseif ($page == "upload")       { return hsc($_['page_title_upload']);    }
 	elseif ($page == "newfile")      { return hsc($_['page_title_new_file']);  }
@@ -2080,8 +2092,8 @@ function Load_Selected_Page(){ //***********************************************
 	elseif ($page == "index")        { Index_Page();          }
 	elseif ($page == "admin")        { Admin_Page();          }
 	elseif ($page == "hash")         { Hash_Page();           }
-	elseif ($page == "changepw")     { Change_Password_Page();}
-
+	elseif ($page == "changepw")     { Change_PWUN_Page('pw');}
+	elseif ($page == "changeun")     { Change_PWUN_Page('un');}
 	elseif ($page == "edit")         { Edit_Page();           }
 	elseif ($page == "upload")       { Upload_Page();         }
 	elseif ($page == "newfile")      { New_File_Page();       }
@@ -2103,8 +2115,8 @@ function Respond_to_POST() {//**************************************************
 	if ($VALID_POST) { 
 		if     (isset($_FILES['upload_file']['name'])) { Upload_response();  }
 		elseif (isset($_POST["whattohash"]   )) { Hash_response();           }
-		elseif (isset($_POST["new_pw1"]      )) { Change_Password_response();}
-
+		elseif (isset($_POST["pw"]           )) { Change_PWUN_response('pw');}
+		elseif (isset($_POST["un"]           )) { Change_PWUN_response('un');}
 		elseif (isset($_POST["filename"]     )) { Edit_response();           }
 		elseif (isset($_POST["new_file"]     )) { New_File_response();       }
 		elseif (isset($_POST["copy_file"]    )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["copy_file"], 'copy', hsc($_['Copy']), hsc($_['Copied']), 1); } 
@@ -2821,7 +2833,7 @@ if ($_SESSION['valid']) {
 
 //Don't show path header or admin link on some pages.
 $Show_header_and_Admin = true;
-if ( ($page == "login") || ($page == "admin") || ($page == "hash") || ($page == "changepw") ){
+if ( ($page == "login") || ($page == "admin") || ($page == "hash") || ($page == "changepw") || ($page == "changeun") ){
 	$Show_header_and_Admin = false;
 }
 
