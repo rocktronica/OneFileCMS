@@ -1,4 +1,4 @@
-Version 3.3.12
+Version 3.3.15
 
 LICENSE
 
@@ -24,7 +24,6 @@ MISC FUNCTIONS:
 	Check_path()
 	is_empty()
 	ordinalize()
-	Search_Replace_Line()
 
 PAGE CHUNK FUNCTIONS
 	Current_Path_Header()
@@ -62,8 +61,9 @@ PAGE & RESPONSE FUNCTIONS:
 	Admin_Page()
 	Hash_Page()
 	Hash_Page_response()
-	Change_Password_Page()
-	Change_Password_response()
+	Change_PWUN_Page() 
+	Update_config()
+	Change_PWUN_response()
 	Logout()
 	Login_Page()
 	Login_Page_response()
@@ -100,13 +100,13 @@ JAVASCRIPT & STYLESHEET FUNCTIONS:
 	Language_and_config_adjusted_styles()
 
 LOGIC TO DETERMINE PAGE ACTION
-	Verify good PHP version
 	Default_Language()
+	Verify good PHP version
 	If external language file, load it
 	Session_Startup()
 	Get_GET()
 	Init_Macros()
 	Respond_to_POST()
-	Validate $page & $filename to show
+	Final check of $page to show
 
 GENERATE/OUTPUT <HTML>...  

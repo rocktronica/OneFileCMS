@@ -1,8 +1,9 @@
-# Current stable version: 3.3.12
+# Current stable version: 3.3.15
 
-### Auguest 10, 2012
+### Auguest 13, 2012
 
-- Added password update screen, so manual editing of OneFileCMS is not required (but is still possible, of course).
+- Added admin/config screens for updating password and username using OneFileCMS itself, so manual editing of OneFileCMS is not required (but is still possible, of course).
+- Removed plain text $PASSWORD option.
 
 
 ### Auguest 7, 2012
@@ -82,21 +83,15 @@ Coupling a utilitarian code editor with basic file managing functions, OneFileCM
 
 ## Installation
 
-1) Download [this file](https://raw.github.com/Self-Evident/OneFileCMS/master/onefilecms.php).
+1) Download [this file](https://raw.github.com/Self-Evident/OneFileCMS/master/onefilecms.php).  
 
-2) Set your username and password (to something a bit less obvious).  
-
-    // CONFIGURATION INFO  
-    $USERNAME = "username";  
-    $PASSWORD = "password";  
+2) Upload to anywhere on your site.  
   
-	(To change the password, use the Change Password screen found on the Admin page.)
+3) Using your browser, start OneFileCMS, click on Admin and set your username and password!  
 
-3) Upload to anywhere on your site!
+Depending on how your web stack is set up, you may also have to modify the file permissions of your site's folders to allow OneFileCMS to modify and create files. ([More about that here.](http://catcode.com/teachmod/)) Make sure onefilecms.php and its parent folder are allowed to execute, with CHMOD at 755. Check with your host if you're not sure, and be aware of any inherent security concerns.  
 
-Depending on how your web stack is set up, you may also have to modify the file permissions of your site's folders to allow OneFileCMS to modify and create files. ([More about that here.](http://catcode.com/teachmod/)) Make sure onefilecms.php and its parent folder are allowed to execute, with CHMOD at 755. Check with your host if you're not sure, and be aware of any inherent security concerns.
-
-You can also change the file name of OneFileCMS.php to something else, such as "Admin.php" . _(Be careful about making it a folder's default file: your server may get stuck in redirects.)_
+You can also change the file name of OneFileCMS.php to something else, such as "Admin.php" . (Be careful about making it a folder's default file: your server may get stuck in redirects.)
 
 ## FAQ
 
@@ -118,13 +113,13 @@ Well, because "OneFileFileManagerTextEditor" just doesn't have the same ring to 
 
 ### Multi-Language Support?
 
-Yes!  (But only English, German and Spanish are available so far.)
+Yes!  Currently, English, German, and Spanish are available.  (Someone told me he was working on an Esparento translation, but he might have been kidding...)
 
 ### Can I have more than one username/password?
 
 Yes!  Well, sort of - indirectly.  Upload or create addional copies of OneFileCMS, but give them different file names.(ie: OneFile1.php and OneFile2.php etc...)  Then, with each copy, maintain different user names and passwords.  Also, so that one user does not log out the other, change the $session_name config variables.  
   
-Now, since there is no database or other means of granular control and acess logging, multiple users may be kind of pointless.  On the other hand, having at least one working backup copy of OneFileCMS available is recommended in case the primary copy gets corrupted.
+Now, since there is no database or other means of granular control and access logging, multiple users may be kind of pointless.  On the other hand, having at least one working backup copy of OneFileCMS available is recommended in case the primary copy gets corrupted.
 
 ## Requirements
 
@@ -191,9 +186,10 @@ GENERATE/OUTPUT THE PAGE
 
 ## Change Log
 
-### 3.3.11 - 3.3.12
+### 3.3.11 - 3.3.15
 
-- Added Change Password screen.
+- Added screens for changing username and password.
+- Plaintext $PASSWORD option is no longer available.
 - Improved validation of $_GET parameters & other general code improvements.
 
 ### 3.3.10
