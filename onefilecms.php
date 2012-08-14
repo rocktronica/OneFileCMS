@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.3.15';
+$OFCMS_version = '3.3.16';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -60,6 +60,7 @@ $MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;  //In seconds.
 $MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings may limit its max effective value.
 					  //  For instance, 24 minutes is the PHP default for garbage collection.
+
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.
 $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked
 
@@ -183,6 +184,9 @@ $_['button_padding']        = '4px 10px';
 $_['image_info_font_size']  =  '1em'; //show_img_msg_01  &  _02 
 $_['image_info_pos']        = ''; //If 1 or true, moves the info down a line for more space.
 
+$_['R'] = 'R'; // R ename       //new
+$_['C'] = 'C'; // C opy         //new
+$_['D'] = 'D'; // D elete       //new
 
 $_['Upload_File'] = 'Upload File';
 $_['New_File']    = 'New File';
@@ -367,8 +371,8 @@ $_['delete_folder_msg_03'] = 'an error occurred during delete.';
 $_['page_title_login']      = 'Log In';
 $_['page_title_admin']      = 'Administration Options'; //new
 $_['page_title_hash']       = 'Generate a Password Hash';
-$_['page_title_change_pw']  = 'Change Password'; //new
-$_['page_title_change_un']  = 'Change Username'; //new
+$_['page_title_change_pw']  = 'Change Password';        //new
+$_['page_title_change_un']  = 'Change Username';        //new
 $_['page_title_edit']       = 'Edit / View File';
 $_['page_title_upload']     = 'Upload File';
 $_['page_title_new_file']   = 'New File';
@@ -439,6 +443,8 @@ $_['un_confirm'] = 'Confirm New Username'; //new
 
 $_['change_un_01'] = 'Username changed!';     //new
 $_['change_un_02'] = 'Username NOT changed:'; //new
+
+$_['update_failed'] = 'Update failed - could not save file.';  //new
 }//end Default_Language() ******************************************************
 
 
@@ -757,6 +763,22 @@ function ordinalize($destination,$filename, &$msg) { //*************************
 
 
 
+function supports_svg() { //****************************************************
+	//IE < 9 is the only browser checked for currently.
+	//EX: Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
+	$USER_AGENT = $_SERVER['HTTP_USER_AGENT'];
+	$pos_MSIE = strpos($USER_AGENT, 'MSIE ');
+	$old_ie   = false;
+	if ($pos_MSIE !== false) {
+		$ie_ver = substr($USER_AGENT, ($pos_MSIE+5), 1);
+		$old_ie = ( $ie_ver < 9 );
+	}
+	if ($old_ie) { false; }else{ return true; }
+}//end supports_svg ************************************************************
+
+
+
+
 function Current_Path_Header(){ //**********************************************
  	// Current path. ie: webroot/current/path/ 
 	// Each level is a link to that level.
@@ -787,14 +809,19 @@ function Current_Path_Header(){ //**********************************************
 
 
 function Page_Header(){ //******************************************************
-	global  $_, $ONESCRIPT, $page, $WEBSITE, $config_title, $OFCMS_version;
+	global  $_, $DOC_ROOT, $ONESCRIPT, $page, $WEBSITE, $config_title, $OFCMS_version, $config_favicon;
+
+	$favicon = '';
+	if (file_exists($DOC_ROOT.$config_favicon)) { 
+		$favicon =  '<img src="'.URLencode_path($config_favicon).'" alt="">';
+	}
 ?>
 	<div class="header">
 		<a href="<?php echo $ONESCRIPT?>" id="logo"><?php echo $config_title; ?></a>
 		<?php echo $OFCMS_version.' ('.hsc($_['on_']).'&nbsp;php&nbsp;'.phpversion().')'; ?>
 
 		<div class="nav">
-			<a href="/" target="_blank"><?php echo show_favicon() ?>&nbsp;
+			<a href="/" target="_blank"><?php echo $favicon ?>&nbsp;
 			<b><?php echo hte($WEBSITE) ?></b></a>
 			<?php if ($page != "login") { ?>
 			| <a href="<?php echo $ONESCRIPT ?>?p=logout"><?php echo hsc($_['Log_Out']) ?></a>
@@ -906,16 +933,6 @@ function show_image(){ //*******************************************************
 
 
 
-function show_favicon(){ //*****************************************************
-	global $config_favicon, $DOC_ROOT;
-	if (file_exists($DOC_ROOT.$config_favicon)) { 
-		return '<img src="'.URLencode_path($config_favicon).'" alt="">';
-	}
-}// end show_favicon() *********************************************************
-
-
-
-
 function Timeout_Timer($COUNT, $ID, $CLASS="", $ACTION="") { //*****************
 
 	return 	'<script>'.
@@ -948,7 +965,7 @@ $SVG_icon_circle_x = '<circle cx="5" cy="5" r="5" stroke="black" stroke-width="0
 
 $SVG_icon_pencil = '<polygon points="2,0 9,7 7,9 0,2" stroke-width="1" stroke="darkgoldenrod" fill="rgb(246,222,100)"/>
 	  <path  d="M0,2   L0,0  L2,0"      stroke="tan" fill="tan" stroke-width="1" />
-	  <path  d="M0,1.5   L0,0  L1.5,0"      stroke="black" fill="transparent" stroke-width="1" />
+	  <path  d="M0,1.5   L0,0  L1.5,0"      stroke="black" fill="transparent" stroke-width="1.5" />
 	  <line x1="7.3" y1="10"  x2="10" y2="7.3"  stroke="silver" stroke-width="1"/>
 	  <line x1="8.1" y1="10.8"  x2="10.8" y2="8.1"  stroke="red" stroke-width="1"/>';
 
@@ -957,6 +974,40 @@ $SVG_icon_img_0 = '<rect x="0"    y="0"   width="14" height="16" fill="#FF8" str
 	<rect x="7.5"  y="6"   width="5"  height="5"  fill="#6F6" stroke-width="0" />
 	<rect x="2"    y="10"  width="5"  height="5"  fill="#66F" stroke-width="0" />';
 }//end Init_Macros() ***********************************************************
+
+
+
+
+function svg_icon_ren(){ //*****************************************************
+	global $SVG_icon_pencil;
+	
+	$pencil = '<g transform="translate( 5, 3.5)">'.$SVG_icon_pencil.'</g>';
+	$sheet  = svg_icon_txt_0('#333', '#000', '#FFF', $pencil);
+	
+	return '<svg class="icon2" xmlns="http://www.w3.org/2000/svg" version="1.1" width="16" height="16">'.$sheet.$pencil.'</svg>';
+} //end svg_icon_ren() *********************************************************
+
+
+
+
+function svg_icon_copy(){ //****************************************************
+	global $SVG_icon_circle_plus;
+
+	return '<svg class="icon2" xmlns="http://www.w3.org/2000/svg" version="1.1" width="11" height="11">'.
+		'<g transform="translate( .5, .5)">'.$SVG_icon_circle_plus.'</g></svg>';
+
+} //end svg_icon_copy() ********************************************************
+
+
+
+
+function svg_icon_del(){ //*****************************************************
+	global $SVG_icon_circle_x;
+
+	return '<svg class="icon2" xmlns="http://www.w3.org/2000/svg" version="1.1" width="11" height="11">'.
+		'<g transform="translate( .5, .5)">'.$SVG_icon_circle_x.'</g></svg>';
+
+} //end svg_icon_del() *********************************************************
 
 
 
@@ -979,16 +1030,16 @@ return '<svg class="icon" xmlns="http://www.w3.org/2000/svg" version="1.1" width
 
 
 function svg_icon_img(){ //*****************************************************
-global $SVG_icon_img_0;
-return '<svg class="icon icon_file" xmlns="http://www.w3.org/2000/svg" version="1.1" width="14" height="16">'.
+	global $SVG_icon_img_0;
+	return '<svg class="icon icon_file" xmlns="http://www.w3.org/2000/svg" version="1.1" width="14" height="16">'.
 		$SVG_icon_img_0.'</svg>';
 } //end svg_icon_img() *********************************************************
 
 
 
 function svg_icon_svg(){ //*****************************************************
-global $SVG_icon_img_0;
-return '<svg class="icon icon_file" xmlns="http://www.w3.org/2000/svg" version="1.1" width="14" height="16">'.
+	global $SVG_icon_img_0;
+	return '<svg class="icon icon_file" xmlns="http://www.w3.org/2000/svg" version="1.1" width="14" height="16">'.
 	$SVG_icon_img_0.
 	'<line x1="3" y1="3.5"  x2="11" y2="3.5"  stroke="#444" stroke-width=".6"/>
 	<line x1="3" y1="6.5"  x2="11" y2="6.5"  stroke="#444" stroke-width=".6"/>
@@ -1001,15 +1052,12 @@ return '<svg class="icon icon_file" xmlns="http://www.w3.org/2000/svg" version="
 
 function svg_icon_txt_0($border, $lines, $fill, $extra = ""){ //****************
 return '<svg class="icon icon_file" xmlns="http://www.w3.org/2000/svg" version="1.1" width="14" height="16">
-	<rect x = "0" y = "0" width = "14" height = "16" 
-	fill="'.$fill.'" stroke="'.$border.'" stroke-width="2" />
+	<rect x = "0" y = "0" width = "14" height = "16" fill="'.$fill.'" stroke="'.$border.'" stroke-width="2" />
 	<line x1="3" y1="3.5"  x2="11" y2="3.5"  stroke="'.$lines.'" stroke-width=".6"/>
 	<line x1="3" y1="6.5"  x2="11" y2="6.5"  stroke="'.$lines.'" stroke-width=".6"/>
 	<line x1="3" y1="9.5"  x2="11" y2="9.5"  stroke="'.$lines.'" stroke-width=".6"/>
-	<line x1="3" y1="12.5" x2="11" y2="12.5" stroke="'.$lines.'" stroke-width=".6"/>'.
-	$extra.
-	'</svg>';
-} //end svg_icon_txt() *********************************************************
+	<line x1="3" y1="12.5" x2="11" y2="12.5" stroke="'.$lines.'" stroke-width=".6"/>'.$extra.'</svg>';
+} //end svg_icon_txt_0() *******************************************************
 
 
 
@@ -1045,7 +1093,7 @@ function svg_icon_file_new(){ //************************************************
 
 
 function svg_icon_file_del(){ //************************************************
-global $SVG_icon_circle_x;
+	global $SVG_icon_circle_x;
 	$extra = '<g transform="translate(4,6)">'.$SVG_icon_circle_x.'</g>';
 
 	return svg_icon_txt_0('#444', 'black', 'white', $extra);
@@ -1307,7 +1355,8 @@ function Update_config($search_for, $replace_with) {//********************
 	copy($ONESCRIPT_file, $ONESCRIPT_file_backup); // Just in case...
 
 	$updated_contents = implode("\n", $ONESCRIPT_lines);
-	file_put_contents($ONESCRIPT_file, $updated_contents);
+
+	return file_put_contents($ONESCRIPT_file, $updated_contents);
 }//end Update_config() *********************************************************
 
 
@@ -1317,18 +1366,17 @@ function Change_PWUN_response($PWUN){ //****************************************
 	//Update $USERNAME or $HASHWORD. Default $page = changepw or changeun 
 	global $_, $USERNAME, $HASHWORD, $EX, $message, $page;
 
-	if     ($PWUN == "pw") { $error1  = hsc($_['change_pw_02']); }
-	elseif ($PWUN == "un") { $error1  = hsc($_['change_un_02']); }
-	else                   { $message .= 'Invalid parameter for Change_PWUN_response()'; return; }
+	if   ($PWUN == "pw") { $error1  = hsc($_['change_pw_02']); }
+	else                 { $error1  = hsc($_['change_un_02']); } //$PWUN == "un"
 
 	// trim leading & trailing white-space from input values
 	$current_pass = trim($_POST['current_pw']);
 	$new_pwun     = trim($_POST['new1']);
 	$confirm_pwun = trim($_POST['new2']);
 
-	//If nothing entered, do nothing.
+	//If nothing entered...
 	if ( ($current_pass == "") && ($new_pwun == "") && ($confirm_pwun == "") ) {
-		;//...
+		;//do nothing.
 		
 	//If no new & confirm values entered, display $message to that effect.
 	}elseif ( ($new_pwun == "") && ($confirm_pwun == "") ) {
@@ -1348,9 +1396,11 @@ function Change_PWUN_response($PWUN){ //****************************************
 		$HASHWORD = hashit($new_pwun);	
 		$search_for   = '$HASHWORD '; //include space after $HASHWORD
 		$replace_with = '$HASHWORD = "'.$HASHWORD.'";';
-		Update_config($search_for, $replace_with);
+		$updated = Update_config($search_for, $replace_with);
 		
-		$message .= $EX.'<b>'.hsc($_['change_pw_01']).'</b>';
+		if ($updated === false) { $message .= $EX.'<b>'.$error1.'</b><br>'.$_['update_failed']; }
+		else                    { $message .= $EX.'<b>'.hsc($_['change_pw_01']).'</b>'; }
+		
 		$page = "admin"; //Return to Admin page.
 		
 	//Else change username...
@@ -1358,9 +1408,11 @@ function Change_PWUN_response($PWUN){ //****************************************
 		$USERNAME = $new_pwun;
 		$search_for   = '$USERNAME '; //include space after $HASHWORD
 		$replace_with = '$USERNAME = "'.$USERNAME.'";';
-		Update_config($search_for, $replace_with);
-
-		$message .= $EX.'<b>'.hsc($_['change_un_01']).'</b>';
+		$updated = Update_config($search_for, $replace_with);
+		
+		if ($updated === false) { $message .= $EX.'<b>'.$error1.'</b><br>'.$_['update_failed']; }
+		else                    { $message .= $EX.'<b>'.hsc($_['change_un_01']).'</b>'; }
+		
 		$page = "admin"; //Return to Admin page.
 	}
 }//end Change_PWUN_response() //************************************************
@@ -1456,10 +1508,16 @@ function Login_response() { //**************************************************
 function List_Files() { // ...in a vertical table ******************************
 //called from Index Page
 
-	global $ONESCRIPT, $ipath, $param1, $ftypes, $fclasses, $excluded_list, $stypes, $SHOWALLFILES;
+	global $_, $ONESCRIPT, $ipath, $param1, $ftypes, $fclasses, $excluded_list, 
+			$stypes, $SHOWALLFILES,	$SVG_icon_circle_x;
 
 	$files = scandir('./'.$ipath);
 	natcasesort($files);
+
+	/*For old IE only: text "icons" for Rename, Copy, and Delete  */
+	$R = '<span class="RCD R">'.hsc($_['R']).'</span>';
+	$C = '<span class="RCD C">'.hsc($_['C']).'</span>';
+	$D = '<span class="RCD D">'.hsc($_['D']).'</span>';
 
 	echo '<table class="index_T">';
 	foreach ($files as $file) {
@@ -1476,10 +1534,18 @@ function List_Files() { // ...in a vertical table ******************************
 			
 			//Set icon type based on file type ($ext).
 			$type = $fclasses[array_search($ext, $ftypes)];
+			
+			$HREF_params = $ONESCRIPT.$param1.'&amp;f='.rawurlencode($file);
 ?>
 			<tr>
+				<td class="rcd"><a href="<?php echo $HREF_params.'&amp;p=rename' ?>" title="Rename" class="rcd1">
+				<?php if (supports_svg()) { echo svg_icon_ren();  }else {echo $R;} ?></a></td>
+				<td class="rcd"><a href="<?php echo $HREF_params.'&amp;p=copy'   ?>" title="Copy"   class="rcd1" >
+				<?php if (supports_svg()) { echo svg_icon_copy(); }else {echo $C;} ?></a></td> 
+				<td class="rcd"><a href="<?php echo $HREF_params.'&amp;p=delete' ?>" title="Delete" class="rcd1" >
+				<?php if (supports_svg()) { echo svg_icon_del();  }else {echo $D;} ?></a></td>
 				<td class="file_name">
-					<?php echo '<a href="'.$ONESCRIPT.$param1.'&amp;f='.rawurlencode($file).'&amp;p=edit" >'; ?>
+					<?php echo '<a href="'.$HREF_params.'&amp;p=edit"  title="Edit">'; ?>
 					<?php echo show_icon($type).hte($file), '</a>'; ?>
 				</td>
 				<td class="meta_T file_size">&nbsp;
@@ -1727,7 +1793,7 @@ function Edit_response(){ //***If on Edit page, and [Save] clicked *************
 	$filename = $_POST["filename"];
 	$contents = $_POST["contents"];
 
-	$contents = str_replace("\r\n", "\n", $contents); //Convert EOL to only newline char.
+	$contents = str_replace("\r\n", "\n", $contents); //Make sure EOL is only newline char.
 
 	$bytes = file_put_contents($filename, $contents);
 
@@ -1874,7 +1940,7 @@ function Set_Input_width() { //*************************************************
 	// $MAIN_WIDTH may be in em, px, or pt.
 	// Width of 1 character = .625em = 10px = 7.5pt  (1em = 16px = 12pt)
 
-	$root_enc =  mb_detect_encoding($WEB_ROOT);
+	$root_enc =  mb_detect_encoding($WEB_ROOT); //ASCII? UTF8? etc...
 	$root_len = (mb_strlen($WEB_ROOT, $root_enc) + 1); //+1 for good measure.
 	$main_width = $MAIN_WIDTH * 1;   //set in config section. Default is 810px.
 	$main_units = substr($MAIN_WIDTH, -2); //should be em, px, or pt
@@ -2256,7 +2322,7 @@ function FileTimeStamp(php_filemtime, show_date, show_offset){
 
 	var GMT_offset = -(TIMESTAMP.getTimezoneOffset()); //Yes, I know- seems wrong, but its works.
 
-	if (GMT_offset < 0) { NEG=-1; SIGN="-"; } else { NEG=1; SIGN="+"; } 
+	if (GMT_offset < 0) { NEG = -1; SIGN = "-"; } else { NEG = 1; SIGN = "+"; } 
 
 	var offset_HOURS = Math.floor(NEG*GMT_offset/60);
 	var offset_MINS  = pad( NEG * (GMT_offset % 60) );
@@ -2458,8 +2524,6 @@ a:focus { border: 1px solid #807568; background-color: rgb(255,250,150); }
 
 label { display: inline-block; font-size : 1em; font-weight: bold; }
 
-svg { margin: 0; padding: 0; }
-
 pre {
 	background: white;
 	border    : 1px solid #807568;
@@ -2529,7 +2593,7 @@ table.index_T {
 	background-color: #FdFdFd;
 	}
 	
-table.index_T  tr:hover { border: 1px solid #807568; }
+table.index_T tr:hover { border: 1px solid #807568; }
 
 table.index_T td { 
 	border-width  : 1px;
@@ -2538,17 +2602,16 @@ table.index_T td {
 	vertical-align: middle;
 	}
 
-.index_T a { 
-	height : 1em;
+.index_T td a { 
 	display: block;
-	padding: .2em 1em .3em .3em;
-	color  : rgb(100,45,0);
+	height : 1em;
 	border : none;
+	padding: .2em 1em .3em .3em;
 	overflow   : hidden;
 	}
 
-.index_T a:hover { background-color: rgb(255,250,150); }
-.index_T a:focus { background-color: rgb(255,250,150); }
+.index_T td a.rcd  { padding: .4em .3em .1em .3em; }
+.index_T td a.rcd1 { padding: .2em .3em .3em .3em; }
 
 .file_name { min-width: 10em; }
 
@@ -2576,10 +2639,6 @@ table.index_T td {
 	margin-bottom: .1em;
 	padding      : 3px .4em 3px 5px; /*TRBL*/
 	}
-
-.index_folders a:hover { background-color: rgb(255,250,150); }
-.index_folders a:focus { background-color: rgb(255,250,150); }
-
 
 
 /*  front_links:  [Upload File] [New File] [New Folder] etc... */
@@ -2777,7 +2836,15 @@ hr { /*-- -- -- -- -- -- --*/
 #upload_file { margin-bottom: .6em; }
 
 #old_backup_T { float: left; margin-bottom: .3em; }
+
 #del_backup   { float: left; margin-left  :  1em; }
+
+/*** For old IE only: text "icons" for Rename, Copy, and Delete ***/
+
+.RCD {font: 900 .6em arial; border: 1px solid; padding: 0px 2px 0px 2px;} 
+.R   {color: #804000; border-color: #804000}
+.C   {color: #006400; border-color: #006400}
+.D   {color: #a00;    border-color: #a00}
 </style>
 <?php 
 }//end style_sheet() ***********************************************************
@@ -2940,8 +3007,8 @@ if ( $page != "login" ) {
 //Admin link
 if ($Show_header_and_Admin) {
 	echo '<a id="admin" href="'.$ONESCRIPT.$param1.$param2.'&amp;p=admin">'.hsc($_['Admin']).'</a>';
-}else {
-	echo "<br>";
+}elseif ($page != 'login') {
+	echo '<br>';
 }
 ?>
 

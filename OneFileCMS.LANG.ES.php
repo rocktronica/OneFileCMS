@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.3.15
+// OneFileCMS Language Settings v3.3.16
 
 $_['LANGUAGE'] = 'Espanõla';//*** There are several new or changed values without translations and are in English ***
                             //*** Also, some values are no longer used and are commented out.                     ***
@@ -25,6 +25,9 @@ $_['button_padding']        = '4px 5px';
 $_['image_info_font_size']  = '.95em';//show_img_msg_01  &  _02 
 $_['image_info_pos']        = ''; //If 1 or true, moves the info down a line for more space.
 
+$_['R'] = 'R'; // R ename       //new
+$_['C'] = 'C'; // C opy         //new
+$_['D'] = 'D'; // D elete       //new
 
 $_['Upload_File'] = 'Subir Archivo';
 $_['New_File']    = 'Archivo Nuevo';

@@ -24,6 +24,7 @@ MISC FUNCTIONS:
 	Check_path()
 	is_empty()
 	ordinalize()
+	supports_svg()
 
 PAGE CHUNK FUNCTIONS
 	Current_Path_Header()
@@ -32,12 +33,14 @@ PAGE CHUNK FUNCTIONS
 	Upload_New_Rename_Delete_Links()
 	Cancel_Submit_Buttons()
 	show_image()
-	show_favicon()
 	Timeout_Timer()
 
 	Init_Macros()
 
 SVG ICON FUNCTIONS:
+	svg_icon_ren()
+	svg_icon_copy()
+	svg_icon_del()
 	svg_icon_bin()
 	svg_icon_img()
 	svg_icon_svg()

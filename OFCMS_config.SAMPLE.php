@@ -1,7 +1,7 @@
 <?php 
 // OneFileCMS sample external config file.
-// For versions 3.3.06 and later
-// (Prior versions used an .ini format)
+// For versions 3.3.15 and later.  (Updated $HASHWORD, removed $PASSWORD & $USE_HASH)
+// (Versions prior to 3.3.06 used an .ini format)
 //
 // Basically, below is simply a copy & paste of the OneFileCMS config section.
 
@@ -10,10 +10,7 @@
 $config_title = "OneFileCMS";
 
 $USERNAME = 'username';
-
-$PASSWORD = 'password'; //If using $HASHWORD, you may leave this value empty.
-$USE_HASH = 0 ; // If = 0, use $PASSWORD. If = 1, use $HASHWORD. 
-$HASHWORD = 'c3e70af96ab1bfc5669280e98b438e1a8c08ca5e0bb3354c05ceaa6f339fd3f6'; //hash for "password"
+$HASHWORD = 'a6ca7f88bd5efc706d38047cc5844d2b11f86242c01e0c89a1c656dbe2dd1866'; //"password"
 $SALT     = 'somerandomsalt';
 
 $LANGUAGE_FILE = ""; //Filename of language settings. Leave blank for built-in default.

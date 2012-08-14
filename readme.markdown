@@ -1,14 +1,10 @@
-# Current stable version: 3.3.15
+# Current stable version: 3.3.16
 
-### Auguest 13, 2012
+### Auguest 15, 2012
 
 - Added admin/config screens for updating password and username using OneFileCMS itself, so manual editing of OneFileCMS is not required (but is still possible, of course).
 - Removed plain text $PASSWORD option.
-
-
-### Auguest 7, 2012
-
-- Created an actual "Admin" page that has links to admin functions: Hash Page, Edit OneFileCMS, and (soon) Change Password.
+- Added options to Rename, Copy, or Delete files from Index screen.
 
 
 ### Auguest 6, 2012
@@ -186,10 +182,11 @@ GENERATE/OUTPUT THE PAGE
 
 ## Change Log
 
-### 3.3.11 - 3.3.15
+### 3.3.11 - 3.3.16
 
 - Added screens for changing username and password.
 - Plaintext $PASSWORD option is no longer available.
+- Added options to Rename, Copy, or Delete files from Index screen.
 - Improved validation of $_GET parameters & other general code improvements.
 
 ### 3.3.10
