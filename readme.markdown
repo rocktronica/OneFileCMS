@@ -1,8 +1,8 @@
 # Current stable version: 3.3.16
 
-### Auguest 15, 2012
+### Auguest 14, 2012
 
-- Added admin/config screens for updating password and username using OneFileCMS itself, so manual editing of OneFileCMS is not required (but is still possible, of course).
+- OneFileCMS now can now update the password and username itself, so manual editing of OneFileCMS is not required (but is still possible, of course).
 - Removed plain text $PASSWORD option.
 - Added options to Rename, Copy, or Delete files from Index screen.
 
@@ -83,7 +83,7 @@ Coupling a utilitarian code editor with basic file managing functions, OneFileCM
 
 2) Upload to anywhere on your site.  
   
-3) Using your browser, start OneFileCMS, click on Admin and set your username and password!  
+3) Using your browser, start OneFileCMS, log in with the default "username" and "password". Then click on Admin and set your own username and password!  
 
 Depending on how your web stack is set up, you may also have to modify the file permissions of your site's folders to allow OneFileCMS to modify and create files. ([More about that here.](http://catcode.com/teachmod/)) Make sure onefilecms.php and its parent folder are allowed to execute, with CHMOD at 755. Check with your host if you're not sure, and be aware of any inherent security concerns.  
 
