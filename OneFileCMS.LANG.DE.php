@@ -284,3 +284,5 @@ $_['un_confirm'] = 'Confirm New Username'; //new
 
 $_['change_un_01'] = 'Username changed!';     //new
 $_['change_un_02'] = 'Username NOT changed:'; //new
+
+$_['update_failed'] = 'Update failed - could not save file.';  //new
