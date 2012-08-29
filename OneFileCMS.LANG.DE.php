@@ -1,66 +1,84 @@
 <?php
-// OneFileCMS Language Settings v3.3.16
+// OneFileCMS Language Settings v3.3.18
 
-$_['LANGUAGE'] = 'Deutsch'; //*** There are several new or changed values without translations and are in English ***
-                            //*** Also, some values are no longer used and are commented out.                     ***
-//Übersetzungen:
-//==============
-//Move=Verschieben ;Directory or Folder=Ordner ;Create=erstellen ;Log In=anmelden
-//;Log out=abmelden ;reset=zurücksetzen ;session=sitzung ;expired=abgelaufen ;exist=bestehen 
-//;configuration section=Konfigurationsbereich ;hash=Streuwert ;button: knopf ;Anrede: Sie
+$_['LANGUAGE'] = 'Deutsch';
+$_['LANG'] = 'DE';
 
-// Remember to slash-escape any single quotes that may be within a value:  \'
-// The back-slash itself, if to be part of the text to display, may or may not 
-// also need to be escaped:  \\
-
-
+// If no translation or value is desired for a particular setting, do not delete
+// the actual setting variable, just set it to an empty string.
+// For example:  $_['some_unused_setting'] = '';
+//
+// Remember to slash-escape any single quotes that may be within the text:  \'
+// The back-slash itself may or may not also need to be escaped:  \\
+//
+// If present as a trailing comment, "## NT ##" means 'Need Translation'.
+//
 // In some instances, some langauges may use significantly longer words or phrases than others.
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
 //
-$_['front_links_font_size'] = '.9em'; //Buttons on Index page.
-$_['front_links_margin_R']  = '.5em';
-$_['button_font_size']      = '.7em'; //Buttons on Edit page.
-$_['button_margin_L']       = '.5em';
+$_['front_links_font_size'] = '.9em';   //Buttons on Index page.
+$_['front_links_margin_R']  = '.5em';  
+$_['button_font_size']      = '.7em';   //Buttons on Edit page.
+$_['button_margin_L']       = '.5em';  
 $_['button_padding']        = '4px 5px';
-$_['image_info_font_size']  = '.95em'; //show_img_msg_01  &  _02 
-$_['image_info_pos']        = '1'; //If 1 or true, moves the info down a line for more space.
+$_['image_info_font_size']  = '.95em';  //show_img_msg_01  &  _02
+$_['image_info_pos']        = '1';      //If 1 or true, moves the info down a line for more space.
+$_['select_all_label_size'] = '.84em';  //Font size of $_['Select_All']
+$_['select_all_div_width']  = '73px';   //Width of space for $_['Select_All']
 
-$_['R'] = 'U'; // U mbenennen       //new
-$_['C'] = 'K'; // K opieren         //new
-$_['D'] = 'L'; // L öschen       //new
+$_['R'] = 'U'; //U mbenennen
+$_['C'] = 'K'; //K opieren
+$_['D'] = 'L'; //L öschen
 
-$_['Upload_File'] = 'Datei heraufladen';
-$_['New_File']    = 'Datei erstellen';
-$_['Ren_Move']    = 'Umbenennen / Verschieben';
-$_['Ren_Moved']   = 'Umbenannt / Verschoben';
-$_['New_Folder']  = 'Neuer Ordner';
-$_['Ren_Folder']  = 'Ordner umbenennen/verschieben';
-$_['Del_Folder']  = 'Ordner löschen';
+$_['Admin']   = 'Konfiguration';
+$_['Cancel']  = 'Abbrechen';
+$_['Close']   = 'Schließen';
+$_['Copy']    = 'Erstellen';
+$_['Copied']  = 'Kopieren';
+$_['Create']  = 'Kopiert';
+$_['Delete']  = 'Löschen';
+$_['DELETE']  = 'LÖSCHEN';
+$_['Deleted'] = 'Deleted'; //## NT ##
+$_['Edit']    = 'Bearbeiten';
+$_['Enter']   = 'Eintreten';
+$_['errors']  = 'errors';  //## NT ##
+$_['File']    = 'Datei';  
+$_['Folder']  = 'Ordner'; 
+$_['From']    = 'From';    //## NT ##
+$_['Hash']    = 'Streuwert';
+$_['Move']    = 'Verschieben';
+$_['Moved']   = 'Verschoben';
+$_['on']      = 'läuft unter';
+$_['Password'] = 'Passwort';
 
-$_['Admin']  = 'Konfiguration';
-$_['Enter']  = 'Eintreten';
-$_['Edit']   = 'Bearbeiten';
-$_['Close']  = 'Schließen';
-$_['Cancel'] = 'Abbrechen';
-$_['Upload'] = 'Heraufladen';
-$_['Create'] = 'Erstellen';
-$_['Copy']   = 'Kopieren';
-$_['Copied'] = 'Kopiert';
-$_['Rename'] = 'Umbenennen / Verschoben';
-$_['Delete'] = 'Löschen';
-$_['DELETE'] = 'LÖSCHEN';
-$_['File']   = 'Datei';
-$_['Folder'] = 'Ordner';
-$_['Submit'] = 'Anfrage senden'; //new
-$_['Username'] = 'Benutzername';     //new
-$_['Password'] = 'Passwort';     //new
+$_['Rename']     = 'Umbenennen';
+$_['successful'] = 'successful'; //## NT ##
+$_['To']         = 'To';         //## NT ##
+$_['Upload']     = 'Heraufladen';
+$_['Username']   = 'Benutzername';
+$_['Log_In']     = 'Anmelden';  
+$_['Log_Out']    = 'Abmelden';  
 
-$_['Log_In']  = 'Anmelden';
-$_['Log_Out'] = 'Abmelden';
-
-$_['Hash']    = 'Hash';
-$_['pass_to_hash']  = 'Password to hash:';
-$_['Generate_Hash'] = 'Hash generieren';
+$_['Upload_File']    = 'Datei heraufladen';  
+$_['New_File']       = 'Datei erstellen';    
+$_['Ren_Move']       = 'Umbenennen / Verschieben';
+$_['Ren_Moved']      = 'Umbenannt / Verschoben';
+$_['New_Folder']     = 'Neuer Ordner';       
+$_['Ren_Folder']     = 'Ordner umbenennen/verschieben';
+$_['Del_Folder']     = 'Ordner löschen';    
+$_['Submit']         = 'Anfrage senden';     
+$_['Move_Files']     = 'Move File(s)';        //## NT ##
+$_['Copy_Files']     = 'Copy File(s)';        //## NT ##
+$_['Del_Files']      = 'Delete File(s)';      //## NT ##
+$_['Selected_Files'] = 'Selected Files';      //## NT ##
+$_['Select_All']     = 'Select All';          //## NT ##
+$_['Clear_All']      = 'Clear All';           //## NT ##
+$_['New_location']   = 'New Location';        //## NT ##
+$_['No_files']       = 'No files selected.';  //## NT ##
+$_['No_action']      = 'No action selected.'; //## NT ##
+$_['Not_found']      = 'Not found';           //## NT ##
+$_['pass_to_hash']   = 'Password to hash:';   //## NT ##
+$_['Generate_Hash']  = 'Streuwert generieren';
 
 $_['save_1']      = 'Speichern';
 $_['save_2']      = 'ÄNDERUNGEN SPEICHERN!';
@@ -68,43 +86,28 @@ $_['reset']       = 'Zurücksetzen - Änderungen verwerfen';
 $_['Wide_View']   = 'Breitenadaptierte Ansicht';
 $_['Normal_View'] = 'Normale Ansicht';
 
-$_['on_']      = 'läuft unter';
+$_['verify_msg_01']  = 'Sitzung abgelaufen.';
+$_['verify_msg_02']  = 'UNGÜLTIGE DATENSENDUNG';
 
-$_['verify_msg_01'] = 'Sitzung abgelaufen.';
-$_['verify_msg_02'] = 'UNGÜLTIGE DATENSENDUNG';
-
-$_['get_get_msg_01'] = 'Die Datei wurde nicht gefunden:';
-$_['get_get_msg_02'] = 'Invalid page request.';
-
+$_['get_get_msg_01']    = 'Die Datei wurde nicht gefunden:';
+$_['get_get_msg_02']    = 'Invalid page request.';
+$_['get_get_msg_03']    = 'Missing information for requested page'; //## NT ##
 $_['check_path_msg_01'] = 'Das Verzeichnis wurde nicht gefunden: ';
+$_['ord_msg_01']        = 'Eine Datei mit demselben Namen existiert bereits im Zielverzeichnis.';
+$_['ord_msg_02']        = 'Speichern als';
+$_['show_img_msg_01']   = 'Die Bilddarstellung entspricht ~';
+$_['show_img_msg_02']   = '% der wahren Größe (W x H = ';
 
-$_['ord_msg_01'] = 'Eine Datei mit demselben Namen existiert bereits im Zielverzeichnis.';
-$_['ord_msg_02'] = 'Speichern als';
-
-$_['show_img_msg_01'] = 'Die Bilddarstellung entspricht ~';
-$_['show_img_msg_02'] = '% der wahren Größe (W x H = ';
-
-$_['hash_txt_01'] = 'The hashes generated by this page may be used to manually update $HASHWORD in OneFileCMS, or in an external config file.  In either case, make sure you remember the password used to generate the hash!'; //changed
-//$_['hash_txt_02'] = '1) Verwenden Sie die Konfigurationsvariable $PASSWORD, um Ihr gewünschtes Passwort zu speichern. In diesem Fall sollte $USE_HASH auf 0 gesetzt werden.';
-//$_['hash_txt_03'] = '2) Oder Sie verwenden die Konfigurationsvariable $HASHWORD, um den Streuwert Ihres Passwortes zu speichern. Setzen Sie $USE_HASH in diesem Fall auf 1.';
-//$_['hash_txt_04'] = 'Bitte denken Sie daran, dass es sich hierbei großteils um eine akademische Übung handelt. Die Verwendung eines Streuwerts trägt viel zur Sicherheit bei und erlaubt Ihnen, das Passwort nicht in Klarschrift speichern zu müssen.';
-//$_['hash_txt_05'] = 'Um die $HASHWORD Option verwenden zu können:';
+$_['hash_txt_01'] = 'The hashes generated by this page may be used to manually update $HASHWORD in OneFileCMS, or in an external config file.  In either case, make sure you remember the password used to generate the hash!'; //## NT ##
 $_['hash_txt_06'] = 'Tippen Sie das gewünschte Passwort in das Eingabefeld und drücken Sie Enter.';
 $_['hash_txt_07'] = 'Der Streuwert wird in einer gelben Box überhalb angezeigt werden.';
 $_['hash_txt_08'] = 'Kopieren Sie den neuen Streuwert und fügen Sie ihn in den Konfigurationsbereich als Wert der Variable $HASHWORD ein.';
 $_['hash_txt_09'] = 'Stellen Sie sicher, dass Sie den GESAMTEN Streuwert -- und nur diesen (keine führenden oder nachgestellten Leerzeichen, etc.) -- kopiert haben.';
 $_['hash_txt_10'] = 'Ein Doppelklick sollte den Streuwert auswählen...';
-//$_['hash_txt_11'] = 'Stellen Sie sicher, dass $USE_HASH auf 1 oder true gesetzt wurde.';
 $_['hash_txt_12'] = 'Wenn die Werte eingetragen wurden, melden Sie sich ab und wieder an.';
-//$_['hash_txt_13'] = 'Sie können auch OneFileCMS selbst bearbeiten.  Legen Sie aber sicherheitshalber eine Kopie an, falls es zu einem unerwünschten Schreibfehler kommt...';
-//$_['hash_txt_14'] = 'Eine weitere, kleine Sicherheitsvorkehrung wäre, das Salz oder die Methode für die Streuwertgenerierung von OneFileCMS zu ändern.';
 
-$_['hash_msg_01'] = 'Passwort:';
-$_['hash_msg_02'] = 'Streuwert:';
-
-$_['login_txt_01'] = 'Benutzername:';
-$_['login_txt_02'] = 'Passwort:';
-
+$_['login_txt_01']  = 'Benutzername:';
+$_['login_txt_02']  = 'Passwort:';
 $_['login_msg_01a'] = 'Es wurden ';
 $_['login_msg_01b'] = ' ungültige Anmeldversuche gezählt.';
 $_['login_msg_02a'] = 'Bitte warten Sie ';
@@ -130,24 +133,22 @@ $_['too_large_to_edit_01b'] = ' bytes.';
 $_['too_large_to_edit_02']  = 'Einige Browser (wie zum Beispiel der Internet Explorer) bleiben stecken oder werden instabil, sobald größere Textmengen in einer HTML <textarea> bearbeitet werden.';
 $_['too_large_to_edit_03']  = 'Die Einstellung $MAX_EDIT_SIZE im Konfigurationsbereich des OneFileCMS kann nach den Erfordernissen angepaßt werden.';
 $_['too_large_to_edit_04']  = 'Mittels einfachem Trial & Error kann das optimale Limit für einen bestimmten Browser und Computer festgestellt werden.';
-
 $_['too_large_to_view_01a'] = 'Betrachtungsmodus deaktiviert. Filesize > ';
 $_['too_large_to_view_01b'] = ' Bytes.';
 $_['too_large_to_view_02']  = 'Klicken Sie auf den Dateinamen überhalb, um die Datei direkt im Browser anzuzeigen.';
 $_['too_large_to_view_03']  = 'Adjustieren Sie die $MAX_VIEW_SIZE im Konfigurationsbereich von OneFileCMS nach Ihren Bedürfnissen.';
-$_['too_large_to_view_04']  = '(The default value for $MAX_VIEW_SIZE is completely arbitrary, and may be adjusted as desired.)';
+$_['too_large_to_view_04']  = '(The default value for $MAX_VIEW_SIZE is completely arbitrary, and may be adjusted as desired.)'; //## NT ##
 
 $_['meta_txt_01'] = 'Dateigröße: ';
 $_['meta_txt_02'] = ' Bytes.';
 $_['meta_txt_03'] = 'Zuletzt aktualisiert am/um: ';
-
 $_['edit_msg_01'] = 'Die Datei wurde gespeichert: ';
 $_['edit_msg_02'] = 'Bytes geschrieben.';
 $_['edit_msg_03'] = 'Bei dem Versuch die Datei zu speichern trat ein Fehler auf.';
 
-$_['upload_txt_01'] = '  per upload_max_filesize in php.ini.';
-$_['upload_txt_02'] = 'per post_max_size in php.ini';
-$_['upload_txt_03'] = 'Anmerkung: Die maximale Dateigröße für das Heraufladen von Dateien beträgt: ';
+$_['upload_txt_01']  = '  per upload_max_filesize in php.ini.';
+$_['upload_txt_02']  = 'per post_max_size in php.ini'; //## NT ##
+$_['upload_txt_03']  = 'Anmerkung: Die maximale Dateigröße für das Heraufladen von Dateien beträgt: ';
 
 $_['upload_err_01a'] = 'Fehler 1: Die Datei ist zu groß.  ';
 $_['upload_err_01b'] = ' (Einschränkung durch php.ini)';
@@ -169,7 +170,6 @@ $_['upload_msg_06'] = 'Das Heraufladen ist fehlgeschlagen: ';
 
 $_['new_file_txt_01'] = 'Die Datei wird im aktuellen Ordner erstellt.  ';
 $_['new_file_txt_02'] = 'Ungültige Zeichen für Dateinamen sind: ';
-
 $_['new_file_msg_01'] = 'Die neue Datei wurde nicht erstellt:';
 $_['new_file_msg_02'] = 'Der Name enthält ungültige Zeichen: ';
 $_['new_file_msg_03'] = 'Es wurde keine Datei erstellt, da kein Name eingegeben wurde';
@@ -177,10 +177,10 @@ $_['new_file_msg_04'] = 'Die Datei besteht bereits: ';
 $_['new_file_msg_05'] = 'Datei erstellt:';
 $_['new_file_msg_06'] = 'Fehler - die Datei konnte nicht erstellt werden:';
 
-$_['CRM_txt_01']  = 'Um eine Datei oder einen Ordner zu verschieben, ändern Sie den pfad/zur/datei/oder/dem/verzeichnis. Der neue Ort muss bereits existieren.';
-$_['CRM_txt_02']  = 'Alter Name:';
-$_['CRM_txt_03']  = 'Neuer Name:';
-
+$_['CRM_txt_01']  = 'Um eine Datei oder einen Ordner zu verschieben, ändern Sie den pfad/zur/datei/oder/dem/verzeichnis.';
+$_['CRM_txt_02']  = 'Der neue Ort muss bereits existieren.';
+$_['CRM_txt_03']  = 'Alter Name';
+$_['CRM_txt_04']  = 'Neuer Name';
 $_['CRM_msg_01']  = ' Fehler - der neue Zielort besteht nicht:';
 $_['CRM_msg_02']  = ' Fehler - die Quelldatei besteht nicht:';
 $_['CRM_msg_03']  = ' Fehler - die Zieldatei besteht bereits:';
@@ -189,13 +189,11 @@ $_['CRM_msg_05a'] = 'Fehler während ';
 $_['CRM_msg_05b'] = ' des folgenden Vorgangs:';
 
 $_['delete_txt_01'] = 'Sind Sie sicher?';
-
 $_['delete_msg_01'] = 'Gelöschte Datei:';
 $_['delete_msg_02'] = 'Während des Löschvorgangs trat ein Fehler auf ';
 
-$_['new_folder_txt_1'] = 'Der neue Ordner wird als Unterordner des aktuellen Ordners angelegt.  ';
-$_['new_folder_txt_2'] = 'Ungültige Zeichen für Ordnernamen sind: ';
-
+$_['new_folder_txt_1']  = 'Der neue Ordner wird als Unterordner des aktuellen Ordners angelegt.  ';
+$_['new_folder_txt_2']  = 'Ungültige Zeichen für Ordnernamen sind: ';
 $_['new_folder_msg_01'] = 'Der Ordner konnte nicht erstellt werden:';
 $_['new_folder_msg_02'] = 'Der Name enthält ungültige Zeichen: ';
 $_['new_folder_msg_03'] = 'Es wurde kein Ordner erstellt, da kein Name dafür eingegeben wurde.';
@@ -204,85 +202,80 @@ $_['new_folder_msg_05'] = 'Ordner erstellt:';
 $_['new_folder_msg_06'] = 'Fehler - der Ordner konnte nicht erstellt werden: ';
 
 $_['delete_folder_txt_01'] = 'Sind Sie sicher?';
-
 $_['delete_folder_msg_01'] = 'Der Ordner ist nicht leer.   Bevor ein Ordner gelöscht werden kann, muss er geleert werden.';
 $_['delete_folder_msg_02'] = 'Gelöschter Ordner:';
 $_['delete_folder_msg_03'] = 'während des Löschvorgangs trat ein Fehler auf.';
 
-$_['page_title_login']      = 'Anmelden';
-$_['page_title_admin']      = 'Optionen für die Administration'; //new
+$_['page_title_login']      = 'Anmelden';                
+$_['page_title_admin']      = 'Optionen für die Administration';
 $_['page_title_hash']       = 'Streuwertgenerierung für das Passwort';
-$_['page_title_change_pw']  = 'Passwort ändern'; //new
-$_['page_title_change_un']  = 'Benutzername ändern'; //new
+$_['page_title_change_pw']  = 'Passwort ändern';        
+$_['page_title_change_un']  = 'Benutzername ändern';    
 $_['page_title_edit']       = 'Datei bearbeiten/betrachten';
-$_['page_title_upload']     = 'Datei heraufladen';
-$_['page_title_new_file']   = 'Neue Datei';
-$_['page_title_copy']       = 'Datei kopieren';
-$_['page_title_ren']        = 'Datei umbenennen';
-$_['page_title_del']        = 'Datei löschen';
-$_['page_title_folder_new'] = 'Neuer Ordner';
+$_['page_title_upload']     = 'Datei heraufladen';       
+$_['page_title_new_file']   = 'Neue Datei';              
+$_['page_title_ren']        = 'Datei umbenennen';        
+$_['page_title_copy']       = 'Datei kopieren';          
+$_['page_title_mov']        = 'Datei Verschieben';       
+$_['page_title_del']        = 'Datei löschen';          
+$_['page_title_folder_new'] = 'Neuer Ordner';            
 $_['page_title_folder_ren'] = 'Ordner umbenennen/verschieben';
-$_['page_title_folder_del'] = 'Ordner löschen';
+$_['page_title_folder_del'] = 'Ordner löschen';         
 
-$_['session_warning'] = 'Achtung: Die sitzung wird ende bald!';
-$_['session_expired'] = 'SITZUNG ABGELAUFEN';
-$_['unload_unsaved']  = '               Nicht gespeicherte Änderungen gehen verloren!';
-$_['confirm_reset']   = 'Soll der Inhalt der Datei zurückgesetzt werden (Änderungen gehen verloren)?';
-
-$_['OFCMS_requires']  = 'OneFileCMS erfordert PHP';
-
+$_['session_warning']  = 'Achtung: Die sitzung wird ende bald!';
+$_['session_expired']  = 'SITZUNG ABGELAUFEN';
+$_['unload_unsaved']   = '               Nicht gespeicherte Änderungen gehen verloren!';
+$_['confirm_reset']    = 'Soll der Inhalt der Datei zurückgesetzt werden (Änderungen gehen verloren)?';
+$_['OFCMS_requires']   = 'OneFileCMS erfordert PHP';
 $_['logout_msg']       = 'Sie wurden erfolgreich abgemeldet.';
 $_['folder_del_msg']   = 'Der Ordner ist nicht leer.   Der Ordner muss leer sein, bevor er gelöscht werden kann.';
 $_['upload_error_01a'] = ' Fehler beim Heraufladen.  Die Gesamtmenge and heraufgeladenen Daten (in Hauptsache die Datei) überschreitet die post_max_size = ';
 $_['upload_error_01b'] = ' (der php.ini)';
 $_['edit_caution_01']  = 'ACHTUNG ';
 $_['edit_caution_02']  = ' Sie bearbeiten gerade die aktive Version von OneFileCMS - Sichern Sie den Code und seien Sie vorsichtig !!';
+$_['time_out_txt']     = 'Automatischer Sitzungsstopp in:';
 
-$_['time_out_txt'] = 'Automatischer Sitzungsstopp in:';
-//******************************************* Need Translations ************************************
-$_['error_reporting_01'] = 'Anzeigen von Fehlern ist';         //new
-$_['error_reporting_02'] = 'Loggen von Fehlern ist';             //new
-$_['error_reporting_03'] = 'Fehlerberichterstattung'; //new
-$_['error_reporting_04'] = 'Anzeigen der Fehlertypen';       //new
-$_['error_reporting_05'] = 'Unerwartete frühzeitige Ausgabe';   //new
-$_['error_reporting_06'] = '(Nicht einmal Leerzeichen hätten ausgegeben werden sollen)'; //new
+$_['error_reporting_01'] = 'Anzeigen von Fehlern ist'; 
+$_['error_reporting_02'] = 'Loggen von Fehlern ist';   
+$_['error_reporting_03'] = 'Fehlerberichterstattung';  
+$_['error_reporting_04'] = 'Anzeigen der Fehlertypen'; 
+$_['error_reporting_05'] = 'Unerwartete frühzeitige Ausgabe';
+$_['error_reporting_06'] = '(Nicht einmal Leerzeichen hätten ausgegeben werden sollen)';
 
-$_['admin_txt_00'] = 'Alte Sicherung gefunden'; //new
-$_['admin_txt_01'] = 'Diese Datei wurde erstellt, da es während der Änderung des Passwortes oder des Benutzernamens zu einem Fehler gekommen ist. Diese Datei enthält somit eventuell veraltete Informationen und kann gelöscht werden, sofern sie nicht weiter von Ihnen benötigt wird.'; //new
-$_['admin_txt_02'] = 'Allgemeine Information'; //new
-$_['admin_txt_04'] = 'Seit der Version 3.3.13 werden Passwörter in OneFileCMS nicht länger als Klartext gespeichert, sondern nur noch als Hash-Werte.'; //new
-//$_['admin_txt_04'] = 'OneFileCMS can manage your password in two ways:';
-//$_['admin_txt_06'] = '1) Use $PASSWORD to store your desired password, in plain text, and set $USE_HASH = 0 (zero).';
-//$_['admin_txt_08'] = '2) Oder Sie verwenden die Konfigurationsvariable $HASHWORD, um den Streuwert Ihres Passwortes zu speichern. Setzen Sie $USE_HASH in diesem Fall auf 1.';
-//$_['admin_txt_10'] = '($PASSWORD, $USE_HASH, and $HASHWORD, are variables in the configuration section of the OneFileCMS source file.)';
-//$_['admin_txt_12'] = 'Option 2 is recommended, and is method used by the [Change Password] page. However, keep in mind that, due to a number of considerations, this is largely an academic excersize. That is, take the idea that it adds much of an improvement to security with a grain of cryptographic salt. Never-the-less, it does eliminate the storage of your password in plain text, which is generally considered to be a good thing.';
+$_['admin_txt_00'] = 'Alte Sicherung gefunden';
+$_['admin_txt_01'] = 'Diese Datei wurde erstellt, da es während der Änderung des Passwortes oder des Benutzernamens zu einem Fehler gekommen ist. Diese Datei enthält somit eventuell veraltete Informationen und kann gelöscht werden, sofern sie nicht weiter von Ihnen benötigt wird.';
+$_['admin_txt_02'] = 'Allgemeine Information';
+$_['admin_txt_04'] = 'Seit der Version 3.3.13 werden Passwörter in OneFileCMS nicht länger als Klartext gespeichert, sondern nur noch als Hash-Werte.';
 $_['admin_txt_12'] = 'Bitte denken Sie daran, dass es sich hierbei großteils um eine akademische Übung handelt. Die Verwendung eines Streuwerts trägt viel zur Sicherheit bei und erlaubt Ihnen, das Passwort nicht in Klarschrift speichern zu müssen.';
 $_['admin_txt_14'] = 'Eine weitere, kleine Sicherheitsvorkehrung wäre, das Salz oder die Methode für die Streuwertgenerierung von OneFileCMS zu ändern.';
 $_['admin_txt_16'] = 'Sie können auch OneFileCMS selbst bearbeiten.  Legen Sie aber sicherheitshalber eine Kopie an, falls es zu einem unerwünschten Schreibfehler kommt...';
 
-$_['pw_change']  = 'Passwort ändern';     //new
-$_['pw_current'] = 'Aktuelles Passwort';    //new
-$_['pw_new']     = 'Neues Passwort';        //new
-$_['pw_confirm'] = 'Bestätigen Sie das neue Password';//new
+$_['pw_change']  = 'Passwort ändern';           
+$_['pw_current'] = 'Aktuelles Passwort';         
+$_['pw_new']     = 'Neues Passwort';             
+$_['pw_confirm'] = 'Bestätigen Sie das neue Password';
+$_['pw_txt_02']  = 'Regeln für Passwort / Benutzername:';
+$_['pw_txt_04']  = 'Groß-/Kleinschreibung wird berücksichtigt!';
+$_['pw_txt_06']  = 'Zumindest ein Zeichen, das nicht als Leerzeichen zählt, muss enthalten sein.';
+$_['pw_txt_08']  = 'Leerzeichen in der Mitte sind gültig. Beispiel: "This is a password or username!"';
+$_['pw_txt_10']  = 'Führende und angehängte Leerzeichen werden entfernt.';
+$_['pw_txt_12']  = 'Nur die aktive Kopie von OneFileCMS wird aktualisiert - es werden keine externen Konfigurationsdateien geändert.';
+$_['pw_txt_14']  = 'Wird ein ungültiges Passwort eingegeben, werden Sie abgemeldet. Sie können sich anschließend neu anmelden.';
 
-$_['pw_txt_02']  = 'Regeln für Passwort / Benutzername:'; //new
-$_['pw_txt_04']  = 'Groß-/Kleinschreibung wird berücksichtigt!';   //new
-$_['pw_txt_06']  = 'Zumindest ein Zeichen, das nicht als Leerzeichen zählt, muss enthalten sein.'; //new
-$_['pw_txt_08']  = 'Leerzeichen in der Mitte sind gültig. Beispiel: "This is a password or username!"'; //changed
-$_['pw_txt_10']  = 'Führende und angehängte Leerzeichen werden entfernt.'; //new
-$_['pw_txt_12']  = 'Nur die aktive Kopie von OneFileCMS wird aktualisiert - es werden keine externen Konfigurationsdateien geändert.';   //new
-$_['pw_txt_14']  = 'Wird ein ungültiges Passwort eingegeben, werden Sie abgemeldet. Sie können sich anschließend neu anmelden.'; //new
+$_['change_pw_01'] = 'Passwort wurde geändert!';                      
+$_['change_pw_02'] = 'Passwort wurde nicht geändert:';                
+$_['change_pw_03'] = 'Falsches (derzeitiges) Passwort. Bitte melden Sie sich an, um es erneut zu versuchen.';
+$_['change_pw_04'] = 'Die Werte der Felder "Neu" und "Bestätigen" gleichen sich nicht.';
+$_['change_pw_05'] = 'Updating';                                        //## NT ##
+$_['change_pw_06'] = 'external config file';                            //## NT ##
 
-$_['change_pw_01'] = 'Passwort wurde geändert!';     //new
-$_['change_pw_02'] = 'Passwort wurde nicht geändert:'; //new
-$_['change_pw_03'] = 'Falsches (derzeitiges) Passwort. Bitte melden Sie sich an, um es erneut zu versuchen.'; //new
-$_['change_pw_04'] = 'Die Werte der Felder "Neu" und "Bestätigen" gleichen sich nicht.';    //new
+$_['un_change']     = 'Benutzername ändern';                 
+$_['un_new']        = 'Neuer Benutzername';                   
+$_['un_confirm']    = 'Bestätigen Sie den neuen Benutzernamen';
+$_['change_un_01']  = 'Benutzername wurde geändert!';        
+$_['change_un_02']  = 'Benutzername wurde nicht geändert:';  
+$_['update_failed'] = 'Aktualisierung fehlgeschlagen - die Datei konnte nicht gespeichert werden.';
+$_['mcd_msg_01']    = 'files moved successfully.';             //## NT ##
+$_['mcd_msg_02']    = 'files copied successfully.';            //## NT ##
+$_['mcd_msg_03']    = 'files deleted successfully.';           //## NT ##
 
-$_['un_change']  = 'Benutzername ändern';  //new
-$_['un_new']     = 'Neuer Benutzername';       //new
-$_['un_confirm'] = 'Bestätigen Sie den neuen Benutzernamen'; //new
-
-$_['change_un_01'] = 'Benutzername wurde geändert!';     //new
-$_['change_un_02'] = 'Benutzername wurde nicht geändert:'; //new
-
-$_['update_failed'] = 'Aktualisierung fehlgeschlagen - die Datei konnte nicht gespeichert werden.';  //new
