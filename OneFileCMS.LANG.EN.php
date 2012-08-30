@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.3.18
+// OneFileCMS Language Settings v3.4.0 (same as 3.3.18)
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';

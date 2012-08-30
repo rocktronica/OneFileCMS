@@ -1,4 +1,8 @@
-# Current stable version: 3.3.16
+# Current stable version: 3.4
+
+### Auguest 29, 2012
+
+- Added options to select and move, copy, or delete, multiple files from the index page.
 
 ### Auguest 14, 2012
 
@@ -38,14 +42,6 @@ Otherwise, the file - along with your password, is world readable. For details, 
 - Thanks to [codeless](http://github.com/codeless) for the German language file!
 
 
-#### Recent improvments:  
-- Added a few settings to the language files to adjust certain css values if needed.  
-  In some instances, some langauges may use significantly longer words or phrases than others.  So, a smaller font or less spacing may be desirable in those places to preserve page layout.  
-- "Wide View" option on Edit page now persists across saves
-- Hopefully improved handling of language files.  Kinda' like "online security", "multi-language support" is nebulous and a bit finicky.
-
-
-  
 --------------------------------------------------------------------------------
 
 # OneFileCMS
@@ -70,7 +66,8 @@ Coupling a utilitarian code editor with basic file managing functions, OneFileCM
 ## Features
  
 - All the basic features of an FTP application like renaming, deleting, copying, and uploading
-  _(Of course, for more complex processes like batch renaming or mass uploads/deletions, you're going to want to use an actual FTP program.)_
+  _(For complex processes like batch renaming or mass uploads/deletions, you're going to want to use an actual FTP program.)_
+- A basic text editor.
 - Alert if you try to leave without saving your edits.
 - A Login delay after too many invalid attempts.
 - Adjustable idle time before auto-logout.
@@ -83,7 +80,7 @@ Coupling a utilitarian code editor with basic file managing functions, OneFileCM
 
 2) Upload to anywhere on your site.  
   
-3) Using your browser, start OneFileCMS, log in with the default "username" and "password". Then click on Admin and set your own username and password!  
+3) Log in to OneFileCMS with the default "username" and "password", and set your own username and password!  
 
 Depending on how your web stack is set up, you may also have to modify the file permissions of your site's folders to allow OneFileCMS to modify and create files. ([More about that here.](http://catcode.com/teachmod/)) Make sure onefilecms.php and its parent folder are allowed to execute, with CHMOD at 755. Check with your host if you're not sure, and be aware of any inherent security concerns.  
 
@@ -93,7 +90,7 @@ You can also change the file name of OneFileCMS.php to something else, such as "
 
 ### Where's the WYSIWYG? What about syntax highlighting?
 
-WYSWIWYG editors have been requested, but probably won't become standard, as they'd probably make it more than one file, sort of defeating the "OneFile" point. Plus, if you're working in PHP or non-HTML code, they're can be more of a hindrance than an asset.
+WYSWIWYG editors have been requested, but probably won't become standard, as they'd make it more than one file, sort of defeating the "OneFile" point. Plus, if you're working in PHP or non-HTML code, they're can be more of a hindrance than an asset.
 
 However, just because I don't want to do it, doesn't mean it's impossible.  Look for the Edit_Page_form() function. Its textarea can be modified to work with whatever editor you like. 
 
@@ -109,17 +106,17 @@ Well, because "OneFileFileManagerTextEditor" just doesn't have the same ring to 
 
 ### Multi-Language Support?
 
-Yes!  Currently, English, German, and Spanish are available.  (Someone told me he was working on an Esparento translation, but he might have been kidding...)
+Yes!  Currently, English, German, and Spanish are available.  (Someone told me he was working on an Esparento translation, but that might have been a joke...)
 
 ### Can I have more than one username/password?
 
-Yes!  Well, sort of - indirectly.  Upload or create addional copies of OneFileCMS, but give them different file names.(ie: OneFile1.php and OneFile2.php etc...)  Then, with each copy, maintain different user names and passwords.  Also, so that one user does not log out the other, change the $session_name config variables.  
+Yes!  Well, sort of - indirectly.  Upload or create addional copies of OneFileCMS, but give them different file names.(ie: OneFile1.php and OneFile2.php etc...)  Then, in each copy, maintain different user names and passwords.  Also, so that one user does not log out the other, change the $session_name config variables.  
   
 Now, since there is no database or other means of granular control and access logging, multiple users may be kind of pointless.  On the other hand, having at least one working backup copy of OneFileCMS available is recommended in case the primary copy gets corrupted.
 
 ## Requirements
 
-- PHP 5.2+
+- PHP 5.1+
   (Only tested on versions 5.2.8, 5.2.17, 5.3.3, and 5.4 + )
 - File permission privileges on your host
 - Javascript enabled browswer
@@ -128,30 +125,23 @@ Now, since there is no database or other means of granular control and access lo
 
 ## Credit, License, Et Cetera  
 
-Maintained by github/Self-Evident  
-
-Original concept and development by github.com/rocktronica  
-
-Contributors: A. M Balakrishnan, github.com/codeless, github.com/fermuch  
-
-Written in PHP, JavaScript, HTML, CSS, and SVG.  
-
-Available under the MIT and BSD licenses.  
-
-Icons for versions thru 1.1.6 by [famfamfam](http://www.famfamfam.com/).  
-
-To report a bug or request a feature, please file an issue via Github.  
-
-And, of course, please feel free to fork away!  
+- Maintained by github/Self-Evident
+- Original concept and development by github.com/rocktronica
+- Contributors: A. M Balakrishnan, github.com/codeless, github.com/fermuch
+- Written in PHP, JavaScript, HTML, CSS, and SVG.
+- Available under the MIT and BSD licenses.
+- Icons for versions thru 1.1.6 by [famfamfam](http://www.famfamfam.com/).
+- To report a bug or request a feature, please file an issue via Github.
+- And, of course, please feel free to fork away!
 
 ##Needed/potential/upcoming improvements
 
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
-- Issue with Chrome's XSS filter: Editing some legitimate files with OneFileCMS will trigger the filter and disable much of the javascript provided functionallity, but only while on edit page with such a file, and only after a [Save].
-- Connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text during login.  
+- Issue with Chrome's XSS filter: Editing some legitimate files with OneFileCMS will trigger the filter and disable much of the javascript provided functionallity, but only while on the edit page with such a file, and only after a [Save].
+- The connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text during login.  
   (However, this is true of most online login systems, unless SSL or the like is employed.)
 - Be aware that only some very basic data & error checking is performed.  (But, it's getting better...)  
-  On Windows, for instance, it's possible to create folders that are subsequently inaccessible and undeletable by Windows.  (Yea, I found out the hard way...)  (However, I *think* this issue is fixed.)
+  On Windows, for instance, it was possible to create folders that are subsequently inaccessible and undeletable by Windows.  (Yea, I found out the hard way...)  (However, I *think* that issue is fixed.)
 - Anything else?
 
 --------------------------------------------------------------------------------
@@ -181,6 +171,11 @@ GENERATE/OUTPUT THE PAGE
 --------------------------------------------------------------------------------
 
 ## Change Log
+
+### 3.3.17 - 3.4.0
+
+- Added option to select and move, copy, or delete multiple files.
+- And other general code tweaks and improvements.
 
 ### 3.3.11 - 3.3.16
 

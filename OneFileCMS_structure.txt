@@ -1,4 +1,4 @@
-Version 3.3.15
+Version 3.4.0
 
 LICENSE
 
@@ -14,9 +14,7 @@ MISC FUNCTIONS:
 	Default_Language()
 	Session_Startup()
 	Verify_IDLE_POST_etc()
-	hashit()
 	Error_reporting_and_early_output()
-	Current_Path_Header()
 	Update_Recent_Pages()
 	undo_magic_quotes()
 	Get_GET()
@@ -61,6 +59,7 @@ SVG ICON FUNCTIONS:
 	show_icon()
 
 PAGE & RESPONSE FUNCTIONS:
+	List_Backup()
 	Admin_Page()
 	Hash_Page()
 	Hash_Page_response()
@@ -70,6 +69,7 @@ PAGE & RESPONSE FUNCTIONS:
 	Logout()
 	Login_Page()
 	Login_Page_response()
+	Table_of_Files()
 	List_Files()
 	Index_Page()
 	Edit_Page_buttons_top()
@@ -82,8 +82,8 @@ PAGE & RESPONSE FUNCTIONS:
 	Upload_response()
 	New_File_Page()
 	New_File_response() 
-	Copy_Ren_Move_Page()
 	Set_Input_width()
+	Copy_Ren_Move_Page()
 	Copy_Ren_Move_response()
 	Delete_File_Page()
 	Delete_File_response()
@@ -91,25 +91,26 @@ PAGE & RESPONSE FUNCTIONS:
 	New_Folder_response()
 	Delete_Folder_Page()
 	Delete_Folder_response() 
+	MCD_Page()
+	MCD_response()
 	Page_Title()
 	Load_Selected_Page()
 	Respond_to_POST()
 
 JAVASCRIPT & STYLESHEET FUNCTIONS:
-	Timer_scripts()
-	Time_Stamp_scripts()
+	common_scripts()
 	Edit_Page_scripts()
 	style_sheet()
 	Language_and_config_adjusted_styles()
 
 LOGIC TO DETERMINE PAGE ACTION
-	Default_Language()
+	Load Default_Language()
 	Verify good PHP version
-	If external language file, load it
+	If specified, load external language file
 	Session_Startup()
 	Get_GET()
 	Init_Macros()
 	Respond_to_POST()
-	Final check of $page to show
+	Final checks of $page to show
 
 GENERATE/OUTPUT <HTML>...  

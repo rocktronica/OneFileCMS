@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.3.18';
+$OFCMS_version = '3.4.0';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -108,7 +108,7 @@ if ( isset($config_file) && is_file($config_file) ) {
 	$config_file = ''; //needed further down.
 }
 
-//Requires PHP 5.1, due to changes some functions.
+//Requires PHP 5.1, due to changes in some functions.
 //Earliest version the author has for testing is 5.2.8 (50208)
 define('PHP_VERSION_ID_REQUIRED',50100);   //Ex: 5.1.23 is 50123
 define('PHP_VERSION_REQUIRED'  ,'5.1 + '); //Used in exit() message.
@@ -508,21 +508,21 @@ function Error_reporting_and_early_output($show_status = 0, $show_types = 0) {//
 	$E_level = error_reporting();
 	$E_types = '';
 	$spc = ' &nbsp; '; // or '<br>' or PHP_EOL or whatever...
-	if ( ($E_level &     1) ==     1 ) { $E_types  = 'E_ERROR'            .$spc; }
-	if ( ($E_level &     2) ==     2 ) { $E_types .= 'E_WARNING'          .$spc; }
-	if ( ($E_level &     4) ==     4 ) { $E_types .= 'E_PARSE'            .$spc; }
-	if ( ($E_level &     8) ==     8 ) { $E_types .= 'E_NOTICE'           .$spc; }
-	if ( ($E_level &    16) ==    16 ) { $E_types .= 'E_CORE_ERROR'       .$spc; }
-	if ( ($E_level &    32) ==    32 ) { $E_types .= 'E_CORE_WARNING'     .$spc; }
-	if ( ($E_level &    64) ==    64 ) { $E_types .= 'E_COMPILE_ERROR'    .$spc; }
-	if ( ($E_level &   128) ==   128 ) { $E_types .= 'E_COMPILE_WARNING'  .$spc; }
-	if ( ($E_level &   256) ==   256 ) { $E_types .= 'E_USER_ERROR'       .$spc; }
-	if ( ($E_level &   512) ==   512 ) { $E_types .= 'E_USER_WARNING'     .$spc; }
-	if ( ($E_level &  1024) ==  1024 ) { $E_types .= 'E_USER_NOTICE'      .$spc; }
-	if ( ($E_level &  2048) ==  2048 ) { $E_types .= 'E_STRICT'           .$spc; }
-	if ( ($E_level &  4096) ==  4096 ) { $E_types .= 'E_RECOVERABLE_ERROR'.$spc; }
-	if ( ($E_level &  8192) ==  8192 ) { $E_types .= 'E_DEPRECATED'       .$spc; }
-	if ( ($E_level & 16384) == 16384 ) { $E_types .= 'E_USER_DEPRECATED'  .$spc; }
+	if ( $E_level &     1 ) { $E_types  = 'E_ERROR'            .$spc; }
+	if ( $E_level &     2 ) { $E_types .= 'E_WARNING'          .$spc; }
+	if ( $E_level &     4 ) { $E_types .= 'E_PARSE'            .$spc; }
+	if ( $E_level &     8 ) { $E_types .= 'E_NOTICE'           .$spc; }
+	if ( $E_level &    16 ) { $E_types .= 'E_CORE_ERROR'       .$spc; }
+	if ( $E_level &    32 ) { $E_types .= 'E_CORE_WARNING'     .$spc; }
+	if ( $E_level &    64 ) { $E_types .= 'E_COMPILE_ERROR'    .$spc; }
+	if ( $E_level &   128 ) { $E_types .= 'E_COMPILE_WARNING'  .$spc; }
+	if ( $E_level &   256 ) { $E_types .= 'E_USER_ERROR'       .$spc; }
+	if ( $E_level &   512 ) { $E_types .= 'E_USER_WARNING'     .$spc; }
+	if ( $E_level &  1024 ) { $E_types .= 'E_USER_NOTICE'      .$spc; }
+	if ( $E_level &  2048 ) { $E_types .= 'E_STRICT'           .$spc; }
+	if ( $E_level &  4096 ) { $E_types .= 'E_RECOVERABLE_ERROR'.$spc; }
+	if ( $E_level &  8192 ) { $E_types .= 'E_DEPRECATED'       .$spc; }
+	if ( $E_level & 16384 ) { $E_types .= 'E_USER_DEPRECATED'  .$spc; }
 
 	if ( $show_status && ( (error_reporting() !=  0) ||
 						   (ini_get('display_errors') == 'on') || 
@@ -859,7 +859,7 @@ function Cancel_Submit_Buttons($submit_label, $focus) { //**********************
 	global $_, $ONESCRIPT, $ONESCRIPT_url_backup, $ipath, $param1, $param2, $filename, $page, $message;
 
 	//$params for Cancel. If prior page was Admin, restore admin_ipath.
-	if ($_SESSION['recent_pages'][1] == "admin") { $params = '?i='.$_SESSION['admin_ipath'].'&amp;p=admin'; }
+	if ($_SESSION['recent_pages'][1] == "admin") { $params = '?i='.URLencode_path($_SESSION['admin_ipath']).'&amp;p=admin'; }
 	else                                         { $params = $param1.$param2.'&amp;p='.$_SESSION['recent_pages'][1]; }
 
 	//If came from edit page via admin page, drop this page from recent_pages
@@ -924,7 +924,8 @@ function Timeout_Timer($COUNT, $ID, $CLASS="", $ACTION="") { //*****************
 function Init_Macros(){ //*** ($varibale="some reusable chunk of code")*********
 
 global 	$_, $ONESCRIPT, $param1, $param2, $INPUT_NUONCE, $FORM_COMMON, $PWUN_RULES,
-		$SVG_icon_circle_plus, $SVG_icon_circle_x, $SVG_icon_pencil, $SVG_icon_img_0;
+		$SVG_icon_circle_plus, $SVG_icon_circle_x, $SVG_icon_pencil, $SVG_icon_img_0,
+		$SVG_icon_circle_plus_rev;
 
 $INPUT_NUONCE = '<input type="hidden" name="nuonce" value="'.$_SESSION['nuonce'].'">'.PHP_EOL;
 $FORM_COMMON = '<form method="post" action="'.$ONESCRIPT.$param1.$param2.'">'.$INPUT_NUONCE;
@@ -935,6 +936,10 @@ $PWUN_RULES .= '<li>'.hsc($_['pw_txt_08']).'<li>'.hsc($_['pw_txt_10']).'</ol>';
 $SVG_icon_circle_plus = '<circle cx="5" cy="5" r="5" stroke="black" stroke-width="0" fill="#080"/>
 	  <line x1="2" y1="5" x2="8" y2="5" stroke="white" stroke-width="1.5" />
 	  <line x1="5" y1="2" x2="5" y2="8" stroke="white" stroke-width="1.5" />';
+
+$SVG_icon_circle_plus_rev = '<circle cx="5" cy="5" r="5" stroke="#080" stroke-width="1.3" fill="white"/>
+	  <line x1="2" y1="5" x2="8" y2="5" stroke="#080" stroke-width="1.5" />
+	  <line x1="5" y1="2" x2="5" y2="8" stroke="#080" stroke-width="1.5" />';
 
 $SVG_icon_circle_x = '<circle cx="5" cy="5" r="5" stroke="black" stroke-width="0" fill="#D00"/>
 	<line x1="2.5" y1="2.5" x2="7.5" y2="7.5" stroke="white" stroke-width="1.5"/>
@@ -968,10 +973,10 @@ function svg_icon_ren(){ //*****************************************************
 
 
 function svg_icon_copy(){ //****************************************************
-	global $SVG_icon_circle_plus;
+	global $SVG_icon_circle_plus_rev;
 
-	return '<svg class="icon2" xmlns="http://www.w3.org/2000/svg" version="1.1" width="11" height="11">'.
-		'<g transform="translate( .5, .5)">'.$SVG_icon_circle_plus.'</g></svg>';
+	return '<svg class="icon2" xmlns="http://www.w3.org/2000/svg" version="1.1" width="12" height="12">'.
+		'<g transform="translate( 1, 1)">'.$SVG_icon_circle_plus_rev.'</g></svg>';
 
 } //end svg_icon_copy() ********************************************************
 
@@ -1604,10 +1609,10 @@ function List_Files() { //******************************************************
 	// As of Version 3.3.18, that number is 7.
 	$checkbox_offset = 7;
 	
-	if (supports_svg()) { //Checks if IE < 9. I don't even know if Select_All() works in IE 9+. Does IE have diff js or DOM? //#####
+	if (supports_svg()) { //Checks if IE < 9.
 		$select_all_attribs = 'TYPE=checkbox NAME=select_all id=select_all VALUE=select_all';
 		$select_all_input = '<INPUT '.$select_all_attribs.' onclick="Select_All('.$checkbox_offset.');">';
-		echo '<div id=select_all_div><LABEL for=select_all id=select_all_label>'.$_['Select_All'].'</LABEL></div>'.$select_all_input; //* //#####
+		echo '<div id=select_all_div><LABEL for=select_all id=select_all_label>'.$_['Select_All'].'</LABEL></div>'.$select_all_input;
 	}
 	
 	function input_mcd($mcd) {
@@ -1619,7 +1624,7 @@ function List_Files() { //******************************************************
 	echo '<LABEL id=delete_label>'.hsc($_['Delete']).' '.input_mcd('delete').'</LABEL> ';
 	
 	echo '<input type=submit id=mcd_submit class=button value="'.hsc($_['Selected_Files']).
-		'" onclick="Confirm_ready('.$checkbox_offset.'); return false">'; //*
+		'" onclick="Confirm_ready('.$checkbox_offset.'); return false">';
 	echo '</div>'; //end class=action
 	echo '<div class=clear></div>'; //clear select_all
 
@@ -2431,8 +2436,7 @@ function Respond_to_POST() {//**************************************************
 	global $_, $VALID_POST, $page, $message;
 
 	if ($VALID_POST) { 
-		if (isset($_FILES['upload_file']['name']))  { Upload_response();     }
-		elseif     ($page == "mcdaction") {
+		if     ($page == "mcdaction") {
 			//There must be at least one 'file', and 'action' must = "move", "copy", or "delete"
 			if (!isset($_POST['mcdaction'] )) { $page = "index"; }
 			if (!isset($_POST['files']) )     { $page = "index"; }
@@ -2444,6 +2448,7 @@ function Respond_to_POST() {//**************************************************
 		elseif (isset($_POST["mcd_mov"]      )) { MCD_response('rename');    } //move == rename
 		elseif (isset($_POST["mcd_cpy"]      )) { MCD_response('copy');      }
 		elseif (isset($_POST["mcd_del"]      )) { MCD_response('delete');    }
+		elseif (isset($_FILES['upload_file']['name']))  { Upload_response(); }
 		elseif (isset($_POST["whattohash"]   )) { Hash_response();           }
 		elseif (isset($_POST["pw"]           )) { Change_PWUN_response('pw');}
 		elseif (isset($_POST["un"]           )) { Change_PWUN_response('un');}
@@ -3124,14 +3129,9 @@ table.verify td {
 }
 
 
-table.verify_del {
-	border: 1px solid #F44;
-	background-color: #FFE7E7;
-	}
+table.verify_del    { border: 1px solid #F44; background-color: #FFE7E7; }
 
-table.verify_del td { 
-	border: 1px solid #F44;
-	}
+table.verify_del td { border: 1px solid #F44; }
 
 
 #admin {padding: .3em;}
@@ -3322,39 +3322,34 @@ header('Content-type: text/html; charset=UTF-8');
 //******************************************************************************
 //******************************************************************************
 //Output page contents
-?><!DOCTYPE html>
+echo '<!DOCTYPE html>';
+echo '<html><head>';
+echo '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">';
+echo '<meta name="robots" content="noindex">';
 
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta name="robots" content="noindex">
+echo '<title>'.$config_title.' - '.Page_Title().'</title>';
 
-<title><?php echo $config_title.' - '.Page_Title() ?></title>
+style_sheet();
 
-<?php style_sheet() ?>
+Language_and_config_adjusted_styles();
 
-<?php Language_and_config_adjusted_styles() ?>
+common_scripts();
 
-<?php common_scripts() ?>
+echo '</head><body>';
 
-</head>
-<body>
+Error_reporting_and_early_output(1,0);
 
-<?php Error_reporting_and_early_output(1,0);  ?>
-
-<?php if ($page == "login"){ echo '<div id="main" class="login_page">'; }
+if ($page == "login"){ echo '<div id="main" class="login_page">'; }
       else                 { echo '<div id="main" class="container" >'; }
-?>
 
-<?php Page_Header() ?>
+Page_Header();
 
-<?php if ($Show_header_and_Admin) { Current_Path_Header(); } ?>
+if ($Show_header_and_Admin) { Current_Path_Header(); }
 
-<?php message_box() ?>
+message_box();
 
-<?php Load_Selected_Page() ?>
+Load_Selected_Page();
 
-<?php
 //Countdown timer...
 if ( $page != "login" ) { 
 	echo '<hr>';
@@ -3368,8 +3363,6 @@ if ($Show_header_and_Admin) {
 }elseif ($page != 'login') {
 	echo '<br>';
 }
-?>
-</div><!-- end container/login_page -->
 
-</body>
-</html>
+echo '</div>'; //<!-- end container/login_page -->
+echo '</body></html>';
