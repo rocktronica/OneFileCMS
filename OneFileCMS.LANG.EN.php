@@ -1,7 +1,7 @@
 <?php
-// OneFileCMS Language Settings v3.4.0 (same as 3.3.18)
+// OneFileCMS Language Settings v3.4.01
 
-$_['LANGUAGE'] = 'English';
+$_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
 
 // If no translation or value is desired for a particular setting, do not delete
@@ -59,6 +59,8 @@ $_['Username']   = 'Username';
 $_['Log_In']     = 'Log In';    
 $_['Log_Out']    = 'Log Out';   
 
+$_['Admin_Options']  = 'Administration Options';
+$_['Edit_View']      = 'Edit / View File';   
 $_['Upload_File']    = 'Upload File';        
 $_['New_File']       = 'New File';           
 $_['Ren_Move']       = 'Rename / Move';      
@@ -206,22 +208,6 @@ $_['delete_folder_msg_01'] = 'Folder not empty. Folders must be empty before the
 $_['delete_folder_msg_02'] = 'Deleted folder:';
 $_['delete_folder_msg_03'] = 'an error occurred during delete.';
 
-$_['page_title_login']      = 'Log In';                  
-$_['page_title_admin']      = 'Administration Options';  
-$_['page_title_hash']       = 'Generate a Password Hash';
-$_['page_title_change_pw']  = 'Change Password';         
-$_['page_title_change_un']  = 'Change Username';         
-$_['page_title_edit']       = 'Edit / View File';        
-$_['page_title_upload']     = 'Upload File';             
-$_['page_title_new_file']   = 'New File';                
-$_['page_title_ren']        = 'Rename / Move File';      
-$_['page_title_copy']       = 'Copy File(s)';            
-$_['page_title_mov']        = 'Move File(s)';            
-$_['page_title_del']        = 'Delete File(s)';          
-$_['page_title_folder_new'] = 'New Folder';              
-$_['page_title_folder_ren'] = 'Rename / Move Folder';    
-$_['page_title_folder_del'] = 'Delete Folder';           
-
 $_['session_warning']  = 'Warning: Session timeout soon!';
 $_['session_expired']  = 'SESSION EXPIRED';
 $_['unload_unsaved']   = ' Unsaved changes will be lost!';
@@ -278,4 +264,3 @@ $_['update_failed'] = 'Update failed - could not save file.';
 $_['mcd_msg_01']    = 'files moved successfully.';            
 $_['mcd_msg_02']    = 'files copied successfully.';           
 $_['mcd_msg_03']    = 'files deleted successfully.';          
-

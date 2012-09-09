@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.0 (same as 3.3.18)
+// OneFileCMS Language Settings v3.4.01
 
 $_['LANGUAGE'] = 'Deutsch';
 $_['LANG'] = 'DE';
@@ -59,6 +59,8 @@ $_['Username']   = 'Benutzername';
 $_['Log_In']     = 'Anmelden';  
 $_['Log_Out']    = 'Abmelden';  
 
+$_['Admin_Options']  = 'Administration Options'; //## NT ##
+$_['Edit_View']      = 'Edit / View File';    //## NT ##
 $_['Upload_File']    = 'Datei heraufladen';  
 $_['New_File']       = 'Datei erstellen';    
 $_['Ren_Move']       = 'Umbenennen / Verschieben';
@@ -85,6 +87,7 @@ $_['save_2']      = 'ÄNDERUNGEN SPEICHERN!';
 $_['reset']       = 'Zurücksetzen - Änderungen verwerfen';
 $_['Wide_View']   = 'Breitenadaptierte Ansicht';
 $_['Normal_View'] = 'Normale Ansicht';
+$_['Open_View']   = 'Open/View in browser window'; //## NT ##
 
 $_['verify_msg_01']  = 'Sitzung abgelaufen.';
 $_['verify_msg_02']  = 'UNGÜLTIGE DATENSENDUNG';
@@ -205,22 +208,6 @@ $_['delete_folder_txt_01'] = 'Sind Sie sicher?';
 $_['delete_folder_msg_01'] = 'Der Ordner ist nicht leer.   Bevor ein Ordner gelöscht werden kann, muss er geleert werden.';
 $_['delete_folder_msg_02'] = 'Gelöschter Ordner:';
 $_['delete_folder_msg_03'] = 'während des Löschvorgangs trat ein Fehler auf.';
-
-$_['page_title_login']      = 'Anmelden';                
-$_['page_title_admin']      = 'Optionen für die Administration';
-$_['page_title_hash']       = 'Streuwertgenerierung für das Passwort';
-$_['page_title_change_pw']  = 'Passwort ändern';        
-$_['page_title_change_un']  = 'Benutzername ändern';    
-$_['page_title_edit']       = 'Datei bearbeiten/betrachten';
-$_['page_title_upload']     = 'Datei heraufladen';       
-$_['page_title_new_file']   = 'Neue Datei';              
-$_['page_title_ren']        = 'Datei umbenennen';        
-$_['page_title_copy']       = 'Datei kopieren';          
-$_['page_title_mov']        = 'Datei Verschieben';       
-$_['page_title_del']        = 'Datei löschen';          
-$_['page_title_folder_new'] = 'Neuer Ordner';            
-$_['page_title_folder_ren'] = 'Ordner umbenennen/verschieben';
-$_['page_title_folder_del'] = 'Ordner löschen';         
 
 $_['session_warning']  = 'Achtung: Die sitzung wird ende bald!';
 $_['session_expired']  = 'SITZUNG ABGELAUFEN';

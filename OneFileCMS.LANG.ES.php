@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.0 (same as 3.3.18)
+// OneFileCMS Language Settings v3.4.01
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -59,6 +59,8 @@ $_['Username']   = 'Username';   //## NT ##
 $_['Log_In']     = 'Iniciar Sesión';
 $_['Log_Out']    = 'Cerrar Sesión';
 
+$_['Admin_Options']  = 'Administration Options'; //## NT ##
+$_['Edit_View']      = 'Edit / View File';    //## NT ##
 $_['Upload_File']    = 'Subir Archivo';      
 $_['New_File']       = 'Archivo Nuevo';      
 $_['Ren_Move']       = 'Renombrar / Mover';  
@@ -85,6 +87,7 @@ $_['save_2']      = '¡GUARDAR CAMBIOS!';
 $_['reset']       = 'Reiniciar - perder los cambios';
 $_['Wide_View']   = 'Vista Ampliada';
 $_['Normal_View'] = 'Vista Normal';
+$_['Open_View']   = 'Open/View in browser window'; //## NT ##
 
 $_['verify_msg_01']  = 'Sesión expirada.';
 $_['verify_msg_02']  = 'POST INVÁLIDO';
@@ -205,22 +208,6 @@ $_['delete_folder_txt_01'] = '¿Estás seguro?';
 $_['delete_folder_msg_01'] = 'Carpeta no vacía.   Las carpetas deben estar vacías antes de ser eliminadas.';
 $_['delete_folder_msg_02'] = 'Carpeta eliminada:';
 $_['delete_folder_msg_03'] = 'ocurrió un error eliminándola.';
-
-$_['page_title_login']      = 'Iniciar Sesión';         
-$_['page_title_admin']      = 'Administration Options';   //## NT ##
-$_['page_title_hash']       = 'Generar una Cadena de Contraseña';
-$_['page_title_change_pw']  = 'Change Password';          //## NT ##
-$_['page_title_change_un']  = 'Change Username';          //## NT ##
-$_['page_title_edit']       = 'Editar / Ver Archivo';    
-$_['page_title_upload']     = 'Subir Archivo';           
-$_['page_title_new_file']   = 'Nuevo Archivo';           
-$_['page_title_ren']        = 'Renombrar  / Mover Archivo';
-$_['page_title_copy']       = 'Copiar Archivo';          
-$_['page_title_mov']        = 'Move File(s)';             //## NT ##
-$_['page_title_del']        = 'Delete File(s)';           //## NT ##
-$_['page_title_folder_new'] = 'Nueva Carpeta';           
-$_['page_title_folder_ren'] = 'Renombrar / Mover Carpeta';
-$_['page_title_folder_del'] = 'Eliminar Carpeta';        
 
 $_['session_warning']  = 'Advertencia: ¡La sesión terminará pronto!';
 $_['session_expired']  = 'SESIÓN TERMINADA';

@@ -1,4 +1,4 @@
-Version 3.4.0
+Version 3.4.01
 
 LICENSE
 
@@ -24,7 +24,7 @@ MISC FUNCTIONS:
 	ordinalize()
 	supports_svg()
 
-PAGE CHUNK FUNCTIONS
+MISC PAGE SECTIONS/FUNCTIONS
 	Current_Path_Header()
 	Page_Header()
 	message_box()
@@ -105,12 +105,12 @@ JAVASCRIPT & STYLESHEET FUNCTIONS:
 
 LOGIC TO DETERMINE PAGE ACTION
 	Load Default_Language()
-	Verify good PHP version
 	If specified, load external language file
+	Verify good PHP version
 	Session_Startup()
 	Get_GET()
 	Init_Macros()
 	Respond_to_POST()
-	Final checks of $page to show
+	Final checks for $page to show
 
 GENERATE/OUTPUT <HTML>...  

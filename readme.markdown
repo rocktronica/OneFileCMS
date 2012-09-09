@@ -1,4 +1,8 @@
-# Current stable version: 3.4
+# Current stable version: 3.4.01
+
+### September 9, 2012
+
+- A couple minor fixes, and some code improvements & cleanup.
 
 ### Auguest 29, 2012
 
@@ -33,7 +37,7 @@ If an external config file is used to store your password and/or hash, make sure
   
 ;<?php die();  
   
-Otherwise, the file - along with your password, is world readable. For details, see the php documentation and comments on parse_ini_file().
+Otherwise, the file - along with your password, is world readable. For details, see the php documentation and comments on parse\_ini\_file().
 
 
 #### Language files
@@ -55,9 +59,9 @@ Edit screen:
 ![OneFileCMS](http://self-evident.github.com/OneFileCMS/images/OneFileCMS_screenshot_edit.png)
 
 
-OneFileCMS is just that. It's a flat, light, one file CMS (Content Management System) entirely contained in an easy-to-implement, highly customizable, database-less PHP script.
+OneFileCMS is just that: It's a flat, light, one file CMS (Content Management System) contained entirely in an easy-to-implement database-less PHP script.
 
-Coupling a utilitarian code editor with basic file managing functions, OneFileCMS can maintain a whole website completely in-browser without any external programs.
+Coupling a utilitarian code editor with basic file managing functions, OneFileCMS can maintain an entire website completely in-browser without any external programs.
 
 ## Demo
 
@@ -66,13 +70,13 @@ Coupling a utilitarian code editor with basic file managing functions, OneFileCM
 ## Features
  
 - All the basic features of an FTP application like renaming, deleting, copying, and uploading
-  _(For complex processes like batch renaming or mass uploads/deletions, you're going to want to use an actual FTP program.)_
+  _(For complex processes like batch renaming or mass uploads, you're going to want to use an actual FTP program.)_
 - A basic text editor.
-- Alert if you try to leave without saving your edits.
+- Warns if you try to leave editing with unsaved changes.
 - A Login delay after too many invalid attempts.
 - Adjustable idle time before auto-logout.
 - Easily modifiable & re-brandable.
-- Possibly the easiest installation process ever!
+- <del>Possibly</del> The easiest installation process ever!
 
 ## Installation
 
@@ -90,7 +94,7 @@ You can also change the file name of OneFileCMS.php to something else, such as "
 
 ### Where's the WYSIWYG? What about syntax highlighting?
 
-WYSWIWYG editors have been requested, but probably won't become standard, as they'd make it more than one file, sort of defeating the "OneFile" point. Plus, if you're working in PHP or non-HTML code, they're can be more of a hindrance than an asset.
+WYSWIWYG editors have been requested, but probably won't become standard, as they'd make it more than one file, sort of defeating the "OneFile" point. Plus, if you're working in PHP or non-HTML code, they can be more of a hindrance than an asset.
 
 However, just because I don't want to do it, doesn't mean it's impossible.  Look for the Edit_Page_form() function. Its textarea can be modified to work with whatever editor you like. 
 
@@ -100,19 +104,21 @@ Yes, of course!
 
 I may not have the time/bandwidth/inclination to implement every feature, but I 'll do what I can. If it's urgent, contact me.  
 
-### This is basically just a file manager with a text editor. Why is it being called a Content Management System?
+### This is basically just a file manager with a text editor- why is it being called a CMS?
 
-Well, because "OneFileFileManagerTextEditor" just doesn't have the same ring to it...
+Well, because "OneFileCMS" sounds way cooler than "OneFileFileManagerwithTextEditor".
 
 ### Multi-Language Support?
 
-Yes!  Currently, English, German, and Spanish are available.  (Someone told me he was working on an Esparento translation, but that might have been a joke...)
+Yes!  Currently, English, German, and Spanish are available.
+
+If you speak another language and would like to contribute, translations into other languages are welcomed and appreciated!  Just use the English language file as a template, and translate each word, phrase, etc., as appropriate.  (Someone told me he was working on an Esparento translation, but that might have been a joke...)
 
 ### Can I have more than one username/password?
 
-Yes!  Well, sort of - indirectly.  Upload or create addional copies of OneFileCMS, but give them different file names.(ie: OneFile1.php and OneFile2.php etc...)  Then, in each copy, maintain different user names and passwords.  Also, so that one user does not log out the other, change the $session_name config variables.  
+Yes!  Well, sort of - indirectly.  Upload or create addional copies of OneFileCMS, but give them different file names.(ie: OneFile1.php and OneFile2.php etc...)  Then, in each copy, maintain different user names and passwords.  Also, so that one user does not log out the other, change the value of the $session_name config variables.  
   
-Now, since there is no database or other means of granular control and access logging, multiple users may be kind of pointless.  On the other hand, having at least one working backup copy of OneFileCMS available is recommended in case the primary copy gets corrupted.
+Now, since there is no database or other means of granular control and access logging, multiple usernames may be kind of pointless.  On the other hand, having at least one working backup copy of OneFileCMS available is recommended in case the primary copy gets corrupted.
 
 ## Requirements
 
@@ -120,8 +126,8 @@ Now, since there is no database or other means of granular control and access lo
   (Only tested on versions 5.2.8, 5.2.17, 5.3.3, and 5.4 + )
 - File permission privileges on your host
 - Javascript enabled browswer
-- And, for OneFileCMS 3+, a browser that supports inline SVG.  
-  (However, even if your browser doesn't support inline SVG, OneFileCMS will still work, just without any icons.)
+- And a browser that supports inline SVG, but only if you wish to see the icons
+  (If your browser doesn't support inline SVG, OneFileCMS will still work, just without any icons.)
 
 ## Credit, License, Et Cetera  
 
@@ -139,9 +145,9 @@ Now, since there is no database or other means of granular control and access lo
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
 - Issue with Chrome's XSS filter: Editing some legitimate files with OneFileCMS will trigger the filter and disable much of the javascript provided functionallity, but only while on the edit page with such a file, and only after a [Save].
 - The connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text during login.  
-  (However, this is true of most online login systems, unless SSL or the like is employed.)
+  However, this is true of most online login systems, unless SSL or the like is employed.
 - Be aware that only some very basic data & error checking is performed.  (But, it's getting better...)  
-  On Windows, for instance, it was possible to create folders that are subsequently inaccessible and undeletable by Windows.  (Yea, I found out the hard way...)  (However, I *think* that issue is fixed.)
+  On Windows, for instance, it was possible to create folders that were subsequently inaccessible and undeletable by Windows.  (Yea, I found out the hard way...)  (However, I *think* that issue is fixed.)
 - Anything else?
 
 --------------------------------------------------------------------------------
@@ -150,7 +156,7 @@ Now, since there is no database or other means of granular control and access lo
   
 CONFIGURATION SECTION  
   
-SYSTEM GLOBAL VARIABLES  
+SYSTEM SETUP/VARIABLES  
   
 DEFAULT LANGUAGE  
   
@@ -171,6 +177,11 @@ GENERATE/OUTPUT THE PAGE
 --------------------------------------------------------------------------------
 
 ## Change Log
+
+### 3.4.01
+
+- A couple of minor bux fixes.
+- Some code cleanup & improvements.
 
 ### 3.3.17 - 3.4.0
 
@@ -288,7 +299,7 @@ GENERATE/OUTPUT THE PAGE
 
 ### 3.1.1
 
-- Fixed minor issue with data encoding of file to exit in <textarea>
+- Fixed minor issue with data encoding of file to exit in &lt;textarea>
 
 ### 3.1
 
