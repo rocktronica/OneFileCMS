@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.01
+// OneFileCMS Language Settings v3.4.02
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -41,6 +41,7 @@ $_['DELETE']  = 'DELETE';
 $_['Deleted'] = 'Deleted';
 $_['Edit']    = 'Edit';   
 $_['Enter']   = 'Enter';  
+$_['Error']   = 'Error'; //#####
 $_['errors']  = 'errors'; 
 $_['File']    = 'File';   
 $_['Folder']  = 'Folder'; 
@@ -87,6 +88,7 @@ $_['save_2']      = 'SAVE CHANGES!';
 $_['reset']       = 'Reset - loose changes';
 $_['Wide_View']   = 'Wide View';
 $_['Normal_View'] = 'Normal View';
+$_['Open_View']   = 'Open/View in browser window'; //#####
 
 $_['verify_msg_01']  = 'Session expired.';
 $_['verify_msg_02']  = 'INVALID POST';
@@ -170,12 +172,12 @@ $_['upload_msg_04'] = 'Uploading:';
 $_['upload_msg_05'] = 'Upload successful!';
 $_['upload_msg_06'] = 'Upload failed:';
 
-$_['new_file_txt_01'] = 'File will be created in the current folder.';
+$_['new_file_txt_01'] = 'File or Folder will be created in the current folder.';  //#####
 $_['new_file_txt_02'] = 'Some invalid characters are:';
 $_['new_file_msg_01'] = 'New file not created:';
 $_['new_file_msg_02'] = 'Name contains invalid character(s):';
-$_['new_file_msg_03'] = 'New file not created - no name given';
-$_['new_file_msg_04'] = 'File already exists:';
+$_['new_file_msg_03'] = 'Not created - no name given'; //#####
+$_['new_file_msg_04'] = 'File or folder already exists:';  //#####
 $_['new_file_msg_05'] = 'Created file:';
 $_['new_file_msg_06'] = 'Error - new file not created:';
 

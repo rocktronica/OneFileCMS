@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.01';
+$OFCMS_version = '3.4.02';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -156,6 +156,11 @@ $itypes   = explode(',', strtolower(str_replace(' ', '', $config_itypes))); //im
 $ftypes   = explode(',', strtolower(str_replace(' ', '', $config_ftypes))); //file types with icons
 $fclasses = explode(',', strtolower(str_replace(' ', '', $config_fclass))); //for file types with icons
 $excluded_list = (explode(",", $config_excluded));
+
+//*The parameter for the Select_All() and Confirm_ready() javascript functions
+// is the number of form elements before the first file select checkbox.
+// As of Version 3.3.18, that number is 7.
+$CHECKBOX_OFFSET = 7;
 //******************************************************************************
 
 
@@ -169,7 +174,7 @@ function hte($input) { return htmlentities($input, ENT_QUOTES, 'UTF-8'); }//end 
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.4.01
+// OneFileCMS Language Settings v3.4.02
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -198,24 +203,25 @@ $_['select_all_div_width']  = '73px';   //Width of space for $_['Select_All']
 $_['R'] = 'R'; //R ename
 $_['C'] = 'C'; //C opy
 $_['D'] = 'D'; //D elete
-$_['Admin']   = 'Admin';  
-$_['Cancel']  = 'Cancel'; 
-$_['Close']   = 'Close';  
-$_['Copy']    = 'Copy';   
-$_['Copied']  = 'Copied'; 
-$_['Create']  = 'Create'; 
-$_['Delete']  = 'Delete'; 
-$_['DELETE']  = 'DELETE'; 
+$_['Admin']   = 'Admin';
+$_['Cancel']  = 'Cancel';
+$_['Close']   = 'Close';
+$_['Copy']    = 'Copy';
+$_['Copied']  = 'Copied';
+$_['Create']  = 'Create';
+$_['Delete']  = 'Delete';
+$_['DELETE']  = 'DELETE';
 $_['Deleted'] = 'Deleted';
-$_['Edit']    = 'Edit';   
-$_['Enter']   = 'Enter';  
-$_['errors']  = 'errors'; 
-$_['File']    = 'File';   
-$_['Folder']  = 'Folder'; 
-$_['From']    = 'From';   
-$_['Hash']    = 'Hash';   
-$_['Move']    = 'Move';   
-$_['Moved']   = 'Moved';  
+$_['Edit']    = 'Edit';
+$_['Enter']   = 'Enter';
+$_['Error']   = 'Error'; //#####
+$_['errors']  = 'errors';
+$_['File']    = 'File';
+$_['Folder']  = 'Folder';
+$_['From']    = 'From';
+$_['Hash']    = 'Hash';
+$_['Move']    = 'Move';
+$_['Moved']   = 'Moved';
 $_['on']      = 'on';     
 $_['Password'] = 'Password';
 $_['Rename']     = 'Rename';    
@@ -252,7 +258,7 @@ $_['save_2']      = 'SAVE CHANGES!';
 $_['reset']       = 'Reset - loose changes';
 $_['Wide_View']   = 'Wide View';
 $_['Normal_View'] = 'Normal View';
-$_['Open_View']   = 'Open/View in browser window';
+$_['Open_View']   = 'Open/View in browser window'; //#####
 $_['verify_msg_01']  = 'Session expired.';
 $_['verify_msg_02']  = 'INVALID POST';
 $_['get_get_msg_01']    = 'File does not exist:';
@@ -324,12 +330,12 @@ $_['upload_msg_03'] = 'Upload cancelled.';
 $_['upload_msg_04'] = 'Uploading:';
 $_['upload_msg_05'] = 'Upload successful!';
 $_['upload_msg_06'] = 'Upload failed:';
-$_['new_file_txt_01'] = 'File will be created in the current folder.';
+$_['new_file_txt_01'] = 'File or Folder will be created in the current folder.';  //#####
 $_['new_file_txt_02'] = 'Some invalid characters are:';
 $_['new_file_msg_01'] = 'New file not created:';
 $_['new_file_msg_02'] = 'Name contains invalid character(s):';
-$_['new_file_msg_03'] = 'New file not created - no name given';
-$_['new_file_msg_04'] = 'File already exists:';
+$_['new_file_msg_03'] = 'Not created - no name given'; //#####
+$_['new_file_msg_04'] = 'File or folder already exists:';  //#####
 $_['new_file_msg_05'] = 'Created file:';
 $_['new_file_msg_06'] = 'Error - new file not created:';
 $_['CRM_txt_01']  = 'To move a file or folder, change the path/to/folder/or_file.';
@@ -481,7 +487,7 @@ function hashit($key){ //*******************************************************
 	//This is the super-secret stuff - Keep it secret, keep it safe!
 	//If you change anything here, or the $SALT, redo the hash for your password.
 	global $SALT;
-	$hash = hash('sha256', trim($key).$SALT); // trim off leading & trailing spaces.
+	$hash = hash('sha256', trim($key).$SALT); // trim off leading & trailing whitespace.
 	for ( $x=0; $x < 10000; $x++ ) { $hash = hash('sha256', $hash.$SALT); }
 	return $hash;
 }//end hashit() ****************************************************************
@@ -647,45 +653,69 @@ function URLencode_path($path){ // don't encode the forward slashes ************
 	$path_array = explode('/',$path);
 	$path = "";
 	foreach ($path_array as $level) { $path .= rawurlencode($level).'/'; }
-	$path = rtrim($path,'/').$TS;  //ends with $TS only if started with one
+	$path = rtrim($path,'/').$TS;  //end with $TS only if started with one
 	return $path;
 }//end URLencode_path($path) ***************************************************
 
 
 
 
-function Check_path($path) { // returns first valid path in some/supplied/path/
-	global  $_, $message, $EX;
-	$invalidpath = $path; //used for message if supplied $path doesn't exist.
+function has_invalid_char($string) { //*****************************************
+	global $INVALID_CHARS, $INVALID_CHARS_array;
+	foreach ($INVALID_CHARS_array as $bad_char) {
+		if (strpos($string, $bad_char) !== false) { return $bad_char; }
+	}
+	return false;
+}//end has_invalid_char() //****************************************************
+
+
+
+
+function Check_path($path, $show_msg = false) { //******************************
+	// check for valid existing $path.
+	global  $_, $WEB_ROOT, $message, $EX, $INVALID_CHARS;
+
 	$path = str_replace('\\','/',$path);   //Make sure all forward slashes.
-	$path = trim($path,"/ ."); // trim slashes, dots, and spaces
+	$path = trim($path,"\x00..\x20/");     // trim whitespace & slashes
 
-	//Remove any '.' and '..' parts of the path.  Causes issues in <h2>www / current / path /</h2>
+	$err_msg = ""; //
+
+	if (strlen($path) < 1) { return ""; } // At root.
+
+	$errors = 0;
+
 	$pathparts = explode( '/', $path);
-	$len       = count($pathparts);
-	$path      = "";  //Cleaned path.
-	foreach ($pathparts as $value) { //(More reliable than str_replace(entire_string).)
-		if ( ($value != '.') && ($value != '..') ) { $path .= $value.'/'; }
-	}
 
-	$path = trim($path,"/"); // Remove -for now- final trailing slash.
-
-	if (strlen($path) < 1) { return ""; } //If at site root
-	else {
-		if (!is_dir($path) && (strlen($message) < 1)) {
-			$message .= $EX.'<b>'.hsc($_['check_path_msg_01']).'</b>';
-			$message .= hte(dirname($invalidpath)).'/<b>'.hte(basename($invalidpath)).'</b><br>';
+	foreach ($pathparts as $part) {
+		
+		//Check for any '.' and '..' parts of the path to protect directories outside webroot.
+		//They also cause issues in <h2>www / current / path /</h2>
+		if ( ($part == '.') || ($part == '..') ) {
+			$err_msg .= $EX.' <b>"dot" or "dot dot" segments are not permitted.</b><br>';     //##### Needs $_[]
+			$errors++;
+			break;
 		}
 		
-		while ( (strlen($path) > 0) && (!is_dir($path)) ) {
-			$path = dirname($path);
+		//Check for invalid characters
+		$invalid_chars = str_replace(' /','',$INVALID_CHARS); // The forward slash is not exactly invalid in this context.
+		if ( has_invalid_char($part) ) {
+			$err_msg .= $EX.' <b>Path contains an invalid character: <span class="mono">'.$invalid_chars.'</span></b><br>'; //##### Needs $_[]
+			$errors++;
+			break;
 		}
-		
-		$path = $path.'/';
-		if ($path == './') { $path = ""; } // ./ means path not found, so clear for root.
 	}
 
-	return $path;
+	if (!is_dir($path) && !$errors)  { //final overall check
+		$err_msg .= $EX.' <b>Invalid directory name.</b><br>';     //##### Needs $_[]  $_['check_path_msg_01']
+		$errors++;
+	}
+
+	if ($errors > 0) {
+		if ($show_msg) { $message .= $err_msg; }
+		return false;
+	}
+
+	return $path.'/';
 }//end Check_path() ************************************************************
 
 
@@ -737,7 +767,7 @@ function supports_svg() { //****************************************************
 		$ie_ver = substr($USER_AGENT, ($pos_MSIE+5), 1);
 		$old_ie = ( $ie_ver < 9 );
 	}
-	if ($old_ie) { false; }else{ return true; }
+	return !$old_ie;
 }//end supports_svg ************************************************************
 
 
@@ -753,12 +783,12 @@ function Current_Path_Header(){ //**********************************************
 		//Root folder of web site.
 		echo '<a id="path_0" href="'.$ONESCRIPT.'" class="path"> '.hte(trim($WEB_ROOT, '/')).'</a>/';
 		$x=0; //need here for focus() in case at webroot.
-
+		
 		if ($ipath != "" ) { //if not at root, show the rest
 			$path_levels  = explode("/",trim($ipath,'/') );
 			$levels = count($path_levels); //If levels=3, indexes = 0, 1, 2  etc...
 			$current_path = "";
-
+			
 			for ($x=0; $x < $levels; $x++) {
 				$current_path .= $path_levels[$x].'/';
 				echo '<a id="path_'.($x+1).'" href="'.$ONESCRIPT.'?i='.URLencode_path($current_path).'" class="path">';
@@ -848,7 +878,7 @@ function Cancel_Submit_Buttons($submit_label, $focus) { //**********************
 ?>
 	<p>
 	<input type="button" class="button" id="cancel" value="<?php echo hsc($_['Cancel']) ?>"
-		onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'; return false">
+		onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
 	<input type="submit" class="button" value="<?php echo $submit_label;?>" style="margin-left: 1em;">
 <?php
 	if ($focus != ""){ echo '<script>document.getElementById("'.$focus.'").focus();</script>'; }
@@ -1253,7 +1283,7 @@ function Hash_Page() { //*******************************************************
 
 function Hash_response() { //***************************************************
 	global $_, $message;
-	$_POST['whattohash'] = trim($_POST['whattohash']); // trim leading & trailing spaces.
+	$_POST['whattohash'] = trim($_POST['whattohash']); // trim whitespace.
 
 	//Ignore/don't hash empty string - passwords can't be blank.
 	if ($_POST['whattohash'] == "") { return; }
@@ -1358,7 +1388,7 @@ function Change_PWUN_response($PWUN, $msg){ //**********************************
 	global $_, $ONESCRIPT, $USERNAME, $HASHWORD, $EX, $message, $page, $config_file,
 		   $ONESCRIPT_file, $ONESCRIPT_file_backup, $CONFIG_file, $CONFIG_file_backup;
 
-	// trim leading & trailing white-space from input values
+	// trim white-space from input values
 	$current_pass = trim($_POST['current_pw']);
 	$new_pwun     = trim($_POST['new1']);
 	$confirm_pwun = trim($_POST['new2']);
@@ -1472,7 +1502,7 @@ function Login_response() { //**************************************************
 		return;
 	}
 
-	//Trim any incidental leading or trailing spaces before validating.
+	//Trim any incidental whitespace before validating.
 	$_POST['password'] = trim($_POST['password']);
 	$_POST['username'] = trim($_POST['username']);
 
@@ -1549,7 +1579,7 @@ function Table_of_Files($files, $R, $C, $D) { //********************************
 				} ?>
 				</td>
 				<td class="file_name">
-					<?php echo '<a href="'.$HREF_params.'&amp;p=edit"  title="'.hsc($_['Edit']).'">'; ?>
+					<?php echo '<a href="'.$HREF_params.'&amp;p=edit"  title="'.hsc($_['Edit_View']).'">'; ?>
 					<?php echo show_icon($type).hte($file), '</a>'; ?>
 				</td>
 				<td class="meta_T file_size">&nbsp;
@@ -1593,11 +1623,6 @@ function List_Files() { //******************************************************
 	echo '<input type="hidden" name="mcdaction" value="mcdaction">';
 
 	echo '<div class="action">';
-
-	//*The parameter for the Select_All() and Confirm_ready() javascript functions
-	// is the number of form elements before the first file select checkbox.
-	// As of Version 3.3.18, that number is 7.
-	$CHECKBOX_OFFSET = 7;
 
 	if (supports_svg()) { //Checks if IE < 9.
 		$select_all_attribs = 'TYPE=checkbox NAME=select_all id=select_all VALUE=select_all';
@@ -1751,8 +1776,8 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 					echo hsc($_['edit_txt_04']).'<br></pre>';
 				}else{
 					echo '<input type="hidden" name="filename" value="'.hsc($filename).'">';
-					echo '<textarea id="file_contents" name="contents" cols="70" rows="25"
-						onkeyup="Check_for_changes(event);">'.$filecontents.'</textarea>'.PHP_EOL;
+					echo '<textarea id="file_contents" name="contents" cols="70" rows="25"';
+					echo 'onkeyup="Check_for_changes(event);">'.$filecontents.'</textarea>'.PHP_EOL;
 				}
 			} //end if non-text file...
 		} //end if non-image
@@ -1946,52 +1971,44 @@ function Upload_response() { //*************************************************
 
 
 
-function New_File_Page() { //***************************************************
+function New_File_or_Folder_Page($title, $id) { //****************
 	global $_, $FORM_COMMON, $INVALID_CHARS;
-?>
-	<h2><?php echo hsc($_['New_File']) ?></h2>
-	<?php echo $FORM_COMMON ?>
-		<p><?php echo hsc($_['new_file_txt_01']).' '.hsc($_['new_file_txt_02']) ?>
-		<span class="mono"><?php echo hte($INVALID_CHARS) ?></span></p>
-		<input type="text" name="new_file" id="new_file" value="">
-		<?php Cancel_Submit_Buttons(hsc($_['Create']),"new_file"); ?>
-	</form>
-<?php
-}//end New_File_Page()**********************************************************
+
+	echo '<h2>'.hsc($title).'</h2>';
+	echo $FORM_COMMON;
+		echo '<p>'.hsc($_['new_file_txt_01'].' '.$_['new_file_txt_02']);
+		echo '<span class="mono">'.hte($INVALID_CHARS).'</span></p>';
+		echo '<input type="text" name="'.$id.'" id="'.$id.'" value="">';
+		Cancel_Submit_Buttons(hsc($_['Create']),$id);
+	echo '</form>';
+}//end New_File_or_Folder_Page() //*********************************************
 
 
 
 
 function New_File_response() { //***********************************************
-	global $_, $ipath, $param2, $param3, $filename, $page, $message, $EX, $INVALID_CHARS, $INVALID_CHARS_array;
+	global $_, $WEB_ROOT, $ipath, $filename, $page, $param1, $param2, $param3, $message, $EX, $INVALID_CHARS;
 
-	$new_name = trim($_POST["new_file"],'/ '); //Trim spaces and slashes.
-	$filename = $ipath.$new_name;
-	$page = "index"; // return to index if new file fails
+	$new_name  = trim($_POST["new_file"],"\x00..\x20/"); //Trim whitespace & slashes.
+	$filename  = $ipath.$new_name;
+	$page      = "index"; //Return to index on error.
+
+	$msg_new   = '<span class="filename">'.hte($new_name).'</span><br>';
 	
-	$invalid = false;
-	foreach ($INVALID_CHARS_array as $bad_char) {
-		if (strpos($new_name, $bad_char) !== false) { $invalid = true; }
-	}
-
-	if ($invalid){
-		$message .= $EX.'<b>'.hsc($_['new_file_msg_01']).'</b> '.hte($new_name).'<br>'.
-			'<b> &nbsp; &nbsp; &nbsp; '.hsc($_['new_file_msg_02']).' '.
-			'<span class="mono">'.hte($INVALID_CHARS).'</span></b>';
+	if (has_invalid_char($new_name)){
+		$message .= $EX.'<b>'.hsc($_['Error']).': '.hsc($_['new_file_msg_02']);
+		$message .= ' <span class="mono">'.hte($INVALID_CHARS).'</span></b><br>'.$msg_new;
 	}elseif ($new_name == ""){
 		$message .= $EX.'<b>'.hsc($_['new_file_msg_03']).'</b>';
 	}elseif (file_exists($filename)) {
-		$message .= $EX.'<b>'.hsc($_['new_file_msg_04']).' ';
-		$message .= hte($new_name).'</b>';
-	}elseif ($handle = fopen($filename, 'w')) {
-		fclose($handle);
-		$message .= '<b>'.hsc($_['new_file_msg_05']).'</b> '.hte($new_name);
-		$page     = "edit";
+		$message .= $EX.'<b>'.hsc($_['new_file_msg_04']).'</b> '.$msg_new;
+	}elseif ( touch($filename) ) {
+		$message .= '<b>'.hsc($_['new_file_msg_05']).'</b> '.$msg_new;
+		$page     = "edit";                                     //Return to edit page.
 		$param2   = '&amp;f='.rawurlencode(basename($filename));// for Edit_Page() buttons
 		$param3   = '&amp;p=edit';                              // for Edit_Page() buttons
 	}else{
-		$message .= $EX.'<b>'.hsc($_['new_file_msg_06']);
-		$message .= hte($new_name).'</b>';
+		$message .= $EX.'<b>'.hsc($_['new_file_msg_06']).$msg_new;
 	}
 }//end New_File_response() *****************************************************
 
@@ -2027,7 +2044,7 @@ function Set_Input_width() { //*************************************************
 
 
 
-function Copy_Ren_Move_Page($action, $title, $name_id, $isfile) { //************
+function CRM_Page($action, $title, $name_id, $isfile) { //**********************
 	//$action = 'Copy' or 'Rename'. $isfile = 1 if acting on a file, not a folder
 	global $_, $WEB_ROOT, $ipath, $filename, $FORM_COMMON;
 
@@ -2042,77 +2059,92 @@ function Copy_Ren_Move_Page($action, $title, $name_id, $isfile) { //************
 	<p><?php echo hsc($_['CRM_txt_01'].' '.$_['CRM_txt_02']) ?></p>
 
 	<?php echo $FORM_COMMON ?>
-
+		<input type="hidden" name="<?php echo $name_id ?>"  value="<?php echo hsc($name_id); ?>">
+		
 		<label><?php echo hsc($_['CRM_txt_03']) ?></label><br>
 		<span class="web_root"><?php echo hte($WEB_ROOT); ?></span><input type="text"
 			name="old_name" value="<?php echo hsc($old_name); ?>" readonly="readonly">
 		<br>
 		<label><?php echo hsc($_['CRM_txt_04']) ?></label><br>
 		<span class="web_root"><?php echo hte($WEB_ROOT); ?></span><input type="text"
-			name="<?php echo $name_id ?>" id="<?php echo $name_id ?>"
+			name="new_name" id="new_name"
 			value="<?php echo hsc($new_name); ?>">
-		<?php Cancel_Submit_Buttons($action, $name_id); ?>
+		<?php Cancel_Submit_Buttons($action, "new_name"); ?>
 
 	</form>
 <?php
-} //end Copy_Ren_Move_Page() ***************************************************
+} //end CRM_Page() *************************************************************
 
 
 
 
-//******************************************************************************
-function Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $isfile, $show_message = 3){
+function CRM_response($action, $msg1, $isfile, $show_message = 3){ //***********
+	//Returns 0 if successful, 1 on error.
 	//$action = 'copy' or 'rename'. $isfile = 1 if acting on a file, not a folder
 	//$show_message: 0 = none; 1 = errors only; 2 = successes only; 3 = all messages (default).
-	global $_, $WEB_ROOT, $ipath, $filename, $page, $param1, $param2, $message, $EX ;
+	global $_, $WEB_ROOT, $ipath, $filename, $page, $param1, $param2, $message, $EX, $INVALID_CHARS;
 
-	$old_name = trim($old_name,'/ ');
-	$new_name = trim($new_name,'/ ');
+	$old_name = trim($_POST["old_name"],"\x00..\x20/"); //Trim whitespace & slashes.
+	$new_name = trim($_POST["new_name"],"\x00..\x20/");
+	$old_location = dirname($old_name);
 	$new_location = dirname($new_name);
 	$filename = $old_name; //default if error.
 
 	//Common message lines
+	$com_old  = '<span class="filename">'.hte($WEB_ROOT.$old_name).'</span><br>';
+	$com_new  = '<span class="filename">'.hte($WEB_ROOT.$new_name).'</span><br>';
 	$com_msg  = '<div id="message_left">'.hte($_['From']).'<br>'.hte($_['To']).'</div>';
-	$com_msg .= '<b>: </b><span class="filename">'.hte($WEB_ROOT.$old_name).'</span><br>';
-	$com_msg .= '<b>: </b><span class="filename">'.hte($WEB_ROOT.$new_name).'</span><br>';
+	$com_msg .= '<b>: </b>'.$com_old.'<b>: </b>'.$com_new;
 	
 	$err_msg = ''; //Error message.
 	$scs_msg = ''; //Success message.
 
-	$error = 1; //0= no error, 1 = an error.
+	$error = 1; //0 = no error, 1 = an error. Default to error. Used for return value.
+
+	$invalid_new = has_invalid_char(basename($new_name));
 	
-	if ( !is_dir($new_location) ) {
-		$err_msg  = $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_01']).'</b><br>';
-		$err_msg .= '<span class="filename">'.hte($WEB_ROOT.$new_name).'/</span><br>';
+	//Check new name for invalid characters.
+	if ( $invalid_new ) {
+		$err_msg .= $EX.'<b>'.hsc($_['Error'].': '.$_['new_file_msg_02']).' '.$invalid_new.'</b><br>';
+		$err_msg .= '<span class="filename">'.hte(basename($new_name)).'</span><br>';
+		
+	//Check old parent location. (Unlikely to be false outside a malicious attempt)
+	}elseif ( Check_path($old_location,$show_message) === false ) {
+		$err_msg .= '<span class="filename">'.hte($WEB_ROOT.$old_location).'/</span><br>';
+		
+	//Check new parent location.
+	}elseif ( Check_path($new_location,$show_message) === false ) {
+		$err_msg .= '<span class="filename">'.hte($WEB_ROOT.$new_location).'/</span><br>';
+		
 	}elseif ( !file_exists($old_name) ) {
-		$err_msg  = $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_02']).'</b><br>';
-		$err_msg .= '<span class="filename">'.hte($WEB_ROOT.$old_name).'</span><br>';
+		$err_msg .= $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_02']).'</b><br>'.$com_old;
+		
 	}elseif ( file_exists($new_name) ) {
-		$err_msg  = $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_03']).'</b><br>';
-		$err_msg .= '<span class="filename">'.hte($WEB_ROOT.$new_name).'</span><br>';
-	}elseif ($action($old_name, $new_name)) {
-		$scs_msg  = '<b>'.hsc($msg1.' '.$_['successful']).'</b><br>'.$com_msg;
-		if ($isfile) {
-			$ipath = Check_path(dirname($new_name));
+		$err_msg .= $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_03']).'</b><br>'.$com_new;
+		
+	}elseif ( $action($old_name, $new_name )) {
+		$scs_msg .= '<b>'.hsc($msg1.' '.$_['successful']).'</b><br>'.$com_msg;
+		if   ($isfile) {
+			$ipath    = dirname($new_name).'/';
 			$filename = $new_name;
-		}else { //folder
-			$ipath = Check_path($new_name);
+		}else {/*folder*/
+			$ipath    = $new_name.'/';
 		}
 		$error = 0;
 	}else{
 		$err_msg .= $EX.'<b>'.hsc($_['CRM_msg_05a'].' '.$msg1).'</b><br>'.$com_msg;
 	}
 
-	if ($show_message & 1) { $message .= $err_msg; } //Show error message.
-	if ($show_message & 2) { $message .= $scs_msg; } //Show success message.
+	if ( ($show_message & 1) && $error ) { $message .= $err_msg; } //Show error message.
+	if (  $show_message & 2)             { $message .= $scs_msg; } //Show success message.
 
 	//Prior page should be either index or edit
 	$page = $_SESSION["recent_pages"][1];
 	$param1 = '?i='.URLencode_path($ipath);
-	$param2 = '&amp;f='.rawurlencode(basename($filename));
+	if ($isfile) {$param2 = '&amp;f='.rawurlencode(basename($filename));}
 
 	return $error; //
-}//end Copy_Ren_Move_response() ************************************************
+}//end CRM_response() **********************************************************
 
 
 
@@ -2160,50 +2192,29 @@ function Delete_File_response($del_file = "", $show_message = 3){ //************
 
 
 
-function New_Folder_Page() { //*************************************************
-	global $_, $FORM_COMMON, $INVALID_CHARS;
-?>
-	<h2><?php echo hsc($_['New_Folder']) ?></h2>
-	<?php echo $FORM_COMMON ?>
-		<p><?php echo hsc($_['new_folder_txt_1']) ?>
-		<?php echo hsc($_['new_folder_txt_2']) ?> <span class="mono"><?php echo hte($INVALID_CHARS) ?></span></p>
-		<input type="text" name="new_folder" id="new_folder" value="">
-		<?php Cancel_Submit_Buttons(hsc($_['Create']),"new_folder"); ?>
-	</form>
-<?php
-} //end New_Folder_Page() ******************************************************
-
-
-
-
 function New_Folder_response(){ //**********************************************
-	global $_, $WEB_ROOT, $ipath, $param1, $page, $message, $EX, $INVALID_CHARS, $INVALID_CHARS_array;
+	global $_, $WEB_ROOT, $ipath,            $page, $param1,                   $message, $EX, $INVALID_CHARS;
 
-	$new_name = trim($_POST["new_folder"],'/ '); //Trim spaces, and make sure only has a single trailing slash.
-
-	$invalid = false;
-	foreach ($INVALID_CHARS_array as $bad_char) {
-		if (strpos($new_name, $bad_char) !== false) { $invalid = true; }
-	}
-	$page = "index"; //Return to index
-
+	$new_name  = trim($_POST["new_folder"], ' /'); //Trim whitespace & slashes.
 	$new_ipath = $ipath.$new_name.'/';
+	$page      = "index"; //Return to index
 
-	if ($invalid){
-		$message .= $EX.'<b>'.hsc($_['new_folder_msg_01']).'</b> <span class="filename">'.hte($new_name).'</span><br>';
-		$message .= '<b>'.hsc($_['new_folder_msg_02']).' <span class="mono">'.hte($INVALID_CHARS).'</span></b>';
+	$msg_new   = '<span class="filename">'.hte($new_name).'</span><br>';
+
+	if (has_invalid_char($new_name)){
+		$message .= $EX.'<b>'.hsc($_['Error']).': '.hsc($_['new_folder_msg_02']);
+		$message .= ' <span class="mono">'.hte($INVALID_CHARS).'</span></b><br>'.$msg_new;
 	}elseif ($new_name == ""){
 		$message .= $EX.'<b>'.hsc($_['new_folder_msg_03']).'</b>';
 	}elseif (is_dir($new_ipath)) {
-		$message .= $EX.'<b>'.hsc($_['new_folder_msg_04']).' </b>';
-		$message .= '<span class="filename">'.hte($WEB_ROOT.$new_ipath).'</span><br>';
+		$message .= $EX.'<b>'.hsc($_['new_folder_msg_04']).'</b> '.$msg_new;
 	}elseif (mkdir($new_ipath)) {
-		$message .= '<b>'.hsc($_['new_folder_msg_05']).'</b> <span class="filename">'.hte($new_name).'</span><br>';
+		$message .= '<b>'.hsc($_['new_folder_msg_05']).'</b> '.$msg_new;
 		$ipath    = $new_ipath;  //return to new folder
 		$param1   = '?i='.URLencode_path($ipath);
+
 	}else{
-		$message .= $EX.'<b>'.hsc($_['new_folder_msg_06']).':</b><br>';
-		$message .= '<span class="filename">'.hte($new_name).'</span><br>';
+		$message .= $EX.'<b>'.hsc($_['new_folder_msg_06']).':</b><br>'.$msg_new;
 	}
 }//end New_Folder_response *****************************************************
 
@@ -2217,7 +2228,7 @@ function Delete_Folder_Page(){ //***********************************************
 	<?php echo $FORM_COMMON ?>
 		<input type="hidden" name="delete_folder" value="<?php echo hsc($ipath); ?>" >
 		<p>
-		<span class="web_root"><?php echo hte($WEB_ROOT.Check_path(dirname($ipath))); ?></span>
+		<span class="web_root"><?php echo hte($WEB_ROOT.dirname($ipath)).'/'; ?></span>
 		<span class="verify_del"><?php echo hte(basename($ipath)); ?></span> /
 		</p>
 		<p><b><?php echo hsc($_['delete_folder_txt_01']) ?></b></p>
@@ -2232,7 +2243,9 @@ function Delete_Folder_Page(){ //***********************************************
 function Delete_Folder_response() { //******************************************
 	global $_, $ipath, $param1, $page, $message, $EX;
 	$page = "index"; //Return to index
-	$foldername = trim($_POST["delete_folder"], '/');
+	$foldername = Check_path($_POST["delete_folder"]);
+	$foldername = trim($foldername,'/');
+	if ($foldername == "") {return;}
 
 	if ( !is_empty($ipath) ) {
 		$message .= $EX.'<b>'.hsc($_['delete_folder_msg_01']).'</b>';
@@ -2240,7 +2253,7 @@ function Delete_Folder_response() { //******************************************
 	}elseif (@rmdir($foldername)) {
 		$message .= '<b>'.hsc($_['delete_folder_msg_02']).'</b> ';
 		$message .= '<span class="filename">'.hte(basename($foldername)).'</span></br>';
-		$ipath  = Check_path($foldername); //Return to parent dir.
+		$ipath  = dirname($foldername).'/'; //Return to parent dir.
 		$param1 = '?i='.URLencode_path($ipath);
 	}else {
 		$message .= $EX.'<b><span class="filename">"'.hte($foldername).'/"</span></b> '.hsc($_['delete_folder_msg_03']);
@@ -2312,26 +2325,28 @@ function MCD_response($action, $msg1, $success_msg = '') { //*******************
 	$count    = count($files);
 	$errors   = 0; //number of failed moves or copies
 
-	$isfile = 1;
+	$isfile = 1; //only working with files, not folders.
 	$show_message = 1; //1= show error msg only. 2= show success msg only. 3= show all msg's.
 
 	if ($action == 'delete') {
 		foreach ($files as $file){
 			$errors += Delete_File_response($ipath.$file, $show_message);
 		}
+		
 	}else { //move or copy
-		$mcd_ipath = $ipath; //$Copy_Ren_Move_response() changes $ipath to $new_location
-		$new_location = trim($_POST['new_location'],'/').'/'; //make sure no leading, and only 1 trailing, slash.
-		if ( !is_dir($new_location) ){
-			$message .= $EX.'<b> '.hsc($_['upload_msg_02']).'</b><br>';
+		$mcd_ipath = $ipath; //$CRM_response() changes $ipath to $new_location
+		
+		//Trim whitespace & slashes, leaving only 1 trailing slash.
+		$new_location = trim($_POST['new_location'],"\x00..\x20/").'/'; 
+		if ( Check_path($new_location, $show_message) === false ){
 			$message .= '<span class="filename">'.hte($WEB_ROOT.$new_location).'</span><br>';
 			return;
 		}
 		
 		foreach ($files as $file){
-			$old_name = $mcd_ipath.$file;
-			$new_name = $new_location.$file;
-			$errors  += Copy_Ren_Move_response($old_name, $new_name, $action, $msg1, $isfile, $show_message);
+			$_POST['old_name'] = $mcd_ipath.$file;
+			$_POST['new_name'] = $new_location.$file;
+			$errors  += CRM_response($action, $msg1, $isfile, $show_message);
 		}
 	}
 
@@ -2370,6 +2385,9 @@ function Page_Title(){ //***<title>Page_Title()</title>*************************
 	elseif ($page == "newfolder")    { return $_['New_Folder'];    }
 	elseif ($page == "renamefolder") { return $_['Ren_Folder'];    }
 	elseif ($page == "deletefolder") { return $_['Del_Folder'];    }
+	elseif ($page == "mcdaction" && ($_POST['action'] == "copy") )    { return $_['Copy_Files'];}
+	elseif ($page == "mcdaction" && ($_POST['action'] == "move") )    { return $_['Move_Files'];}
+	elseif ($page == "mcdaction" && ($_POST['action'] == "delete") )  { return $_['Del_Files']; }
 	else                             { return $_SERVER['SERVER_NAME']; }
 }//end Page_Title() ************************************************************
 
@@ -2387,12 +2405,12 @@ function Load_Selected_Page(){ //***********************************************
 	elseif ($page == "changeun")     { Change_PWUN_Page('un');}
 	elseif ($page == "edit")         { Edit_Page();           }
 	elseif ($page == "upload")       { Upload_Page();         }
-	elseif ($page == "newfile")      { New_File_Page();       }
-	elseif ($page == "copy")         { Copy_Ren_Move_Page($_['Copy'],     $_['File'], 'copy_file',   1); }
-	elseif ($page == "rename")       { Copy_Ren_Move_Page($_['Ren_Move'], $_['File'], 'rename_file', 1); }
+	elseif ($page == "newfile")      { New_File_or_Folder_Page($_['New_File'] ,"new_file");}
+	elseif ($page == "copy")         { CRM_Page($_['Copy'],     $_['File'], 'copy_file',   1); }
+	elseif ($page == "rename")       { CRM_Page($_['Ren_Move'], $_['File'], 'rename_file', 1); }
 	elseif ($page == "delete")       { Delete_File_Page();    }
-	elseif ($page == "newfolder")    { New_Folder_Page();     }
-	elseif ($page == "renamefolder") { Copy_Ren_Move_Page($_['Ren_Move'], $_['Folder'], 'rename_folder', 0); }
+	elseif ($page == "newfolder")    { New_File_or_Folder_Page($_['New_Folder'] ,"new_folder");}
+	elseif ($page == "renamefolder") { CRM_Page($_['Ren_Move'], $_['Folder'], 'rename_folder', 0); }
 	elseif ($page == "deletefolder") { Delete_Folder_Page();  }
 	elseif ($page == "mcdaction")    { MCD_Page();            }
 	else                             { Login_Page();          } //default
@@ -2422,11 +2440,11 @@ function Respond_to_POST() {//**************************************************
 		elseif (isset($_POST["un"]           )) { Change_PWUN_response('un', $_['change_un_02']);}
 		elseif (isset($_POST["filename"]     )) { Edit_response();           }
 		elseif (isset($_POST["new_file"]     )) { New_File_response();       }
-		elseif (isset($_POST["copy_file"]    )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["copy_file"]  , 'copy'  , $_['Copy']    , 1); }
-		elseif (isset($_POST["rename_file"]  )) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_file"], 'rename', $_['Ren_Move'], 1); }
+		elseif (isset($_POST["copy_file"]    )) { CRM_response('copy'  , $_['Copy']    , 1); }
+		elseif (isset($_POST["rename_file"]  )) { CRM_response('rename', $_['Ren_Move'], 1); }
 		elseif (isset($_POST["delete_file"]  )) { Delete_File_response();    }
 		elseif (isset($_POST["new_folder"]   )) { New_Folder_response();     }
-		elseif (isset($_POST["rename_folder"])) { Copy_Ren_Move_response($_POST[ "old_name"], $_POST["rename_folder"], 'rename', $_['Ren_Move'], 0); }
+		elseif (isset($_POST["rename_folder"])) { CRM_response('rename', $_['Ren_Move'], 0); }
 		elseif (isset($_POST["delete_folder"])) { Delete_Folder_response();  }
 		elseif (isset($_FILES['upload_file']['name']))  { Upload_response(); }
 	}//end if ($VALID_POST)
@@ -3279,7 +3297,7 @@ if ($_SESSION['valid']) {
 		$message .= $EX.'<b>'.hsc($_['edit_caution_01']).' '.$EX.hsc($_['edit_caution_02']).'</b><br>';
 	}
 	//end Verify a few $page restrictions ************
-	
+
 	Update_Recent_Pages();
 
 }//end if $_SESSION[valid] *************************************

@@ -1,4 +1,4 @@
-Version 3.4.01
+Version 3.4.02
 
 LICENSE
 
@@ -19,6 +19,7 @@ MISC FUNCTIONS:
 	undo_magic_quotes()
 	Get_GET()
 	URLencode_path()
+	has_invalid_char()
 	Check_path()
 	is_empty()
 	ordinalize()
@@ -80,14 +81,13 @@ PAGE & RESPONSE FUNCTIONS:
 	Edit_Page_response()
 	Upload_Page()
 	Upload_response()
-	New_File_Page()
+	New_File_or_Folder_Page()
 	New_File_response() 
 	Set_Input_width()
-	Copy_Ren_Move_Page()
-	Copy_Ren_Move_response()
+	CRM_Page()
+	CRM_response()
 	Delete_File_Page()
 	Delete_File_response()
-	New_Folder_Page()
 	New_Folder_response()
 	Delete_Folder_Page()
 	Delete_Folder_response() 
