@@ -1,6 +1,6 @@
 # Current stable version: 3.4.03
 
-### September 12, 2012
+### September 13, 2012
 
 Nothing, it seems, is ever "done".  Shortly after commiting the changes to 3.4, I noticed a couple very minor issues.  Issues that probably would go unnoticed by most.  But, I had to fix them.  Then, I started thinking, "hmmm, this could be little better... maybe that too..."
 
