@@ -1,4 +1,4 @@
-Version 3.4.02
+OneFileCMS Version 3.4.03 structure/layout
 
 LICENSE
 
@@ -14,11 +14,14 @@ MISC FUNCTIONS:
 	Default_Language()
 	Session_Startup()
 	Verify_IDLE_POST_etc()
+	hashit()
 	Error_reporting_and_early_output()
 	Update_Recent_Pages()
 	undo_magic_quotes()
 	Get_GET()
+	Verify_page_conditions()
 	URLencode_path()
+	dir_name()
 	has_invalid_char()
 	Check_path()
 	is_empty()
@@ -63,13 +66,13 @@ PAGE & RESPONSE FUNCTIONS:
 	List_Backup()
 	Admin_Page()
 	Hash_Page()
-	Hash_Page_response()
+	Hash_response()
 	Change_PWUN_Page() 
 	Update_config()
 	Change_PWUN_response()
 	Logout()
 	Login_Page()
-	Login_Page_response()
+	Login_response()
 	Table_of_Files()
 	List_Files()
 	Index_Page()
@@ -78,17 +81,16 @@ PAGE & RESPONSE FUNCTIONS:
 	Edit_Page_form()
 	Edit_Page_notes()
 	Edit_Page()
-	Edit_Page_response()
+	Edit_response()
 	Upload_Page()
 	Upload_response()
 	New_File_or_Folder_Page()
-	New_File_response() 
+	New_File_or_Folder_response()
 	Set_Input_width()
 	CRM_Page()
 	CRM_response()
 	Delete_File_Page()
 	Delete_File_response()
-	New_Folder_response()
 	Delete_Folder_Page()
 	Delete_Folder_response() 
 	MCD_Page()
@@ -99,7 +101,20 @@ PAGE & RESPONSE FUNCTIONS:
 
 JAVASCRIPT & STYLESHEET FUNCTIONS:
 	common_scripts()
+		pad()
+		FormatTime()
+		Countdown()
+		Start_Countdown()
+		FileTimeStamp()
+		Select_All()
+		Submit_btn_style()
+		Confirm_ready()
 	Edit_Page_scripts()
+		Wide_View()
+		Reset_file_status_indicators()
+		setSelRange()
+		Check_for_changes()
+		Reset_File()
 	style_sheet()
 	Language_and_config_adjusted_styles()
 
@@ -111,6 +126,7 @@ LOGIC TO DETERMINE PAGE ACTION
 	Get_GET()
 	Init_Macros()
 	Respond_to_POST()
-	Final checks for $page to show
+	Verify_page_conditions()
+	Update_Recent_Pages();
 
 GENERATE/OUTPUT <HTML>...  

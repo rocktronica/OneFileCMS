@@ -1,8 +1,14 @@
-# Current stable version: 3.4.01
+# Current stable version: 3.4.03
 
-### September 9, 2012
+### September 12, 2012
 
-- A couple minor fixes, and some code improvements & cleanup.
+Nothing, it seems, is ever "done".  Shortly after commiting the changes to 3.4, I noticed a couple very minor issues.  Issues that probably would go unnoticed by most.  But, I had to fix them.  Then, I started thinking, "hmmm, this could be little better... maybe that too..."
+
+Anyway, maybe now it's sorta at a resting spot  (hahaha...).  In anycase, here's the recent summary:
+
+- A few minor fixes, and some code cleanup & improvements.
+
+(what'd you expect, a epic treatise?...)
 
 ### Auguest 29, 2012
 
@@ -178,9 +184,17 @@ GENERATE/OUTPUT THE PAGE
 
 ## Change Log
 
+### 3.4.02-3.4.03
+
+- Primary user noticable change: on rename/move/copy pages, split "New Name" from "New Location".
+- A couple minor bug fixes.
+- Consolidated a four functions into two.
+- Other general code cleanup & improvements.
+- Numerous changed, new, and removed langauge settings.
+
 ### 3.4.01
 
-- A couple of minor bux fixes.
+- A couple of minor bug fixes.
 - Some code cleanup & improvements.
 
 ### 3.3.17 - 3.4.0
