@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.03
+// OneFileCMS Language Settings v3.4.04
 
 $_['LANGUAGE'] = 'Deutsch';
 $_['LANG'] = 'DE';
@@ -192,7 +192,7 @@ $_['delete_msg_01'] = 'Gelöschte Datei:';
 $_['delete_msg_02'] = 'Während des Löschvorgangs trat ein Fehler auf ';
 
 $_['delete_folder_txt_01'] = 'Sind Sie sicher?';
-$_['delete_folder_msg_01'] = 'Der Ordner ist nicht leer.   Bevor ein Ordner gelöscht werden kann, muss er geleert werden.';
+$_['delete_folder_msg_01'] = 'Der Ordner ist nicht leer.  Der Ordner muss leer sein, bevor er gelöscht werden kann.';
 $_['delete_folder_msg_02'] = 'Gelöschter Ordner:';
 $_['delete_folder_msg_03'] = 'während des Löschvorgangs trat ein Fehler auf.';
 
@@ -203,7 +203,6 @@ $_['confirm_reset']   = 'Soll der Inhalt der Datei zurückgesetzt werden (Änder
 
 $_['OFCMS_requires']   = 'OneFileCMS erfordert PHP';
 $_['logout_msg']       = 'Sie wurden erfolgreich abgemeldet.';
-$_['folder_del_msg']   = 'Der Ordner ist nicht leer.   Der Ordner muss leer sein, bevor er gelöscht werden kann.';
 $_['upload_error_01a'] = ' Fehler beim Heraufladen.  Die Gesamtmenge and heraufgeladenen Daten (in Hauptsache die Datei) überschreitet die post_max_size = ';
 $_['upload_error_01b'] = ' (der php.ini)';
 $_['edit_caution_01']  = 'ACHTUNG ';

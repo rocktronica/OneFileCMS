@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.03
+// OneFileCMS Language Settings v3.4.04
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -203,7 +203,6 @@ $_['confirm_reset']   = '¿Reiniciar el archivo y descartar cambios no guardados
 
 $_['OFCMS_requires']   = 'OneFileCMS necesita PHP';
 $_['logout_msg']       = 'Has cerrado la sesión satisfactoriamente.';
-$_['folder_del_msg']   = 'Carpeta no vacía.   Las carpetas debe estar vacías antes de poder eliminarse.';
 $_['upload_error_01a'] = 'Eror de subida.  Total de datos POST (mayormente el peso del archivo) excedido post_max_size =';
 $_['upload_error_01b'] = '(desde php.ini)';
 $_['edit_caution_01']  = 'PRECAUCIÓN';

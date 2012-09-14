@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.03';
+$OFCMS_version = '3.4.4';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -86,7 +86,7 @@ $config_fclass = "bin,img,img,img,img,img,svg,txt,txt,css,php,txt,cfg,cfg ,txt,t
 
 $EX = '<b>( ! )</b> '; //EXclaimation point "icon" Used in $message's
 
-$SESSION_NAME = 'OFCMS-'; //Name of session cookie. Change if using multiple copies of OneFileCMS.
+$SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copies of OneFileCMS.
 
 //External config file, if there is one.  Any settings in the $config_file will supersede those above.
 //$config_file = 'OFCMS_config.SAMPLE.php';  // Path is relative to OneFileCMS.
@@ -354,7 +354,6 @@ $_['unload_unsaved']  = ' Unsaved changes will be lost!';
 $_['confirm_reset']   = 'Reset file and loose unsaved changes?';
 $_['OFCMS_requires']   = 'OneFileCMS requires PHP';
 $_['logout_msg']       = 'You have successfully logged out.';
-$_['folder_del_msg']   = 'Folder not empty. Folders must be empty before they can be deleted.';
 $_['upload_error_01a'] = 'Upload Error. Total POST data (mostly filesize) exceeded post_max_size =';
 $_['upload_error_01b'] = '(from php.ini)';
 $_['edit_caution_01']  = 'CAUTION';
@@ -658,7 +657,7 @@ function Verify_page_conditions() { //******************************************
 	}
 	//Don't load delete folder page if folder not empty.
 	elseif ( ($page == "deletefolder") && !is_empty($ipath) ) {
-		$message .= $EX.'<b>'.hsc($_['folder_del_msg']).'</b><br>';
+		$message .= $EX.'<b>'.hsc($_['delete_folder_msg_01']).'</b><br>';
 		$page = "index";
 	}
 	//If page reloaded, or malicious page load...
@@ -691,6 +690,17 @@ function Verify_page_conditions() { //******************************************
 
 
 
+function has_invalid_char($string) { //*****************************************
+	global $INVALID_CHARS, $INVALID_CHARS_array;
+	foreach ($INVALID_CHARS_array as $bad_char) {
+		if (strpos($string, $bad_char) !== false) { return $bad_char; }
+	}
+	return false;
+}//end has_invalid_char() //****************************************************
+
+
+
+
 function URLencode_path($path){ // don't encode the forward slashes ************
 	$TS = '';  // Trailing Slash/
 	if (substr($path, -1) == '/' ) { $TS = '/'; } //start with a $TS?
@@ -707,32 +717,24 @@ function URLencode_path($path){ // don't encode the forward slashes ************
 function dir_name($path){ //****************************************************
 	//Modified dirname().
 	$parent = dirname($path);
-	if ($parent == "." || $parent == "/" || $parent == '\\') { return ""; }
+	if ($parent == "." || $parent == "/" || $parent == '\\' || $parent == "") { return ""; }
 	return $parent.'/';
 }//end dir_name() //************************************************************
 
 
 
 
-function has_invalid_char($string) { //*****************************************
-	global $INVALID_CHARS, $INVALID_CHARS_array;
-	foreach ($INVALID_CHARS_array as $bad_char) {
-		if (strpos($string, $bad_char) !== false) { return $bad_char; }
-	}
-	return false;
-}//end has_invalid_char() //****************************************************
-
-
-
-
 function Check_path($path, $show_msg = false) { //******************************
-	// check for invalid characters & "dot dot" segments.
+	// check for invalid characters & "dot" or "dot dot" path segments.
+	// Does NOT check if exists - only if of valid construction.
 	global  $_, $WEB_ROOT, $message, $EX, $INVALID_CHARS;
+
+	if ($path === false) {return false;}
 
 	$path = str_replace('\\','/',$path);   //Make sure all forward slashes.
 	$path = trim($path,"\x00..\x20/");     // trim whitespace & slashes
 
-	if (strlen($path) < 1) { return ""; } // At root.
+	if ( ($path == "") || ($path == ".") ){ return ""; } // At root.
 
 	$err_msg = "";
 	$errors  = 0;
@@ -752,7 +754,7 @@ function Check_path($path, $show_msg = false) { //******************************
 		//Check for invalid characters
 		$invalid_chars = str_replace(' /','',$INVALID_CHARS); //The forward slash is not present in this context.
 		if ( has_invalid_char($part) ) {
-			$err_msg .= $EX.' <b>'.$_['check_path_msg_03'].' <span class="mono">'.$invalid_chars.'</span></b><br>';
+			$err_msg .= $EX.' <b>'.$_['check_path_msg_03'].' &nbsp; <span class="mono"> '.$invalid_chars.'</span></b><br>';
 			$errors++;
 			break;
 		}
@@ -1240,7 +1242,7 @@ function Admin_Page() { //******************************************************
 	$params = "";
 	if ($filename != "") { $params = $param2.'&amp;p=edit'; }
 
-	$edit_params = '?i='.dir_name($ONESCRIPT).'&amp;f='.(basename($ONESCRIPT)).'&amp;p=edit';
+	$edit_params = '?i='.dir_name($ONESCRIPT).'&amp;f='.basename($ONESCRIPT).'&amp;p=edit';
 ?>
 	<h2><?php echo hsc($_['Admin_Options']) ?></h2>
 
@@ -2146,13 +2148,13 @@ function CRM_response($action, $msg1, $isfile, $show_message = 3){ //***********
 
 	$old_name      = trim($_POST["old_name"],"\x00..\x20/"); //Trim whitespace & slashes.
 	$old_location  = dir_name($old_name); //dir_name() adds a trailing slash.
-	$new_location  = trim($_POST['new_location'],"\x00..\x20/").'/';
+	$new_location  = trim($_POST['new_location'],"\x00..\x20/");
+	if ($new_location != "") { $new_location .= '/'; }
 	$new_name_only = trim($_POST["new_name"],"\x00..\x20/"); //file or folder only - no path yet.
 	$new_name      = $new_location.trim($_POST["new_name"],"\x00..\x20/");
 	$filename      = $old_name; //default if error.
 
 	//Common message lines
-
 	$com_msg  = '<div id="message_left">'.hte($_['From']).'<br>'.hte($_['To']).'</div>';
 	$com_msg .= '<b>: </b><span class="filename">'.hte($old_name).'</span><br>';
 	$com_msg .= '<b>: </b><span class="filename">'.hte($new_name).'</span>';

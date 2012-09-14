@@ -1,4 +1,8 @@
-# Current stable version: 3.4.03
+# Current stable version: 3.4.04
+
+### September 14, 2012
+
+- Minor bug fix.
 
 ### September 13, 2012
 
@@ -183,6 +187,10 @@ GENERATE/OUTPUT THE PAGE
 --------------------------------------------------------------------------------
 
 ## Change Log
+
+### 3.4.04
+
+- Minor bug fix.
 
 ### 3.4.02-3.4.03
 

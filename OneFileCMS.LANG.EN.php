@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.03
+// OneFileCMS Language Settings v3.4.04
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -203,7 +203,6 @@ $_['confirm_reset']   = 'Reset file and loose unsaved changes?';
 
 $_['OFCMS_requires']   = 'OneFileCMS requires PHP';
 $_['logout_msg']       = 'You have successfully logged out.';
-$_['folder_del_msg']   = 'Folder not empty. Folders must be empty before they can be deleted.';
 $_['upload_error_01a'] = 'Upload Error. Total POST data (mostly filesize) exceeded post_max_size =';
 $_['upload_error_01b'] = '(from php.ini)';
 $_['edit_caution_01']  = 'CAUTION';

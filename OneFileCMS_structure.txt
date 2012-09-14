@@ -1,4 +1,4 @@
-OneFileCMS Version 3.4.03 structure/layout
+OneFileCMS Version 3.4.04 structure/layout
 
 LICENSE
 
@@ -20,9 +20,9 @@ MISC FUNCTIONS:
 	undo_magic_quotes()
 	Get_GET()
 	Verify_page_conditions()
+	has_invalid_char()
 	URLencode_path()
 	dir_name()
-	has_invalid_char()
 	Check_path()
 	is_empty()
 	ordinalize()
