@@ -1,4 +1,10 @@
-# Current stable version: 3.4.04
+# Current stable version: 3.4.05
+
+### September 18, 2012
+
+- The [Selected Files] submit button has been removed, and the "radio buttons" to select Move, Copy, or Delete have been replaced with individual submit buttons. This saves the user one *entire* click per action!
+- OneFileCMS can now select and upload multiple files at one time.  The default max is 4, but that value may be adjusted with the "$UPLOAD_FIELDS" config variable.
+-Removed the extra [Upload...] [New...] [Rename...] [Delete...] buttons from bottom of index page.
 
 ### September 14, 2012
 
@@ -12,7 +18,7 @@ Anyway, maybe now it's sorta at a resting spot  (hahaha...).  In anycase, here's
 
 - A few minor fixes, and some code cleanup & improvements.
 
-(what'd you expect, a epic treatise?...)
+(what'd you expect, an epic treatise?...)
 
 ### Auguest 29, 2012
 
@@ -37,7 +43,7 @@ Anyway, maybe now it's sorta at a resting spot  (hahaha...).  In anycase, here's
 ### July 31, 2012
 
 - For reasons of security, consistancy, & code simplicity, the format for external config files (if used) is now php, instead of ini. This permits a simple copy & paste between an external config file & onefilecms.php.  
-  A config file must begin with "<?php".  And, for security reasons, external config file names should end in ".php".  Otherwise, your webserver may serve up the file as plain text, exposing the contents, such as username and password.
+  A config file must begin with "&lt;?php".  And, for security reasons, external config file names should end in ".php".  Otherwise, your webserver may serve up the file as plain text, exposing the contents, such as username and password.
 
 
 ### July 25, 2012
@@ -45,7 +51,7 @@ Anyway, maybe now it's sorta at a resting spot  (hahaha...).  In anycase, here's
 #### Security issue if using external .ini config file for password storage  
 If an external config file is used to store your password and/or hash, make sure to save the file with php as the extension, and begin the file as follows:  
   
-;<?php die();  
+;&lt;?php die();  
   
 Otherwise, the file - along with your password, is world readable. For details, see the php documentation and comments on parse\_ini\_file().
 
@@ -106,13 +112,13 @@ You can also change the file name of OneFileCMS.php to something else, such as "
 
 WYSWIWYG editors have been requested, but probably won't become standard, as they'd make it more than one file, sort of defeating the "OneFile" point. Plus, if you're working in PHP or non-HTML code, they can be more of a hindrance than an asset.
 
-However, just because I don't want to do it, doesn't mean it's impossible.  Look for the Edit_Page_form() function. Its textarea can be modified to work with whatever editor you like. 
+However, just because I don't want to do it, doesn't mean it's impossible.  Look for the Edit\_Page\_form() function. Its textarea can be modified to work with whatever editor you like. 
 
 ### I found something that could be better. Can I suggest it to you?
 
 Yes, of course!
 
-I may not have the time/bandwidth/inclination to implement every feature, but I 'll do what I can. If it's urgent, contact me.  
+I may not have the time/bandwidth/inclination to implement every feature, but I 'll do what I can. If you find a bug, please file a report on the issues page.
 
 ### This is basically just a file manager with a text editor- why is it being called a CMS?
 
@@ -188,6 +194,13 @@ GENERATE/OUTPUT THE PAGE
 
 ## Change Log
 
+### 3.4.05
+
+- Consolidated index page radio & submit buttons (for Move, Copy, Delete) into just three standard buttons.
+- Added multi-file upload ability.
+- Index page: removed extra Upload/New/Rename/Delete buttons from  bottom of page.
+- Subsequent to the above, a bit of code cleanup & improvement.
+
 ### 3.4.04
 
 - Minor bug fix.
@@ -196,9 +209,9 @@ GENERATE/OUTPUT THE PAGE
 
 - Primary user noticable change: on rename/move/copy pages, split "New Name" from "New Location".
 - A couple minor bug fixes.
-- Consolidated a four functions into two.
+- Consolidated four functions into two.
 - Other general code cleanup & improvements.
-- Numerous changed, new, and removed langauge settings.
+- Numerous new, changed, and removed langauge settings.
 
 ### 3.4.01
 
@@ -267,7 +280,7 @@ GENERATE/OUTPUT THE PAGE
 
 ### 3.3.01
 
-- Fixed a "minor" issue after adding multi-language support- OneFileCMS stopped working altogether on versions of PHP < 5.3.
+- Fixed a "minor" issue after adding multi-language support- OneFileCMS stopped working altogether on versions of PHP &lt; 5.3.
 
 ### 3.3.0
 
@@ -310,18 +323,18 @@ GENERATE/OUTPUT THE PAGE
 ### 3.1.6 thru 3.1.8
 
 - Converted bulk of rest of code into functions (easier to work with).
-- Resolved issue (I hope) with differing versions of PHP and how magic_quotes & stripslashes are handeled.
+- Resolved issue (I hope) with differing versions of PHP and how magic_quotes & stripslashes are handled.
 
 ### 3.1.2 thru 3.1.5
 
 - Added file size limits to the Edit/View page. (Some browsers don't like large files in an HTML textarea.)
-- Added some data validation to _GET parameters
+- Added some data validation to $_GET parameters
 - Some misc code cleanup & organization etc.
 - And other misc stuff...
 
 ### 3.1.1
 
-- Fixed minor issue with data encoding of file to exit in &lt;textarea>
+- Fixed minor issue with data encoding of file for editting in a &lt;textarea>
 
 ### 3.1
 
@@ -374,7 +387,7 @@ GENERATE/OUTPUT THE PAGE
 - List of files now sorted alphabetically, without regard to case.
 - Further improved Edit page & screen feedback of file state (changed/unchanged).
 - Added [X] dismiss button on message box
-- File date shown on Index & Edit pages is now in user's local time.
+- File dates shown on Index & Edit pages are now in user's local time.
 - Moved from xhtml to html syntax & doctype.
 
 ### 1.1.9

@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.04
+// OneFileCMS Language Settings v3.4.05
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -24,7 +24,7 @@ $_['button_padding']        = '4px 10px';
 $_['image_info_font_size']  = '1em';    //show_img_msg_01  &  _02
 $_['image_info_pos']        = '';       //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size'] = '.84em';  //Font size of $_['Select_All']
-$_['select_all_div_width']  = '73px';   //Width of space for $_['Select_All']
+$_['select_all_div_width']  = '71px';   //Width of space for $_['Select_All']
 
 $_['R'] = 'R'; //R ename
 $_['C'] = 'C'; //C opy
@@ -148,14 +148,13 @@ $_['edit_msg_01'] = 'File saved:';
 $_['edit_msg_02'] = 'bytes written.';
 $_['edit_msg_03'] = 'There was an error saving file.';
 
-$_['upload_txt_01']  = 'per upload_max_filesize in php.ini.';
-$_['upload_txt_02']  = 'per post_max_size in php.ini';
-$_['upload_txt_03']  = 'Note: Maximum upload file size is:';
+$_['upload_txt_03']  = 'Maximum size of each file:'; //#####
+$_['upload_txt_01']  = '(per upload_max_filesize in php.ini)'; //#####
+$_['upload_txt_04']  = 'Maximum total upload size:'; //#####
+$_['upload_txt_02']  = '(per post_max_size in php.ini)'; //#####
 
-$_['upload_err_01a'] = 'Error 1: File too large.';
-$_['upload_err_01b'] = '(From php.ini)';
-$_['upload_err_02a'] = 'Error 2: File too large.';
-$_['upload_err_02b'] = '(From OneFileCMS)';
+$_['upload_err_01']  = 'Error 1: File too large. From php.ini:'; //#####
+$_['upload_err_02']  = 'Error 2: File too large. (MAX_FILE_SIZE HTML form element)'; //#####
 $_['upload_err_03']  = 'Error 3: The uploaded file was only partially uploaded.';
 $_['upload_err_04']  = 'Error 4: No file was uploaded.';
 $_['upload_err_05']  = 'Error 5:';
@@ -180,12 +179,12 @@ $_['new_file_msg_05'] = 'Created file:';
 $_['new_file_msg_07'] = 'Created folder:'; //#####
 
 $_['CRM_txt_02']  = 'The new location must already exist.';
-$_['CRM_txt_03']  = 'Old name and location'; //#####
-$_['CRM_txt_04']  = 'New name';
+$_['CRM_txt_03']  = 'Old Name and Location'; //#####
+$_['CRM_txt_04']  = 'New Name';
 $_['CRM_msg_01']  = 'Error - new parent location does not exist:';
 $_['CRM_msg_02']  = 'Error - source file does not exist:';
 $_['CRM_msg_03']  = 'Error - new file or folder already exists:'; //#####
-$_['CRM_msg_05a'] = 'Error during';
+$_['CRM_msg_05']  = 'Error during';
 
 $_['delete_txt_01'] = 'Are you sure?';
 $_['delete_msg_01'] = 'Deleted file:';
@@ -208,8 +207,8 @@ $_['upload_error_01b'] = '(from php.ini)';
 $_['edit_caution_01']  = 'CAUTION';
 $_['edit_caution_02']  = 'You are editing the active copy of OneFileCMS - BACK IT UP & BE CAREFUL !!';
 $_['time_out_txt']     = 'Session time out in:';
-
 $_['error_reporting_01'] = 'Display errors is';
+
 $_['error_reporting_02'] = 'Log errors is';
 $_['error_reporting_03'] = 'Error reporting is set to';
 $_['error_reporting_04'] = 'Showing error types';

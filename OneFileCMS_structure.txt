@@ -1,4 +1,4 @@
-OneFileCMS Version 3.4.04 structure/layout
+OneFileCMS Version 3.4.05 structure/layout
 
 LICENSE
 
@@ -32,7 +32,6 @@ MISC PAGE SECTIONS/FUNCTIONS
 	Current_Path_Header()
 	Page_Header()
 	message_box()
-	Upload_New_Rename_Delete_Links()
 	Cancel_Submit_Buttons()
 	show_image()
 	Timeout_Timer()
@@ -107,7 +106,6 @@ JAVASCRIPT & STYLESHEET FUNCTIONS:
 		Start_Countdown()
 		FileTimeStamp()
 		Select_All()
-		Submit_btn_style()
 		Confirm_ready()
 	Edit_Page_scripts()
 		Wide_View()
@@ -121,7 +119,7 @@ JAVASCRIPT & STYLESHEET FUNCTIONS:
 LOGIC TO DETERMINE PAGE ACTION
 	Load Default_Language()
 	If specified, load external language file
-	Verify good PHP version
+	Verify PHP version
 	Session_Startup()
 	Get_GET()
 	Init_Macros()

@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.04
+// OneFileCMS Language Settings v3.4.05
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -17,9 +17,9 @@ $_['LANG'] = 'ES';
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
 //
 $_['front_links_font_size'] = '1em';    //Buttons on Index page.
-$_['front_links_margin_R']  = '.5em';  
+$_['front_links_margin_R']  = '.5em';
 $_['button_font_size']      = '.9em';   //Buttons on Edit page.
-$_['button_margin_L']       = '.4em';  
+$_['button_margin_L']       = '.4em';
 $_['button_padding']        = '4px 5px';
 $_['image_info_font_size']  = '.95em';  //show_img_msg_01  &  _02
 $_['image_info_pos']        = ' ';      //If 1 or true, moves the info down a line for more space.
@@ -32,44 +32,44 @@ $_['D'] = 'E'; //E liminar
 
 $_['Admin']   = 'Administrador';
 $_['Cancel']  = 'Cancelar';
-$_['Close']   = 'Cerrar'; 
-$_['Copy']    = 'Copiar'; 
+$_['Close']   = 'Cerrar';
+$_['Copy']    = 'Copiar';
 $_['Copied']  = 'Copiado';
-$_['Create']  = 'Crear';  
+$_['Create']  = 'Crear';
 $_['Delete']  = 'Eliminar';
 $_['DELETE']  = 'ELIMINAR';
 $_['Deleted'] = 'Deleted'; //## NT ##
-$_['Edit']    = 'Editar'; 
-$_['Enter']   = 'Entrar'; 
+$_['Edit']    = 'Editar';
+$_['Enter']   = 'Entrar';
 $_['Error']   = 'Error';   //## NT ##
 $_['errors']  = 'errors';  //## NT ##
 $_['File']    = 'Archivo';
 $_['Folder']  = 'Carpeta';
 $_['From']    = 'From';    //## NT ##
-$_['Hash']    = 'Cadena'; 
-$_['Move']    = 'Mover';  
-$_['Moved']   = 'Movido'; 
+$_['Hash']    = 'Cadena';
+$_['Move']    = 'Mover';
+$_['Moved']   = 'Movido';
 $_['on']      = 'activado';
 $_['bytes']   = 'bytes';
 
 $_['Password']   = 'Password';   //## NT ##
-$_['Rename']     = 'Renombrar'; 
+$_['Rename']     = 'Renombrar';
 $_['successful'] = 'successful'; //## NT ##
 $_['To']         = 'To';         //## NT ##
-$_['Upload']     = 'Subir';     
+$_['Upload']     = 'Subir';
 $_['Username']   = 'Username';   //## NT ##
 $_['Log_In']     = 'Iniciar Sesión';
 $_['Log_Out']    = 'Cerrar Sesión';
 
 $_['Admin_Options']  = 'Administration Options'; //## NT ##
 $_['Edit_View']      = 'Edit / View File';    //## NT ##
-$_['Upload_File']    = 'Subir Archivo';      
-$_['New_File']       = 'Archivo Nuevo';      
-$_['Ren_Move']       = 'Renombrar / Mover';  
-$_['Ren_Moved']      = 'Renombrado/Movido';  
-$_['New_Folder']     = 'Carpeta Nueva';      
+$_['Upload_File']    = 'Subir Archivo';
+$_['New_File']       = 'Archivo Nuevo';
+$_['Ren_Move']       = 'Renombrar / Mover';
+$_['Ren_Moved']      = 'Renombrado/Movido';
+$_['New_Folder']     = 'Carpeta Nueva';
 $_['Ren_Folder']     = 'Renombrar / Mover Carpeta';
-$_['Del_Folder']     = 'Borrar Carpeta';     
+$_['Del_Folder']     = 'Borrar Carpeta';
 $_['Submit']         = 'Submit Request';      //## NT ##
 $_['Move_Files']     = 'Move File(s)';        //## NT ##
 $_['Copy_Files']     = 'Copy File(s)';        //## NT ##
@@ -82,7 +82,7 @@ $_['No_files']       = 'No files selected.';  //## NT ##
 $_['No_action']      = 'No action selected.'; //## NT ##
 $_['Not_found']      = 'Not found';           //## NT ##
 $_['pass_to_hash']   = 'Contraseña para calcular el hash:';
-$_['Generate_Hash']  = 'Generar Cadena';     
+$_['Generate_Hash']  = 'Generar Cadena';
 
 $_['save_1']      = 'Guardar';
 $_['save_2']      = '¡GUARDAR CAMBIOS!';
@@ -148,14 +148,13 @@ $_['edit_msg_01'] = 'Archivo Guardado:';
 $_['edit_msg_02'] = 'bytes escritos.';
 $_['edit_msg_03'] = 'Ocurrió un error guardando el archivo.';
 
-$_['upload_txt_01']  = 'por upload_max_filesize en php.ini.';
-$_['upload_txt_02']  = 'por post_max_size en php.ini';
 $_['upload_txt_03']  = 'Nota: El tamaño máximo de subida es de:';
+$_['upload_txt_01']  = 'por upload_max_filesize en php.ini.';
+$_['upload_txt_04']  = 'Maximum total upload size:'; //## NT ##
+$_['upload_txt_02']  = 'por post_max_size en php.ini';
 
-$_['upload_err_01a'] = 'Error 1: Archivo muy largo.';
-$_['upload_err_01b'] = '(Desde php.ini)';
-$_['upload_err_02a'] = 'Error 2: Archivo muy largo.';
-$_['upload_err_02b'] = '(Desde OneFileCMS)';
+$_['upload_err_01']  = 'Error 1: File too large. From php.ini:'; //## NT ##
+$_['upload_err_02']  = 'Error 2: File too large. (MAX_FILE_SIZE HTML form element)'; //## NT ##
 $_['upload_err_03']  = 'Error 3: El archivo se subió sólo parcialmente.';
 $_['upload_err_04']  = 'Error 4: No se subió ningún archivo.';
 $_['upload_err_05']  = 'Error 5: ';
@@ -208,8 +207,8 @@ $_['upload_error_01b'] = '(desde php.ini)';
 $_['edit_caution_01']  = 'PRECAUCIÓN';
 $_['edit_caution_02']  = 'Estás editando la copia activa de OneFileCMS - ¡HACÉ UNA COPIA DE SEGURIDAD Y TENÉ CUIDADO!';
 $_['time_out_txt']     = 'Tiempo de Espera de Sesión Agotado:';
+$_['error_reporting_01'] = 'Display errors is'; //## NT ##
 
-$_['error_reporting_01'] = 'Display errors is';         //## NT ##
 $_['error_reporting_02'] = 'Log errors is';             //## NT ##
 $_['error_reporting_03'] = 'Error reporting is set to'; //## NT ##
 $_['error_reporting_04'] = 'Showing error types';       //## NT ##
