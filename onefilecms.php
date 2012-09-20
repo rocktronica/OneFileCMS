@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.05';
+$OFCMS_version = '3.4.06';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -172,7 +172,7 @@ function hte($input) { return htmlentities($input, ENT_QUOTES, 'UTF-8'); }//end 
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.4.05
+// OneFileCMS Language Settings v3.4.06
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -231,6 +231,7 @@ $_['Username']   = 'Username';
 $_['Log_In']     = 'Log In';
 $_['Log_Out']    = 'Log Out';
 $_['Admin_Options']  = 'Administration Options';
+$_['Are_you_sure']   = 'Are you sure?';    //#####
 $_['Edit_View']      = 'Edit / View File';
 $_['Upload_File']    = 'Upload File';
 $_['New_File']       = 'New File';
@@ -340,10 +341,8 @@ $_['CRM_msg_01']  = 'Error - new parent location does not exist:';
 $_['CRM_msg_02']  = 'Error - source file does not exist:';
 $_['CRM_msg_03']  = 'Error - new file or folder already exists:'; //####
 $_['CRM_msg_05'] = 'Error during';
-$_['delete_txt_01'] = 'Are you sure?';
 $_['delete_msg_01'] = 'Deleted file:';
 $_['delete_msg_02'] = 'Error deleting';
-$_['delete_folder_txt_01'] = 'Are you sure?';
 $_['delete_folder_msg_01'] = 'Folder not empty. Folders must be empty before they can be deleted.';
 $_['delete_folder_msg_02'] = 'Deleted folder:';
 $_['delete_folder_msg_03'] = 'an error occurred during delete.';
@@ -508,8 +507,8 @@ function Error_reporting_and_early_output($show_status = 0, $show_types = 0) {//
 						   (ini_get('log_errors') == 'on') ) )
 	{
 ?>		<style>
-		.E_box {margin: 0;	 background-color: #F33; font-size: 1em; color: white;
-				padding: 4px 5px 5px 5px; border: 0 solid white; }
+		.E_box {margin: 0;	 background-color: #F00; font-size: 1em; color: white;
+				padding: 2px 5px 2px 5px; border: 1px solid white; }
 		</style>
 <?php
 		echo '<p class="E_box"><b>PHP '.PHP_VERSION.$spc;
@@ -527,7 +526,7 @@ function Error_reporting_and_early_output($show_status = 0, $show_types = 0) {//
 
 	//$early_output is contents of ob_get_clean(), just before page output.
 	if (strlen($early_output) > 0 ) {
-		echo '<pre style="background-color: #Fdd; border: 1px solid #Faa;"><b>';
+		echo '<pre style="background-color: #F00; border: 0px solid #F00;"><b>';
 		echo hsc($_['error_reporting_05']).'</b> ';
 		echo hsc($_['error_reporting_06']).'<b>:</b> ';
 		echo '<span style="background-color: white; border: 1px solid white">';
@@ -856,7 +855,7 @@ function Page_Header(){ //******************************************************
 	<div class="header">
 		<a href="<?php echo $ONESCRIPT?>" id="logo"><?php echo $config_title; ?></a>
 		<?php echo $OFCMS_version.' ('.hsc($_['on']).'&nbsp;php&nbsp;'.phpversion().')'; ?>
-
+		
 		<div class="nav">
 			<a href="/" target="_blank"><?php echo $favicon ?>
 			<b><?php echo hte($WEBSITE) ?></b></a>
@@ -1624,16 +1623,11 @@ function Table_of_Files($files, $R, $C, $D) { //********************************
 
 
 
-function List_Files() { //******************************************************
+function List_Files($files) { //************************************************
 	//called from Index Page
 	global $_, $ONESCRIPT, $ipath, $param1, $ftypes, $fclasses, $excluded_list;
 
-	$files = scandir('./'.$ipath);
-	natcasesort($files);
-
-	$no_files = true;
-	foreach ($files as $file) { if ( is_file($ipath.$file) ) { $no_files = false; break; } }
-	if ($no_files) {return 0;}
+	if (count($files) == 0) {return 0;}
 
 	if (supports_svg()) {
 		$R = svg_icon_ren();
@@ -1678,10 +1672,22 @@ function List_Files() { //******************************************************
 function Index_Page(){ //*******************************************************
 	global $_, $ONESCRIPT, $ipath, $param1;
 
-	//<!--==== List folders/sub-directores ====-->
+	//Get list of files & folders
+	$full_list = scandir('./'.$ipath);
+	natcasesort($full_list);
+
+	//Seperate files & folders
+	$files= array();
+	$folders= array();
+	$F=1; $D=1;  //indexes
+	foreach( $full_list as $item ) {
+		if ( ($item == '.') || ($item == '..')){ continue; }
+		if (is_dir($ipath.$item)){ $folders[$D++] = $ipath.$item.'/'; }
+		else                     { $files[$F++]   = $item; }
+	}
+
+	//List folders/sub-directores
 	echo '<p class="index_folders">';
-		$folders = glob($ipath."*",GLOB_ONLYDIR);
-		natcasesort($folders);
 		foreach ($folders as $folder) {
 			echo '<a href="'.$ONESCRIPT.'?i='.URLencode_path($folder).'/">'.PHP_EOL;
 			echo svg_icon_folder();
@@ -1700,7 +1706,7 @@ function Index_Page(){ //*******************************************************
 	}
 	echo '</p>';
 
-	List_Files();
+	List_Files($files);
 
 }//end Index_Page() //**********************************************************
 
@@ -2192,7 +2198,7 @@ function Delete_File_Page() { //************************************************
 	<?php echo $FORM_COMMON ?>
 		<input type="hidden" name="delete_file" value="<?php echo hsc($filename); ?>" >
 		<p><span class="verify_del"><?php echo hte(basename($filename)); ?></span></p>
-		<p><b><?php echo hsc($_['delete_txt_01']) ?></b></p>
+		<p><b><?php echo hsc($_['Are_you_sure']) ?></b></p>
 		<?php Cancel_Submit_Buttons(hsc($_['DELETE']), "cancel"); ?>
 	</form>
 <?php
@@ -2202,7 +2208,7 @@ function Delete_File_Page() { //************************************************
 
 
 function Delete_File_response($del_file = "", $show_message = 3){ //************
-	global $_, $filename, $message, $EX, $page, $ipath, $param1, $param2;
+	global $_, $ipath, $filename, $page, $param1, $param2, $message, $EX;
 
 	if ($del_file == "") { $del_file = $_POST["delete_file"]; }
 	$page = "index"; //Return to index
@@ -2213,10 +2219,15 @@ function Delete_File_response($del_file = "", $show_message = 3){ //************
 	if (unlink($del_file)) {
 		$scs_msg .= '<b>'.hsc($_['delete_msg_01']).'</b> <span class="filename">'.hte(basename($del_file)).'</span><br>';
 		$filename = "";
+		$param2   = "";
 		$error = 0; //0= no error, 1 = an error.
 	}else{
 		$err_msg .= $EX.'<b>'.hsc($_['delete_msg_02']).'</b> <span class="filename">"'.hte($del_file).'"</span>.<br>';
 		$page = $_SESSION['recent_pages'][1];
+		if ($page == "edit") {
+			$filename = $del_file;
+			$param2   = '&amp;f='.basename($filename);
+		}
 		$error = 1;
 	}
 
@@ -2239,7 +2250,7 @@ function Delete_Folder_Page(){ //***********************************************
 		<span class="web_root"><?php echo hte($WEB_ROOT.dir_name($ipath)); ?></span><span
 		class="verify_del"><?php echo hte(basename($ipath)); ?></span> /
 		</p>
-		<p><b><?php echo hsc($_['delete_folder_txt_01']) ?></b></p>
+		<p><b><?php echo hsc($_['Are_you_sure']) ?></b></p>
 		<?php Cancel_Submit_Buttons(hsc($_['DELETE']), "cancel"); ?>
 	</form>
 <?php
@@ -2288,7 +2299,7 @@ function MCD_Page($page_title, $action, $classes = '', $focus = 'new_location') 
 			echo '<input type="text" name="new_location" id="new_location" value="'.hsc($ipath).'">';
 		}
 			
-		echo '<p><b>'.hsc($_['delete_txt_01']).'</b></p>'; //"Are you sure?"
+		echo '<p><b>'.hsc($_['Are_you_sure']).'</b></p>';
 		Cancel_Submit_Buttons(hsc($page_title), $focus);
 			
 		//List selected files

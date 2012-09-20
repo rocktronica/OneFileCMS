@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.05
+// OneFileCMS Language Settings v3.4.06
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -62,6 +62,7 @@ $_['Log_In']     = 'Iniciar Sesión';
 $_['Log_Out']    = 'Cerrar Sesión';
 
 $_['Admin_Options']  = 'Administration Options'; //## NT ##
+$_['Are_you_sure']   = 'Are you sure?';       //## NT ##
 $_['Edit_View']      = 'Edit / View File';    //## NT ##
 $_['Upload_File']    = 'Subir Archivo';
 $_['New_File']       = 'Archivo Nuevo';
@@ -184,13 +185,11 @@ $_['CRM_txt_04']  = 'Nuevo nombre:';
 $_['CRM_msg_01']  = 'Error - la localización padre no existe:';
 $_['CRM_msg_02']  = 'Error - el archivo inicial no existe:';
 $_['CRM_msg_03']  = 'Error - el archivo de objetivo no existe:';
-$_['CRM_msg_05a'] = 'Error durante';
+$_['CRM_msg_05']  = 'Error during'; //## NT ##
 
-$_['delete_txt_01'] = '¿Estás seguro?';
 $_['delete_msg_01'] = 'Archivo Eliminado:';
 $_['delete_msg_02'] = 'Error eliminando';
 
-$_['delete_folder_txt_01'] = '¿Estás seguro?';
 $_['delete_folder_msg_01'] = 'Carpeta no vacía.   Las carpetas deben estar vacías antes de ser eliminadas.';
 $_['delete_folder_msg_02'] = 'Carpeta eliminada:';
 $_['delete_folder_msg_03'] = 'ocurrió un error eliminándola.';
@@ -207,8 +206,8 @@ $_['upload_error_01b'] = '(desde php.ini)';
 $_['edit_caution_01']  = 'PRECAUCIÓN';
 $_['edit_caution_02']  = 'Estás editando la copia activa de OneFileCMS - ¡HACÉ UNA COPIA DE SEGURIDAD Y TENÉ CUIDADO!';
 $_['time_out_txt']     = 'Tiempo de Espera de Sesión Agotado:';
-$_['error_reporting_01'] = 'Display errors is'; //## NT ##
 
+$_['error_reporting_01'] = 'Display errors is';         //## NT ##
 $_['error_reporting_02'] = 'Log errors is';             //## NT ##
 $_['error_reporting_03'] = 'Error reporting is set to'; //## NT ##
 $_['error_reporting_04'] = 'Showing error types';       //## NT ##
@@ -252,3 +251,4 @@ $_['update_failed'] = 'Update failed - could not save file.';  //## NT ##
 $_['mcd_msg_01']    = 'files moved successfully.';             //## NT ##
 $_['mcd_msg_02']    = 'files copied successfully.';            //## NT ##
 $_['mcd_msg_03']    = 'files deleted successfully.';           //## NT ##
+

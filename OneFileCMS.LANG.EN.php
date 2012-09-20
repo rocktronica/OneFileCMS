@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.05
+// OneFileCMS Language Settings v3.4.06
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -41,7 +41,7 @@ $_['DELETE']  = 'DELETE';
 $_['Deleted'] = 'Deleted';
 $_['Edit']    = 'Edit';
 $_['Enter']   = 'Enter';
-$_['Error']   = 'Error';   //#####
+$_['Error']   = 'Error';   //####
 $_['errors']  = 'errors';
 $_['File']    = 'File';
 $_['Folder']  = 'Folder';
@@ -50,7 +50,7 @@ $_['Hash']    = 'Hash';
 $_['Move']    = 'Move';
 $_['Moved']   = 'Moved';
 $_['on']      = 'on';
-$_['bytes']   = 'bytes';   //#####
+$_['bytes']   = 'bytes';   //####
 
 $_['Password']   = 'Password';
 $_['Rename']     = 'Rename';
@@ -62,6 +62,7 @@ $_['Log_In']     = 'Log In';
 $_['Log_Out']    = 'Log Out';
 
 $_['Admin_Options']  = 'Administration Options';
+$_['Are_you_sure']   = 'Are you sure?';       //#####
 $_['Edit_View']      = 'Edit / View File';
 $_['Upload_File']    = 'Upload File';
 $_['New_File']       = 'New File';
@@ -89,15 +90,15 @@ $_['save_2']      = 'SAVE CHANGES!';
 $_['reset']       = 'Reset - loose changes';
 $_['Wide_View']   = 'Wide View';
 $_['Normal_View'] = 'Normal View';
-$_['Open_View']   = 'Open/View in browser window'; //#####
+$_['Open_View']   = 'Open/View in browser window'; //####
 
 $_['verify_msg_01']  = 'Session expired.';
 $_['verify_msg_02']  = 'INVALID POST';
 
 $_['get_get_msg_01']    = 'File does not exist:';
 $_['get_get_msg_02']    = 'Invalid page request:';
-$_['check_path_msg_02'] = 'dot" or "dot dot" path segments are not permitted.'; //#####
-$_['check_path_msg_03'] = 'Path or filename contains an invalid character:'; //#####
+$_['check_path_msg_02'] = 'dot" or "dot dot" path segments are not permitted.'; //####
+$_['check_path_msg_03'] = 'Path or filename contains an invalid character:'; //####
 $_['ord_msg_01']        = 'A file with that name already exists in the target directory.';
 $_['ord_msg_02']        = 'Saving as';
 $_['show_img_msg_01']   = 'Image shown at ~';
@@ -148,13 +149,13 @@ $_['edit_msg_01'] = 'File saved:';
 $_['edit_msg_02'] = 'bytes written.';
 $_['edit_msg_03'] = 'There was an error saving file.';
 
-$_['upload_txt_03']  = 'Maximum size of each file:'; //#####
-$_['upload_txt_01']  = '(per upload_max_filesize in php.ini)'; //#####
-$_['upload_txt_04']  = 'Maximum total upload size:'; //#####
-$_['upload_txt_02']  = '(per post_max_size in php.ini)'; //#####
+$_['upload_txt_03']  = 'Maximum size of each file:'; //####
+$_['upload_txt_01']  = '(per upload_max_filesize in php.ini)'; //####
+$_['upload_txt_04']  = 'Maximum total upload size:'; //####
+$_['upload_txt_02']  = '(per post_max_size in php.ini)'; //####
 
-$_['upload_err_01']  = 'Error 1: File too large. From php.ini:'; //#####
-$_['upload_err_02']  = 'Error 2: File too large. (MAX_FILE_SIZE HTML form element)'; //#####
+$_['upload_err_01']  = 'Error 1: File too large. From php.ini:'; //####
+$_['upload_err_02']  = 'Error 2: File too large. (MAX_FILE_SIZE HTML form element)'; //####
 $_['upload_err_03']  = 'Error 3: The uploaded file was only partially uploaded.';
 $_['upload_err_04']  = 'Error 4: No file was uploaded.';
 $_['upload_err_05']  = 'Error 5:';
@@ -163,34 +164,32 @@ $_['upload_err_07']  = 'Error 7: Failed to write file to disk.';
 $_['upload_err_08']  = 'Error 8: A PHP extension stopped the file upload.';
 
 $_['upload_msg_01'] = 'No file selected for upload.';
-$_['upload_msg_02'] = 'Destination folder invalid:'; //#####
+$_['upload_msg_02'] = 'Destination folder invalid:'; //####
 $_['upload_msg_03'] = 'Upload cancelled.';
 $_['upload_msg_04'] = 'Uploading:';
 $_['upload_msg_05'] = 'Upload successful!';
 $_['upload_msg_06'] = 'Upload failed:';
 
-$_['new_file_txt_01'] = 'File or Folder will be created in the current folder.'; //#####
+$_['new_file_txt_01'] = 'File or Folder will be created in the current folder.'; //####
 $_['new_file_txt_02'] = 'Some invalid characters are:';
-$_['new_file_msg_01'] = 'File or folder not created:'; //#####
-$_['new_file_msg_02'] = 'Name contains an invalid character:'; //#####
-$_['new_file_msg_03'] = 'Not created - no name given'; //#####
-$_['new_file_msg_04'] = 'File or folder already exists:'; //#####
+$_['new_file_msg_01'] = 'File or folder not created:'; //####
+$_['new_file_msg_02'] = 'Name contains an invalid character:'; //####
+$_['new_file_msg_03'] = 'Not created - no name given'; //####
+$_['new_file_msg_04'] = 'File or folder already exists:'; //####
 $_['new_file_msg_05'] = 'Created file:';
-$_['new_file_msg_07'] = 'Created folder:'; //#####
+$_['new_file_msg_07'] = 'Created folder:'; //####
 
 $_['CRM_txt_02']  = 'The new location must already exist.';
-$_['CRM_txt_03']  = 'Old Name and Location'; //#####
+$_['CRM_txt_03']  = 'Old Name and Location'; //####
 $_['CRM_txt_04']  = 'New Name';
 $_['CRM_msg_01']  = 'Error - new parent location does not exist:';
 $_['CRM_msg_02']  = 'Error - source file does not exist:';
-$_['CRM_msg_03']  = 'Error - new file or folder already exists:'; //#####
+$_['CRM_msg_03']  = 'Error - new file or folder already exists:'; //####
 $_['CRM_msg_05']  = 'Error during';
 
-$_['delete_txt_01'] = 'Are you sure?';
 $_['delete_msg_01'] = 'Deleted file:';
 $_['delete_msg_02'] = 'Error deleting';
 
-$_['delete_folder_txt_01'] = 'Are you sure?';
 $_['delete_folder_msg_01'] = 'Folder not empty. Folders must be empty before they can be deleted.';
 $_['delete_folder_msg_02'] = 'Deleted folder:';
 $_['delete_folder_msg_03'] = 'an error occurred during delete.';
@@ -207,8 +206,8 @@ $_['upload_error_01b'] = '(from php.ini)';
 $_['edit_caution_01']  = 'CAUTION';
 $_['edit_caution_02']  = 'You are editing the active copy of OneFileCMS - BACK IT UP & BE CAREFUL !!';
 $_['time_out_txt']     = 'Session time out in:';
-$_['error_reporting_01'] = 'Display errors is';
 
+$_['error_reporting_01'] = 'Display errors is';
 $_['error_reporting_02'] = 'Log errors is';
 $_['error_reporting_03'] = 'Error reporting is set to';
 $_['error_reporting_04'] = 'Showing error types';
@@ -252,3 +251,4 @@ $_['update_failed'] = 'Update failed - could not save file.';
 $_['mcd_msg_01']    = 'files moved successfully.';
 $_['mcd_msg_02']    = 'files copied successfully.';
 $_['mcd_msg_03']    = 'files deleted successfully.';
+

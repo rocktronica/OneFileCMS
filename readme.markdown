@@ -1,6 +1,8 @@
-# Current stable version: 3.4.05
+# Current stable version: 3.4.06
 
-### September 18, 2012
+- Minor bug fix. (I'm beginning to see a pattern here...)
+
+### September 19, 2012
 
 - The [Selected Files] submit button has been removed, and the "radio buttons" to select Move, Copy, or Delete have been replaced with individual submit buttons. This saves the user one *entire* click per action!
 - OneFileCMS can now select and upload multiple files at one time.  The default max is 4, but that value may be adjusted with the "$UPLOAD_FIELDS" config variable.
@@ -193,6 +195,10 @@ GENERATE/OUTPUT THE PAGE
 --------------------------------------------------------------------------------
 
 ## Change Log
+
+### 3.4.06
+
+- Minor bug fix: Index page would not display folders that started with a period ("hidden" folders on *nix)
 
 ### 3.4.05
 

@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.05
+// OneFileCMS Language Settings v3.4.06
 
 $_['LANGUAGE'] = 'Deutsch';
 $_['LANG'] = 'DE';
@@ -62,6 +62,7 @@ $_['Log_In']     = 'Anmelden';
 $_['Log_Out']    = 'Abmelden';
 
 $_['Admin_Options']  = 'Administration Options'; //## NT ##
+$_['Are_you_sure']   = 'Are you sure?';       //## NT ##
 $_['Edit_View']      = 'Edit / View File';    //## NT ##
 $_['Upload_File']    = 'Datei heraufladen';
 $_['New_File']       = 'Datei erstellen';
@@ -186,11 +187,9 @@ $_['CRM_msg_02']  = ' Fehler - die Quelldatei besteht nicht:';
 $_['CRM_msg_03']  = ' Fehler - die Zieldatei besteht bereits:';
 $_['CRM_msg_05']  = 'Error during'; //## NT ##
 
-$_['delete_txt_01'] = 'Sind Sie sicher?';
 $_['delete_msg_01'] = 'Gelöschte Datei:';
 $_['delete_msg_02'] = 'Während des Löschvorgangs trat ein Fehler auf ';
 
-$_['delete_folder_txt_01'] = 'Sind Sie sicher?';
 $_['delete_folder_msg_01'] = 'Der Ordner ist nicht leer.  Der Ordner muss leer sein, bevor er gelöscht werden kann.';
 $_['delete_folder_msg_02'] = 'Gelöschter Ordner:';
 $_['delete_folder_msg_03'] = 'während des Löschvorgangs trat ein Fehler auf.';
@@ -207,8 +206,8 @@ $_['upload_error_01b'] = ' (der php.ini)';
 $_['edit_caution_01']  = 'ACHTUNG ';
 $_['edit_caution_02']  = ' Sie bearbeiten gerade die aktive Version von OneFileCMS - Sichern Sie den Code und seien Sie vorsichtig !!';
 $_['time_out_txt']     = 'Automatischer Sitzungsstopp in:';
-$_['error_reporting_01'] = 'Anzeigen von Fehlern ist';
 
+$_['error_reporting_01'] = 'Anzeigen von Fehlern ist';
 $_['error_reporting_02'] = 'Loggen von Fehlern ist';
 $_['error_reporting_03'] = 'Fehlerberichterstattung';
 $_['error_reporting_04'] = 'Anzeigen der Fehlertypen';
