@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.06
+// OneFileCMS Language Settings v3.4.07
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -62,8 +62,8 @@ $_['Log_In']     = 'Log In';
 $_['Log_Out']    = 'Log Out';
 
 $_['Admin_Options']  = 'Administration Options';
-$_['Are_you_sure']   = 'Are you sure?';       //#####
-$_['Edit_View']      = 'Edit / View File';
+$_['Are_you_sure']   = 'Are you sure?';       //####
+$_['Edit_View']      = 'Edit / View';
 $_['Upload_File']    = 'Upload File';
 $_['New_File']       = 'New File';
 $_['Ren_Move']       = 'Rename / Move';
@@ -189,10 +189,7 @@ $_['CRM_msg_05']  = 'Error during';
 
 $_['delete_msg_01'] = 'Deleted file:';
 $_['delete_msg_02'] = 'Error deleting';
-
-$_['delete_folder_msg_01'] = 'Folder not empty. Folders must be empty before they can be deleted.';
-$_['delete_folder_msg_02'] = 'Deleted folder:';
-$_['delete_folder_msg_03'] = 'an error occurred during delete.';
+$_['delete_folder_msg_03'] = 'Delete error:'; //####
 
 $_['session_warning'] = 'Warning: Session timeout soon!';
 $_['session_expired'] = 'SESSION EXPIRED';

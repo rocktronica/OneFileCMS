@@ -1,7 +1,7 @@
-<?php
+<?php  //Adds recursive folder delete.  Seems stable & reliable.
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.06';
+$OFCMS_version = '3.4.07';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -142,10 +142,10 @@ $CONFIG_file           = $ONESCRIPT_path.$config_file;               //used for 
 $CONFIG_file_backup    = $ONESCRIPT_path.$config_file.'.BACKUP.php'; //used for p/w & u/n updates.
 $CONFIG_url_backup     =  URLencode_path($CONFIG_file_backup);       //used for p/w & u/n updates.
 
-$valid_pages = array("login","logout","admin","hash","changepw","changeun","index","edit","upload","uploaded","newfile","copy","rename","delete","newfolder","renamefolder","deletefolder","mcdaction");
+$VALID_PAGES = array("login","logout","admin","hash","changepw","changeun","index","edit","upload","uploaded","newfile","copy","rename","deletefile","deletefolder","newfolder","renamefolder","mcdaction");
 
-$INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file/folder names.
-$INVALID_CHARS_array = explode(' ', $INVALID_CHARS); // (Space deliminated)
+$INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file/folder names.  Space deliminated.
+$INVALID_CHARS_array = explode(' ', $INVALID_CHARS); //for use in has_invalid_char().
 $WHSPC_SLASH = "\x00..\x20/";  //Whitespace & forward slash. For trimming name inputs.
 
 //Make arrays out of a few $config_variables for actual use later.
@@ -231,8 +231,8 @@ $_['Username']   = 'Username';
 $_['Log_In']     = 'Log In';
 $_['Log_Out']    = 'Log Out';
 $_['Admin_Options']  = 'Administration Options';
-$_['Are_you_sure']   = 'Are you sure?';    //#####
-$_['Edit_View']      = 'Edit / View File';
+$_['Are_you_sure']   = 'Are you sure?';       //####
+$_['Edit_View']      = 'Edit / View';
 $_['Upload_File']    = 'Upload File';
 $_['New_File']       = 'New File';
 $_['Ren_Move']       = 'Rename / Move';
@@ -312,8 +312,8 @@ $_['upload_txt_03']  = 'Maximum size of each file:';             //####
 $_['upload_txt_01']  = '(per upload_max_filesize in php.ini)';   //####
 $_['upload_txt_04']  = 'Maximum total upload size:';             //####
 $_['upload_txt_02']  = '(per post_max_size in php.ini)';         //####
-$_['upload_err_01'] = 'Error 1: File too large. From php.ini:';  //####
-$_['upload_err_02'] = 'Error 2: File too large. (MAX_FILE_SIZE HTML form element)'; //####
+$_['upload_err_01']  = 'Error 1: File too large. From php.ini:'; //####
+$_['upload_err_02']  = 'Error 2: File too large. (MAX_FILE_SIZE HTML form element)'; //####
 $_['upload_err_03']  = 'Error 3: The uploaded file was only partially uploaded.';
 $_['upload_err_04']  = 'Error 4: No file was uploaded.';
 $_['upload_err_05']  = 'Error 5:';
@@ -340,12 +340,10 @@ $_['CRM_txt_04']  = 'New Name';
 $_['CRM_msg_01']  = 'Error - new parent location does not exist:';
 $_['CRM_msg_02']  = 'Error - source file does not exist:';
 $_['CRM_msg_03']  = 'Error - new file or folder already exists:'; //####
-$_['CRM_msg_05'] = 'Error during';
+$_['CRM_msg_05']  = 'Error during';
 $_['delete_msg_01'] = 'Deleted file:';
 $_['delete_msg_02'] = 'Error deleting';
-$_['delete_folder_msg_01'] = 'Folder not empty. Folders must be empty before they can be deleted.';
-$_['delete_folder_msg_02'] = 'Deleted folder:';
-$_['delete_folder_msg_03'] = 'an error occurred during delete.';
+$_['delete_folder_msg_03'] = 'Delete error:';  //####
 $_['session_warning'] = 'Warning: Session timeout soon!';
 $_['session_expired'] = 'SESSION EXPIRED';
 $_['unload_unsaved']  = ' Unsaved changes will be lost!';
@@ -393,9 +391,9 @@ $_['un_confirm']    = 'Confirm New Username';
 $_['change_un_01']  = 'Username changed!';
 $_['change_un_02']  = 'Username NOT changed:';
 $_['update_failed'] = 'Update failed - could not save file.';
-$_['mcd_msg_01']    = 'files moved successfully.';
-$_['mcd_msg_02']    = 'files copied successfully.';
-$_['mcd_msg_03']    = 'files deleted successfully.';
+$_['mcd_msg_01']    = 'files moved.';
+$_['mcd_msg_02']    = 'files copied.';
+$_['mcd_msg_03']    = 'files deleted.';
 }//end Default_Language() //****************************************************
 
 
@@ -435,7 +433,7 @@ function Session_Startup() { //*************************************************
 
 
 function Verify_IDLE_POST_etc() { //********************************************
-	global $_, $page, $ONESCRIPT, $param1, $EX, $message, $VALID_POST, $MAX_IDLE_TIME;
+	global $_, $page, $EX, $message, $VALID_POST, $MAX_IDLE_TIME;
 
 	//Verify consistant user agent... (every little bit helps every little bit)
 	if ( !isset($_SESSION['user_agent']) || ($_SESSION['user_agent'] != $_SERVER['HTTP_USER_AGENT']) ) { Logout(); }
@@ -587,7 +585,7 @@ function Get_GET() { //*** Get main parameters *********************************
 	// i=some/path/,  f=somefile.xyz,  p=somepage
 	// $ipath      ,  $filename     ,  $page
 	// Get_GET() should not be called unless $_SESSION['valid'] == 1
-	global $_, $ipath, $filename, $page, $valid_pages, $param1, $param2, $param3, $EX, $message;
+	global $_, $ipath, $filename, $page, $VALID_PAGES, $param1, $param2, $param3, $EX, $message;
 
 	//Initialize & validate $ipath
 	if (isset($_GET["i"])) {
@@ -607,13 +605,13 @@ function Get_GET() { //*** Get main parameters *********************************
 
 	//Initialize & validate $page
 	if (isset($_GET["p"])) { $page = $_GET["p"]; } else { $page = "index"; }
-	if (!in_array($page, $valid_pages)) {
+	if (!in_array($page, $VALID_PAGES)) {
 		$message .= $EX.hsc($_['get_get_msg_02']).' <b>'.hte($page).'</b><br>';
 		$page = "index";  //If invalid $_GET["p"]
 	}
 
 	//Pages that require a valid $filename
-	$file_pages = array("edit", "rename", "copy", "delete");
+	$file_pages = array("edit", "rename", "copy", "deletefile");
 
 	//Make sure $filename & $page go together
 	if ( ($filename != "") && !in_array($page, $file_pages) ) { $filename = "";  }
@@ -649,13 +647,8 @@ function Verify_page_conditions() { //******************************************
 		Logout();
 		$message .= hsc($_['logout_msg']);
 	}
-	//Don't load delete or rename folder pages at webroot.
+	//Don't load rename or delete folder pages at webroot.
 	elseif ( ($page == "deletefolder" || $page == "renamefolder") && ($ipath == "") ) {
-		$page = "index";
-	}
-	//Don't load delete folder page if folder not empty.
-	elseif ( ($page == "deletefolder") && !is_empty($ipath) ) {
-		$message .= $EX.'<b>'.hsc($_['delete_folder_msg_01']).'</b><br>';
 		$page = "index";
 	}
 	//There must be at least one 'file', and 'mcdaction' must = "move", "copy", or "delete"
@@ -685,7 +678,7 @@ function Verify_page_conditions() { //******************************************
 function has_invalid_char($string) { //*****************************************
 	global $INVALID_CHARS, $INVALID_CHARS_array;
 	foreach ($INVALID_CHARS_array as $bad_char) {
-		if (strpos($string, $bad_char) !== false) { return $bad_char; }
+		if (strpos($string, $bad_char) !== false) { return true; }
 	}
 	return false;
 }//end has_invalid_char() //****************************************************
@@ -719,9 +712,7 @@ function dir_name($path){ //****************************************************
 function Check_path($path, $show_msg = false) { //******************************
 	// check for invalid characters & "dot" or "dot dot" path segments.
 	// Does NOT check if exists - only if of valid construction.
-	global  $_, $WEB_ROOT, $message, $EX, $INVALID_CHARS, $WHSPC_SLASH;
-
-	if ($path === false) {return false;}
+	global  $_, $message, $EX, $INVALID_CHARS, $WHSPC_SLASH;
 
 	$path = str_replace('\\','/',$path);   //Make sure all forward slashes.
 	$path = trim($path, $WHSPC_SLASH);     // trim whitespace & slashes
@@ -738,15 +729,15 @@ function Check_path($path, $show_msg = false) { //******************************
 		//Check for any '.' and '..' parts of the path to protect directories outside webroot.
 		//They also cause issues in <h2>www / current / path /</h2>
 		if ( ($part == '.') || ($part == '..') ) {
-			$err_msg .= $EX.' <b>'.$_['check_path_msg_02'].'</b><br>';
+			$err_msg .= $EX.' <b>'.hsc($_['check_path_msg_02']).'</b><br>';
 			$errors++;
 			break;
 		}
 		
 		//Check for invalid characters
-		$invalid_chars = str_replace(' /','',$INVALID_CHARS); //The forward slash is not present in this context.
+		$invalid_chars = str_replace(' /','',$INVALID_CHARS); //The forward slash is not present, or invalid, at this point.
 		if ( has_invalid_char($part) ) {
-			$err_msg .= $EX.' <b>'.$_['check_path_msg_03'].' &nbsp; <span class="mono"> '.$invalid_chars.'</span></b><br>';
+			$err_msg .= $EX.' <b>'.hsc($_['check_path_msg_03']).' &nbsp; <span class="mono"> '.$invalid_chars.'</span></b><br>';
 			$errors++;
 			break;
 		}
@@ -771,6 +762,40 @@ function is_empty($path){ //****************************************************
 	closedir($dh);
 	return $empty;
 }//end is_empty() //************************************************************
+
+
+
+
+function List_Selected($full_list,$classes="",$post=false) { //*****************
+	global $_, $ipath;
+
+	//Seperate files & folders
+	$files= array();
+	$folders= array();
+	$F=1; $D=1;  //indexes
+	foreach( $full_list as $item ) {
+		if ( ($item == '.') || ($item == '..') || ($item == "")){ continue; }
+		if (is_dir($ipath.$item)){ $folders[$D++] = $ipath.$item.'/'; }
+		else                     { $files[$F++]   = $item; }
+	}
+
+	$count = count($files) + count($folders);
+	if ($count == 0) { return; }
+
+	echo '<table class="verify '.$classes.'">';
+	echo '<tr><th>'.$_['Selected_Files'].':</th></tr>'."\n";
+
+	foreach($folders as $file) {
+		echo '<tr><td>'.svg_icon_folder().hte(basename($file)).'/</td></tr>';
+		if ($post) {echo '<input type=hidden  name="files[]" value="'.hsc($file).'">'."\n";}
+	}
+
+	foreach($files as $file) {
+		echo '<tr><td>'.hte($file).'</td></tr>';
+		if ($post) {echo '<input type=hidden  name="files[]" value="'.hsc($file).'">'."\n";}
+	}
+	echo '</table>';
+}//end List_Selected() //*******************************************************
 
 
 
@@ -811,6 +836,28 @@ function supports_svg() { //****************************************************
 	}
 	return !$old_ie;
 }//end supports_svg() //********************************************************
+
+
+
+
+function rDel($path){ //********************************************************
+
+	$path = trim($path, '/'); // Protects against deleting root.
+	if ($path == "") { $path = '.'; }
+
+	if ( is_file($path) ) { return unlink($path); }
+	if ( is_dir($path) ) {
+		
+		$dir_list = scandir($path);
+		foreach ( $dir_list as $dir_item ) {
+			if ( ($dir_item == '.') || ($dir_item =='..') ) {continue;}
+			rDel($path.'/'.$dir_item);
+		}
+		if ( $path == '.' ) { return; } //If at web root folder, just empty it, don't delete it.
+		return rmdir($path);
+	}
+	return false; //If $path is not a file or dir, I don't know what it is...
+}//end rDel() //****************************************************************
 
 
 
@@ -907,8 +954,6 @@ function Cancel_Submit_Buttons($submit_label, $focus) { //**********************
 		onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
 	<input type="submit" class="button" value="<?php echo $submit_label;?>" style="margin-left: 1em;">
 <?php
-	if ($focus != ""){ echo '<script>document.getElementById("'.$focus.'").focus();</script>'; }
-
 	//Do not close the <p> tag yet/here. Leave it open for potential content on individual pages.
 }//end Cancel_Submit_Buttons() //***********************************************
 
@@ -1118,17 +1163,15 @@ function svg_icon_file_del(){ //************************************************
 
 
 function svg_icon_folder_0($extra = ""){ //*************************************
-
+    //original: fill="#FBE47b" stroke="#F0CD28
  return '<svg class="icon icon_fldr" xmlns="http://www.w3.org/2000/svg" version="1.1" width="18" height="14">
 	<path  d="M0.5, 1  L8,1  L9,2  L9,3  L16.5,3  L17,3.5  L17,13.5  L.5,13.5  L.5,.5"
-			fill="#FBE47b" stroke="#F0CD28" stroke-width="1" />
+			fill="#F0CD28" stroke="rgb(200,170,15)" stroke-width="1" />
 	<path  d="M1.5, 8  L7, 8  L8.5,6.3  L16,6.3  L7.5, 6.3   L6.5,7.5  L1.5,7.5"
 			fill="transparent" stroke="white" stroke-width="1" />
 	<path  d="M1.5,13  L1.5,2  L7.5,2  L8.5,3  L8.5,4  L15.5,4 L16,4.5  L16,13"
 			fill="transparent" stroke="white" stroke-width="1" />'.
-	$extra.'
-	</svg>';
-
+	$extra.'</svg>';
 }//end svg_icon_folder_0() //***************************************************
 
 
@@ -1171,6 +1214,7 @@ function show_icon($type){ //***************************************************
 	elseif ($type == 'php') { return svg_icon_php(); }
 	elseif ($type == 'css') { return svg_icon_css(); }
 	elseif ($type == 'cfg') { return svg_icon_cfg(); }
+	elseif ($type == 'dir') { return svg_icon_folder(); }
 	else                    { return svg_icon_bin(); } //default
 }//end show_icon() //***********************************************************
 
@@ -1196,7 +1240,7 @@ function List_Backup($file, $file_url){ //**************************************
 		</tr></table>
 
 		<script>document.getElementById("old_backup").focus();</script>
-		<a href="<?php echo $href.'&amp;p=delete' ?>" class="button" id="del_backup"><?php echo hsc($_['Delete']) ?></a>
+		<a href="<?php echo $href.'&amp;p=deletefile' ?>" class="button" id="del_backup"><?php echo hsc($_['Delete']) ?></a>
 		<div style="clear: both"></div>
 <?php
 }//end List_Backup() //*********************************************************
@@ -1320,28 +1364,15 @@ function Hash_response() { //***************************************************
 
 
 
-function Change_PWUN_Page($config_key) { //*************************************
+//******************************************************************************
+function Change_PWUN_Page($pwun, $type,$page_title,$label_new,$label_confirm) {
 	// $config_key must= "pw" or "un"
 	global $_, $EX, $ONESCRIPT, $param1, $param3, $INPUT_NUONCE, $config_title, $PWUN_RULES;
-	
-	if ($config_key == "pw") {
-		$type = "password";
-		$page_title    = $_['pw_change'];
-		$label_new     = $_['pw_new'];
-		$label_confirm = $_['pw_confirm'];
-	}elseif ($config_key == "un"){
-		$type = "text";
-		$page_title    = $_['un_change'];
-		$label_new     = $_['un_new'];
-		$label_confirm = $_['un_confirm'];
-	}
 ?>
-	<style></style>
-
 	<h2><?php echo hsc($page_title) ?></h2>
 	
 	<form id="change" name="<?php echo $config_key ?>" method="post" action="<?php echo $ONESCRIPT.$param1.$param3; ?>">
-		<input type="hidden" name="<?php echo $config_key ?>" value="">
+		<input type="hidden" name="<?php echo $pwun ?>" value="">
 		
 		<?php echo $INPUT_NUONCE; ?>
 		
@@ -1370,7 +1401,7 @@ function Change_PWUN_Page($config_key) { //*************************************
 
 //******************************************************************************
 function Update_config($search_for, $replace_with, $search_file, $backup_file) {
-	global  $_, $HASHWORD, $ONESCRIPT_file, $ONESCRIPT_file_backup, $EX, $message;
+	global  $_, $HASHWORD, $EX, $message;
 
 	if ( !is_file($search_file) ) {
 		$message .= $EX.' <b>'.$_['Not_found'].': </b>'.$search_file.'<br>';
@@ -1422,7 +1453,7 @@ function Change_PWUN_response($PWUN, $msg){ //**********************************
 
 	//If nothing entered...
 	if ( ($current_pass == "") && ($new_pwun == "") && ($confirm_pwun == "") ) {
-		;//do nothing.
+		return ;//do nothing.
 		
 	//If no new & confirm values entered, display $message to that effect.
 	}elseif ( ($new_pwun == "") && ($confirm_pwun == "") ) {
@@ -1536,7 +1567,7 @@ function Login_response() { //**************************************************
 
 	//validate login.
 	if ( ($_POST['password'] == "") || ($_POST['username'] == "") )  {
-		; //Ignore attempt if either username OR password is blank.
+		return; //Ignore attempt if either username OR password is blank.
 	}elseif ( $VALID_PASSWORD && ($_POST['username'] == $USERNAME) ) {
 		session_regenerate_id(true);
 		$_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT']; //for user consistancy check.
@@ -1596,7 +1627,7 @@ function Table_of_Files($files, $R, $C, $D) { //********************************
 				</td>
 				<td class="rcd">
 				<?php if (!$IS_OFCMS){
-					  echo '<a href="'.$HREF_params.'&amp;p=delete" title="'.hsc($_['Delete']).'"   class="rcd1">'.$D.'</a>';
+					  echo '<a href="'.$HREF_params.'&amp;p=deletefile" title="'.hsc($_['Delete']).'"   class="rcd1">'.$D.'</a>';
 				} ?>
 				</td>
 				<td class="ckbox">
@@ -1686,7 +1717,7 @@ function Index_Page(){ //*******************************************************
 		else                     { $files[$F++]   = $item; }
 	}
 
-	//List folders/sub-directores
+	//List folders
 	echo '<p class="index_folders">';
 		foreach ($folders as $folder) {
 			echo '<a href="'.$ONESCRIPT.'?i='.URLencode_path($folder).'/">'.PHP_EOL;
@@ -1700,7 +1731,7 @@ function Index_Page(){ //*******************************************************
 	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=upload">'   .svg_icon_upload()    .hsc($_['Upload_File']).'</a>';
 	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=newfile">'  .svg_icon_file_new()  .hsc($_['New_File'])   .'</a>';
 	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=newfolder">'.svg_icon_folder_new().hsc($_['New_Folder']) .'</a>';
-	if ($ipath !== "") { //if at root, don't show Rename & Delete links
+	if ($ipath !== "") { //if at root, don't show [Rename] & [Delete] links
 		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=renamefolder">'.svg_icon_folder_ren().hsc($_['Ren_Folder']).'</a>';
 		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=deletefolder">'.svg_icon_folder_del().hsc($_['Del_Folder']).'</a>';
 	}
@@ -1770,7 +1801,7 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
 
 	if (!$Editing_OFCMS) { echo $Button.hsc($_['Ren_Move']).$ACTION.'rename\'">'; }
 	echo $Button.hsc($_['Copy'])    .$ACTION.'copy\'">';
-	if (!$Editing_OFCMS) { echo $Button.hsc($_['Delete'])  .$ACTION.'delete\'" id="delete">'; }
+	if (!$Editing_OFCMS) { echo $Button.hsc($_['Delete'])  .$ACTION.'deletefile\'" id="delete">'; }
 	echo $Button.hsc($_['Close']).'" onclick="parent.location = \''.$ONESCRIPT.$params.'\'">'
 ?>
 	</div>
@@ -2011,7 +2042,7 @@ function New_File_or_Folder_Page($title, $id) { //******************************
 	echo '<h2>'.hte($title).'</h2>';
 	echo $FORM_COMMON;
 		echo '<p>'.hsc($_['new_file_txt_01'].' '.$_['new_file_txt_02']);
-		echo '<span class="mono">'.hte($INVALID_CHARS).'</span></p>';
+		echo '<span class="mono"> '.hte($INVALID_CHARS).'</span></p>';
 		echo '<input type="text" name="'.$id.'" id="'.$id.'" value="">';
 		Cancel_Submit_Buttons(hsc($_['Create']),$id);
 	echo '</form>';
@@ -2034,7 +2065,7 @@ function New_File_or_Folder_response($post, $is_file){ //***********************
 
 	if (has_invalid_char($new_name)){
 		$message .= $EX.'<b>'.hsc($_['new_file_msg_01']).'</b> '.$msg_new;
-		$message .= '<b>'.hsc($_['new_file_msg_02']).' <span class="mono">'.hte($INVALID_CHARS).'</span></b>';
+		$message .= '<b>'.hsc($_['new_file_msg_02']).'<span class="mono"> '.hte($INVALID_CHARS).'</span></b>';
 		
 	}elseif ($new_name == ""){
 		$message .= $EX.'<b>'.hsc($_['new_file_msg_03']).'</b>';  //No name given.
@@ -2130,9 +2161,9 @@ function CRM_response($action, $msg1, $isfile, $show_message = 3){ //***********
 
 	$old_name      = trim($_POST["old_name"], $WHSPC_SLASH); //Trim whitespace & slashes.
 	$old_location  = dir_name($old_name); //dir_name() adds a trailing slash.
+	$new_name_only = trim($_POST["new_name"], $WHSPC_SLASH); //file or folder only - no path yet.
 	$new_location  = trim($_POST['new_location'], $WHSPC_SLASH);
 	if ($new_location != "") { $new_location .= '/'; }
-	$new_name_only = trim($_POST["new_name"], $WHSPC_SLASH); //file or folder only - no path yet.
 	$new_name      = $new_location.$new_name_only;
 	$filename      = $old_name; //default if error.
 
@@ -2152,9 +2183,13 @@ function CRM_response($action, $msg1, $isfile, $show_message = 3){ //***********
 	}elseif ( !file_exists($old_name) ) {
 		$err_msg .= $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_02']).'</b><br>';
 		$bad_name = $old_name;
-	//Check new name & location for invalid chars etc.
-	}elseif ( Check_path($new_name,$show_message) === false ) {
-		$bad_name = $new_name;
+	//Check new name for invalid chars, including slashes.
+	}elseif ( has_invalid_char($new_name_only) ) {
+		$err_msg .= $EX.'<b>'.hsc($_['new_file_msg_02']).'<span class="filename"> '.hte($INVALID_CHARS).'</span></b><br>';
+		$bad_name = $new_name_only;
+	//Check new location for invalid chars etc.
+	}elseif ( Check_path($new_location,$show_message) === false ) {
+		$bad_name = $new_location;
 	}elseif ( ($new_location != "") && !is_dir($new_location) ) {
 		$err_msg .= $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_01']).'</b><br>';
 		$bad_name = $new_location;
@@ -2191,42 +2226,64 @@ function CRM_response($action, $msg1, $isfile, $show_message = 3){ //***********
 
 
 
-function Delete_File_Page() { //************************************************
-	global $_, $filename, $FORM_COMMON;
-?>
-	<h2><?php echo hsc($_['Del_Files']) ?></h2>
-	<?php echo $FORM_COMMON ?>
-		<input type="hidden" name="delete_file" value="<?php echo hsc($filename); ?>" >
-		<p><span class="verify_del"><?php echo hte(basename($filename)); ?></span></p>
-		<p><b><?php echo hsc($_['Are_you_sure']) ?></b></p>
-		<?php Cancel_Submit_Buttons(hsc($_['DELETE']), "cancel"); ?>
-	</form>
-<?php
-}//end Delete_File_Page() //****************************************************
+function Delete_Page($title, $target){ //***************************************
+	global $_, $WEB_ROOT, $ipath, $filename, $FORM_COMMON, $EX;
+
+	$web_root = ""; $slash = "";
+	if (is_dir($target)) {
+		$web_root = '<span class="web_root">'.hte($WEB_ROOT.dir_name($target)).'</span>';
+		$slash = '/';
+	}
+
+	echo '<h2>'.hsc($title).'</h2>';
+
+	echo $FORM_COMMON;
+		echo '<input type="hidden" name="delete" value="'.hsc($target).'" >';
+		
+		echo '<p>'.$web_root.'<span class="verify_del"><b>'.hte(basename($target)).'</b></span> '.$slash.'</p>';
+		
+		echo '<p><b>'.hsc($_['Are_you_sure']).'</b></p>';
+		Cancel_Submit_Buttons(hsc($_['DELETE']), 'cancel');
+	echo '</form>';
+
+	if (is_dir($target)) {
+		//List Files & Folders in selected folder
+		$full_list = scandir('./'.$ipath);
+		natcasesort($full_list);
+		List_Selected($full_list,$classes="verify_del");
+	}
+	
+}//end Delete_Page() //*********************************************************
 
 
 
 
-function Delete_File_response($del_file = "", $show_message = 3){ //************
-	global $_, $ipath, $filename, $page, $param1, $param2, $message, $EX;
+function Delete_response($target, $show_message=3) { //*************************
+	global $_, $ipath, $param1, $filename, $param2, $page, $message, $EX;
 
-	if ($del_file == "") { $del_file = $_POST["delete_file"]; }
+	if ($target == "") { return 1; } //Currently, prevent delete of entire website.
+
+	$target = Check_path($target,$show_message); //Make sure $target is within $WEB_ROOT
+	$target = trim($target,'/');
 	$page = "index"; //Return to index
+
 	$err_msg = ''; //On error, set this message.
 	$scs_msg = ''; //On success, set this message.
 
-
-	if (unlink($del_file)) {
-		$scs_msg .= '<b>'.hsc($_['delete_msg_01']).'</b> <span class="filename">'.hte(basename($del_file)).'</span><br>';
+	if (rDel($target)) {
+		$scs_msg .= '<b>'.hsc($_['Deleted']).':</b> ';
+		$scs_msg .= '<span class="filename">'.hte(basename($target)).'</span></br>';
+		$ipath  = dir_name($target); //Return to parent dir.
+		$param1 = '?i='.URLencode_path($ipath);
 		$filename = "";
 		$param2   = "";
 		$error = 0; //0= no error, 1 = an error.
-	}else{
-		$err_msg .= $EX.'<b>'.hsc($_['delete_msg_02']).'</b> <span class="filename">"'.hte($del_file).'"</span>.<br>';
+	}else { //Error
+		$err_msg .= $EX.'<b>'.hsc($_['delete_folder_msg_03']).'</b> <span class="filename">'.hte($target).'</span><br>'; //Error message
 		$page = $_SESSION['recent_pages'][1];
 		if ($page == "edit") {
-			$filename = $del_file;
-			$param2   = '&amp;f='.basename($filename);
+			$filename = $target;
+			$param2 = '&amp;f='.basename($filename);
 		}
 		$error = 1;
 	}
@@ -2235,49 +2292,7 @@ function Delete_File_response($del_file = "", $show_message = 3){ //************
 	if ($show_message & 2) { $message .= $scs_msg; } //Show success message.
 
 	return $error;
-}//end Delete_File_response() //************************************************
-
-
-
-
-function Delete_Folder_Page(){ //***********************************************
-	global $_, $WEB_ROOT, $ipath, $FORM_COMMON;
-?>
-	<h2><?php echo hsc($_['Del_Folder']) ?></h2>
-	<?php echo $FORM_COMMON ?>
-		<input type="hidden" name="delete_folder" value="<?php echo hsc($ipath); ?>" >
-		<p>
-		<span class="web_root"><?php echo hte($WEB_ROOT.dir_name($ipath)); ?></span><span
-		class="verify_del"><?php echo hte(basename($ipath)); ?></span> /
-		</p>
-		<p><b><?php echo hsc($_['Are_you_sure']) ?></b></p>
-		<?php Cancel_Submit_Buttons(hsc($_['DELETE']), "cancel"); ?>
-	</form>
-<?php
-}//end Delete_Folder_Page() //**************************************************
-
-
-
-
-function Delete_Folder_response() { //******************************************
-	global $_, $ipath, $param1, $page, $message, $EX;
-	$page = "index"; //Return to index
-	$foldername = Check_path($_POST["delete_folder"],1);
-	$foldername = trim($foldername,'/');
-	if ($foldername == "") { return; }
-
-	if ( !is_empty($ipath) ) {
-		$message .= $EX.'<b>'.hsc($_['delete_folder_msg_01']).'</b>';
-		$page = "index";
-	}elseif (@rmdir($foldername)) {
-		$message .= '<b>'.hsc($_['delete_folder_msg_02']).'</b> ';
-		$message .= '<span class="filename">'.hte(basename($foldername)).'</span></br>';
-		$ipath  = dir_name($foldername); //Return to parent dir.
-		$param1 = '?i='.URLencode_path($ipath);
-	}else {
-		$message .= $EX.'<b><span class="filename">"'.hte($foldername).'/"</span></b> '.hsc($_['delete_folder_msg_03']);
-	}
-}//end Delete_Folder_response() //**********************************************
+}//end Delete_response() //*****************************************************
 
 
 
@@ -2299,20 +2314,10 @@ function MCD_Page($page_title, $action, $classes = '', $focus = 'new_location') 
 			echo '<input type="text" name="new_location" id="new_location" value="'.hsc($ipath).'">';
 		}
 			
-		echo '<p><b>'.hsc($_['Are_you_sure']).'</b></p>';
+		echo '<p><b>'.hsc($_['Are_you_sure']).'</b></p>'; //"Are you sure?"
 		Cancel_Submit_Buttons(hsc($page_title), $focus);
 			
-		//List selected files
-		$count = count($_POST['files']);
-		echo '<table class="verify '.$classes.'">';
-		echo '<tr><th>'.$_['Selected_Files'].':</th></tr>'."\n";
-		
-		foreach($_POST['files'] as $file) {
-			if ($file == "") {continue;} //Skip blanks. [0] will always be blank.
-			echo '<tr><td>'.hte($file).'</td></tr>';
-			echo '<input type=hidden  name="files[]" value="'.hsc($file).'">'."\n";
-		}
-		echo '</table>';
+		List_Selected($_POST['files'],$classes,true);
 	echo '</form>';
 }//end MCD_Page() //************************************************************
 
@@ -2331,11 +2336,13 @@ function MCD_response($action, $msg1, $success_msg = '') { //*******************
 
 	if ($action == 'delete') {
 		foreach ($files as $file){
-			$errors += Delete_File_response($ipath.$file, $show_message);
+			//While unlikely, protect against a malicious attempt
+			if ($file == "") {continue;} //a blank file name would cause $ipath to be deleted.
+			$errors += Delete_response($ipath.$file, $show_message);
 		}
 		
 	}else { //move or copy
-		$mcd_ipath = $ipath; //$CRM_response() changes $ipath to $new_location
+		$mcd_ipath = $ipath; //CRM_response() changes $ipath to $new_location
 		
 		//Trim whitespace & slashes, leaving only 1 trailing slash.
 		$new_location = trim($_POST['new_location'], $WHSPC_SLASH).'/';
@@ -2383,10 +2390,10 @@ function Page_Title(){ //***<title>Page_Title()</title>*************************
 	elseif ($page == "newfile")      { return $_['New_File'];      }
 	elseif ($page == "copy" )        { return $_['Copy_Files'];    }
 	elseif ($page == "rename")       { return $_['Ren_Move'].' '.$_['File'];}
-	elseif ($page == "delete")       { return $_['Del_Files'];     }
+	elseif ($page == "deletefile")   { return $_['Del_Files'];     }
+	elseif ($page == "deletefolder") { return $_['Del_Folder'];    }
 	elseif ($page == "newfolder")    { return $_['New_Folder'];    }
 	elseif ($page == "renamefolder") { return $_['Ren_Folder'];    }
-	elseif ($page == "deletefolder") { return $_['Del_Folder'];    }
 	elseif ($page == "mcdaction" && ($_POST['mcdaction'] == "copy") )   { return $_['Copy_Files'];}
 	elseif ($page == "mcdaction" && ($_POST['mcdaction'] == "move") )   { return $_['Move_Files'];}
 	elseif ($page == "mcdaction" && ($_POST['mcdaction'] == "delete") ) { return $_['Del_Files']; }
@@ -2395,25 +2402,25 @@ function Page_Title(){ //***<title>Page_Title()</title>*************************
 
 
 
-
+	
 function Load_Selected_Page(){ //***********************************************
-	global $_, $ONESCRIPT, $page;
+	global $_, $ONESCRIPT, $ipath, $filename, $page;
 
 	if     ($page == "login")        { Login_Page();          }
 	elseif ($page == "index")        { Index_Page();          }
 	elseif ($page == "admin")        { Admin_Page();          }
 	elseif ($page == "hash")         { Hash_Page();           }
-	elseif ($page == "changepw")     { Change_PWUN_Page('pw');}
-	elseif ($page == "changeun")     { Change_PWUN_Page('un');}
+	elseif ($page == "changepw")     { Change_PWUN_Page('pw','password',$_['pw_change'],$_['pw_new'],$_['pw_confirm']);}
+	elseif ($page == "changeun")     { Change_PWUN_Page('un','text',    $_['un_change'],$_['un_new'],$_['un_confirm']);}
 	elseif ($page == "edit")         { Edit_Page();           }
 	elseif ($page == "upload")       { Upload_Page();         }
 	elseif ($page == "newfile")      { New_File_or_Folder_Page($_['New_File'] ,"new_file");}
 	elseif ($page == "copy")         { CRM_Page($_['Copy'],     $_['File'], 'copy_file',   1); }
 	elseif ($page == "rename")       { CRM_Page($_['Ren_Move'], $_['File'], 'rename_file', 1); }
-	elseif ($page == "delete")       { Delete_File_Page();    }
+	elseif ($page == "deletefile")   { Delete_Page($_['Del_Files'], $filename);}
+	elseif ($page == "deletefolder") { Delete_Page($_['Del_Folder'],$ipath);}
 	elseif ($page == "newfolder")    { New_File_or_Folder_Page($_['New_Folder'] ,"new_folder");}
 	elseif ($page == "renamefolder") { CRM_Page($_['Ren_Move'], $_['Folder'], 'rename_folder', 0); }
-	elseif ($page == "deletefolder") { Delete_Folder_Page();  }
 	elseif ($page == "mcdaction")    {
 		if ($_POST['mcdaction'] == 'move')  { MCD_Page($_['Move_Files'], 'mcd_mov'); }
 		if ($_POST['mcdaction'] == 'copy')  { MCD_Page($_['Copy_Files'], 'mcd_cpy'); }
@@ -2438,12 +2445,11 @@ function Respond_to_POST() { //*************************************************
 	elseif (isset($_POST["un"]           )) { Change_PWUN_response('un', $_['change_un_02']);}
 	elseif (isset($_POST["filename"]     )) { Edit_response();           }
 	elseif (isset($_POST["new_file"]     )) { New_File_or_Folder_response("new_file", 1);}   //1=file
+	elseif (isset($_POST["new_folder"]   )) { New_File_or_Folder_response("new_folder", 0);} //0=folder
 	elseif (isset($_POST["copy_file"]    )) { CRM_response('copy'  , $_['Copy']    , 1);}
 	elseif (isset($_POST["rename_file"]  )) { CRM_response('rename', $_['Ren_Move'], 1);}
-	elseif (isset($_POST["delete_file"]  )) { Delete_File_response();    }
-	elseif (isset($_POST["new_folder"]   )) { New_File_or_Folder_response("new_folder", 0);} //0=folder
 	elseif (isset($_POST["rename_folder"])) { CRM_response('rename', $_['Ren_Move'], 0);}
-	elseif (isset($_POST["delete_folder"])) { Delete_Folder_response();  }
+	elseif (isset($_POST["delete"]       )) { Delete_response($_POST["delete"]); }
 	elseif (isset($_FILES['upload_file']['name']))  { Upload_response(); }
 
 }//end Respond_to_POST() //*****************************************************
@@ -3062,8 +3068,7 @@ hr { /*-- -- -- -- -- -- --*/
 .verify {
 	min-width       : 50%; 
 	font            : 1em Courier;
-	margin-bottom   : .7em;
-	border          : 1px outset gray;
+	border          : 1px solid gray;
 	border-collapse : collapse;
 	background-color: white;
 	}
@@ -3085,15 +3090,12 @@ hr { /*-- -- -- -- -- -- --*/
 
 
 .verify_del {
-	border: 1px solid #F44;
+	border: 1px solid #F00;
 	color : #222;
-	background-color: #FFE7E7;
+	background-color: #FDD;
 	font  : 1em Courier;
-	margin-bottom: .5em;
-	padding: .2em;
+	padding: .2em .4em;
 	}
-
-.verify_del    { border: 1px solid #F44; background-color: #FFE7E7; }
 
 .verify_del td { border: 1px solid #F44; }
 

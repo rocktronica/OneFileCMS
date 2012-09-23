@@ -1,5 +1,16 @@
 # Current stable version: 3.4.06
 
+### September 23, 2012  (v3.4.07)
+
+- Can now delete non-empty folders (just be careful!)
+- Consolidated some functions.
+- Minor bug fix & a few misc code improvements.
+
+- v3.4.07 has caused no issues on my test machine.  However, since it uses a recursive delete function, you may wish to try it out in a virtual machine or other test environment first.
+
+
+### September 19, 2012
+
 - Minor bug fix. (I'm beginning to see a pattern here...)
 
 ### September 19, 2012
@@ -195,6 +206,14 @@ GENERATE/OUTPUT THE PAGE
 --------------------------------------------------------------------------------
 
 ## Change Log
+
+### 3.4.07
+
+- Can now delete non-empty folders (just be careful!)
+- Consolidated some functions.
+- Minor bug fix & a few misc code improvements.
+- Darkened folder icons.
+- Removed & changed a few $_[] language strings. 
 
 ### 3.4.06
 

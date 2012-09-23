@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.06
+// OneFileCMS Language Settings v3.4.07
 
 $_['LANGUAGE'] = 'Deutsch';
 $_['LANG'] = 'DE';
@@ -61,9 +61,9 @@ $_['Username']   = 'Benutzername';
 $_['Log_In']     = 'Anmelden';
 $_['Log_Out']    = 'Abmelden';
 
-$_['Admin_Options']  = 'Administration Options'; //## NT ##
-$_['Are_you_sure']   = 'Are you sure?';       //## NT ##
-$_['Edit_View']      = 'Edit / View File';    //## NT ##
+$_['Admin_Options']  = 'Konfiguration Options'; //## NT ##
+$_['Are_you_sure']   = 'Sind Sie sicher?';
+$_['Edit_View']      = 'Datei Bearbeiten / Ansicht';
 $_['Upload_File']    = 'Datei heraufladen';
 $_['New_File']       = 'Datei erstellen';
 $_['Ren_Move']       = 'Umbenennen / Verschieben';
@@ -72,9 +72,9 @@ $_['New_Folder']     = 'Neuer Ordner';
 $_['Ren_Folder']     = 'Ordner umbenennen/verschieben';
 $_['Del_Folder']     = 'Ordner löschen';
 $_['Submit']         = 'Anfrage senden';
-$_['Move_Files']     = 'Move File(s)';        //## NT ##
-$_['Copy_Files']     = 'Copy File(s)';        //## NT ##
-$_['Del_Files']      = 'Delete File(s)';      //## NT ##
+$_['Move_Files']     = 'Datei Verschieben';
+$_['Copy_Files']     = 'Datei Kopieren';
+$_['Del_Files']      = 'Datei Löschen';
 $_['Selected_Files'] = 'Selected Files';      //## NT ##
 $_['Select_All']     = 'Select All';          //## NT ##
 $_['Clear_All']      = 'Clear All';           //## NT ##
@@ -189,9 +189,6 @@ $_['CRM_msg_05']  = 'Error during'; //## NT ##
 
 $_['delete_msg_01'] = 'Gelöschte Datei:';
 $_['delete_msg_02'] = 'Während des Löschvorgangs trat ein Fehler auf ';
-
-$_['delete_folder_msg_01'] = 'Der Ordner ist nicht leer.  Der Ordner muss leer sein, bevor er gelöscht werden kann.';
-$_['delete_folder_msg_02'] = 'Gelöschter Ordner:';
 $_['delete_folder_msg_03'] = 'während des Löschvorgangs trat ein Fehler auf.';
 
 $_['session_warning'] = 'Achtung: Die sitzung wird ende bald!';
@@ -248,7 +245,7 @@ $_['un_confirm']    = 'Bestätigen Sie den neuen Benutzernamen';
 $_['change_un_01']  = 'Benutzername wurde geändert!';
 $_['change_un_02']  = 'Benutzername wurde nicht geändert:';
 $_['update_failed'] = 'Aktualisierung fehlgeschlagen - die Datei konnte nicht gespeichert werden.';
-$_['mcd_msg_01']    = 'files moved successfully.';             //## NT ##
-$_['mcd_msg_02']    = 'files copied successfully.';            //## NT ##
-$_['mcd_msg_03']    = 'files deleted successfully.';           //## NT ##
+$_['mcd_msg_01']    = 'files moved.';             //## NT ##
+$_['mcd_msg_02']    = 'files copied.';            //## NT ##
+$_['mcd_msg_03']    = 'files deleted.';           //## NT ##
 

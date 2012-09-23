@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.06
+// OneFileCMS Language Settings v3.4.07
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -189,9 +189,6 @@ $_['CRM_msg_05']  = 'Error during'; //## NT ##
 
 $_['delete_msg_01'] = 'Archivo Eliminado:';
 $_['delete_msg_02'] = 'Error eliminando';
-
-$_['delete_folder_msg_01'] = 'Carpeta no vacía.   Las carpetas deben estar vacías antes de ser eliminadas.';
-$_['delete_folder_msg_02'] = 'Carpeta eliminada:';
 $_['delete_folder_msg_03'] = 'ocurrió un error eliminándola.';
 
 $_['session_warning'] = 'Advertencia: ¡La sesión terminará pronto!';
@@ -249,6 +246,6 @@ $_['change_un_01']  = 'Username changed!';                     //## NT ##
 $_['change_un_02']  = 'Username NOT changed:';                 //## NT ##
 $_['update_failed'] = 'Update failed - could not save file.';  //## NT ##
 $_['mcd_msg_01']    = 'files moved successfully.';             //## NT ##
-$_['mcd_msg_02']    = 'files copied successfully.';            //## NT ##
-$_['mcd_msg_03']    = 'files deleted successfully.';           //## NT ##
+$_['mcd_msg_02']    = 'files copied.';                         //## NT ##
+$_['mcd_msg_03']    = 'files deleted.';                        //## NT ##
 

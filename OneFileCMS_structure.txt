@@ -1,4 +1,4 @@
-OneFileCMS Version 3.4.05 structure/layout
+OneFileCMS Version 3.4.07 structure/layout
 
 LICENSE
 
@@ -25,9 +25,11 @@ MISC FUNCTIONS:
 	dir_name()
 	Check_path()
 	is_empty()
+	List_Selected()
 	ordinalize()
 	supports_svg()
-
+	rDel()
+	
 MISC PAGE SECTIONS/FUNCTIONS
 	Current_Path_Header()
 	Page_Header()
@@ -78,7 +80,7 @@ PAGE & RESPONSE FUNCTIONS:
 	Edit_Page_buttons_top()
 	Edit_Page_buttons()
 	Edit_Page_form()
-	Edit_Page_notes()
+	Edit_Page_Notes()
 	Edit_Page()
 	Edit_response()
 	Upload_Page()
@@ -88,10 +90,8 @@ PAGE & RESPONSE FUNCTIONS:
 	Set_Input_width()
 	CRM_Page()
 	CRM_response()
-	Delete_File_Page()
-	Delete_File_response()
-	Delete_Folder_Page()
-	Delete_Folder_response() 
+	Delete_Page()
+	Delete_response()
 	MCD_Page()
 	MCD_response()
 	Page_Title()
