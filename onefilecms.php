@@ -1,7 +1,7 @@
-<?php  //Adds recursive folder delete.  Seems stable & reliable.
+<?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.07';
+$OFCMS_version = '3.4.08';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -142,7 +142,7 @@ $CONFIG_file           = $ONESCRIPT_path.$config_file;               //used for 
 $CONFIG_file_backup    = $ONESCRIPT_path.$config_file.'.BACKUP.php'; //used for p/w & u/n updates.
 $CONFIG_url_backup     =  URLencode_path($CONFIG_file_backup);       //used for p/w & u/n updates.
 
-$VALID_PAGES = array("login","logout","admin","hash","changepw","changeun","index","edit","upload","uploaded","newfile","copy","rename","deletefile","deletefolder","newfolder","renamefolder","mcdaction");
+$VALID_PAGES = array("login","logout","admin","hash","changepw","changeun","index","edit","upload","uploaded","newfile","renamefile","copyfile","deletefile","deletefolder","newfolder","renamefolder","copyfolder","mcdaction");
 
 $INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file/folder names.  Space deliminated.
 $INVALID_CHARS_array = explode(' ', $INVALID_CHARS); //for use in has_invalid_char().
@@ -239,6 +239,7 @@ $_['Ren_Move']       = 'Rename / Move';
 $_['Ren_Moved']      = 'Renamed / Moved';
 $_['New_Folder']     = 'New Folder';
 $_['Ren_Folder']     = 'Rename / Move Folder';
+$_['Copy_Folder']    = 'Copy Folder';  //####
 $_['Del_Folder']     = 'Delete Folder';
 $_['Submit']         = 'Submit Request';
 $_['Move_Files']     = 'Move File(s)';
@@ -335,8 +336,9 @@ $_['new_file_msg_04'] = 'File or folder already exists:';      //####
 $_['new_file_msg_05'] = 'Created file:';
 $_['new_file_msg_07'] = 'Created folder:';   //####
 $_['CRM_txt_02']  = 'The new location must already exist.';
-$_['CRM_txt_03']  = 'Old Name and Location'; //####
+$_['CRM_txt_03']  = 'Old Location'; //####
 $_['CRM_txt_04']  = 'New Name';
+$_['CRM_txt_05']  = 'Old Name';   //####
 $_['CRM_msg_01']  = 'Error - new parent location does not exist:';
 $_['CRM_msg_02']  = 'Error - source file does not exist:';
 $_['CRM_msg_03']  = 'Error - new file or folder already exists:'; //####
@@ -364,10 +366,8 @@ $_['error_reporting_06'] = '(nothing, not even white-space, should have been out
 $_['admin_txt_00'] = 'Old Backup Found';
 $_['admin_txt_01'] = 'A backup file was created in case of an error during a username or password change. Therefore, it may contain old information and should be deleted if not needed. In any case, it will automatically be overwritten on the next password or username change.';
 $_['admin_txt_02'] = 'General Information';
-$_['admin_txt_04'] = 'As of version 3.3.13, OneFileCMS no longer maintains a plain text password option, and only stores a password hash, as most login systems do.';
-$_['admin_txt_12'] = 'However, due to a number of considerations, this change was largely an academic exersize. That is, in this application, take the idea that it adds much of an improvement to security with a grain of cryptographic salt. Never-the-less, it does eliminate the storage of your password in plain text (if that option was used), which is generally considered to be a good thing.';
-$_['admin_txt_14'] = 'For another small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep them secret, of course). Every little bit helps...';
-$_['admin_txt_16'] = 'Also, you can still use OneFileCMS to edit itself. However, be sure to have a backup ready for the inevitable ytpo...';
+$_['admin_txt_14'] = 'For a small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep them secret, of course). Every little bit helps...'; //####
+$_['admin_txt_16'] = 'OneFileCMS can be used to edit itself.  However, be sure to have a backup ready for the inevitable ytpo...';  //####
 $_['pw_change']  = 'Change Password';
 $_['pw_current'] = 'Current Password';
 $_['pw_new']     = 'New Password';
@@ -611,7 +611,7 @@ function Get_GET() { //*** Get main parameters *********************************
 	}
 
 	//Pages that require a valid $filename
-	$file_pages = array("edit", "rename", "copy", "deletefile");
+	$file_pages = array("edit", "renamefile", "copyfile", "deletefile");
 
 	//Make sure $filename & $page go together
 	if ( ($filename != "") && !in_array($page, $file_pages) ) { $filename = "";  }
@@ -840,9 +840,40 @@ function supports_svg() { //****************************************************
 
 
 
-function rDel($path){ //********************************************************
+function rCopy( $old_path, $new_path ) { //*************************************
+	//Recursively copy $old_path to $new_path
+	global $message;
+	
+	if (file_exists($new_path))      { return false; } //Don't overwrite existing files
+	if (!is_dir(dirname($new_path))) { return false; } //New parent dir must already exist.
+	
+	if ( is_file($old_path) ) { return copy($old_path, $new_path); }
 
-	$path = trim($path, '/'); // Protects against deleting root.
+	if ( is_dir($old_path) )  {
+		
+		$dir_list = scandir($old_path); //MUST come before mkdir().
+		mkdir($new_path, 0755);
+		
+		if ( sizeof($dir_list) > 0 ) {
+			foreach( $dir_list as $file ) {
+				if ( $file == "." || $file == ".." ) { continue; }
+				
+				rCopy( $old_path.'/'.$file, $new_path.'/'.$file);
+			}
+		}
+		return true;
+	}
+
+	return false; //$old_path doesn't exist, or, I don't know what it is.
+}//end rCopy() //***************************************************************
+
+
+
+
+function rDel($path){ //********************************************************
+	//Recursively delete $path & all sub-folders & files.
+	
+	$path = trim($path, '/'); // Protects against deleting root & files outside of webroot.
 	if ($path == "") { $path = '.'; }
 
 	if ( is_file($path) ) { return unlink($path); }
@@ -856,7 +887,7 @@ function rDel($path){ //********************************************************
 		if ( $path == '.' ) { return; } //If at web root folder, just empty it, don't delete it.
 		return rmdir($path);
 	}
-	return false; //If $path is not a file or dir, I don't know what it is...
+	return false; //$path doesn't exists, or, I don't know what it is...
 }//end rDel() //****************************************************************
 
 
@@ -1196,6 +1227,14 @@ function svg_icon_folder_ren(){ //**********************************************
 
 
 
+function svg_icon_folder_cpy(){ //**********************************************
+	global $SVG_icon_circle_plus_rev;
+	$extra = '<g transform="translate(7.5,4)">'.$SVG_icon_circle_plus_rev.'</g>';
+	return svg_icon_folder_0($extra);
+}//end svg_icon_folder_cpy() //*************************************************
+
+
+
 function svg_icon_folder_del(){ //**********************************************
 	global $SVG_icon_circle_x;
 	$extra = '<g transform="translate(7.5,4)">'.$SVG_icon_circle_x.'</g>';
@@ -1241,7 +1280,7 @@ function List_Backup($file, $file_url){ //**************************************
 
 		<script>document.getElementById("old_backup").focus();</script>
 		<a href="<?php echo $href.'&amp;p=deletefile' ?>" class="button" id="del_backup"><?php echo hsc($_['Delete']) ?></a>
-		<div style="clear: both"></div>
+		<div class=clear></div>
 <?php
 }//end List_Backup() //*********************************************************
 
@@ -1305,10 +1344,8 @@ function Admin_Page() { //******************************************************
 	?>
 		
 	<p><b><?php echo hsc($_['admin_txt_02']) ?></b>
-	<p><?php echo hsc($_['admin_txt_04']) ?>
-	<p><?php echo hsc($_['admin_txt_12']) ?>
-	<p><?php echo hsc($_['admin_txt_14']) ?>
 	<p><?php echo hsc($_['admin_txt_16']) ?>
+	<p><?php echo hsc($_['admin_txt_14']) ?>
 	</div>
 <?php
 }//end Admin_Page() //**********************************************************
@@ -1376,13 +1413,13 @@ function Change_PWUN_Page($pwun, $type,$page_title,$label_new,$label_confirm) {
 		
 		<?php echo $INPUT_NUONCE; ?>
 		
-		<?php echo hsc($_['pw_current']) ?><br>
+		<p><?php echo hsc($_['pw_current']) ?><br>
 		<input type="password" name="current_pw" id="current_pw" value="">
 		
-		<?php echo hsc($label_new) ?><br>
+		<p><?php echo hsc($label_new) ?><br>
 		<input type="<?php echo $type ?>" name="new1" id="new1" value="">
 		
-		<?php echo hsc($label_confirm) ?><br>
+		<p><?php echo hsc($label_confirm) ?><br>
 		<input type="<?php echo $type ?>" name="new2" id="new2" value="">
 		
 		<?php Cancel_Submit_Buttons(hsc($_['Submit']), 'current_pw') ?>
@@ -1524,7 +1561,7 @@ function Login_Page() { //******************************************************
 	<h2><?php echo hsc($_['Log_In']) ?></h2>
 	<form method="post" action="<?php echo $ONESCRIPT; ?>">
 		<label for="username"><?php echo hsc($_['login_txt_01']) ?></label>
-		<input type="text" name="username" id="username" class="login_input" >
+		<input type="text"     name="username" id="username" class="login_input">
 		<label for="password"><?php echo hsc($_['login_txt_02']) ?></label>
 		<input type="password" name="password" id="password" class="login_input">
 		<input type="submit" class="button" value="<?php echo hsc($_['Enter']) ?>">
@@ -1588,7 +1625,7 @@ function Login_response() { //**************************************************
 
 
 
-function Table_of_Files($files, $R, $C, $D) { //********************************
+function Table_of_Files($files, $folders, $R, $C, $D) { //********************************
 	global $_, $ONESCRIPT, $ipath, $param1, $ftypes, $fclasses, $excluded_list, $stypes, $SHOWALLFILES;
 
 	//dummy input to make sure files[] is always an array in js for Select_All() & Confirm_Ready().
@@ -1598,7 +1635,7 @@ function Table_of_Files($files, $R, $C, $D) { //********************************
 	foreach ($files as $file) {
 		
 		$excluded = FALSE;
-		if (in_array(basename($file), $excluded_list)) { $excluded = TRUE; };
+		if (in_array($file, $excluded_list)) { $excluded = TRUE; };
 		
 		//Get file type & check against $stypes (files types to show)
 		$filename_parts = explode(".", strtolower($file));
@@ -1609,34 +1646,45 @@ function Table_of_Files($files, $R, $C, $D) { //********************************
 		$IS_OFCMS = false;
 		if ( $ipath.$file == trim(rawurldecode($ONESCRIPT), '/') ) { $IS_OFCMS = true;  }
 		
-		if ( $SHOWTYPE && !is_dir($ipath.$file) && !$excluded ) {
+		if ( $SHOWTYPE &&  !$excluded ) { //!is_dir($ipath.$file) &&
+			
+			$HREF_params = $ONESCRIPT.$param1;
+			$parm_folder = '';
 			
 			//Set icon type based on file type ($ext).
-			$type = $fclasses[array_search($ext, $ftypes)];
-			
-			$HREF_params = $ONESCRIPT.$param1.'&amp;f='.rawurlencode($file);
+			if (is_dir($ipath.$file)) {
+				$f_or_f = 'folder';
+				$type = 'dir';
+				$HREF_params .= $file.'/';
+				$param3 = '';
+			}else {
+				$f_or_f = "file";
+				$type = $fclasses[array_search($ext, $ftypes)];
+				$HREF_params .= '&amp;f='.rawurlencode($file);
+				$param3 = '&amp;p=edit';
+			}
 ?>
 			<tr>
 				<td class="rcd">
 				<?php if (!$IS_OFCMS){
-					  echo '<a href="'.$HREF_params.'&amp;p=rename" title="'.hsc($_['Ren_Move']).'" class="rcd1">'.$R.'</a>';
-				} ?>
-				</td>
+					echo '<a href="'.$HREF_params.'&amp;p=rename'.$f_or_f.'" title="'.hsc($_['Ren_Move']).'" class="rcd1">'.$R.'</a>';
+				} ?></td>
+				
 				<td class="rcd">
-				<?php echo '<a href="'.$HREF_params.'&amp;p=copy"   title="'.hsc($_['Copy']).'"     class="rcd1">'.$C.'</a>' ?>
-				</td>
-				<td class="rcd">
-				<?php if (!$IS_OFCMS){
-					  echo '<a href="'.$HREF_params.'&amp;p=deletefile" title="'.hsc($_['Delete']).'"   class="rcd1">'.$D.'</a>';
-				} ?>
-				</td>
-				<td class="ckbox">
-				<?php if (!$IS_OFCMS){
+				<?php
+					echo '<a href="'.$HREF_params.'&amp;p=copy'.$f_or_f.'"   title="'.hsc($_['Copy']).'"   class="rcd1">'.$C.'</a>'
+				?></td>
+				
+				<td class="rcd"><?php if (!$IS_OFCMS){
+					echo '<a href="'.$HREF_params.'&amp;p=delete'.$f_or_f.'" title="'.hsc($_['Delete']).'" class="rcd1">'.$D.'</a>';
+				} ?></td>
+				
+				<td class="ckbox"><?php if (!$IS_OFCMS){
 					echo '<INPUT TYPE=checkbox NAME="files[]" VALUE="'.hsc($file).'">';
-				} ?>
-				</td>
+				} ?></td>
+				
 				<td class="file_name">
-					<?php echo '<a href="'.$HREF_params.'&amp;p=edit"  title="'.hsc($_['Edit_View']).'">'; ?>
+					<?php echo '<a href="'.$HREF_params.$param3.'"  title="'.hsc($_['Edit_View']).'">'; ?>
 					<?php echo show_icon($type).hte($file), '</a>'; ?>
 				</td>
 				<td class="meta_T file_size">&nbsp;
@@ -1647,14 +1695,14 @@ function Table_of_Files($files, $R, $C, $D) { //********************************
 				</td>
 			</tr>
 <?php
-		}//end if !is_dir...
+		}//end if...
 	}//end foreach file
 	echo '</table>';
 }//end Table_of_Files() //******************************************************
 
 
 
-function List_Files($files) { //************************************************
+function List_Files($files, $folders) { //************************************************
 	//called from Index Page
 	global $_, $ONESCRIPT, $ipath, $param1, $ftypes, $fclasses, $excluded_list;
 
@@ -1689,10 +1737,15 @@ function List_Files($files) { //************************************************
 	echo input_mcd_action($_['Move']  , 'move'  , 'svg_icon_ren' );
 	echo input_mcd_action($_['Copy']  , 'copy'  , 'svg_icon_copy');
 	echo input_mcd_action($_['Delete'], 'delete', 'svg_icon_del' );
-	
+
+	echo '<p class="front_links" style="float: right; margin: 0;">';
+		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=upload">'   .svg_icon_upload()    .hsc($_['Upload_File']).'</a>';
+		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=newfile">'  .svg_icon_file_new()  .hsc($_['New_File'])   .'</a>';
+	echo '</p><div class=clear></div>';
+
 	echo '</div>'; //end class=action
 
-	Table_of_Files($files, $R, $C, $D);
+	Table_of_Files($files, $folders, $R, $C, $D);
 
 	echo '</form>';
 }//end List_Files() //**********************************************************
@@ -1713,31 +1766,30 @@ function Index_Page(){ //*******************************************************
 	$F=1; $D=1;  //indexes
 	foreach( $full_list as $item ) {
 		if ( ($item == '.') || ($item == '..')){ continue; }
-		if (is_dir($ipath.$item)){ $folders[$D++] = $ipath.$item.'/'; }
+		if (is_dir($ipath.$item)){ $folders[$D++] = $item; }
 		else                     { $files[$F++]   = $item; }
 	}
 
 	//List folders
 	echo '<p class="index_folders">';
 		foreach ($folders as $folder) {
-			echo '<a href="'.$ONESCRIPT.'?i='.URLencode_path($folder).'/">'.PHP_EOL;
-			echo svg_icon_folder();
-			echo hte(basename($folder)).' /</a>';
+			echo '<a href="'.$ONESCRIPT.'?i='.URLencode_path($ipath.$folder).'/">'."\n";
+			echo svg_icon_folder()."\n";
+			echo hte($folder).' /</a>';
 		}
 	echo '</p>';
 
 	//Upload_New_Rename_Delete_Links
 	echo '<p class="front_links">';
-	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=upload">'   .svg_icon_upload()    .hsc($_['Upload_File']).'</a>';
-	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=newfile">'  .svg_icon_file_new()  .hsc($_['New_File'])   .'</a>';
 	echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=newfolder">'.svg_icon_folder_new().hsc($_['New_Folder']) .'</a>';
 	if ($ipath !== "") { //if at root, don't show [Rename] & [Delete] links
 		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=renamefolder">'.svg_icon_folder_ren().hsc($_['Ren_Folder']).'</a>';
+		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=copyfolder">'  .svg_icon_folder_cpy().hsc($_['Copy_Folder']).'</a>';
 		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=deletefolder">'.svg_icon_folder_del().hsc($_['Del_Folder']).'</a>';
 	}
 	echo '</p>';
 
-	List_Files($files);
+	List_Files($files,$folders);
 
 }//end Index_Page() //**********************************************************
 
@@ -1799,10 +1851,10 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
 <?php }
 	//Don't show [Rename] or [Delete] if editing OneFileCMS itself.
 
-	if (!$Editing_OFCMS) { echo $Button.hsc($_['Ren_Move']).$ACTION.'rename\'">'; }
-	echo $Button.hsc($_['Copy'])    .$ACTION.'copy\'">';
+	if (!$Editing_OFCMS) { echo $Button.hsc($_['Ren_Move']).$ACTION.'renamefile\'">'; }
+	echo                        $Button.hsc($_['Copy'])    .$ACTION.'copyfile\'">';
 	if (!$Editing_OFCMS) { echo $Button.hsc($_['Delete'])  .$ACTION.'deletefile\'" id="delete">'; }
-	echo $Button.hsc($_['Close']).'" onclick="parent.location = \''.$ONESCRIPT.$params.'\'">'
+	echo                        $Button.hsc($_['Close']).'" onclick="parent.location = \''.$ONESCRIPT.$params.'\'">'
 ?>
 	</div>
 <?php
@@ -1845,7 +1897,7 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 					echo '<textarea id="file_contents" name="contents" cols="70" rows="25"';
 					echo 'onkeyup="Check_for_changes(event);">'.$filecontents.'</textarea>'.PHP_EOL;
 				}
-			}//end if non-text file...
+			}//end if/else non-text file...
 		}//end if non-image
 		
 		Edit_Page_buttons($text_editable, $too_large_to_edit);
@@ -2079,7 +2131,7 @@ function New_File_or_Folder_response($post, $is_file){ //***********************
 		$param2   = '&amp;f='.rawurlencode(basename($filename)); //for Edit_Page() buttons
 		$param3   = '&amp;p=edit';                               //for Edit_Page() buttons
 		
-	}elseif ( !$is_file && mkdir($new_ipath)) { //Create Folder
+	}elseif ( !$is_file && mkdir($new_ipath,0755)) { //Create Folder
 		$message .= '<b>'.hsc($_['new_file_msg_07']).'</b> '.$msg_new; //New folder success
 		$ipath    = $new_ipath;  //return to new folder
 		$param1   = '?i='.URLencode_path($ipath);
@@ -2093,26 +2145,34 @@ function New_File_or_Folder_response($post, $is_file){ //***********************
 
 
 function Set_Input_width() { //*************************************************
-	global $WEB_ROOT, $MAIN_WIDTH;
+	global $_, $WEB_ROOT, $MAIN_WIDTH;
 
-	// (width of <input type=text>) = $MAIN_WIDTH - (Width of $WEB_ROOT)
+	// (width of <input type=text>) = $MAIN_WIDTH - (Width of <label> & $WEB_ROOT)
 	// $MAIN_WIDTH may be in em, px, or pt.
 	// Width of 1 character = .625em = 10px = 7.5pt  (1em = 16px = 12pt)
 
-	$root_enc =  mb_detect_encoding($WEB_ROOT); //ASCII? UTF8? etc...
-	$root_len = (mb_strlen($WEB_ROOT, $root_enc) + 1); //+1 for good measure.
-	$main_width = $MAIN_WIDTH * 1;   //set in config section. Default is 810px.
-	$main_units = substr($MAIN_WIDTH, -2); //should be em, px, or pt
+	$label_enc    =  mb_detect_encoding($_['New_Location']); //ASCII? UTF8? etc...
+	$root_enc     =  mb_detect_encoding($WEB_ROOT);          //ASCII? UTF8? etc...
+	$root_width   = (mb_strlen($WEB_ROOT, $root_enc));
+	$label_width1 = (mb_strlen($_['CRM_txt_03'], $label_enc)); // "Old Location"
+	$label_width2 = (mb_strlen($_['New_Location'], $label_enc));
+
+	if ($label_width1 > $label_width2) {$label_width = $label_width1;}
+	else                               {$label_width = $label_width2;}
+
+	$indent       = ($label_width + $root_width + 1 ); // +1 for good measure
+	$main_width   = $MAIN_WIDTH * 1;   //set in config section. Default is 810px.
+	$main_units   = substr($MAIN_WIDTH, -2); //should be em, px, or pt
 
 	//convert to em
-	$root_len = $root_len *.625;
+	$indent = $indent *.625;
 	if     ( $main_units == "px") { $main_width = $main_width / 16 ; }
 	elseif ( $main_units == "pt") { $main_width = $main_width / 12 ; }
-	else                          { $main_width = $main_width      ; }
 
-	$input_type_text_width = ($main_width - $root_len).'em';
+	$input_type_text_width = ($main_width - $indent).'em';
 
-	echo '<style>input[type="text"] {width: '.$input_type_text_width.';}</style>';
+	echo '<style>input[type="text"] {width: '.$input_type_text_width.';}';
+	echo 'label {display: inline-block; width: '.($indent - 4.8).'em; }</style>';
 
 }//end Set_Input_width() //*****************************************************
 
@@ -2125,7 +2185,6 @@ function CRM_Page($action, $title, $name_id, $isfile) { //**********************
 
 	if ($isfile) { $old_name = $filename; }else{ $old_name = $ipath; }
 	if ($isfile) { $new_name = $filename; }else{ $new_name = $ipath; }
-	//if ($action == "Copy" ) { $new_name = ordinalize($ipath, basename($filename), $msg); }
 
 	Set_Input_width();
 ?>
@@ -2133,18 +2192,23 @@ function CRM_Page($action, $title, $name_id, $isfile) { //**********************
 
 	<?php echo $FORM_COMMON ?>
 		<input type="hidden" name="<?php echo $name_id ?>"  value="<?php echo hsc($name_id); ?>">
+		
+		<label><?php echo hsc($_['CRM_txt_05']) ?>:</label> 
+		<input type=text name=old_name id=old_name class=old_new_name 
+			value="<?php echo hsc(basename($old_name)); ?>" readonly=readonly><br>
 
-		<label><?php echo hsc($_['CRM_txt_03']) ?></label><br>
-		<span class="web_root"><?php echo hte($WEB_ROOT); ?></span><input type="text"
-		name="old_name" value="<?php echo hsc($old_name); ?>" readonly="readonly">
-
-		<label><?php echo hsc($_['CRM_txt_04']) ?></label><br>
-		<input type="text" name="new_name" id="new_name" value="<?php echo hsc(basename($new_name)); ?>"><br>
-
-		<label><?php echo hsc($_['New_Location']) ?></label> &nbsp; &nbsp;(<?php echo hsc($_['CRM_txt_02']) ?>)<br>
-		<span class="web_root"><?php echo hte($WEB_ROOT); ?></span><input type="text"
-		name="new_location" id="new_location" value="<?php echo hsc(dir_name($new_name)); ?>"><br>
-
+		<label><?php echo hsc($_['CRM_txt_03']) ?>:</label>
+		<span class="web_root"><?php echo hte($WEB_ROOT); ?></span><input type=text name=old_location id=old_location 
+			value="<?php echo hsc(dir_name($old_name)); ?>" readonly=readonly><br>
+		<br>
+		<label><?php echo hsc($_['CRM_txt_04']) ?>:</label>
+		<input type=text name=new_name id=new_name class=old_new_name value="<?php echo hsc(basename($new_name)); ?>"><br>
+		
+		<label><?php echo hsc($_['New_Location']) ?>:</label>
+		<span class="web_root"><?php echo hte($WEB_ROOT); ?></span><input type=text
+		name=new_location id=new_location value="<?php echo hsc(dir_name($new_name)); ?>"><br>
+		<p>(<?php echo hsc($_['CRM_txt_02']) ?>)</p>
+		
 		<?php Cancel_Submit_Buttons($action, "new_name"); ?>
 	</form>
 <?php
@@ -2153,24 +2217,27 @@ function CRM_Page($action, $title, $name_id, $isfile) { //**********************
 
 
 
-function CRM_response($action, $msg1, $isfile, $show_message = 3){ //***********
-	//Returns 0 if successful, 1 on error.
-	//$action = 'copy' or 'rename'. $isfile = 1 if acting on a file, not a folder
+function CRM_response($action, $msg1, $show_message = 3){ //********************
+	//$action = 'rCopy' or 'rename'.  Returns 0 if successful, 1 on error.
 	//$show_message: 0 = none; 1 = errors only; 2 = successes only; 3 = all messages (default).
 	global $_, $WEB_ROOT, $ipath, $filename, $page, $param1, $param2, $message, $EX, $INVALID_CHARS, $WHSPC_SLASH;
 
-	$old_name      = trim($_POST["old_name"], $WHSPC_SLASH); //Trim whitespace & slashes.
-	$old_location  = dir_name($old_name); //dir_name() adds a trailing slash.
-	$new_name_only = trim($_POST["new_name"], $WHSPC_SLASH); //file or folder only - no path yet.
+	$old_name_only = trim($_POST["old_name"], $WHSPC_SLASH);     //Trim whitespace & slashes.
+	$old_location  = trim($_POST["old_location"], $WHSPC_SLASH); 
+	$new_name_only = trim($_POST["new_name"], $WHSPC_SLASH);
 	$new_location  = trim($_POST['new_location'], $WHSPC_SLASH);
 	if ($new_location != "") { $new_location .= '/'; }
+	if ($old_location != "") { $old_location .= '/'; }
+	$old_name      = $old_location.$old_name_only;
 	$new_name      = $new_location.$new_name_only;
 	$filename      = $old_name; //default if error.
+
+	$isfile = 0; if (is_file($old_name)) { $isfile = 1;} //File or folder?
 
 	//Common message lines
 	$com_msg  = '<div id="message_left">'.hte($_['From']).'<br>'.hte($_['To']).'</div>';
 	$com_msg .= '<b>: </b><span class="filename">'.hte($old_name).'</span><br>';
-	$com_msg .= '<b>: </b><span class="filename">'.hte($new_name).'</span>';
+	$com_msg .= '<b>: </b><span class="filename">'.hte($new_name).'</span><br>';
 
 	$err_msg = ''; //Error message.
 	$scs_msg = ''; //Success message.
@@ -2190,9 +2257,11 @@ function CRM_response($action, $msg1, $isfile, $show_message = 3){ //***********
 	//Check new location for invalid chars etc.
 	}elseif ( Check_path($new_location,$show_message) === false ) {
 		$bad_name = $new_location;
+	//$new_location must already exist (as a directory)
 	}elseif ( ($new_location != "") && !is_dir($new_location) ) {
 		$err_msg .= $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_01']).'</b><br>';
 		$bad_name = $new_location;
+	//Don't overwrite existing files.
 	}elseif ( file_exists($new_name) ) {
 		$bad_name = $new_name;
 		$err_msg .= $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_03']).'</b><br>';
@@ -2352,10 +2421,11 @@ function MCD_response($action, $msg1, $success_msg = '') { //*******************
 		}
 		
 		foreach ($files as $file){
-			$_POST['old_name'] = $mcd_ipath.$file;
+			$_POST['old_name'] = $file;
+			$_POST['old_location'] = $mcd_ipath;
 			$_POST['new_name'] = $file;
 			$_POST['new_location'] = $new_location;
-			$errors  += CRM_response($action, $msg1, $isfile, $show_message);
+			$errors  += CRM_response($action, $msg1, $show_message);
 		}
 	}
 
@@ -2380,7 +2450,7 @@ function MCD_response($action, $msg1, $success_msg = '') { //*******************
 function Page_Title(){ //***<title>Page_Title()</title>*************************
 	global $_, $page;
 
-	if     ($page == "login")        { return $_['Log_In'];        }
+	if     (!$_SESSION['valid'])     { return $_['Log_In'];        }
 	elseif ($page == "admin")        { return $_['Admin_Options']; }
 	elseif ($page == "hash")         { return $_['Generate_Hash']; }
 	elseif ($page == "changepw")     { return $_['pw_change'];     }
@@ -2388,8 +2458,8 @@ function Page_Title(){ //***<title>Page_Title()</title>*************************
 	elseif ($page == "edit")         { return $_['Edit_View'];     }
 	elseif ($page == "upload")       { return $_['Upload_File'];   }
 	elseif ($page == "newfile")      { return $_['New_File'];      }
-	elseif ($page == "copy" )        { return $_['Copy_Files'];    }
-	elseif ($page == "rename")       { return $_['Ren_Move'].' '.$_['File'];}
+	elseif ($page == "copyfile" )    { return $_['Copy_Files'];    }
+	elseif ($page == "renamefile")   { return $_['Ren_Move'].' '.$_['File'];}
 	elseif ($page == "deletefile")   { return $_['Del_Files'];     }
 	elseif ($page == "deletefolder") { return $_['Del_Folder'];    }
 	elseif ($page == "newfolder")    { return $_['New_Folder'];    }
@@ -2406,27 +2476,27 @@ function Page_Title(){ //***<title>Page_Title()</title>*************************
 function Load_Selected_Page(){ //***********************************************
 	global $_, $ONESCRIPT, $ipath, $filename, $page;
 
-	if     ($page == "login")        { Login_Page();          }
-	elseif ($page == "index")        { Index_Page();          }
-	elseif ($page == "admin")        { Admin_Page();          }
-	elseif ($page == "hash")         { Hash_Page();           }
-	elseif ($page == "changepw")     { Change_PWUN_Page('pw','password',$_['pw_change'],$_['pw_new'],$_['pw_confirm']);}
-	elseif ($page == "changeun")     { Change_PWUN_Page('un','text',    $_['un_change'],$_['un_new'],$_['un_confirm']);}
-	elseif ($page == "edit")         { Edit_Page();           }
-	elseif ($page == "upload")       { Upload_Page();         }
-	elseif ($page == "newfile")      { New_File_or_Folder_Page($_['New_File'] ,"new_file");}
-	elseif ($page == "copy")         { CRM_Page($_['Copy'],     $_['File'], 'copy_file',   1); }
-	elseif ($page == "rename")       { CRM_Page($_['Ren_Move'], $_['File'], 'rename_file', 1); }
+	if     (!$_SESSION['valid'])     { Login_Page(); }
+	elseif ($page == "admin")        { Admin_Page(); }
+	elseif ($page == "hash")         { Hash_Page();  }
+	elseif ($page == "changepw")     { Change_PWUN_Page('pw', 'password', $_['pw_change'], $_['pw_new'], $_['pw_confirm']);}
+	elseif ($page == "changeun")     { Change_PWUN_Page('un', 'text',     $_['un_change'], $_['un_new'], $_['un_confirm']);}
+	elseif ($page == "edit")         { Edit_Page();  }
+	elseif ($page == "upload")       { Upload_Page();}
+	elseif ($page == "newfile")      { New_File_or_Folder_Page($_['New_File']  , "new_file");     }
+	elseif ($page == "newfolder")    { New_File_or_Folder_Page($_['New_Folder'], "new_folder");   }
+	elseif ($page == "copyfile")     { CRM_Page($_['Copy'],     $_['File']  , 'copy_file'    , 1);}
+	elseif ($page == "copyfolder")   { CRM_Page($_['Copy'],     $_['Folder'], 'copy_folder'  , 0);}
+	elseif ($page == "renamefile")   { CRM_Page($_['Ren_Move'], $_['File']  , 'rename_file'  , 1);}
+	elseif ($page == "renamefolder") { CRM_Page($_['Ren_Move'], $_['Folder'], 'rename_folder', 0);}
 	elseif ($page == "deletefile")   { Delete_Page($_['Del_Files'], $filename);}
 	elseif ($page == "deletefolder") { Delete_Page($_['Del_Folder'],$ipath);}
-	elseif ($page == "newfolder")    { New_File_or_Folder_Page($_['New_Folder'] ,"new_folder");}
-	elseif ($page == "renamefolder") { CRM_Page($_['Ren_Move'], $_['Folder'], 'rename_folder', 0); }
 	elseif ($page == "mcdaction")    {
 		if ($_POST['mcdaction'] == 'move')  { MCD_Page($_['Move_Files'], 'mcd_mov'); }
 		if ($_POST['mcdaction'] == 'copy')  { MCD_Page($_['Copy_Files'], 'mcd_cpy'); }
 		if ($_POST['mcdaction'] == 'delete'){ MCD_Page($_['Del_Files'],  'mcd_del', 'verify_del', 'cancel'); }
 	}
-	else                             { Login_Page();          } //default
+	else                             { Index_Page();          } //default
 }//end Load_Selected_Page() //**************************************************
 
 
@@ -2446,9 +2516,10 @@ function Respond_to_POST() { //*************************************************
 	elseif (isset($_POST["filename"]     )) { Edit_response();           }
 	elseif (isset($_POST["new_file"]     )) { New_File_or_Folder_response("new_file", 1);}   //1=file
 	elseif (isset($_POST["new_folder"]   )) { New_File_or_Folder_response("new_folder", 0);} //0=folder
-	elseif (isset($_POST["copy_file"]    )) { CRM_response('copy'  , $_['Copy']    , 1);}
-	elseif (isset($_POST["rename_file"]  )) { CRM_response('rename', $_['Ren_Move'], 1);}
-	elseif (isset($_POST["rename_folder"])) { CRM_response('rename', $_['Ren_Move'], 0);}
+	elseif (isset($_POST["copy_file"]    )) { CRM_response('rCopy' , $_['Copy']   ); }
+	elseif (isset($_POST["rename_file"]  )) { CRM_response('rename', $_['Ren_Move']);}
+	elseif (isset($_POST["copy_folder"]  )) { CRM_response('rCopy' , $_['Copy']   ); }
+	elseif (isset($_POST["rename_folder"])) { CRM_response('rename', $_['Ren_Move']);}
 	elseif (isset($_POST["delete"]       )) { Delete_response($_POST["delete"]); }
 	elseif (isset($_FILES['upload_file']['name']))  { Upload_response(); }
 
@@ -2927,18 +2998,18 @@ table.index_T td {
 input[type="text"] {
 	width  : 99.5%;
 	border : 1px solid #807568;
+	margin : .1em
 	padding: 2px;
-	margin-bottom: .6em;
-	font   : 1em "Courier New", Courier, monospace;
+	font   : 1em Courier;
 	}
 
 
 input[type="password"] {
-	border  : 1px solid #807568;
-	margin-bottom: .6em;
-	padding : 2px 0px 2px 2px;
-	width   : 100%;
-	font    : 1em courier;
+	border : 1px solid #807568;
+	margin : .1em
+	padding: 2px 0px 2px 2px;
+	width  : 100%;
+	font   : 1em courier;
 }
 
 input:focus  { background-color: rgb(255,250,150); }
@@ -3088,7 +3159,6 @@ hr { /*-- -- -- -- -- -- --*/
 	vertical-align: middle;
 	}
 
-
 .verify_del {
 	border: 1px solid #F00;
 	color : #222;
@@ -3127,7 +3197,7 @@ hr { /*-- -- -- -- -- -- --*/
 .edit_btns_bottom { float: right; }
 .edit_btns_bottom .button { margin-left: .5em; }
 
-input[type="text"]#new_name {width  : 60%;}
+input[type="text"].old_new_name {width  : 60%;}
 
 .old_backup_T { float: left; margin-bottom: .3em; }
 
@@ -3285,8 +3355,8 @@ echo '</head><body>';
 
 Error_reporting_and_early_output(1,0);
 
-if ($page == "login"){ echo '<div id="main" class="login_page">'; }
-else                 { echo '<div id="main" class="container" >'; }
+if (!$_SESSION['valid']){ echo '<div id="main" class="login_page">'; }
+else                    { echo '<div id="main" class="container" >'; }
 
 Page_Header();
 
@@ -3297,16 +3367,16 @@ message_box();
 Load_Selected_Page();
 
 //Countdown timer...
-if ($page != "login") {
+if ($_SESSION['valid']) {
 	echo '<hr>';
 	echo Timeout_Timer($MAX_IDLE_TIME, 'timer0', 'timer timeout', 'LOGOUT');
 	echo '<span class="timeout">'.hsc($_['time_out_txt']).'&nbsp; </span>';
 }
 
 //Admin link
-if ( $page != "login" && ($_SESSION['admin_page'] === false) ) {
+if ( $_SESSION['valid'] && ($_SESSION['admin_page'] === false) ) {
 	echo '<a id="admin" href="'.$ONESCRIPT.$param1.$param2.'&amp;p=admin">'.hsc($_['Admin']).'</a>';
-}elseif ($page != 'login') {
+}elseif ($_SESSION['valid']) {
 	echo '<br>';
 }
 
