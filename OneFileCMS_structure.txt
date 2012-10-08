@@ -1,4 +1,4 @@
-OneFileCMS Version 3.4.07 structure/layout
+OneFileCMS Version 3.4.10 structure/layout
 
 LICENSE
 
@@ -25,9 +25,10 @@ MISC FUNCTIONS:
 	dir_name()
 	Check_path()
 	is_empty()
-	List_Selected()
+	Sort_Seperate()
 	ordinalize()
 	supports_svg()
+	rCopy()
 	rDel()
 	
 MISC PAGE SECTIONS/FUNCTIONS
@@ -40,28 +41,10 @@ MISC PAGE SECTIONS/FUNCTIONS
 
 	Init_Macros()
 
-SVG ICON FUNCTIONS:
-	svg_icon_ren()
-	svg_icon_copy()
-	svg_icon_del()
-	svg_icon_bin()
-	svg_icon_img()
-	svg_icon_svg()
-	svg_icon_txt_0()
-	svg_icon_txt()
-	svg_icon_htm()
-	svg_icon_php()
-	svg_icon_css()
-	svg_icon_cfg()
-	svg_icon_upload()
-	svg_icon_file_new()
-	svg_icon_file_del()
-	svg_icon_folder_0()
-	svg_icon_folder()
-	svg_icon_folder_new()
-	svg_icon_folder_ren()
-	svg_icon_folder_del()
-	show_icon()
+SVG ICONS
+	Init_ICONS()
+		svg_icon_txt()
+		svg_icon_folder()
 
 PAGE & RESPONSE FUNCTIONS:
 	List_Backup()
@@ -74,8 +57,8 @@ PAGE & RESPONSE FUNCTIONS:
 	Logout()
 	Login_Page()
 	Login_response()
-	Table_of_Files()
 	List_Files()
+	Table_of_Files()
 	Index_Page()
 	Edit_Page_buttons_top()
 	Edit_Page_buttons()
@@ -85,12 +68,11 @@ PAGE & RESPONSE FUNCTIONS:
 	Edit_response()
 	Upload_Page()
 	Upload_response()
-	New_File_or_Folder_Page()
-	New_File_or_Folder_response()
+	New_Page()
+	New_response()
 	Set_Input_width()
 	CRM_Page()
 	CRM_response()
-	Delete_Page()
 	Delete_response()
 	MCD_Page()
 	MCD_response()

@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.07
+// OneFileCMS Language Settings v3.4.10
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -16,19 +16,15 @@ $_['LANG'] = 'EN';
 // In some instances, some langauges may use significantly longer words or phrases than others.
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
 //
-$_['front_links_font_size'] = '1em';    //Buttons on Index page.
-$_['front_links_margin_R']  = '1em';
-$_['button_font_size']      = '.9em';   //Buttons on Edit page.
-$_['button_margin_L']       = '.7em';
-$_['button_padding']        = '4px 10px';
-$_['image_info_font_size']  = '1em';    //show_img_msg_01  &  _02
-$_['image_info_pos']        = '';       //If 1 or true, moves the info down a line for more space.
-$_['select_all_label_size'] = '.84em';  //Font size of $_['Select_All']
-$_['select_all_div_width']  = '71px';   //Width of space for $_['Select_All']
-
-$_['R'] = 'R'; //R ename
-$_['C'] = 'C'; //C opy
-$_['D'] = 'D'; //D elete
+$_['front_links_font_size']  = '1.0em';  //Buttons on Index page.
+$_['front_links_margin_L']   = '1.0em';
+$_['button_font_size']       = '0.9em';  //Buttons on Edit page.
+$_['button_margin_L']        = '0.7em';
+$_['button_padding']         = '4px 10px';
+$_['image_info_font_size']   = '1em';    //show_img_msg_01  &  _02
+$_['image_info_pos']         = '';       //If 1 or true, moves the info down a line for more space.
+$_['select_all_label_size']  = '.84em';  //Font size of $_['Select_All']
+$_['select_all_label_width'] = '76px';   //Width of space for $_['Select_All']
 
 $_['Admin']   = 'Admin';
 $_['Cancel']  = 'Cancel';
@@ -41,7 +37,7 @@ $_['DELETE']  = 'DELETE';
 $_['Deleted'] = 'Deleted';
 $_['Edit']    = 'Edit';
 $_['Enter']   = 'Enter';
-$_['Error']   = 'Error';   //####
+$_['Error']   = 'Error';
 $_['errors']  = 'errors';
 $_['File']    = 'File';
 $_['Folder']  = 'Folder';
@@ -62,7 +58,7 @@ $_['Log_In']     = 'Log In';
 $_['Log_Out']    = 'Log Out';
 
 $_['Admin_Options']  = 'Administration Options';
-$_['Are_you_sure']   = 'Are you sure?';       //####
+$_['Are_you_sure']   = 'Are you sure?';
 $_['Edit_View']      = 'Edit / View';
 $_['Upload_File']    = 'Upload File';
 $_['New_File']       = 'New File';
@@ -70,12 +66,13 @@ $_['Ren_Move']       = 'Rename / Move';
 $_['Ren_Moved']      = 'Renamed / Moved';
 $_['New_Folder']     = 'New Folder';
 $_['Ren_Folder']     = 'Rename / Move Folder';
+$_['Copy_Folder']    = 'Copy Folder';
 $_['Del_Folder']     = 'Delete Folder';
 $_['Submit']         = 'Submit Request';
 $_['Move_Files']     = 'Move File(s)';
 $_['Copy_Files']     = 'Copy File(s)';
 $_['Del_Files']      = 'Delete File(s)';
-$_['Selected_Files'] = 'Selected Files';
+$_['Selected_Files'] = 'Selected Folders and Files';
 $_['Select_All']     = 'Select All';
 $_['Clear_All']      = 'Clear All';
 $_['New_Location']   = 'New Location';
@@ -90,17 +87,17 @@ $_['save_2']      = 'SAVE CHANGES!';
 $_['reset']       = 'Reset - loose changes';
 $_['Wide_View']   = 'Wide View';
 $_['Normal_View'] = 'Normal View';
-$_['Open_View']   = 'Open/View in browser window'; //####
+$_['Open_View']   = 'Open/View in browser window';
 
-$_['verify_msg_01']  = 'Session expired.';
-$_['verify_msg_02']  = 'INVALID POST';
-
+$_['verify_msg_01']     = 'Session expired.';
+$_['verify_msg_02']     = 'INVALID POST';
 $_['get_get_msg_01']    = 'File does not exist:';
 $_['get_get_msg_02']    = 'Invalid page request:';
-$_['check_path_msg_02'] = 'dot" or "dot dot" path segments are not permitted.'; //####
-$_['check_path_msg_03'] = 'Path or filename contains an invalid character:'; //####
+$_['check_path_msg_02'] = '"dot" or "dot dot" path segments are not permitted.';
+$_['check_path_msg_03'] = 'Path or filename contains an invalid character:';
 $_['ord_msg_01']        = 'A file with that name already exists in the target directory.';
 $_['ord_msg_02']        = 'Saving as';
+$_['rCopy_msg_01']      = 'A folder can not be copied into one of its own sub-folders.';
 $_['show_img_msg_01']   = 'Image shown at ~';
 $_['show_img_msg_02']   = '% of full size (W x H =';
 
@@ -134,14 +131,14 @@ $_['edit_txt_02'] = 'File possibly contains an invalid character. Edit and view 
 $_['edit_txt_03'] = 'htmlspecialchars() returned an empty string from what may be an otherwise valid file.';
 $_['edit_txt_04'] = 'This behavior can be inconsistant from version to version of php.';
 
-$_['too_large_to_edit_01a'] = 'Edit disabled. Filesize >';
-$_['too_large_to_edit_02']  = 'Some browsers (ie: IE) bog down or become unstable while editing a large file in an HTML <textarea>.';
-$_['too_large_to_edit_03']  = 'Adjust $MAX_EDIT_SIZE in the configuration section of OneFileCMS as needed.';
-$_['too_large_to_edit_04']  = 'A simple trial and error test can determine a practical limit for a given browser/computer.';
-$_['too_large_to_view_01a'] = 'View disabled. Filesize >';
-$_['too_large_to_view_02']  = 'Click the file name above to view as normally rendered in a browser window.';
-$_['too_large_to_view_03']  = 'Adjust $MAX_VIEW_SIZE in the configuration section of OneFileCMS as needed.';
-$_['too_large_to_view_04']  = '(The default value for $MAX_VIEW_SIZE is completely arbitrary, and may be adjusted as desired.)';
+$_['too_large_to_edit_01'] = 'Edit disabled. Filesize >';
+$_['too_large_to_edit_02'] = 'Some browsers (ie: IE) bog down or become unstable while editing a large file in an HTML <textarea>.';
+$_['too_large_to_edit_03'] = 'Adjust $MAX_EDIT_SIZE in the configuration section of OneFileCMS as needed.';
+$_['too_large_to_edit_04'] = 'A simple trial and error test can determine a practical limit for a given browser/computer.';
+$_['too_large_to_view_01'] = 'View disabled. Filesize >';
+$_['too_large_to_view_02'] = 'Click the file name above to view as normally rendered in a browser window.';
+$_['too_large_to_view_03'] = 'Adjust $MAX_VIEW_SIZE in the configuration section of OneFileCMS as needed.';
+$_['too_large_to_view_04'] = '(The default value for $MAX_VIEW_SIZE is completely arbitrary, and may be adjusted as desired.)';
 
 $_['meta_txt_01'] = 'Filesize:';
 $_['meta_txt_03'] = 'Updated:';
@@ -149,13 +146,13 @@ $_['edit_msg_01'] = 'File saved:';
 $_['edit_msg_02'] = 'bytes written.';
 $_['edit_msg_03'] = 'There was an error saving file.';
 
-$_['upload_txt_03']  = 'Maximum size of each file:'; //####
-$_['upload_txt_01']  = '(per upload_max_filesize in php.ini)'; //####
-$_['upload_txt_04']  = 'Maximum total upload size:'; //####
-$_['upload_txt_02']  = '(per post_max_size in php.ini)'; //####
+$_['upload_txt_03']  = 'Maximum size of each file:';
+$_['upload_txt_01']  = '(upload_max_filesize in php.ini)';
+$_['upload_txt_04']  = 'Maximum total upload size:';
+$_['upload_txt_02']  = '(post_max_size in php.ini)';
 
-$_['upload_err_01']  = 'Error 1: File too large. From php.ini:'; //####
-$_['upload_err_02']  = 'Error 2: File too large. (MAX_FILE_SIZE HTML form element)'; //####
+$_['upload_err_01']  = 'Error 1: File too large. From php.ini:';
+$_['upload_err_02']  = 'Error 2: File too large. (Exceeds MAX_FILE_SIZE HTML form element)';
 $_['upload_err_03']  = 'Error 3: The uploaded file was only partially uploaded.';
 $_['upload_err_04']  = 'Error 4: No file was uploaded.';
 $_['upload_err_05']  = 'Error 5:';
@@ -164,33 +161,29 @@ $_['upload_err_07']  = 'Error 7: Failed to write file to disk.';
 $_['upload_err_08']  = 'Error 8: A PHP extension stopped the file upload.';
 
 $_['upload_msg_01'] = 'No file selected for upload.';
-$_['upload_msg_02'] = 'Destination folder invalid:'; //####
+$_['upload_msg_02'] = 'Destination folder invalid:';
 $_['upload_msg_03'] = 'Upload cancelled.';
 $_['upload_msg_04'] = 'Uploading:';
 $_['upload_msg_05'] = 'Upload successful!';
 $_['upload_msg_06'] = 'Upload failed:';
 
-$_['new_file_txt_01'] = 'File or Folder will be created in the current folder.'; //####
+$_['new_file_txt_01'] = 'File or Folder will be created in the current folder.';
 $_['new_file_txt_02'] = 'Some invalid characters are:';
-$_['new_file_msg_01'] = 'File or folder not created:'; //####
-$_['new_file_msg_02'] = 'Name contains an invalid character:'; //####
-$_['new_file_msg_03'] = 'Not created - no name given'; //####
-$_['new_file_msg_04'] = 'File or folder already exists:'; //####
+$_['new_file_msg_01'] = 'File or folder not created:';
+$_['new_file_msg_02'] = 'Name contains an invalid character:';
+$_['new_file_msg_03'] = 'Not created - no name given';
+$_['new_file_msg_04'] = 'File or folder already exists:';
 $_['new_file_msg_05'] = 'Created file:';
-$_['new_file_msg_07'] = 'Created folder:'; //####
+$_['new_file_msg_07'] = 'Created folder:';
 
 $_['CRM_txt_02']  = 'The new location must already exist.';
-$_['CRM_txt_03']  = 'Old Name and Location'; //####
 $_['CRM_txt_04']  = 'New Name';
 $_['CRM_msg_01']  = 'Error - new parent location does not exist:';
 $_['CRM_msg_02']  = 'Error - source file does not exist:';
-$_['CRM_msg_03']  = 'Error - new file or folder already exists:'; //####
+$_['CRM_msg_03']  = 'Error - new file or folder already exists:';
 $_['CRM_msg_05']  = 'Error during';
 
-$_['delete_msg_01'] = 'Deleted file:';
-$_['delete_msg_02'] = 'Error deleting';
-$_['delete_folder_msg_03'] = 'Delete error:'; //####
-
+$_['delete_msg_03']   = 'Delete error:';
 $_['session_warning'] = 'Warning: Session timeout soon!';
 $_['session_expired'] = 'SESSION EXPIRED';
 $_['unload_unsaved']  = ' Unsaved changes will be lost!';
@@ -214,10 +207,8 @@ $_['error_reporting_06'] = '(nothing, not even white-space, should have been out
 $_['admin_txt_00'] = 'Old Backup Found';
 $_['admin_txt_01'] = 'A backup file was created in case of an error during a username or password change. Therefore, it may contain old information and should be deleted if not needed. In any case, it will automatically be overwritten on the next password or username change.';
 $_['admin_txt_02'] = 'General Information';
-$_['admin_txt_04'] = 'As of version 3.3.13, OneFileCMS no longer maintains a plain text password option, and only stores a password hash, as most login systems do.';
-$_['admin_txt_12'] = 'However, due to a number of considerations, this change was largely an academic exersize. That is, in this application, take the idea that it adds much of an improvement to security with a grain of cryptographic salt. Never-the-less, it does eliminate the storage of your password in plain text (if that option was used), which is generally considered to be a good thing.';
-$_['admin_txt_14'] = 'For another small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep them secret, of course). Every little bit helps...';
-$_['admin_txt_16'] = 'Also, you can still use OneFileCMS to edit itself. However, be sure to have a backup ready for the inevitable ytpo...';
+$_['admin_txt_14'] = 'For a small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep them secret, of course). Every little bit helps...'; //####
+$_['admin_txt_16'] = 'OneFileCMS can be used to edit itself.  However, be sure to have a backup ready for the inevitable ytpo...'; //####
 
 $_['pw_change']  = 'Change Password';
 $_['pw_current'] = 'Current Password';
@@ -225,17 +216,17 @@ $_['pw_new']     = 'New Password';
 $_['pw_confirm'] = 'Confirm New Password';
 
 $_['pw_txt_02'] = 'Password / Username rules:';
-$_['pw_txt_04'] = 'They are case-sensitive!';
-$_['pw_txt_06'] = 'They must contain at least one non-space character.';
-$_['pw_txt_08'] = 'They may contain spaces in the middle. Ex: "This is a password or username!"';
-$_['pw_txt_10'] = 'Leading and trailing spaces are removed.';
-$_['pw_txt_12'] = 'To record the change, only one file is updated: either the active copy of OneFileCMS, or, if specified, an external configuration file.';
+$_['pw_txt_04'] = 'Case-sensitive: "A" is not "a"';
+$_['pw_txt_06'] = 'Must contain at least one non-space character.';
+$_['pw_txt_08'] = 'May contain spaces in the middle. Ex: "This is a password or username!"';
+$_['pw_txt_10'] = 'Leading and trailing spaces are ignored.';
+$_['pw_txt_12'] = 'In recording the change, only one file is updated: either the active copy of OneFileCMS, or, if specified, an external configuration file.';
 $_['pw_txt_14'] = 'If an incorrect current password is entered, you will be logged out, but you may log back in.';
 
 $_['change_pw_01'] = 'Password changed!';
 $_['change_pw_02'] = 'Password NOT changed:';
 $_['change_pw_03'] = 'Incorrect current password. Login to try again.';
-$_['change_pw_04'] = 'New and "Confirm New" values do not match.';
+$_['change_pw_04'] = '"New" and "Confirm New" values do not match.';
 $_['change_pw_05'] = 'Updating';
 $_['change_pw_06'] = 'external config file';
 
@@ -245,7 +236,7 @@ $_['un_confirm']    = 'Confirm New Username';
 $_['change_un_01']  = 'Username changed!';
 $_['change_un_02']  = 'Username NOT changed:';
 $_['update_failed'] = 'Update failed - could not save file.';
-$_['mcd_msg_01']    = 'files moved successfully.';
-$_['mcd_msg_02']    = 'files copied successfully.';
-$_['mcd_msg_03']    = 'files deleted successfully.';
+$_['mcd_msg_01']    = 'files moved.';
+$_['mcd_msg_02']    = 'files copied.';
+$_['mcd_msg_03']    = 'files deleted.';
 

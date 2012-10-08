@@ -1,12 +1,15 @@
-# Current stable version: 3.4.06
+# Current version: 3.4.10
 
-### September 23, 2012  (v3.4.07)
+### October 8, 2012  (v3.4.10)
 
 - Can now delete non-empty folders (just be careful!)
+- Can now copy entire folders.
+- As part of the two changes above, folders are now listed in the main listing ahead of files, instead of displayed across the page beneath the path/to/current/folder header.
 - Consolidated some functions.
-- Minor bug fix & a few misc code improvements.
+- Minor bug fix 
+- Some misc code improvements here & there.
 
-- v3.4.07 has caused no issues on my test machine.  However, since it uses a recursive delete function, you may wish to try it out in a virtual machine or other test environment first.
+- Versions since 3.4.06 have caused no issues on my test machine.  However, since a recursive delete function is now used, you may wish to try it out things out on a virtual machine or other test environment first.
 
 
 ### September 19, 2012
@@ -153,9 +156,9 @@ Now, since there is no database or other means of granular control and access lo
 
 - PHP 5.1+
   (Only tested on versions 5.2.8, 5.2.17, 5.3.3, and 5.4 + )
-- File permission privileges on your host
-- Javascript enabled browswer
-- And a browser that supports inline SVG, but only if you wish to see the icons
+- File permission privileges on your host.
+- Javascript enabled browswer.
+- And -if you wish to see the icons- a browser that supports inline SVG.
   (If your browser doesn't support inline SVG, OneFileCMS will still work, just without any icons.)
 
 ## Credit, License, Et Cetera  
@@ -206,6 +209,19 @@ GENERATE/OUTPUT THE PAGE
 --------------------------------------------------------------------------------
 
 ## Change Log
+
+### 3.4.10
+
+- Quite of bit of code consolidation and improvement.
+- Converted svg icons from functions to an array of $ICONS[]
+- Folders are now listed ahead of files in main file list.
+
+### 3.4.09
+
+- Option to copy folders.
+- Consolidated some functions.
+- Removed some svg icons no longer used.
+- The usual "code cleanup" and "tweaked some css"...
 
 ### 3.4.07
 
