@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.10
+// OneFileCMS Language Settings v3.4.11
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -66,8 +66,6 @@ $_['Ren_Move']       = 'Rename / Move';
 $_['Ren_Moved']      = 'Renamed / Moved';
 $_['New_Folder']     = 'New Folder';
 $_['Ren_Folder']     = 'Rename / Move Folder';
-$_['Copy_Folder']    = 'Copy Folder';
-$_['Del_Folder']     = 'Delete Folder';
 $_['Submit']         = 'Submit Request';
 $_['Move_Files']     = 'Move File(s)';
 $_['Copy_Files']     = 'Copy File(s)';
@@ -77,7 +75,6 @@ $_['Select_All']     = 'Select All';
 $_['Clear_All']      = 'Clear All';
 $_['New_Location']   = 'New Location';
 $_['No_files']       = 'No files selected.';
-$_['No_action']      = 'No action selected.';
 $_['Not_found']      = 'Not found';
 $_['pass_to_hash']   = 'Password to hash:';
 $_['Generate_Hash']  = 'Generate Hash';
@@ -239,4 +236,3 @@ $_['update_failed'] = 'Update failed - could not save file.';
 $_['mcd_msg_01']    = 'files moved.';
 $_['mcd_msg_02']    = 'files copied.';
 $_['mcd_msg_03']    = 'files deleted.';
-

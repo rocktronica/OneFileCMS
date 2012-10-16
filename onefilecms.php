@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.10';
+$OFCMS_version = '3.4.11';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -59,7 +59,7 @@ $SALT     = 'somerandomsalt';
 
 $MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;  //In seconds.
-$MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings may limit its max effective value.
+$MAX_IDLE_TIME       = 600; //In seconds. 600 = 10 minutes.  Other PHP settings may limit its max effective value.
 					  //  For instance, 24 minutes is the PHP default for garbage collection.
 
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.
@@ -237,8 +237,6 @@ $_['Ren_Move']       = 'Rename / Move';
 $_['Ren_Moved']      = 'Renamed / Moved';
 $_['New_Folder']     = 'New Folder';
 $_['Ren_Folder']     = 'Rename / Move Folder';
-$_['Copy_Folder']    = 'Copy Folder';
-$_['Del_Folder']     = 'Delete Folder';
 $_['Submit']         = 'Submit Request';
 $_['Move_Files']     = 'Move File(s)';
 $_['Copy_Files']     = 'Copy File(s)';
@@ -248,7 +246,6 @@ $_['Select_All']     = 'Select All';
 $_['Clear_All']      = 'Clear All';
 $_['New_Location']   = 'New Location';
 $_['No_files']       = 'No files selected.';
-$_['No_action']      = 'No action selected.';
 $_['Not_found']      = 'Not found';
 $_['pass_to_hash']   = 'Password to hash:';
 $_['Generate_Hash']  = 'Generate Hash';
@@ -531,28 +528,20 @@ function Error_reporting_and_early_output($show_status = 0, $show_types = 0) {//
 
 
 function Update_Recent_Pages() { //*********************************************
-	global $page;
+	global $page, $message;
 
-	$recent_pages = array("");
-	$pages = 0; //Index to recent_page
-	
 	if (!isset($_SESSION['recent_pages'])) { $_SESSION['recent_pages'] = array(""); }
-	$pages = count($_SESSION['recent_pages']) - 1;
-
-	//Re-reverse so index [0] is oldest page (reversed at end of function)
-	$_SESSION['recent_pages'] = array_reverse($_SESSION['recent_pages']);
+	$pages = count($_SESSION['recent_pages']);
 
 	//Only update if actually a new page
-	if ( $page != $_SESSION['recent_pages'][$pages] ) {
-		$_SESSION['recent_pages'][$pages+1] = $page;
+	if ( $page != $_SESSION['recent_pages'][0] ) {
+		array_unshift($_SESSION['recent_pages'], $page);
 		$pages = count($_SESSION['recent_pages']);
 	}
 
 	//Only need 3 most recent pages (increase if needed)
-	if ($pages > 3) { array_shift($_SESSION['recent_pages']); }
+	if ($pages > 3) { array_pop($_SESSION['recent_pages']); }
 
-	//Reverse order so index [0] is the current page
-	$_SESSION['recent_pages'] = array_reverse($_SESSION['recent_pages']);
 
 }//end Update_Recent_Pages() //*************************************************
 
@@ -2038,22 +2027,21 @@ function CRM_Page($action, $title, $name_id, $old_name) { //********************
 	if (is_dir($old_name)) { $param1 = '?i='.dir_name($ipath); } //If dir, return to parent on [Cancel]
 
 	Set_Input_width();
-?>
-	<h2><?php echo hsc($action.' '.$title) ?></h2>
 
-	<?php echo $FORM_COMMON ?>
-		<input type="hidden" name="<?php echo $name_id ?>"  value="<?php echo hsc($name_id); ?>">
-		<input type="hidden" name=old_name  value="<?php echo hsc($old_name); ?>">
-		<label><?php echo hsc($_['CRM_txt_04']) ?>:</label>
-		<input type=text name=new_name id=new_name class=old_new_name value="<?php echo hsc(basename($new_name)); ?>"><br>
-		<label><?php echo hsc($_['New_Location']) ?>:</label>
-		<span class="web_root"><?php echo hte($WEB_ROOT); ?></span><input type=text
-		name=new_location id=new_location value="<?php echo hsc(dir_name($new_name)); ?>"><br>
-		(<?php echo hsc($_['CRM_txt_02']) ?>)
-		
-		<p><?php Cancel_Submit_Buttons($action); ?>
-	</form>
-<?php
+	echo '<h2>'.hsc($action.' '.$title).'</h2>';
+
+	echo $FORM_COMMON;
+		echo '<input type="hidden" name="'.$name_id.'"  value="'.hsc($name_id).'">';
+		echo '<input type="hidden" name=old_name  value="'.hsc($old_name).'">';
+		echo '<label>'.hsc($_['CRM_txt_04']).':</label>';
+		echo '<input type=text name=new_name id=new_name class=old_new_name value="'.hsc(basename($new_name)).'"><br>';
+		echo '<label>'.hsc($_['New_Location']).':</label>';
+		echo '<span class="web_root">'.hte($WEB_ROOT).'</span>';
+		echo '<input type=text name=new_location id=new_location value="'.hsc(dir_name($new_name)).'"><br>';
+		echo '('.hsc($_['CRM_txt_02']).')<p>';
+		Cancel_Submit_Buttons($action);
+	echo '</form>';
+
 }//end CRM_Page() //************************************************************
 
 
@@ -2124,7 +2112,7 @@ function CRM_response($action, $msg1, $show_message = 3){ //********************
 	if (  $show_message & 2)             { $message .= $scs_msg; } //Show success message.
 
 	//Prior page should be either index or edit
-	$page = $_SESSION["recent_pages"][1];
+	$page = $_SESSION['recent_pages'][1];
 	$param1 = '?i='.URLencode_path($ipath);
 	if ($isfile & $page == "edit") {$param2 = '&amp;f='.rawurlencode(basename($filename));}
 
@@ -2181,7 +2169,7 @@ function MCD_Page($action, $page_title, $classes = '') { //*********************
 		$_POST['mcdaction'] = 'delete'; //set mcdaction != copy or move (see below).
 		
 		if ($page == "deletefile") { $_POST['files'][1]  = basename($filename); }
-		 //If     == deletefolder,   $_POST['files'][1] is set in Verify_Page_Conditions()
+	  //If  $page == deletefolder,   $_POST['files'][1] is set in Verify_Page_Conditions()
 	}
 
 	Set_Input_width();
@@ -2198,7 +2186,7 @@ function MCD_Page($action, $page_title, $classes = '') { //*********************
 			echo '<p>('.hsc($_['CRM_txt_02']).')</p>';
 		}
 		 
-		echo '<p><b>'.hsc($_['Are_you_sure']).'</b></p>'; //"Are you sure?"
+		echo '<p><b>'.hsc($_['Are_you_sure']).'</b></p>';
 		Cancel_Submit_Buttons($page_title);
 			
 		//List selected folders & files
@@ -2221,7 +2209,7 @@ function MCD_Page($action, $page_title, $classes = '') { //*********************
 
 
 function MCD_response($action, $msg1, $success_msg = '') { //*******************
-	global $_, $WEB_ROOT, $ipath, $param1, $param2, $param3, $message, $EX, $filename, $WHSPC_SLASH;
+	global $_, $WEB_ROOT, $ipath, $filename, $EX, $message, $WHSPC_SLASH;
 
 	$files    = $_POST['files']; //List of files to delete (path not included)
 	$count    = count($files);   //Doesn't include any sub-folders & files.
@@ -2232,17 +2220,20 @@ function MCD_response($action, $msg1, $success_msg = '') { //*******************
 	
 	if ($action == 'rDel') {
 		foreach ($files as $file){
-			//While unlikely, protect against an erroneous attempt
 			if ($file == "") {continue;} //a blank file name would cause $ipath to be deleted.
 			$errors += Delete_response($ipath.$file, $show_message);
 		}
+	}elseif ( ($_POST['new_location'] != "") && !is_dir($_POST['new_location']) ) {
+		$message .= $EX.'<b>'.$msg1.' '.$_['CRM_msg_01'].'</b><br>';
+		$message .= '<span class="filename">'.hte($_POST['new_location']).'/</span><br>';
+		return;
 	}else { //move or rCopy
 		$mcd_ipath = $ipath; //CRM_response() changes $ipath to $new_location
 		
 		foreach ($files as $file){
 			$_POST['old_name'] = $mcd_ipath.$file;
 			$_POST['new_name'] = $file;
-		  //$_POST['new_location'] should already be set by the client.
+		  //$_POST['new_location'] should already be set by the client ( via MCD_Page() ).
 			$errors  += CRM_response($action, $msg1, $show_message);
 		}
 	}
@@ -2930,10 +2921,10 @@ input[type="file"] { border: 1px solid #807568; background-color: white; width: 
 /* --- log in --- */
 
 .login_page {
-	margin  : 5em auto;
 	border  : 1px solid #807568;
-	padding : .5em 1.2em .1em 1em;
 	width   : 370px;
+	margin  : 5em auto;
+	padding : .5em 1.2em .1em 1em;
 	}
 
 .login_page .nav { margin-top: .5em; }
@@ -3109,17 +3100,17 @@ if ($_SESSION['valid']) {
 	Verify_Page_Conditions();
 
 	Update_Recent_Pages();
+	
+	//Used to disable some options if editing OneFileCMS itself.
+	$Editing_OFCMS = false;
+	if ( isset($filename) && ($filename == trim(rawurldecode($ONESCRIPT), '/')) ) { $Editing_OFCMS = true; }
+
+	//Don't show path header on some pages.
+	$Show_Path = true;
+	$pages_dont_show_path = array("login","admin","hash","changepw","changeun");
+	if ( in_array($page, $pages_dont_show_path) ){ $Show_Path = false; } //
 
 }//end if $_SESSION[valid] 
-
-//Used to disable some options if editing OneFileCMS itself.
-$Editing_OFCMS = false;
-if ( isset($filename) && ($filename == trim(rawurldecode($ONESCRIPT), '/')) ) { $Editing_OFCMS = true; }
-
-//Don't show path header on some pages.
-$Show_Path = true;
-$pages_dont_show_path = array("login","admin","hash","changepw","changeun");
-if ( in_array($page, $pages_dont_show_path) ){ $Show_Path = false; } //
 
 //Finish up/prepare to send page contents.
 $early_output = ob_get_clean(); // Should be blank unless trouble-shooting.
@@ -3155,7 +3146,7 @@ else                    { echo '<div id="main" class="login_page">'; }
 
 Page_Header();
 
-if ($Show_Path) { Current_Path_Header(); }
+if ($_SESSION['valid'] && $Show_Path) { Current_Path_Header(); }
 
 message_box();
 

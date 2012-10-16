@@ -1,4 +1,8 @@
-# Current version: 3.4.10
+# Current version: 3.4.11
+
+### October 8, 2012  (v3.4.11)
+
+- Just a few code tweaks & improvements.
 
 ### October 8, 2012  (v3.4.10)
 

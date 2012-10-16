@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.10
+// OneFileCMS Language Settings v3.4.11
 
 $_['LANGUAGE'] = 'Deutsch';
 $_['LANG'] = 'DE';
@@ -66,8 +66,6 @@ $_['Ren_Move']       = 'Umbenennen / Verschieben';
 $_['Ren_Moved']      = 'Umbenannt / Verschoben';
 $_['New_Folder']     = 'Neuer Ordner';
 $_['Ren_Folder']     = 'Ordner umbenennen/verschieben';
-$_['Copy_Folder']    = 'Ordner kopieren';
-$_['Del_Folder']     = 'Ordner löschen';
 $_['Submit']         = 'Anfrage senden';
 $_['Move_Files']     = 'Datei Verschieben';
 $_['Copy_Files']     = 'Datei Kopieren';
@@ -77,7 +75,6 @@ $_['Select_All']     = 'Alles auswählen';
 $_['Clear_All']      = 'Deaktivieren Sie alle';
 $_['New_Location']   = 'Neuer Ordner';
 $_['No_files']       = 'Keine Dateien ausgewählt.';
-$_['No_action']      = 'Keine Aktion ausgewählt.';
 $_['Not_found']      = 'Nicht gefunden';
 $_['pass_to_hash']   = 'Passwort Streuwert:';
 $_['Generate_Hash']  = 'Streuwert generieren';
@@ -239,4 +236,3 @@ $_['update_failed'] = 'Aktualisierung fehlgeschlagen - die Datei konnte nicht ge
 $_['mcd_msg_01']    = 'Dateien verschoben.';
 $_['mcd_msg_02']    = 'Dateien kopiert.';
 $_['mcd_msg_03']    = 'Dateien gelöscht.';
-
