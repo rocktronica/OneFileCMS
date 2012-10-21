@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.11
+// OneFileCMS Language Settings v3.4.12
 
 $_['LANGUAGE'] = 'Deutsch';
 $_['LANG'] = 'DE';
@@ -16,14 +16,14 @@ $_['LANG'] = 'DE';
 // In some instances, some langauges may use significantly longer words or phrases than others.
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
 //
-$_['front_links_font_size']  = '0.9em';  //Buttons on Index page.
-$_['front_links_margin_L']   = '0.5em';
-$_['button_font_size']       = '.7em';   //Buttons on Edit page.
-$_['button_margin_L']        = '.5em';
-$_['button_padding']         = '4px 5px';
-$_['image_info_font_size']   = '.95em';  //show_img_msg_01  &  _02
-$_['image_info_pos']         = '1';      //If 1 or true, moves the info down a line for more space.
-$_['select_all_label_size']  = '.84em';  //Font size of $_['Select_All']
+$_['front_links_font_size'] = '0.9em';  //Buttons on Index page.
+$_['front_links_margin_L']  = '0.5em';
+$_['button_font_size']      = '.7em';   //Buttons on Edit page.
+$_['button_margin_L']       = '.5em';
+$_['button_padding']        = '4px 5px';
+$_['image_info_font_size']  = '.95em';  //show_img_msg_01  &  _02
+$_['image_info_pos']        = '1';      //If 1 or true, moves the info down a line for more space.
+$_['select_all_label_size'] = '.84em';  //Font size of $_['Select_All']
 $_['select_all_label_width'] = '76px';   //Width of space for $_['Select_All']
 
 $_['Admin']   = 'Konfiguration';
@@ -147,6 +147,9 @@ $_['upload_txt_03']  = 'Anmerkung: Die maximale Dateigröße für das Herauflade
 $_['upload_txt_01']  = '  per upload_max_filesize in php.ini.';
 $_['upload_txt_04']  = 'Maximale Gesamt Upload-Größe:';
 $_['upload_txt_02']  = 'pro post_max_size in der php.ini';
+$_['upload_txt_05']  = 'Für die hochgeladenen Dateien, die bereits existieren: ';
+$_['upload_txt_06']  = 'Umbenennen (Auf filename.ext.001 etc...)';
+$_['upload_txt_07']  = 'Überschreiben';
 
 $_['upload_err_01']  = 'Error 1: Datei zu groß. Von php.ini:';
 $_['upload_err_02']  = 'Error 2: Datei zu groß. (MAX_FILE_SIZE HTML form element)';
@@ -163,6 +166,7 @@ $_['upload_msg_03'] = 'Das Heraufladen wurde abgebrochen.';
 $_['upload_msg_04'] = 'Heraufladen: ';
 $_['upload_msg_05'] = 'Das Heraufladen war erfolgreich! ';
 $_['upload_msg_06'] = 'Das Heraufladen ist fehlgeschlagen: ';
+$_['upload_msg_07'] = 'Eine bereits vorhandene Datei überschrieben wurde.';
 
 $_['new_file_txt_01'] = 'Die Datei wird im aktuellen Ordner erstellt.  ';
 $_['new_file_txt_02'] = 'Ungültige Zeichen für Dateinamen sind: ';
@@ -236,3 +240,4 @@ $_['update_failed'] = 'Aktualisierung fehlgeschlagen - die Datei konnte nicht ge
 $_['mcd_msg_01']    = 'Dateien verschoben.';
 $_['mcd_msg_02']    = 'Dateien kopiert.';
 $_['mcd_msg_03']    = 'Dateien gelöscht.';
+

@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.11
+// OneFileCMS Language Settings v3.4.12
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -16,15 +16,15 @@ $_['LANG'] = 'EN';
 // In some instances, some langauges may use significantly longer words or phrases than others.
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
 //
-$_['front_links_font_size']  = '1.0em';  //Buttons on Index page.
-$_['front_links_margin_L']   = '1.0em';
-$_['button_font_size']       = '0.9em';  //Buttons on Edit page.
-$_['button_margin_L']        = '0.7em';
-$_['button_padding']         = '4px 10px';
-$_['image_info_font_size']   = '1em';    //show_img_msg_01  &  _02
-$_['image_info_pos']         = '';       //If 1 or true, moves the info down a line for more space.
-$_['select_all_label_size']  = '.84em';  //Font size of $_['Select_All']
-$_['select_all_label_width'] = '76px';   //Width of space for $_['Select_All']
+$_['front_links_font_size'] = '1.0em';  //Buttons on Index page.
+$_['front_links_margin_L']  = '1.0em';
+$_['button_font_size']      = '0.9em';  //Buttons on Edit page.
+$_['button_margin_L']       = '0.7em';
+$_['button_padding']        = '4px 10px';
+$_['image_info_font_size']  = '1em';    //show_img_msg_01  &  _02
+$_['image_info_pos']        = '';       //If 1 or true, moves the info down a line for more space.
+$_['select_all_label_size'] = '.84em';  //Font size of $_['Select_All']
+$_['select_all_label_width'] = '72px';   //Width of space for $_['Select_All']
 
 $_['Admin']   = 'Admin';
 $_['Cancel']  = 'Cancel';
@@ -147,6 +147,9 @@ $_['upload_txt_03']  = 'Maximum size of each file:';
 $_['upload_txt_01']  = '(upload_max_filesize in php.ini)';
 $_['upload_txt_04']  = 'Maximum total upload size:';
 $_['upload_txt_02']  = '(post_max_size in php.ini)';
+$_['upload_txt_05']  = 'For uploaded files that already exist: '; //####
+$_['upload_txt_06']  = 'Rename (to filename.ext.001 etc...)'; //####
+$_['upload_txt_07']  = 'Overwrite'; //####
 
 $_['upload_err_01']  = 'Error 1: File too large. From php.ini:';
 $_['upload_err_02']  = 'Error 2: File too large. (Exceeds MAX_FILE_SIZE HTML form element)';
@@ -163,6 +166,7 @@ $_['upload_msg_03'] = 'Upload cancelled.';
 $_['upload_msg_04'] = 'Uploading:';
 $_['upload_msg_05'] = 'Upload successful!';
 $_['upload_msg_06'] = 'Upload failed:';
+$_['upload_msg_07'] = 'A pre-existing file was overwritten.'; //####
 
 $_['new_file_txt_01'] = 'File or Folder will be created in the current folder.';
 $_['new_file_txt_02'] = 'Some invalid characters are:';
@@ -236,3 +240,4 @@ $_['update_failed'] = 'Update failed - could not save file.';
 $_['mcd_msg_01']    = 'files moved.';
 $_['mcd_msg_02']    = 'files copied.';
 $_['mcd_msg_03']    = 'files deleted.';
+

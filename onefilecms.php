@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.11';
+$OFCMS_version = '3.4.12';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -36,7 +36,7 @@ ob_start(); //Catch any early output. Closed prior to page output.
 ini_set('session.use_trans_sid', 0);    //make sure URL supplied SESSID's are not used
 ini_set('session.use_only_cookies', 1); //make sure URL supplied SESSID's are not used
 error_reporting(0); //0 for none, or (E_ALL &~ E_STRICT) for trouble-shooting. 
-ini_set('display_errors', 'off');         //Only turn on for trouble-shooting.
+ini_set('display_errors', 'off');         //Only turn on for trouble-shooting. 
 ini_set('log_errors'    , 'off');         //Only turn on for trouble-shooting.
 ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
 //Determine good folder for session file? Default is tmp/, which is not secure, but it may not be a serious concern.
@@ -59,7 +59,7 @@ $SALT     = 'somerandomsalt';
 
 $MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;  //In seconds.
-$MAX_IDLE_TIME       = 600; //In seconds. 600 = 10 minutes.  Other PHP settings may limit its max effective value.
+$MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings may limit its max effective value.
 					  //  For instance, 24 minutes is the PHP default for garbage collection.
 
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.
@@ -72,7 +72,7 @@ $MAX_EDIT_SIZE = 150000;  // Edit gets flaky with large files in some browsers. 
 $MAX_VIEW_SIZE = 1000000; // If file > $MAX_EDIT_SIZE, don't even view in OneFileCMS.
                           // The default max view size is completely arbitrary. Basically, it was 2am and seemed like a good idea at the time.
 
-$UPLOAD_FIELDS = 4; //Number of upload fields on Upload File(s) page. Max value is ini_get('max_file_uploads').
+$UPLOAD_FIELDS = 6; //Number of upload fields on Upload File(s) page. Max value is ini_get('max_file_uploads').
 
 $config_favicon   = "favicon.ico"; //Path is relative to root of website.
 $config_excluded  = ""; //files to exclude from directory listings- CaSe sEnsaTive!
@@ -173,7 +173,7 @@ function hte($input) { return htmlentities($input, ENT_QUOTES, 'UTF-8'); }//end 
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.4.10
+// OneFileCMS Language Settings v3.4.12
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -309,6 +309,9 @@ $_['upload_txt_03'] = 'Maximum size of each file:';
 $_['upload_txt_01'] = '(upload_max_filesize in php.ini)';
 $_['upload_txt_04'] = 'Maximum total upload size:';
 $_['upload_txt_02'] = '(post_max_size in php.ini)';
+$_['upload_txt_05'] = 'For uploaded files that already exist: '; //#### 
+$_['upload_txt_06'] = 'Rename (to filename.ext.001 etc...)';
+$_['upload_txt_07'] = 'Overwrite';                               //#### 
 $_['upload_err_01'] = 'Error 1: File too large. From php.ini:';
 $_['upload_err_02'] = 'Error 2: File too large. (Exceeds MAX_FILE_SIZE HTML form element)';
 $_['upload_err_03'] = 'Error 3: The uploaded file was only partially uploaded.';
@@ -323,6 +326,7 @@ $_['upload_msg_03'] = 'Upload cancelled.';
 $_['upload_msg_04'] = 'Uploading:';
 $_['upload_msg_05'] = 'Upload successful!';
 $_['upload_msg_06'] = 'Upload failed:';
+$_['upload_msg_07'] = 'A pre-existing file was overwritten.'; //#### 
 $_['new_file_txt_01'] = 'File or Folder will be created in the current folder.';
 $_['new_file_txt_02'] = 'Some invalid characters are:';
 $_['new_file_msg_01'] = 'File or folder not created:';
@@ -1521,11 +1525,10 @@ function List_File($file, $type, $f_or_f, $DS, $IS_OFCMS, $HREF_params, $param3)
 			echo '<a href="'.$HREF_params.'&amp;p=delete'.$f_or_f.'" title="'.hsc($_['Delete']).'"  >'.$ICONS['delete'].'</a>';
 		} ?>
 		</td>
-		<td class="ckbox"><?php
-		if (!$IS_OFCMS){
-			echo '<INPUT TYPE=checkbox NAME="files[]" VALUE="'.hsc($file).'">';
-		} ?>
-		</td>
+		<?php if (!$IS_OFCMS){
+			echo '<td class="ckbox"><INPUT TYPE=checkbox NAME="files[]" VALUE="'.hsc($file).'"></td>';
+		}else { echo '<td></td>'; }
+		?>
 		<td class="file_name"><?php
 			echo '<a href="'.$HREF_params.$param3.'"  title="'.hsc($_['Edit_View']).'">';
 			echo $icon.'&nbsp;'.hte($file).$DS.'</a>';
@@ -1864,14 +1867,22 @@ function Upload_Page() { //*****************************************************
 	echo '<h2>'.hsc($_['Upload_File']).'</h2>';
 	echo '<p>';
 	echo hsc($_['upload_txt_03']).' '.ini_get('upload_max_filesize').' '.hsc($_['upload_txt_01']).'<br>';
-	echo hsc($_['upload_txt_04']).' '.ini_get('post_max_size')      .' '.hsc($_['upload_txt_02']);
+	echo hsc($_['upload_txt_04']).' '.ini_get('post_max_size')      .' '.hsc($_['upload_txt_02']).'<br>';
 	
 	echo '<form enctype="multipart/form-data" action="'.$ONESCRIPT.$param1.'&amp;p=uploaded" method="post">';
 		echo $INPUT_NUONCE;
+		
+		echo '<div class="action">';
+		echo $_['upload_txt_05'];
+			echo '<LABEL><INPUT TYPE=radio NAME=ifexists VALUE=rename checked> '.$_['upload_txt_06'].'</LABEL>';
+			echo '<LABEL><INPUT TYPE=radio NAME=ifexists VALUE=overwrite     > '.$_['upload_txt_07'].'</LABEL> ';
+		echo '</div>'; //end class=action
+		
 		echo '<input type="hidden" name="upload_destination" value="'.hsc($ipath).'" >';
 		echo '<p>';
 		for ($x = 0; $x < $UPLOAD_FIELDS; $x++) {
-			echo '<input type="file" name="upload_file[]" class="upload_file" size="100"><br>'."\n";
+			//size is for FF, style width for IE & Chrome.
+			echo '<input type="file" name="upload_file[]" size="100%" style="width: 100%">';
 		}
 		
 		Cancel_Submit_Buttons($_['Upload']);
@@ -1894,6 +1905,7 @@ function Upload_response() { //*************************************************
 		$filecount++;
 		$filename    = $_FILES['upload_file']['name'][$N];
 		$destination = Check_path($_POST["upload_destination"]);
+		$savefile_msg = '';		
 		
 		$MAXUP1 = ini_get('upload_max_filesize');
 		//$MAXUP2 = ''; //number_format($_POST['MAX_FILE_SIZE']).' '.hsc($_['bytes']);
@@ -1915,12 +1927,18 @@ function Upload_response() { //*************************************************
 			$message .= hsc($_['upload_msg_03']).'</b><br>';
 		}else{
 			$message .= '<b>'.hsc($_['upload_msg_04']).'</b> <span class="filename">'.hte($filename).'</span><br>';
-			$savefile = ordinalize($destination, $filename, $savefile_msg);
+			
+			if ( isset($_POST['ifexists']) && ($_POST['ifexists'] == 'overwrite') ) {
+				$savefile = $destination.$filename;
+				if (is_file($savefile)) { $savefile_msg .= $_['upload_msg_07'] ; }
+			}else{ //rename to "file.etc.001"  etc...
+				$savefile = ordinalize($destination, $filename, $savefile_msg);
+			}
 			
 			if(move_uploaded_file($_FILES['upload_file']['tmp_name'][$N], $savefile)) {
 				$message .= '<b>'.hsc($_['upload_msg_05']).'</b> '.$savefile_msg.'<br>';
 			} else{
-				$message .= '<b>'.$EX.'<b>'.hsc($_['upload_msg_06']).' '.$ERRMSG.'</b><br>';
+				$message .= '<b>'.$EX.hsc($_['upload_msg_06']).'</b> '.$ERRMSG.'</b><br>';
 			}
 		}
 	}//end foreach $_FILES
@@ -3024,6 +3042,9 @@ input[type="text"].old_new_name {width  : 50%; margin-bottom: .2em;}
 .R    {color: #00a;    border: 1px solid #804000}
 .C    {color: #006400; border: 1px solid #008400}
 .D    {color: #b00;    border: 1px solid #b00}
+
+.action       {display: inline-block}
+.action label {margin: 0 1em}
 </style>
 <?php
 }//end style_sheet() //*********************************************************

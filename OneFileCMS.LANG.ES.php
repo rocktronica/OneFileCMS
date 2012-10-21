@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.11
+// OneFileCMS Language Settings v3.4.12
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -16,14 +16,14 @@ $_['LANG'] = 'ES';
 // In some instances, some langauges may use significantly longer words or phrases than others.
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
 //
-$_['front_links_font_size']  = '1.0em';  //Buttons on Index page.
-$_['front_links_margin_L']   = '0.6em';
-$_['button_font_size']       = '0.9em';  //Buttons on Edit page.
-$_['button_margin_L']        = '0.4em';
-$_['button_padding']         = '4px 5px';
-$_['image_info_font_size']   = '.95em';  //show_img_msg_01  &  _02
-$_['image_info_pos']         = ' ';      //If 1 or true, moves the info down a line for more space.
-$_['select_all_label_size']  = '.84em';  //Font size of $_['Select_All']
+$_['front_links_font_size'] = '1.0em';  //Buttons on Index page.
+$_['front_links_margin_L']  = '0.6em';
+$_['button_font_size']      = '0.9em';  //Buttons on Edit page.
+$_['button_margin_L']       = '0.4em';
+$_['button_padding']        = '4px 5px';
+$_['image_info_font_size']  = '.95em';  //show_img_msg_01  &  _02
+$_['image_info_pos']        = ' ';      //If 1 or true, moves the info down a line for more space.
+$_['select_all_label_size'] = '.84em';  //Font size of $_['Select_All']
 $_['select_all_label_width'] = '76px';   //Width of space for $_['Select_All']
 
 $_['Admin']   = 'Administrador';
@@ -147,6 +147,9 @@ $_['upload_txt_03']  = 'Nota: El tamaño máximo de subida es de:';
 $_['upload_txt_01']  = 'por upload_max_filesize en php.ini.';
 $_['upload_txt_04']  = 'Tamaño total de la subida:';
 $_['upload_txt_02']  = 'por post_max_size en php.ini';
+$_['upload_txt_05']  = 'Para los archivos subidos que ya existen: ';
+$_['upload_txt_06']  = 'Renombrar (hacia filename.ext.001 etc...)';
+$_['upload_txt_07']  = 'Sobreescribir';
 
 $_['upload_err_01']  = 'Error 1: Archivo demasiado pesado. Desde php.ini:';
 $_['upload_err_02']  = 'Error 2: Archivo muy grande. (MAX_FILE_SIZE HTML form element)';
@@ -163,6 +166,7 @@ $_['upload_msg_03'] = 'Subida cancelada.';
 $_['upload_msg_04'] = 'Subiendo:';
 $_['upload_msg_05'] = '¡Subida satisfactoria!';
 $_['upload_msg_06'] = 'Subida fallida: ';
+$_['upload_msg_07'] = 'Un archivo existente se sobrescribe.';
 
 $_['new_file_txt_01'] = 'Se creará un archivo nuevo en la carpeta actual.';
 $_['new_file_txt_02'] = 'Algunos caracteres inválidos son: ';
@@ -236,3 +240,4 @@ $_['update_failed'] = 'Actualización fallida. No se pudo guardar el archivo.';
 $_['mcd_msg_01']    = 'archivos movidos satisfactoriamente.';
 $_['mcd_msg_02']    = 'archivos copiados satisfactoriamente.';
 $_['mcd_msg_03']    = 'archivos eliminados satisfactoriamente.';
+
