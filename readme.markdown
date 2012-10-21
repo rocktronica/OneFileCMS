@@ -179,6 +179,6 @@ GENERATE/OUTPUT THE PAGE
 
 --------------------------------------------------------------------------------
 
-## [Change Log](https://raw.github.com/Self-Evident/OneFileCMS/gh-pages/changelog.html)
+## [Change Log](http://self-evident.github.com/OneFileCMS/changelog.html)
 
 ## [Git Log](https://raw.github.com/Self-Evident/OneFileCMS/gh-pages/git.log)
