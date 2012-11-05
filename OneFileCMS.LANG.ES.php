@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.12
+// OneFileCMS Language Settings v3.4.13
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -17,16 +17,17 @@ $_['LANG'] = 'ES';
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
 //
 $_['front_links_font_size'] = '1.0em';  //Buttons on Index page.
-$_['front_links_margin_L']  = '0.6em';
+$_['front_links_margin_L']  = '0.5em';
 $_['button_font_size']      = '0.9em';  //Buttons on Edit page.
 $_['button_margin_L']       = '0.4em';
 $_['button_padding']        = '4px 5px';
 $_['image_info_font_size']  = '.95em';  //show_img_msg_01  &  _02
 $_['image_info_pos']        = ' ';      //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size'] = '.84em';  //Font size of $_['Select_All']
-$_['select_all_label_width'] = '76px';   //Width of space for $_['Select_All']
+$_['select_all_label_width'] = '110px'; //Width of space for $_['Select_All']
 
 $_['Admin']   = 'Administrador';
+$_['bytes']   = 'bytes';
 $_['Cancel']  = 'Cancelar';
 $_['Close']   = 'Cerrar';
 $_['Copy']    = 'Copiar';
@@ -46,7 +47,6 @@ $_['Hash']    = 'Cadena';
 $_['Move']    = 'Mover';
 $_['Moved']   = 'Movido';
 $_['on']      = 'activado';
-$_['bytes']   = 'bytes';
 
 $_['Password']   = 'contraseña';
 $_['Rename']     = 'Renombrar';
@@ -144,9 +144,9 @@ $_['edit_msg_02'] = 'bytes escritos.';
 $_['edit_msg_03'] = 'Ocurrió un error guardando el archivo.';
 
 $_['upload_txt_03']  = 'Nota: El tamaño máximo de subida es de:';
-$_['upload_txt_01']  = 'por upload_max_filesize en php.ini.';
+$_['upload_txt_01']  = '(php.ini: upload_max_filesize)';
 $_['upload_txt_04']  = 'Tamaño total de la subida:';
-$_['upload_txt_02']  = 'por post_max_size en php.ini';
+$_['upload_txt_02']  = '(php.ini: post_max_size)';
 $_['upload_txt_05']  = 'Para los archivos subidos que ya existen: ';
 $_['upload_txt_06']  = 'Renombrar (hacia filename.ext.001 etc...)';
 $_['upload_txt_07']  = 'Sobreescribir';
@@ -211,10 +211,13 @@ $_['admin_txt_02'] = 'Información General';
 $_['admin_txt_14'] = 'Para otro tip de seguridad, cambiá la llave de seguridad y/o el método usado por OneFileCMS para almacenar la clave (y mantenelo en secreto, obviamente).  Acordate, cada granito ayuda...';
 $_['admin_txt_16'] = 'Podés usar OneFileCMS para editarlo. Sin embargo, asegurate de hacer un backup...';
 
-$_['pw_change']  = 'Cambiar Contraseña';
 $_['pw_current'] = 'Contraseña actual';
+$_['pw_change']  = 'Cambiar Contraseña';
 $_['pw_new']     = 'Nueva contraseña';
 $_['pw_confirm'] = 'Confirmar Contraseña Nueva';
+$_['un_change']  = 'Cambiar Nombre de Usuario';
+$_['un_new']     = 'Nuevo Usuario';
+$_['un_confirm'] = 'Confirmar Nuevo Nombre de Usuario';
 
 $_['pw_txt_02'] = 'Reglas de Usuario / Contraseña:';
 $_['pw_txt_04'] = '¡Se hace diferencia entre mayúsculas y minúsculas!  "A" =/= "a"';
@@ -225,19 +228,16 @@ $_['pw_txt_12'] = 'Para guardar el cambio, sólo un archivo es actualizado: la c
 $_['pw_txt_14'] = 'Si se ingresa la contraseña actual de forma incorrecta, serás deslogueado y tendrás que volver a loguearte.';
 
 $_['change_pw_01'] = '¡Contraseña Cambiada!';
-$_['change_pw_02'] = 'Contraseña NO cambiada:';
+$_['change_pw_02'] = 'Contraseña NO cambiada.';
 $_['change_pw_03'] = 'Contraseña anterior inválida. Logueate e intenta de nuevo.';
 $_['change_pw_04'] = 'La contraseña y su confirmación no coinciden.';
 $_['change_pw_05'] = 'Actualizando';
 $_['change_pw_06'] = 'archivo de configuración externa';
+$_['change_un_01'] = '¡Nombre de Usuario Actualizado!';
+$_['change_un_02'] = 'Nombre de Usuario NO Actualizado.';
 
-$_['un_change']     = 'Cambiar Nombre de Usuario';
-$_['un_new']        = 'Nuevo Usuario';
-$_['un_confirm']    = 'Confirmar Nuevo Nombre de Usuario';
-$_['change_un_01']  = '¡Nombre de Usuario Actualizado!';
-$_['change_un_02']  = 'Nombre de Usuario NO Actualizado:';
 $_['update_failed'] = 'Actualización fallida. No se pudo guardar el archivo.';
-$_['mcd_msg_01']    = 'archivos movidos satisfactoriamente.';
-$_['mcd_msg_02']    = 'archivos copiados satisfactoriamente.';
-$_['mcd_msg_03']    = 'archivos eliminados satisfactoriamente.';
+$_['mcd_msg_01'] = 'archivos movidos satisfactoriamente.';
+$_['mcd_msg_02'] = 'archivos copiados satisfactoriamente.';
+$_['mcd_msg_03'] = 'archivos eliminados satisfactoriamente.';
 

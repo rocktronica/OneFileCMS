@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.11
+// OneFileCMS Language Settings v3.4.13
 
 $_['LANGUAGE'] = 'Dutch (Nederlands)'; //NL
 $_['LANG'] = 'NL';
@@ -16,17 +16,18 @@ $_['LANG'] = 'NL';
 // In some instances, some langauges may use significantly longer words or phrases than others.
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
 //
-$_['front_links_font_size']  = '1.0em';  //Buttons on Index page.
-$_['front_links_margin_L']   = '1.0em';
-$_['button_font_size']       = '0.9em';  //Buttons on Edit page.
-$_['button_margin_L']        = '0.7em';
-$_['button_padding']         = '4px 10px';
-$_['image_info_font_size']   = '1em';    //show_img_msg_01  &  _02
-$_['image_info_pos']         = '';       //If 1 or true, moves the info down a line for more space.
-$_['select_all_label_size']  = '.84em';  //Font size of $_['Select_All']
-$_['select_all_label_width'] = '76px';   //Width of space for $_['Select_All']
+$_['front_links_font_size'] = '0.8em';  //Buttons on Index page.
+$_['front_links_margin_L']  = '0.4em';
+$_['button_font_size']      = '0.7em';  //Buttons on Edit page.
+$_['button_margin_L']       = '0.5em';
+$_['button_padding']        = '4px 10px';
+$_['image_info_font_size']  = '1em';    //show_img_msg_01  &  _02
+$_['image_info_pos']        = '';       //If 1 or true, moves the info down a line for more space.
+$_['select_all_label_size'] = '.84em';  //Font size of $_['Select_All']
+$_['select_all_label_width'] = '90px';  //Width of space for $_['Select_All']
 
 $_['Admin']   = 'Beheer';
+$_['bytes']   = 'bytes';
 $_['Cancel']  = 'Annuleren';
 $_['Close']   = 'Sluiten';
 $_['Copy']    = 'Kopiëren';
@@ -46,7 +47,6 @@ $_['Hash']    = 'Hash';
 $_['Move']    = 'Verplaats';
 $_['Moved']   = 'Verplaatst';
 $_['on']      = 'on';
-$_['bytes']   = 'bytes';   //####
 
 $_['Password']   = 'Wachtwoord';
 $_['Rename']     = 'Hernoemen';
@@ -144,9 +144,12 @@ $_['edit_msg_02'] = 'bytes geschreven.';
 $_['edit_msg_03'] = 'Er was een fout bij het opslaan van bestand:';
 
 $_['upload_txt_03']  = 'Maximum grootte van ieder bestand:';
-$_['upload_txt_01']  = '(upload_max_filesize in php.ini)';
+$_['upload_txt_01']  = '(php.ini: upload_max_filesize)';
 $_['upload_txt_04']  = 'Maximum totaal upload grootte:';
-$_['upload_txt_02']  = '(post_max_size in php.ini)';
+$_['upload_txt_02']  = '(php.ini: post_max_size)';
+$_['upload_txt_05']  = 'For uploaded files that already exist: '; //## NT ##
+$_['upload_txt_06']  = 'Rename (to filename.ext.001 etc...)'; //## NT ##
+$_['upload_txt_07']  = 'Overwrite'; //## NT ##
 
 $_['upload_err_01']  = 'Fout 1: Bestand te groot. Uit php.ini:';
 $_['upload_err_02']  = 'Fout 2: Bestand te groot. (Overschrijdt MAX_FILE_SIZE HTML form element)';
@@ -163,6 +166,7 @@ $_['upload_msg_03'] = 'Upload geannuleerd.';
 $_['upload_msg_04'] = 'Uploaden:';
 $_['upload_msg_05'] = 'Upload succesvol!';
 $_['upload_msg_06'] = 'Upload mislukt:';
+$_['upload_msg_07'] = 'A pre-existing file was overwritten.'; //## NT ##
 
 $_['new_file_txt_01'] = 'Bestand of map zullen in de huidige map gemaakt worden.';
 $_['new_file_txt_02'] = 'Sommige ongeldige tekens zijn:';
@@ -207,10 +211,13 @@ $_['admin_txt_02'] = 'Algemene Informatie';
 $_['admin_txt_14'] = 'Voor een kleine verbetering van de beveiliging, verander het standaard "salt" en/of methode gebruikt door OneFileCMS om het wachtwoord te hashen (en houdt deze geheim, natuurlijk). Alle kleine beetjes helpen...'; //####
 $_['admin_txt_16'] = 'OneFileCMS kan gebruikt worden om zichzelf te wijzigen. Echter, draagt u zorg voor een backup indien er iets misgaat zoals de onvermijdelijke typvout...'; //####
 
-$_['pw_change']  = 'Bewerk Wachtwoord';
 $_['pw_current'] = 'Huidig Wachtwoord';
+$_['pw_change']  = 'Bewerk Wachtwoord';
 $_['pw_new']     = 'Nieuw Wachtwoord';
 $_['pw_confirm'] = 'Bevestig Nieuw Wachtwoord';
+$_['un_change']  = 'Wijzig Gebruikersnaam';
+$_['un_new']     = 'Nieuwe Gebruikersnaam';
+$_['un_confirm'] = 'Bevestig Nieuwe Gebruikersnaam';
 
 $_['pw_txt_02'] = 'Wachtwoord / Gebruikersnaam regels:';
 $_['pw_txt_04'] = 'Hoofdlettergevoelig: "A" is geen "a"';
@@ -221,18 +228,16 @@ $_['pw_txt_12'] = 'Bij het opnemen van wijzigingen wordt alleen 1 bestand bijgew
 $_['pw_txt_14'] = 'Indien een onjuist huidig wachtwoord opgegeven wordt, zult u automatisch uitgelogd worden. U mag dan wel weer meteen inloggen.';
 
 $_['change_pw_01'] = 'Wachtwoord gewijzigd!';
-$_['change_pw_02'] = 'Wachtwoord NIET gewijzigd:';
+$_['change_pw_02'] = 'Wachtwoord NIET gewijzigd.';
 $_['change_pw_03'] = 'Onjuist huidig wachtwoord opgegeven. Log in en probeert u het nog eens.';
 $_['change_pw_04'] = '"Nieuw" en "Bevestig Nieuw" waardes komen niet overeen.';
 $_['change_pw_05'] = 'Bijwerken';
 $_['change_pw_06'] = 'extern configuratiebestand';
+$_['change_un_01'] = 'Gebruikersnaam gewijzigd!';
+$_['change_un_02'] = 'Gebruikersnaam NIET gewijzigd.';
 
-$_['un_change']     = 'Wijzig Gebruikersnaam';
-$_['un_new']        = 'Nieuwe Gebruikersnaam';
-$_['un_confirm']    = 'Bevestig Nieuwe Gebruikersnaam';
-$_['change_un_01']  = 'Gebruikersnaam gewijzigd!';
-$_['change_un_02']  = 'Gebruikersnaam NIET gewijzigd:';
 $_['update_failed'] = 'Update mislukt - onmogelijk bestand op te slaan.';
-$_['mcd_msg_01']    = 'bestanden verplaatst.';
-$_['mcd_msg_02']    = 'bestanden gekopiëerd.';
-$_['mcd_msg_03']    = 'bestanden verwijderd.';
+$_['mcd_msg_01'] = 'bestanden verplaatst.';
+$_['mcd_msg_02'] = 'bestanden gekopiëerd.';
+$_['mcd_msg_03'] = 'bestanden verwijderd.';
+

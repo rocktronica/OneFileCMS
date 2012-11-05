@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.12
+// OneFileCMS Language Settings v3.4.13
 
 $_['LANGUAGE'] = 'Deutsch';
 $_['LANG'] = 'DE';
@@ -17,16 +17,17 @@ $_['LANG'] = 'DE';
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
 //
 $_['front_links_font_size'] = '0.9em';  //Buttons on Index page.
-$_['front_links_margin_L']  = '0.5em';
+$_['front_links_margin_L']  = '0.3em';
 $_['button_font_size']      = '.7em';   //Buttons on Edit page.
 $_['button_margin_L']       = '.5em';
 $_['button_padding']        = '4px 5px';
 $_['image_info_font_size']  = '.95em';  //show_img_msg_01  &  _02
 $_['image_info_pos']        = '1';      //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size'] = '.84em';  //Font size of $_['Select_All']
-$_['select_all_label_width'] = '76px';   //Width of space for $_['Select_All']
+$_['select_all_label_width'] = '76px';  //Width of space for $_['Select_All']
 
 $_['Admin']   = 'Konfiguration';
+$_['bytes']   = 'bytes';
 $_['Cancel']  = 'Abbrechen';
 $_['Close']   = 'Schließen';
 $_['Copy']    = 'Erstellen';
@@ -46,7 +47,6 @@ $_['Hash']    = 'Streuwert';
 $_['Move']    = 'Verschieben';
 $_['Moved']   = 'Verschoben';
 $_['on']      = 'läuft unter';
-$_['bytes']   = 'bytes';
 
 $_['Password']   = 'Passwort';
 $_['Rename']     = 'Umbenennen';
@@ -144,9 +144,9 @@ $_['edit_msg_02'] = 'Bytes geschrieben.';
 $_['edit_msg_03'] = 'Bei dem Versuch die Datei zu speichern trat ein Fehler auf.';
 
 $_['upload_txt_03']  = 'Anmerkung: Die maximale Dateigröße für das Heraufladen von Dateien beträgt: ';
-$_['upload_txt_01']  = '  per upload_max_filesize in php.ini.';
+$_['upload_txt_01']  = 'php.ini: upload_max_filesize';
 $_['upload_txt_04']  = 'Maximale Gesamt Upload-Größe:';
-$_['upload_txt_02']  = 'pro post_max_size in der php.ini';
+$_['upload_txt_02']  = 'php.ini: post_max_size';
 $_['upload_txt_05']  = 'Für die hochgeladenen Dateien, die bereits existieren: ';
 $_['upload_txt_06']  = 'Umbenennen (Auf filename.ext.001 etc...)';
 $_['upload_txt_07']  = 'Überschreiben';
@@ -179,9 +179,9 @@ $_['new_file_msg_07'] = 'Ordner erstellt:';
 
 $_['CRM_txt_02']  = 'Der neue Ort muss bereits existieren.';
 $_['CRM_txt_04']  = 'Neuer Name';
-$_['CRM_msg_01']  = ' Fehler - der neue Zielort besteht nicht:';
-$_['CRM_msg_02']  = ' Fehler - die Quelldatei besteht nicht:';
-$_['CRM_msg_03']  = ' Fehler - die Zieldatei besteht bereits:';
+$_['CRM_msg_01']  = 'Fehler - der neue Zielort besteht nicht:';
+$_['CRM_msg_02']  = 'Fehler - die Quelldatei besteht nicht:';
+$_['CRM_msg_03']  = 'Fehler - die Zieldatei besteht bereits:';
 $_['CRM_msg_05']  = 'Fehler bei der';
 
 $_['delete_msg_03']   = 'Fehler löschen:';
@@ -211,10 +211,13 @@ $_['admin_txt_02'] = 'Allgemeine Information';
 $_['admin_txt_14'] = 'Eine weitere, kleine Sicherheitsvorkehrung wäre, das Salz oder die Methode für die Streuwertgenerierung von OneFileCMS zu ändern.';
 $_['admin_txt_16'] = 'Sie können auch OneFileCMS selbst bearbeiten.  Legen Sie aber sicherheitshalber eine Kopie an, falls es zu einem unerwünschten Schreibfehler kommt...';
 
-$_['pw_change']  = 'Passwort ändern';
 $_['pw_current'] = 'Aktuelles Passwort';
+$_['pw_change']  = 'Passwort ändern';
 $_['pw_new']     = 'Neues Passwort';
 $_['pw_confirm'] = 'Bestätigen Sie das neue Password';
+$_['un_change']  = 'Benutzername ändern';
+$_['un_new']     = 'Neuer Benutzername';
+$_['un_confirm'] = 'Bestätigen Sie den neuen Benutzernamen';
 
 $_['pw_txt_02'] = 'Regeln für Passwort / Benutzername:';
 $_['pw_txt_04'] = 'Groß-/Kleinschreibung wird berücksichtigt!';
@@ -225,19 +228,16 @@ $_['pw_txt_12'] = 'Nur die aktive Kopie von OneFileCMS wird aktualisiert - es we
 $_['pw_txt_14'] = 'Wird ein ungültiges Passwort eingegeben, werden Sie abgemeldet. Sie können sich anschließend neu anmelden.';
 
 $_['change_pw_01'] = 'Passwort wurde geändert!';
-$_['change_pw_02'] = 'Passwort wurde nicht geändert:';
+$_['change_pw_02'] = 'Passwort wurde nicht geändert.';
 $_['change_pw_03'] = 'Falsches (derzeitiges) Passwort. Bitte melden Sie sich an, um es erneut zu versuchen.';
 $_['change_pw_04'] = 'Die Werte der Felder "Neu" und "Bestätigen" gleichen sich nicht.';
 $_['change_pw_05'] = 'Aktualisierung';
 $_['change_pw_06'] = 'Externe Konfigurationsdatei';
+$_['change_un_01'] = 'Benutzername wurde geändert!';
+$_['change_un_02'] = 'Benutzername wurde nicht geändert.';
 
-$_['un_change']     = 'Benutzername ändern';
-$_['un_new']        = 'Neuer Benutzername';
-$_['un_confirm']    = 'Bestätigen Sie den neuen Benutzernamen';
-$_['change_un_01']  = 'Benutzername wurde geändert!';
-$_['change_un_02']  = 'Benutzername wurde nicht geändert:';
 $_['update_failed'] = 'Aktualisierung fehlgeschlagen - die Datei konnte nicht gespeichert werden.';
-$_['mcd_msg_01']    = 'Dateien verschoben.';
-$_['mcd_msg_02']    = 'Dateien kopiert.';
-$_['mcd_msg_03']    = 'Dateien gelöscht.';
+$_['mcd_msg_01'] = 'Dateien verschoben.';
+$_['mcd_msg_02'] = 'Dateien kopiert.';
+$_['mcd_msg_03'] = 'Dateien gelöscht.';
 

@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.12
+// OneFileCMS Language Settings v3.4.13
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -24,9 +24,10 @@ $_['button_padding']        = '4px 10px';
 $_['image_info_font_size']  = '1em';    //show_img_msg_01  &  _02
 $_['image_info_pos']        = '';       //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size'] = '.84em';  //Font size of $_['Select_All']
-$_['select_all_label_width'] = '72px';   //Width of space for $_['Select_All']
+$_['select_all_label_width'] = '72px';  //Width of space for $_['Select_All']
 
 $_['Admin']   = 'Admin';
+$_['bytes']   = 'bytes';   //####
 $_['Cancel']  = 'Cancel';
 $_['Close']   = 'Close';
 $_['Copy']    = 'Copy';
@@ -46,7 +47,6 @@ $_['Hash']    = 'Hash';
 $_['Move']    = 'Move';
 $_['Moved']   = 'Moved';
 $_['on']      = 'on';
-$_['bytes']   = 'bytes';   //####
 
 $_['Password']   = 'Password';
 $_['Rename']     = 'Rename';
@@ -144,12 +144,12 @@ $_['edit_msg_02'] = 'bytes written.';
 $_['edit_msg_03'] = 'There was an error saving file.';
 
 $_['upload_txt_03']  = 'Maximum size of each file:';
-$_['upload_txt_01']  = '(upload_max_filesize in php.ini)';
+$_['upload_txt_01']  = '(php.ini: upload_max_filesize)';
 $_['upload_txt_04']  = 'Maximum total upload size:';
-$_['upload_txt_02']  = '(post_max_size in php.ini)';
-$_['upload_txt_05']  = 'For uploaded files that already exist: '; //####
-$_['upload_txt_06']  = 'Rename (to filename.ext.001 etc...)'; //####
-$_['upload_txt_07']  = 'Overwrite'; //####
+$_['upload_txt_02']  = '(php.ini: post_max_size)';
+$_['upload_txt_05']  = 'For uploaded files that already exist: ';
+$_['upload_txt_06']  = 'Rename (to filename.ext.001 etc...)';
+$_['upload_txt_07']  = 'Overwrite';
 
 $_['upload_err_01']  = 'Error 1: File too large. From php.ini:';
 $_['upload_err_02']  = 'Error 2: File too large. (Exceeds MAX_FILE_SIZE HTML form element)';
@@ -166,7 +166,7 @@ $_['upload_msg_03'] = 'Upload cancelled.';
 $_['upload_msg_04'] = 'Uploading:';
 $_['upload_msg_05'] = 'Upload successful!';
 $_['upload_msg_06'] = 'Upload failed:';
-$_['upload_msg_07'] = 'A pre-existing file was overwritten.'; //####
+$_['upload_msg_07'] = 'A pre-existing file was overwritten.';
 
 $_['new_file_txt_01'] = 'File or Folder will be created in the current folder.';
 $_['new_file_txt_02'] = 'Some invalid characters are:';
@@ -206,18 +206,21 @@ $_['error_reporting_05'] = 'Unexpected early output';
 $_['error_reporting_06'] = '(nothing, not even white-space, should have been output yet)';
 
 $_['admin_txt_00'] = 'Old Backup Found';
-$_['admin_txt_01'] = 'A backup file was created in case of an error during a username or password change. Therefore, it may contain old information and should be deleted if not needed. In any case, it will automatically be overwritten on the next password or username change.';
+$_['admin_txt_01'] = 'A backup file was created in case of an error during a username or password change. Therefore, it may contain old information and should be deleted if not needed. In any case, it will be automatically overwritten on the next password or username change.';
 $_['admin_txt_02'] = 'General Information';
 $_['admin_txt_14'] = 'For a small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep them secret, of course). Every little bit helps...'; //####
 $_['admin_txt_16'] = 'OneFileCMS can be used to edit itself.  However, be sure to have a backup ready for the inevitable ytpo...'; //####
 
-$_['pw_change']  = 'Change Password';
 $_['pw_current'] = 'Current Password';
+$_['pw_change']  = 'Change Password';
 $_['pw_new']     = 'New Password';
 $_['pw_confirm'] = 'Confirm New Password';
+$_['un_change']  = 'Change Username';
+$_['un_new']     = 'New Username';
+$_['un_confirm'] = 'Confirm New Username';
 
 $_['pw_txt_02'] = 'Password / Username rules:';
-$_['pw_txt_04'] = 'Case-sensitive: "A" is not "a"';
+$_['pw_txt_04'] = 'Case-sensitive: "A" =/= "a"';
 $_['pw_txt_06'] = 'Must contain at least one non-space character.';
 $_['pw_txt_08'] = 'May contain spaces in the middle. Ex: "This is a password or username!"';
 $_['pw_txt_10'] = 'Leading and trailing spaces are ignored.';
@@ -225,19 +228,16 @@ $_['pw_txt_12'] = 'In recording the change, only one file is updated: either the
 $_['pw_txt_14'] = 'If an incorrect current password is entered, you will be logged out, but you may log back in.';
 
 $_['change_pw_01'] = 'Password changed!';
-$_['change_pw_02'] = 'Password NOT changed:';
+$_['change_pw_02'] = 'Password NOT changed.';
 $_['change_pw_03'] = 'Incorrect current password. Login to try again.';
 $_['change_pw_04'] = '"New" and "Confirm New" values do not match.';
 $_['change_pw_05'] = 'Updating';
 $_['change_pw_06'] = 'external config file';
+$_['change_un_01'] = 'Username changed!';
+$_['change_un_02'] = 'Username NOT changed.';
 
-$_['un_change']     = 'Change Username';
-$_['un_new']        = 'New Username';
-$_['un_confirm']    = 'Confirm New Username';
-$_['change_un_01']  = 'Username changed!';
-$_['change_un_02']  = 'Username NOT changed:';
 $_['update_failed'] = 'Update failed - could not save file.';
-$_['mcd_msg_01']    = 'files moved.';
-$_['mcd_msg_02']    = 'files copied.';
-$_['mcd_msg_03']    = 'files deleted.';
+$_['mcd_msg_01'] = 'files moved.';
+$_['mcd_msg_02'] = 'files copied.';
+$_['mcd_msg_03'] = 'files deleted.';
 

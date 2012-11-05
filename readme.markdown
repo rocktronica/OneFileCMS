@@ -1,11 +1,13 @@
 # OneFileCMS
 
-## Current version: 3.4.12
-
---------------------------------------------------------------------------------
+## Current version: 3.4.13
 
 ## Recent changes
 
+### November 5, 2012 (v3.4.13)
+
+- Thanks to [symsec](http://github.com/symsec) for the Dutch (Nederlands) language file!
+- Otherwise, mostly some incidental code improvements and cleanup.
 
 ### October 21, 2012 (v3.4.12)
 
@@ -15,32 +17,10 @@
 
 - Just a few code tweaks & improvements.
 
-### October 8, 2012  (v3.4.10)
-
-- Can now delete non-empty folders (just be careful!)
-- Can now copy entire folders.
-- As part of the two changes above, folders are now listed in the main listing ahead of files, instead of displayed across the page beneath the path/to/current/folder header.
-- Consolidated some functions.
-- Minor bug fix 
-- Some misc code improvements here & there.
-
-- Versions since 3.4.06 have caused no issues on my test machine.  However, since a recursive delete function is now used, you may wish to try it out things out on a virtual machine or other test environment first.
-
-
-### September 19, 2012
-
-- Minor bug fix. (I'm beginning to see a pattern here...)
-
-### September 19, 2012
-
-- The [Selected Files] submit button has been removed, and the "radio buttons" to select Move, Copy, or Delete have been replaced with individual submit buttons. This saves the user one *entire* click per action!
-- OneFileCMS can now select and upload multiple files at one time.  The default max is 4, but that value may be adjusted with the "$UPLOAD_FIELDS" config variable.
--Removed the extra [Upload...] [New...] [Rename...] [Delete...] buttons from bottom of index page.
-
-
 
 #### Language files
 
+- Thanks to [symsec](http://github.com/symsec) for the Dutch (Nederlands) language file!
 - Thanks to [fermuch](http://github.com/fermuch) for the Spanish language file!  
 - Thanks to [codeless](http://github.com/codeless) for the German language file!
 
@@ -69,7 +49,7 @@ Coupling a utilitarian code editor with basic file managing functions, OneFileCM
 ## Features
  
 - All the basic file management features like renaming, moving, copying, deleting, and uploading.
-  _(For complex processes like batch renaming or mass uploads, you're going to want to use an FTP program.)_
+  _(For complex processes, like batch renaming or mass uploads, you're going to want to use an FTP program.)_
 - A basic text editor.
 - Alerts if you try to leave editing with unsaved changes.
 - A Login delay after too many invalid login attempts.
@@ -96,7 +76,7 @@ You can also change the file name of OneFileCMS.php to something else, such as "
 
 ### Where's the WYSIWYG? What about syntax highlighting?
 
-WYSWIWYG editors have been requested, but probably won't become standard, as they'd make it more than one file, sort of defeating the whole "OneFile" point. Plus, if when working with PHP or non-HTML code, they can be more of a hindrance than an asset.
+WYSWIWYG editors have been requested, but probably won't become standard, as they'd make it more than one file, sort of defeating the whole "OneFile" point. Plus, when working with PHP or non-HTML code, they can be more of a hindrance than an asset.
 
 However, just because I don't want to do it, doesn't mean it's impossible.  Look for the Edit\_Page\_form() function. Its textarea can be modified to work with whatever editor you like. 
 
@@ -108,19 +88,19 @@ I may not have the time/bandwidth/inclination to implement every feature, but I 
 
 ### This is basically just a file manager with a text editor- why is it being called a CMS?
 
-Well, because "OneFileCMS" sounds way cooler than "OneFileFileManagerwithTextEditor".
+Well, because "OneFileCMS" sounds way cooler (relatively speaking) than "OneFileFileManagerwithTextEditor".
 
 ### Multi-Language Support?
 
-Yes!  Currently, English, German, and Spanish are available.
+Yes!  Currently, English (EN), German (DE), Spanish (ES), and Dutch (NL) are available.
 
-If you speak another language and would like to contribute, translations into other languages are welcomed and appreciated!  Just use the English language file (or any of the others) as a template, and translate each word, phrase, etc., as appropriate.  (Someone told me he was working on an Esparento translation, but that might have been a joke...)
+If you speak another language and would like to contribute, translations into other languages are welcomed and appreciated!  Just use the English language file (or any of the others) as a template, and translate each word, phrase, etc., as appropriate.  (Someone told me he was working on an Esparento translation...)
 
 ### Can I have more than one username/password?
 
 Yes!  Well, sort of - indirectly.  Upload or create addional copies of OneFileCMS, but give them different file names.(ie: OneFile1.php and OneFile2.php etc...)  Then, in each copy, maintain different usernames and passwords.  Also, so that one user does not login/logout the other, change the value of the $session_name config variable.  
   
-Now, since there is no database or other means of granular control or access logging, multiple usernames may be kind of pointless.  On the other hand, having at least one working backup copy of OneFileCMS available is recommended in case the primary copy gets corrupted.
+Now, since there is no database or other means of granular control or access logging, multiple usernames may be kind of pointless.  However, having at least one working backup copy of OneFileCMS available is recommended in case the primary copy gets corrupted.
 
 --------------------------------------------------------------------------------
 
@@ -138,7 +118,7 @@ Now, since there is no database or other means of granular control or access log
 - Available under the MIT and BSD licenses.
 - Maintained by github/Self-Evident
 - Original concept and development by github.com/rocktronica
-- Contributors: A. M Balakrishnan, github.com/codeless, github.com/fermuch
+- Contributors: A. M Balakrishnan, github.com/codeless, github.com/fermuch, github.com/symsec
 - Written in PHP, JavaScript, HTML, CSS, and SVG.
 - Icons for versions thru 1.1.6 by [famfamfam](http://www.famfamfam.com/).
 - To report a bug or request a feature, please file an issue via Github.
@@ -148,8 +128,7 @@ Now, since there is no database or other means of granular control or access log
 
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
 - Issue with Chrome's XSS filter: Editing some legitimate files with OneFileCMS will trigger the filter and disable much of the javascript provided functionallity, but only while on the edit page with such a file, and only after a [Save].
-- The connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text during login.  
-  However, this is true of most online login systems, unless SSL or the like is employed.
+- The connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text during login.  However, this is true of most online login systems, unless SSL or the like is employed.
 - Be aware that only some very basic data & error checking is performed.  (But, it's getting better...)  
 - Anything else?
 

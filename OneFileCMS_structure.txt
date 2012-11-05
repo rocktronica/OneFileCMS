@@ -1,4 +1,4 @@
-OneFileCMS Version 3.4.10 structure/layout
+OneFileCMS Version 3.4.13 structure/layout
 
 LICENSE
 
@@ -88,7 +88,7 @@ JAVASCRIPT & STYLESHEET FUNCTIONS:
 		Start_Countdown()
 		FileTimeStamp()
 		Select_All()
-		Confirm_ready()
+		Confirm_Submit()
 	Edit_Page_scripts()
 		Wide_View()
 		Reset_file_status_indicators()
