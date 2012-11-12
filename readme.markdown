@@ -1,8 +1,18 @@
 # OneFileCMS
 
-## Current version: 3.4.13
+## Current version: 3.4.14
 
 ## Recent changes
+
+### November 12, 2012 (v3.4.14)
+
+- Courtesy of [Fuchur777](github.com/Fuchur777), added option to restrict OneFileCMS to a specified folder (and it's sub-folders).
+- Fixed issue on Upload page if using PHP v3.2.12 or earlier.
+- A few miscellaneous code improvements.
+
+### November 11, 2012
+
+- Thanks to [zaykin](https://github.com/zaykin) for the Russian language file!
 
 ### November 5, 2012 (v3.4.13)
 
@@ -13,17 +23,12 @@
 
 - On the Upload Page, added an option to select either automatic rename or overwrite of pre-existing files.
 
-### October 16, 2012  (v3.4.11)
-
-- Just a few code tweaks & improvements.
-
-
 #### Language files
 
-- Thanks to [symsec](http://github.com/symsec) for the Dutch (Nederlands) language file!
-- Thanks to [fermuch](http://github.com/fermuch) for the Spanish language file!  
-- Thanks to [codeless](http://github.com/codeless) for the German language file!
-
+- German (Deutsch) courtesy of [codeless](http://github.com/codeless).
+- Spanish (Espanõla) courtesy of [fermuch](http://github.com/fermuch).
+- Dutch (Nederlands) courtesy of [symsec](http://github.com/symsec).  
+- Russian courtesy of [zaykin](https://github.com/zaykin).  
 
 --------------------------------------------------------------------------------
 
@@ -49,7 +54,7 @@ Coupling a utilitarian code editor with basic file managing functions, OneFileCM
 ## Features
  
 - All the basic file management features like renaming, moving, copying, deleting, and uploading.
-  _(For complex processes, like batch renaming or mass uploads, you're going to want to use an FTP program.)_
+  (For complex processes, like batch renaming or mass uploads, you're going to want to use an FTP program.)
 - A basic text editor.
 - Alerts if you try to leave editing with unsaved changes.
 - A Login delay after too many invalid login attempts.
@@ -60,15 +65,15 @@ Coupling a utilitarian code editor with basic file managing functions, OneFileCM
 
 ## Installation
 
-1) Download [this file](https://raw.github.com/Self-Evident/OneFileCMS/master/onefilecms.php).  
+1) Download the current version from the Download page.  
 
 2) Upload to anywhere on your site.  
   
 3) Log in to OneFileCMS with the default "username" and "password", and set your own username and password!  
 
-Depending on how your web stack is set up, you may also have to modify the file permissions of your site's folders to allow OneFileCMS to modify and create files. ([More about that here.](http://catcode.com/teachmod/)) Make sure onefilecms.php and its parent folder are allowed to execute, with CHMOD at 755. Check with your host if you're not sure, and be aware of any inherent security concerns.  
+As with any CMS, you may also have to modify the file permissions of your site's folders to allow OneFileCMS to modify and create files.  Check with your host if you're not sure, and be aware of any inherent security concerns.  
 
-You can also change the file name of OneFileCMS.php to something else, such as "Admin.php". (Be careful about making it a folder's default file: your server may get stuck in redirects.)
+You can also change the file name from "onefilecms.php" to something else, such as "admin.php". (Be careful about making it a folder's default file: your server may get stuck in redirects.)
 
 --------------------------------------------------------------------------------
 
@@ -92,13 +97,13 @@ Well, because "OneFileCMS" sounds way cooler (relatively speaking) than "OneFile
 
 ### Multi-Language Support?
 
-Yes!  Currently, English (EN), German (DE), Spanish (ES), and Dutch (NL) are available.
+Yes!  Currently, English (EN), German (DE), Spanish (ES), Dutch (NL), and Russian (RU) are available.
 
-If you speak another language and would like to contribute, translations into other languages are welcomed and appreciated!  Just use the English language file (or any of the others) as a template, and translate each word, phrase, etc., as appropriate.  (Someone told me he was working on an Esparento translation...)
+If you speak another language and would like to contribute, translations are welcomed and appreciated!  Just use the English language file (or any of the others) as a template, and translate each word, phrase, etc., as appropriate.
 
 ### Can I have more than one username/password?
 
-Yes!  Well, sort of - indirectly.  Upload or create addional copies of OneFileCMS, but give them different file names.(ie: OneFile1.php and OneFile2.php etc...)  Then, in each copy, maintain different usernames and passwords.  Also, so that one user does not login/logout the other, change the value of the $session_name config variable.  
+Yes!  Well, sort of - indirectly.  Upload or create addional copies of OneFileCMS, but give them different file names.(ex: OneFile1.php and OneFile2.php etc...)  Then, in each copy, maintain different usernames, passwords, and $session_name config values.  
   
 Now, since there is no database or other means of granular control or access logging, multiple usernames may be kind of pointless.  However, having at least one working backup copy of OneFileCMS available is recommended in case the primary copy gets corrupted.
 
@@ -116,9 +121,9 @@ Now, since there is no database or other means of granular control or access log
 ## License, Credit, Et Cetera  
 
 - Available under the MIT and BSD licenses.
-- Maintained by github/Self-Evident
 - Original concept and development by github.com/rocktronica
-- Contributors: A. M Balakrishnan, github.com/codeless, github.com/fermuch, github.com/symsec
+- Maintained by github/Self-Evident
+- Contributors: A. M Balakrishnan, github.com/codeless, github.com/fermuch, github.com/symsec, github.com/zaykin
 - Written in PHP, JavaScript, HTML, CSS, and SVG.
 - Icons for versions thru 1.1.6 by [famfamfam](http://www.famfamfam.com/).
 - To report a bug or request a feature, please file an issue via Github.

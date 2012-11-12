@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.13';
+$OFCMS_version = '3.4.14';
 
 /*******************************************************************************
 Copyright © 2009-2012 https://github.com/rocktronica
@@ -76,7 +76,7 @@ $UPLOAD_FIELDS = 6; //Number of upload fields on Upload File(s) page. Max value 
 $config_favicon   = "favicon.ico"; //Path is relative to root of website.
 $config_excluded  = ""; //files to exclude from directory listings- CaSe sEnsiTive!
 
-$config_etypes = "html,htm,xhtml,php,pl,css,js,txt,text,cfg,conf,ini,csv,svg,log,htaccess"; //Editable file types.
+$config_etypes = "html,htm,xhtml,php,pl,css,js,txt,text,cfg,conf,ini,csv,svg,log,dtd,htaccess"; //Editable file types.
 $config_stypes = "*"; // Shown types; only files of the given types should show up in the file-listing
 	// Use $config_stypes exactly like $config_etypes (list of extensions separated by commas).
 	// If $config_stypes is set to null - by intention or by error - only folders will be shown.
@@ -84,13 +84,15 @@ $config_stypes = "*"; // Shown types; only files of the given types should show 
 	// If $config_stypes is set to "html,htm" for example, only file with the extension "html" or "htm" will get listed.
 
 $config_itypes = "jpg,gif,png,bmp,ico"; //image types to display on edit page.
-// _ftypes & _fclass must have same number of values. bin is default.
-$config_ftypes = "bin,z,gz,7z,zip,jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,pl ,ini,cfg,conf,log,asp,js ,htm,html,htaccess";
-$config_fclass = "bin,z,z ,z ,z  ,img,img,img,img,img,svg,txt,txt,css,php,txt,txt,cfg,cfg ,txt,txt,txt,htm,htm ,txt";
+// _ftypes & _fclass must have the same number of values. bin is default.
+$config_ftypes = "bin,z,gz,7z,zip,jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,pl ,ini,cfg,conf,log,asp,js ,htm,html,dtd,htaccess";
+$config_fclass = "bin,z,z ,z ,z  ,img,img,img,img,img,svg,txt,txt,css,php,txt,txt,cfg,cfg ,txt,txt,txt,htm,htm ,txt,txt";
 
 $EX = '<b>( ! )</b> '; //EXclaimation point "icon" Used in $message's
 
 $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copies of OneFileCMS.
+
+$ACCESS_ROOT = ''; //Restrict access to a particular folder.  Leave empty for $WEB_ROOT (entire website).
 
 //External config file, if there is one.  Any settings in the $config_file will supersede those above.
 //$config_file = 'OFCMS_config.SAMPLE.php';  // Path is relative to OneFileCMS.
@@ -139,10 +141,15 @@ ini_set('session.gc_maxlifetime', $MAX_IDLE_TIME + 100); //in case the default i
 
 $TO_WARNING = 120; //seconds. When idle time remaining is less than this value, $timeout_warning is displayed
 
-$ONESCRIPT = URLencode_path($_SERVER["SCRIPT_NAME"]); //Used for URL's
-$DOC_ROOT  = $_SERVER["DOCUMENT_ROOT"].'/';
-$WEB_ROOT  = URLencode_path(basename($DOC_ROOT)).'/';
-$WEBSITE   = $_SERVER["HTTP_HOST"].'/';
+//Clean up & validate $ACCESS_ROOT.
+$ACCESS_ROOT = Check_path($ACCESS_ROOT);
+if (!is_dir($ACCESS_ROOT)) {$ACCESS_ROOT='';}
+if (!$ACCESS_ROOT == '') {$ACCESS_ROOT .= '/';}
+
+$ONESCRIPT   = URLencode_path($_SERVER["SCRIPT_NAME"]); //Used for URL's
+$DOC_ROOT    = $_SERVER["DOCUMENT_ROOT"].'/';
+$WEB_ROOT    = URLencode_path(basename($DOC_ROOT)).'/'.$ACCESS_ROOT;
+$WEBSITE     = $_SERVER["HTTP_HOST"].'/';
 
 $ONESCRIPT_file   = $_SERVER["SCRIPT_FILENAME"];  //Non-url use
 $ONESCRIPT_path   = dirname($ONESCRIPT_file).'/'; //Non-url use //Do not use dir_name().
@@ -406,7 +413,7 @@ $_['mcd_msg_03'] = 'files deleted.';
 
 
 function Session_Startup() { //*************************************************
-	global $SESSION_NAME, $page, $VALID_POST, $message;
+	global $SESSION_NAME, $page, $VALID_POST, $DOC_ROOT, $ACCESS_ROOT;
 
 	$limit    = 0; //0 = session.
 	$path     = '';
@@ -432,7 +439,8 @@ function Session_Startup() { //*************************************************
 
 	$_SESSION['nuonce'] = sha1(mt_rand().microtime()); //provided in <forms> to verify POST
 
-	chdir($_SERVER["DOCUMENT_ROOT"]); //Allow OneFileCMS.php to be started from any dir on the site.
+	//Allow OneFileCMS.php to be started from any dir on the site.
+	chdir($DOC_ROOT.$ACCESS_ROOT); //Limit access to the folder $ACCESS_ROOT.
 }//end Session_Startup() //*****************************************************
 
 
@@ -472,10 +480,11 @@ function Verify_IDLE_POST_etc() { //********************************************
 
 function hashit($key){ //*******************************************************
 	//This is the super-secret stuff - Keep it secret, keep it safe!
-	//If you change anything here, or the $SALT, redo the hash for your password.
+	//If you change anything here, or the $SALT, manually update the hash for your password from the Generate Hash page.
 	global $SALT;
-	$hash = hash('sha256', trim($key).$SALT); // trim off leading & trailing whitespace.
-	for ( $x=0; $x < 10000; $x++ ) { $hash = hash('sha256', $hash.$SALT); }
+	$hash = trim($key); // trim off leading & trailing whitespace.
+
+	for ( $x=0; $x < 10001; $x++ ) { $hash = hash('sha256', $hash.$SALT); }
 	return $hash;
 }//end hashit() //**************************************************************
 
@@ -692,6 +701,7 @@ function has_invalid_char($string) { //*****************************************
 
 
 function URLencode_path($path){ // don't encode the forward slashes ************
+	$path = str_replace('\\','/',$path);   //Make sure all forward slashes.
 	$TS = '';  // Trailing Slash/
 	if (substr($path, -1) == '/' ) { $TS = '/'; } //start with a $TS?
 	$path_array = explode('/',$path);
@@ -799,9 +809,9 @@ function ordinalize($destination,$filename, &$msg) { //*************************
 	$savefile = $destination.$filename;
 
 	if (file_exists($savefile)) {
-
+		
 		$msg .= $EX.hsc($_['ord_msg_01']).'<br>';
-
+		
 		while (file_exists($savefile)) {
 			$ordinal = sprintf("%03d", ++$ordinal); //  001, 002, 003, etc...
 			$savefile = $destination.$filename.'.'.$ordinal;
@@ -909,7 +919,7 @@ function Current_Path_Header(){ //**********************************************
 
 	echo '<h2>';
 		//Root folder of web site.
-		echo '<a id="path_0" href="'.$ONESCRIPT.'" class="path"> '.hte(trim($WEB_ROOT, '/')).'</a>/';
+		echo '<a id="path_0" href="'.$ONESCRIPT.'" class="path"> '.hte(rawurldecode(trim($WEB_ROOT, '/'))).'</a>/';
 		$x=0; //need here for focus() in case at webroot.
 		
 		if ($ipath != "" ) { //if not at root, show the rest
@@ -990,7 +1000,7 @@ function Cancel_Submit_Buttons($submit_label) { //******************************
 	<p>
 	<input type="button" class="button" id="cancel" value="<?php echo hsc($_['Cancel']) ?>"
 		onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
-	<input type="submit" class="button" value="<?php echo hsc($submit_label);?>" style="margin-left: 1em;">
+	<input type="submit" class="button" id="submit" value="<?php echo hsc($submit_label);?>" style="margin-left: 1em;">
 <?php
 	//Do not close the <p> tag yet/here. Leave it open for potential content on individual pages.
 }//end Cancel_Submit_Buttons() //***********************************************
@@ -1369,21 +1379,25 @@ function Change_PWUN_response($PWUN, $msg){ //**********************************
 
 	$error_msg   = $EX.'<b>'.hsc($msg).'</b> ';
 
+	//If all fields are blank, do nothing.
+	if ( ($current_pass == "") && ($new_pwun == "") && ($confirm_pwun == "") ) {
+		return;
+	}
 	//If any field is blank...
-	if ( ($current_pass == "") || ($new_pwun == "") || ($confirm_pwun == "") ) {
+	elseif ( ($current_pass == "") || ($new_pwun == "") || ($confirm_pwun == "") ) {
 		$message .= $error_msg.'<br>';
-		
+	}	
 	//If new & Confirm values don't match...
-	}elseif ($new_pwun != $confirm_pwun) {
+	elseif ($new_pwun != $confirm_pwun) {
 		$message .= $error_msg.hsc($_['change_pw_04']).'<br>';
-		
+	}
 	//If incorrect current p/w, logout.  (new == confirm at this point)
-	}elseif (hashit($current_pass) != $HASHWORD) {
+	elseif (hashit($current_pass) != $HASHWORD) { 
 		$message .= $error_msg.'<br>'.hsc($_['change_pw_03']).'<br>';
 		Logout();
-		
+	}
 	//Else change username or password
-	}else {
+	else {
 		if ($PWUN == "pw") {
 			$search_for   = '$HASHWORD '; //include space after $HASHWORD
 			$replace_with = '$HASHWORD = "'.hashit($new_pwun).'";';
@@ -1475,7 +1489,7 @@ function Login_response() { //**************************************************
 	$_POST['password'] = trim($_POST['password']);
 	$_POST['username'] = trim($_POST['username']);
 
-	//Validate password
+	//Validate password.
 	$VALID_PASSWORD = (hashit($_POST['password']) == $HASHWORD);
 
 	//validate login.
@@ -1862,6 +1876,7 @@ function Upload_Page() { //*****************************************************
 	global $_, $ONESCRIPT, $ipath, $param1, $INPUT_NUONCE, $UPLOAD_FIELDS, $MAIN_WIDTH;
 
 	$max_file_uploads = ini_get('max_file_uploads');
+	if ($max_file_uploads < 1) { $max_file_uploads = $UPLOAD_FIELDS; } 
 	if ($max_file_uploads < $UPLOAD_FIELDS) { $UPLOAD_FIELDS = $max_file_uploads; }
 
 	//$main_width is used below to determine size (width) of <input type=file> in FF.
@@ -2015,28 +2030,30 @@ function New_response($post, $isfile){ //***************************************
 function Set_Input_width() { //*************************************************
 	global $_, $WEB_ROOT, $MAIN_WIDTH;
 
-	// (width of <input type=text>) = $MAIN_WIDTH - (Width of <label> & $WEB_ROOT)
-	// $MAIN_WIDTH may be in em, px, or pt.
+	// (width of <input type=text>) = $MAIN_WIDTH - (Width of <label>) - (width of <span>$WEB_ROOT</span>)
+	// $MAIN_WIDTH: Set in config section, may be in em, px, pt, or %. Ignoring % for now.
 	// Width of 1 character = .625em = 10px = 7.5pt  (1em = 16px = 12pt)
 
-	$label_enc   =  mb_detect_encoding($_['New_Location']); //ASCII? UTF8? etc...
-	$root_enc    =  mb_detect_encoding($WEB_ROOT);          //ASCII? UTF8? etc...
-	$root_width  = (mb_strlen($WEB_ROOT, $root_enc));
+	$main_units   = substr($MAIN_WIDTH, -2);
+	$main_width   = $MAIN_WIDTH * 1;
+
+	$root_enc    =  mb_detect_encoding($WEB_ROOT);           //ASCII? UTF8? etc...
+	$root_width  = (mb_strlen(rawurldecode($WEB_ROOT), $root_enc));
+
+	$label_enc   =  mb_detect_encoding($_['New_Location']);  //ASCII? UTF8? etc...
 	$label_width = (mb_strlen($_['New_Location'], $label_enc));
 
-	$indent       = ($label_width + $root_width + 1 ); // +1 for good measure
-	$main_width   = $MAIN_WIDTH * 1;   //set in config section.
-	$main_units   = substr($MAIN_WIDTH, -2); //should be em, px, or pt
-
 	//convert to em
-	$indent = $indent *.625;
+	$root_width *= .625;
+	$label_width *= .625;
 	if     ( $main_units == "px") { $main_width = $main_width / 16 ; }
 	elseif ( $main_units == "pt") { $main_width = $main_width / 12 ; }
 
-	$input_type_text_width = ($main_width - $indent).'em';
+	//The .4 at the end is needed for some rounding erros above. Or something... I don't know.
+	$input_type_text_width = ($main_width - $label_width - $root_width - .4).'em';
 
 	echo '<style>input[type="text"] {width: '.$input_type_text_width.';}';
-	echo 'label {display: inline-block; width: '.($indent - 4.8).'em; }</style>';
+	echo 'label {display: inline-block; width: '.$label_width.'em; }</style>';
 
 }//end Set_Input_width() //*****************************************************
 
@@ -2061,7 +2078,7 @@ function CRM_Page($action, $title, $name_id, $old_name) { //********************
 		echo '<label>'.hsc($_['CRM_txt_04']).':</label>';
 		echo '<input type=text name=new_name id=new_name class=old_new_name value="'.hsc(basename($new_name)).'"><br>';
 		echo '<label>'.hsc($_['New_Location']).':</label>';
-		echo '<span class="web_root">'.hte($WEB_ROOT).'</span>';
+		echo '<span class="web_root">'.hte(urldecode($WEB_ROOT)).'</span>';
 		echo '<input type=text name=new_location id=new_location value="'.hsc(dir_name($new_name)).'"><br>';
 		echo '('.hsc($_['CRM_txt_02']).')<p>';
 		Cancel_Submit_Buttons($action);
@@ -2208,7 +2225,7 @@ function MCD_Page($action, $page_title, $classes = '') { //*********************
 		echo '<input type="hidden" name="'.$action.'" value="'.$action.'">'.PHP_EOL;
 		
 		if ( ($_POST['mcdaction'] == 'copy') || ($_POST['mcdaction'] == 'move') ) {
-			echo '<label>'.hsc($_['New_Location']).':</label> ';
+			echo '<label>'.hsc($_['New_Location']).':</label>';
 			echo '<span class="web_root">'.hte($WEB_ROOT).'</span>';
 			echo '<input type="text" name="new_location" id="new_location" value="'.hsc($ipath).'">';
 			echo '<p>('.hsc($_['CRM_txt_02']).')</p>';
@@ -3143,7 +3160,7 @@ header('Content-type: text/html; charset=UTF-8');
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="robots" content="noindex">
 <?php
-echo '<title>'.hsc($config_title.' - '.Page_Title()).'</title>';
+echo '<title>'.hsc($config_title.' - '.Page_Title()).'</title>'."\n";
 
 style_sheet();
 
