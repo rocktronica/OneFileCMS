@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.13
+// OneFileCMS Language Settings v3.4.15
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -13,18 +13,18 @@ $_['LANG'] = 'ES';
 //
 // If present as a trailing comment, "## NT ##" means 'Need Translation'.
 //
+// These first few settings control a few font and layout settings.
 // In some instances, some langauges may use significantly longer words or phrases than others.
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
-//
-$_['front_links_font_size'] = '1.0em';  //Buttons on Index page.
-$_['front_links_margin_L']  = '0.5em';
-$_['button_font_size']      = '0.9em';  //Buttons on Edit page.
-$_['button_margin_L']       = '0.4em';
-$_['button_padding']        = '4px 5px';
-$_['image_info_font_size']  = '.95em';  //show_img_msg_01  &  _02
-$_['image_info_pos']        = ' ';      //If 1 or true, moves the info down a line for more space.
-$_['select_all_label_size'] = '.84em';  //Font size of $_['Select_All']
-$_['select_all_label_width'] = '110px'; //Width of space for $_['Select_All']
+$_['front_links_font_size']  = '1.0em';   //Buttons on Index page.
+$_['front_links_margin_L']   = '0.5em';
+$_['button_font_size']       = '0.9em';   //Buttons on Edit page.
+$_['button_margin_L']        = '0.4em';
+$_['button_padding']         = '4px 5px';
+$_['image_info_font_size']   = '.95em';   //show_img_msg_01  &  _02
+$_['image_info_pos']         = ' ';       //If 1 or true, moves the info down a line for more space.
+$_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
+$_['select_all_label_width'] = '110px';   //Width of space for $_['Select_All']
 
 $_['Admin']   = 'Administrador';
 $_['bytes']   = 'bytes';
@@ -54,6 +54,7 @@ $_['successful'] = 'satisfactoriamente';
 $_['To']         = 'Hacia';
 $_['Upload']     = 'Subir';
 $_['Username']   = 'Usuario';
+$_['Working']    = 'Working - please wait...'; //## NT ##
 $_['Log_In']     = 'Iniciar Sesión';
 $_['Log_Out']    = 'Cerrar Sesión';
 
@@ -143,24 +144,23 @@ $_['edit_msg_01'] = 'Archivo Guardado:';
 $_['edit_msg_02'] = 'bytes escritos.';
 $_['edit_msg_03'] = 'Ocurrió un error guardando el archivo.';
 
-$_['upload_txt_03']  = 'Nota: El tamaño máximo de subida es de:';
-$_['upload_txt_01']  = '(php.ini: upload_max_filesize)';
-$_['upload_txt_04']  = 'Tamaño total de la subida:';
-$_['upload_txt_02']  = '(php.ini: post_max_size)';
-$_['upload_txt_05']  = 'Para los archivos subidos que ya existen: ';
-$_['upload_txt_06']  = 'Renombrar (hacia filename.ext.001 etc...)';
-$_['upload_txt_07']  = 'Sobreescribir';
+$_['upload_txt_03'] = 'Nota: El tamaño máximo de subida es de:';
+$_['upload_txt_01'] = '(php.ini: upload_max_filesize)';
+$_['upload_txt_04'] = 'Tamaño total de la subida:';
+$_['upload_txt_02'] = '(php.ini: post_max_size)';
+$_['upload_txt_05'] = 'Para los archivos subidos que ya existen: ';
+$_['upload_txt_06'] = 'Renombrar (hacia filename.ext.001 etc...)';
+$_['upload_txt_07'] = 'Sobreescribir';
 
-$_['upload_err_01']  = 'Error 1: Archivo demasiado pesado. Desde php.ini:';
-$_['upload_err_02']  = 'Error 2: Archivo muy grande. (MAX_FILE_SIZE HTML form element)';
-$_['upload_err_03']  = 'Error 3: El archivo se subió sólo parcialmente.';
-$_['upload_err_04']  = 'Error 4: No se subió ningún archivo.';
-$_['upload_err_05']  = 'Error 5: ';
-$_['upload_err_06']  = 'Error 6: Carpeta temporal no encontrada.';
-$_['upload_err_07']  = 'Error 7: No se pudo guardar el archivo en el disco.';
-$_['upload_err_08']  = 'Error 8: Una extensión de PHP detuvo la subida del archivo.';
+$_['upload_err_01'] = 'Error 1: Archivo demasiado pesado. Desde php.ini:';
+$_['upload_err_02'] = 'Error 2: Archivo muy grande. (MAX_FILE_SIZE HTML form element)';
+$_['upload_err_03'] = 'Error 3: El archivo se subió sólo parcialmente.';
+$_['upload_err_04'] = 'Error 4: No se subió ningún archivo.';
+$_['upload_err_05'] = 'Error 5: ';
+$_['upload_err_06'] = 'Error 6: Carpeta temporal no encontrada.';
+$_['upload_err_07'] = 'Error 7: No se pudo guardar el archivo en el disco.';
+$_['upload_err_08'] = 'Error 8: Una extensión de PHP detuvo la subida del archivo.';
 
-$_['upload_msg_01'] = 'No se seleccionó ningún archivo para subirlo.';
 $_['upload_msg_02'] = 'La carpeta de destino no existe: ';
 $_['upload_msg_03'] = 'Subida cancelada.';
 $_['upload_msg_04'] = 'Subiendo:';
@@ -172,17 +172,16 @@ $_['new_file_txt_01'] = 'Se creará un archivo nuevo en la carpeta actual.';
 $_['new_file_txt_02'] = 'Algunos caracteres inválidos son: ';
 $_['new_file_msg_01'] = 'Archivo nuevo no creado:';
 $_['new_file_msg_02'] = 'El nombre contiene caracteres inválidos:';
-$_['new_file_msg_03'] = 'Archivo nuevo no creado - no se especificó un nombre';
 $_['new_file_msg_04'] = 'El archivo ya existe:';
 $_['new_file_msg_05'] = 'Archivo creado:';
 $_['new_file_msg_07'] = 'Carpeta creado:';
 
-$_['CRM_txt_02']  = 'La nueva localización debe existir.';
-$_['CRM_txt_04']  = 'Nuevo Nombre';
-$_['CRM_msg_01']  = 'Error - la localización padre no existe:';
-$_['CRM_msg_02']  = 'Error - el archivo inicial no existe:';
-$_['CRM_msg_03']  = 'Error - el archivo de objetivo no existe:';
-$_['CRM_msg_05']  = 'Error en';
+$_['CRM_txt_02'] = 'La nueva localización debe existir.';
+$_['CRM_txt_04'] = 'Nuevo Nombre';
+$_['CRM_msg_01'] = 'Error - la localización padre no existe:';
+$_['CRM_msg_02'] = 'Error - el archivo inicial no existe:';
+$_['CRM_msg_03'] = 'Error - el archivo de objetivo no existe:';
+$_['CRM_msg_05'] = 'Error en';
 
 $_['delete_msg_03']   = 'Error eliminando';
 $_['session_warning'] = 'Advertencia: ¡La sesión terminará pronto!';
@@ -198,11 +197,11 @@ $_['edit_caution_01']  = 'PRECAUCIÓN';
 $_['edit_caution_02']  = 'Estás editando la copia activa de OneFileCMS - ¡HACÉ UNA COPIA DE SEGURIDAD Y TENÉ CUIDADO!';
 $_['time_out_txt']     = 'Tiempo de Espera de Sesión Agotado:';
 
-$_['error_reporting_01'] = 'Display errors is';         //## NT ##
-$_['error_reporting_02'] = 'Log errors is';             //## NT ##
+$_['error_reporting_01'] = 'Display errors is'; //## NT ##
+$_['error_reporting_02'] = 'Log errors is'; //## NT ##
 $_['error_reporting_03'] = 'Error reporting is set to'; //## NT ##
-$_['error_reporting_04'] = 'Showing error types';       //## NT ##
-$_['error_reporting_05'] = 'Unexpected early output';   //## NT ##
+$_['error_reporting_04'] = 'Showing error types'; //## NT ##
+$_['error_reporting_05'] = 'Unexpected early output'; //## NT ##
 $_['error_reporting_06'] = '(nothing, not even white-space, should have been output yet)'; //## NT ##
 
 $_['admin_txt_00'] = 'Backup Antiguo Encontrado.';
@@ -215,6 +214,7 @@ $_['pw_current'] = 'Contraseña actual';
 $_['pw_change']  = 'Cambiar Contraseña';
 $_['pw_new']     = 'Nueva contraseña';
 $_['pw_confirm'] = 'Confirmar Contraseña Nueva';
+
 $_['un_change']  = 'Cambiar Nombre de Usuario';
 $_['un_new']     = 'Nuevo Usuario';
 $_['un_confirm'] = 'Confirmar Nuevo Nombre de Usuario';
@@ -233,6 +233,8 @@ $_['change_pw_03'] = 'Contraseña anterior inválida. Logueate e intenta de nuev
 $_['change_pw_04'] = 'La contraseña y su confirmación no coinciden.';
 $_['change_pw_05'] = 'Actualizando';
 $_['change_pw_06'] = 'archivo de configuración externa';
+
+$_['change_pw_07'] = 'All fields are required.'; //## NT ##
 $_['change_un_01'] = '¡Nombre de Usuario Actualizado!';
 $_['change_un_02'] = 'Nombre de Usuario NO Actualizado.';
 

@@ -1,4 +1,4 @@
-OneFileCMS Version 3.4.13 structure/layout
+OneFileCMS Version 3.4.15 structure/layout
 
 LICENSE
 
@@ -80,9 +80,10 @@ PAGE & RESPONSE FUNCTIONS:
 	Load_Selected_Page()
 	Respond_to_POST()
 
-JAVASCRIPT & STYLESHEET FUNCTIONS:
+JAVASCRIPT FUNCTIONS:
 	common_scripts()
 		pad()
+		trim()
 		FormatTime()
 		Countdown()
 		Start_Countdown()
@@ -95,6 +96,15 @@ JAVASCRIPT & STYLESHEET FUNCTIONS:
 		setSelRange()
 		Check_for_changes()
 		Reset_File()
+	event_scripts()
+		events_down()
+		events_up()
+		pre_validate()
+	js_hash_scripts()
+		hex_sha256() (& related...)
+		hash()
+
+STYLESHEET FUNCTIONS:
 	style_sheet()
 	Language_and_config_adjusted_styles()
 

@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.13
+// OneFileCMS Language Settings v3.4.15
 
 $_['LANGUAGE'] = 'Deutsch';
 $_['LANG'] = 'DE';
@@ -13,18 +13,18 @@ $_['LANG'] = 'DE';
 //
 // If present as a trailing comment, "## NT ##" means 'Need Translation'.
 //
+// These first few settings control a few font and layout settings.
 // In some instances, some langauges may use significantly longer words or phrases than others.
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
-//
-$_['front_links_font_size'] = '0.9em';  //Buttons on Index page.
-$_['front_links_margin_L']  = '0.3em';
-$_['button_font_size']      = '.7em';   //Buttons on Edit page.
-$_['button_margin_L']       = '.5em';
-$_['button_padding']        = '4px 5px';
-$_['image_info_font_size']  = '.95em';  //show_img_msg_01  &  _02
-$_['image_info_pos']        = '1';      //If 1 or true, moves the info down a line for more space.
-$_['select_all_label_size'] = '.84em';  //Font size of $_['Select_All']
-$_['select_all_label_width'] = '76px';  //Width of space for $_['Select_All']
+$_['front_links_font_size']  = '0.9em';   //Buttons on Index page.
+$_['front_links_margin_L']   = '0.3em';
+$_['button_font_size']       = '.7em';    //Buttons on Edit page.
+$_['button_margin_L']        = '.5em';
+$_['button_padding']         = '4px 5px';
+$_['image_info_font_size']   = '.95em';   //show_img_msg_01  &  _02
+$_['image_info_pos']         = '1';       //If 1 or true, moves the info down a line for more space.
+$_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
+$_['select_all_label_width'] = '76px';    //Width of space for $_['Select_All']
 
 $_['Admin']   = 'Konfiguration';
 $_['bytes']   = 'bytes';
@@ -54,6 +54,7 @@ $_['successful'] = 'Erfolgreich';
 $_['To']         = 'Auf';
 $_['Upload']     = 'Heraufladen';
 $_['Username']   = 'Benutzername';
+$_['Working']    = 'Working - please wait...'; //## NT ##
 $_['Log_In']     = 'Anmelden';
 $_['Log_Out']    = 'Abmelden';
 
@@ -143,24 +144,23 @@ $_['edit_msg_01'] = 'Die Datei wurde gespeichert:';
 $_['edit_msg_02'] = 'Bytes geschrieben.';
 $_['edit_msg_03'] = 'Bei dem Versuch die Datei zu speichern trat ein Fehler auf.';
 
-$_['upload_txt_03']  = 'Anmerkung: Die maximale Dateigröße für das Heraufladen von Dateien beträgt: ';
-$_['upload_txt_01']  = 'php.ini: upload_max_filesize';
-$_['upload_txt_04']  = 'Maximale Gesamt Upload-Größe:';
-$_['upload_txt_02']  = 'php.ini: post_max_size';
-$_['upload_txt_05']  = 'Für die hochgeladenen Dateien, die bereits existieren: ';
-$_['upload_txt_06']  = 'Umbenennen (Auf filename.ext.001 etc...)';
-$_['upload_txt_07']  = 'Überschreiben';
+$_['upload_txt_03'] = 'Anmerkung: Die maximale Dateigröße für das Heraufladen von Dateien beträgt: ';
+$_['upload_txt_01'] = 'php.ini: upload_max_filesize';
+$_['upload_txt_04'] = 'Maximale Gesamt Upload-Größe:';
+$_['upload_txt_02'] = 'php.ini: post_max_size';
+$_['upload_txt_05'] = 'Für die hochgeladenen Dateien, die bereits existieren: ';
+$_['upload_txt_06'] = 'Umbenennen (Auf filename.ext.001 etc...)';
+$_['upload_txt_07'] = 'Überschreiben';
 
-$_['upload_err_01']  = 'Error 1: Datei zu groß. Von php.ini:';
-$_['upload_err_02']  = 'Error 2: Datei zu groß. (MAX_FILE_SIZE HTML form element)';
-$_['upload_err_03']  = 'Fehler 3: Die Datei wurde nur teilweise heraufgeladen.';
-$_['upload_err_04']  = 'Fehler 4: Es wurde keine Datei heraufgeladen.';
-$_['upload_err_05']  = 'Fehler 5:';
-$_['upload_err_06']  = 'Fehler 6: Konnte kein temporäres Verzeichnis finden.';
-$_['upload_err_07']  = 'Fehler 7: Die Datei konnte nicht gespeichert werden.';
-$_['upload_err_08']  = 'Fehler 8: Eine PHP-Erweiterung hat das Heraufladen der Datei gestoppt.';
+$_['upload_err_01'] = 'Error 1: Datei zu groß. Von php.ini:';
+$_['upload_err_02'] = 'Error 2: Datei zu groß. (MAX_FILE_SIZE HTML form element)';
+$_['upload_err_03'] = 'Fehler 3: Die Datei wurde nur teilweise heraufgeladen.';
+$_['upload_err_04'] = 'Fehler 4: Es wurde keine Datei heraufgeladen.';
+$_['upload_err_05'] = 'Fehler 5:';
+$_['upload_err_06'] = 'Fehler 6: Konnte kein temporäres Verzeichnis finden.';
+$_['upload_err_07'] = 'Fehler 7: Die Datei konnte nicht gespeichert werden.';
+$_['upload_err_08'] = 'Fehler 8: Eine PHP-Erweiterung hat das Heraufladen der Datei gestoppt.';
 
-$_['upload_msg_01'] = 'Es wurde keine Datei zum Heraufladen gewählt.';
 $_['upload_msg_02'] = 'Der Zielordner existiert nicht: ';
 $_['upload_msg_03'] = 'Das Heraufladen wurde abgebrochen.';
 $_['upload_msg_04'] = 'Heraufladen: ';
@@ -172,17 +172,16 @@ $_['new_file_txt_01'] = 'Die Datei wird im aktuellen Ordner erstellt.  ';
 $_['new_file_txt_02'] = 'Ungültige Zeichen für Dateinamen sind: ';
 $_['new_file_msg_01'] = 'Die neue Datei wurde nicht erstellt:';
 $_['new_file_msg_02'] = 'Der Name enthält ungültige Zeichen: ';
-$_['new_file_msg_03'] = 'Es wurde keine Datei erstellt, da kein Name eingegeben wurde';
 $_['new_file_msg_04'] = 'Die Datei besteht bereits: ';
 $_['new_file_msg_05'] = 'Datei erstellt:';
 $_['new_file_msg_07'] = 'Ordner erstellt:';
 
-$_['CRM_txt_02']  = 'Der neue Ort muss bereits existieren.';
-$_['CRM_txt_04']  = 'Neuer Name';
-$_['CRM_msg_01']  = 'Fehler - der neue Zielort besteht nicht:';
-$_['CRM_msg_02']  = 'Fehler - die Quelldatei besteht nicht:';
-$_['CRM_msg_03']  = 'Fehler - die Zieldatei besteht bereits:';
-$_['CRM_msg_05']  = 'Fehler bei der';
+$_['CRM_txt_02'] = 'Der neue Ort muss bereits existieren.';
+$_['CRM_txt_04'] = 'Neuer Name';
+$_['CRM_msg_01'] = 'Fehler - der neue Zielort besteht nicht:';
+$_['CRM_msg_02'] = 'Fehler - die Quelldatei besteht nicht:';
+$_['CRM_msg_03'] = 'Fehler - die Zieldatei besteht bereits:';
+$_['CRM_msg_05'] = 'Fehler bei der';
 
 $_['delete_msg_03']   = 'Fehler löschen:';
 $_['session_warning'] = 'Achtung: Die sitzung wird ende bald!';
@@ -215,6 +214,7 @@ $_['pw_current'] = 'Aktuelles Passwort';
 $_['pw_change']  = 'Passwort ändern';
 $_['pw_new']     = 'Neues Passwort';
 $_['pw_confirm'] = 'Bestätigen Sie das neue Password';
+
 $_['un_change']  = 'Benutzername ändern';
 $_['un_new']     = 'Neuer Benutzername';
 $_['un_confirm'] = 'Bestätigen Sie den neuen Benutzernamen';
@@ -233,6 +233,8 @@ $_['change_pw_03'] = 'Falsches (derzeitiges) Passwort. Bitte melden Sie sich an,
 $_['change_pw_04'] = 'Die Werte der Felder "Neu" und "Bestätigen" gleichen sich nicht.';
 $_['change_pw_05'] = 'Aktualisierung';
 $_['change_pw_06'] = 'Externe Konfigurationsdatei';
+
+$_['change_pw_07'] = 'All fields are required.'; //## NT ##
 $_['change_un_01'] = 'Benutzername wurde geändert!';
 $_['change_un_02'] = 'Benutzername wurde nicht geändert.';
 

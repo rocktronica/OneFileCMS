@@ -1,8 +1,18 @@
 # OneFileCMS
 
-## Current version: 3.4.14
+## Current version: 3.4.15
 
 ## Recent changes
+
+### November 18, 2012 (v3.4.15)
+
+- Added client-side hashing of passwords.  
+  This is primarily a benefit for the user, as it does not really add any security to the server side application that uses it (such as OneFileCMS).  The reason is that this "pre-hash" simply becomes the actual password as far as the server is concerned, and is just as vulnerable to exposure while in transit. However, it does help to protect the user's plain-text password, which may be used elsewhere.  
+
+While a slightly different solution has been used, I want to thank [fermuch](http://github.com/fermuch) for the original idea and solution suggestion.  The reason that first solution was not used was due to its utilization of external files, and due to my (limited) understanding of the usefullness (or lack thereof) of client side hashing - at the time.  Well, after quite a bit of additional reading and consideration, that understanding has evolved a bit, and is summerized above.
+
+- Also added a "please wait..." message while computing the client-side hashes - primarily for a certain browser (and versions that aren't that old) that is MUCH slower than FF or Chrome (by a factor of 37 or more).  Subsequently, the number of iterations for the client-side hashing is quite low (compared to the server side), but still causes a 1 - 2 second delay on the login screen, and a 3 - 6 second delay on the Change Password screen.  On FF and Chrome, the delay is much shorter, almost unnoticable.
+
 
 ### November 12, 2012 (v3.4.14)
 

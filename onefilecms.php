@@ -1,13 +1,15 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.14';
+$OFCMS_version = '3.4.15';
 
 /*******************************************************************************
+Except where noted otherwise:
+
 Copyright © 2009-2012 https://github.com/rocktronica
 Copyright © 2012-     https://github.com/Self-Evident  David W. Gay
 
-This software is copyright under terms of the "MIT" license:
+Under the following terms (an "MIT" License):
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -26,6 +28,34 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*******************************************************************************/
+
+
+/*******************************************************************************
+A portion of this software is copyright under terms of the "BSD" license (below).
+The copyright holders of that portion are indicated near where that portion is included.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of the author or copyright holder, nor the
+      names of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *******************************************************************************/
 
 
@@ -50,8 +80,8 @@ ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
 $config_title = "OneFileCMS";
 
 $USERNAME = "username";
-$HASHWORD = "a6ca7f88bd5efc706d38047cc5844d2b11f86242c01e0c89a1c656dbe2dd1866"; //"password"
-//$HASHWORD = "a6ca7f88bd5efc706d38047cc5844d2b11f86242c01e0c89a1c656dbe2dd1866"; //"password"
+$HASHWORD = "cff29a3b595b427ef8d01c089d368c7706a8c68ecc75d566642e313ee97ff659"; //"password"
+//$HASHWORD = "cff29a3b595b427ef8d01c089d368c7706a8c68ecc75d566642e313ee97ff659"; //"password"
 $SALT     = 'somerandomsalt';
 
 //Name of optional external language file.  If file is not found, the built-in defaults will be used.
@@ -112,18 +142,6 @@ $ACCESS_ROOT = ''; //Restrict access to a particular folder.  Leave empty for $W
 if ( isset($config_file) && is_file($config_file) ) { include($config_file); }
 else { $config_file = ''; } //If not found, clear it.
 
-//Determine if valid units are set for $MAIN_WIDTH.  If not, assume px.
-$main_units   = substr($MAIN_WIDTH, -2); //should be px, pt, em, or %.
-if ( ($main_units != "px") && ($main_units != "pt") && ($main_units != "em") && (substr($MAIN_WIDTH, -1) != '%')) {
-	$MAIN_WIDTH = ($MAIN_WIDTH * 1).'px';
-}
-
-//Determine if valid units are set for $WIDE_VIEW_WIDTH.  If not, assume px.
-$main_units   = substr($WIDE_VIEW_WIDTH, -2); //should be px, pt, em, or %.
-if ( ($main_units != "px") && ($main_units != "pt") && ($main_units != "em") && (substr($WIDE_VIEW_WIDTH, -1) != '%')) {
-	$WIDE_VIEW_WIDTH = ($WIDE_VIEW_WIDTH * 1).'px';
-}
-
 //Requires PHP 5.1, due to changes in some functions.
 //Earliest version the author has for testing is 5.2.8 (50208)
 define('PHP_VERSION_ID_REQUIRED',50100);   //Ex: 5.1.23 is 50123
@@ -137,6 +155,18 @@ if (!defined('PHP_VERSION_ID')) {
 	define('PHP_VERSION_ID', ($phpversion[0] * 10000 + $phpversion[1] * 100 + $phpversion[2]));
 }
 
+//Determine if valid units are set for $MAIN_WIDTH.  If not, assume px.
+$main_units   = substr($MAIN_WIDTH, -2); //should be px, pt, em, or %.
+if ( ($main_units != "px") && ($main_units != "pt") && ($main_units != "em") && (substr($MAIN_WIDTH, -1) != '%')) {
+	$MAIN_WIDTH = ($MAIN_WIDTH * 1).'px';
+}
+
+//Determine if valid units are set for $WIDE_VIEW_WIDTH.  If not, assume px.
+$main_units   = substr($WIDE_VIEW_WIDTH, -2); //should be px, pt, em, or %.
+if ( ($main_units != "px") && ($main_units != "pt") && ($main_units != "em") && (substr($WIDE_VIEW_WIDTH, -1) != '%')) {
+	$WIDE_VIEW_WIDTH = ($WIDE_VIEW_WIDTH * 1).'px';
+}
+
 ini_set('session.gc_maxlifetime', $MAX_IDLE_TIME + 100); //in case the default is less.
 
 $TO_WARNING = 120; //seconds. When idle time remaining is less than this value, $timeout_warning is displayed
@@ -146,12 +176,12 @@ $ACCESS_ROOT = Check_path($ACCESS_ROOT);
 if (!is_dir($ACCESS_ROOT)) {$ACCESS_ROOT='';}
 if (!$ACCESS_ROOT == '') {$ACCESS_ROOT .= '/';}
 
-$ONESCRIPT   = URLencode_path($_SERVER["SCRIPT_NAME"]); //Used for URL's
-$DOC_ROOT    = $_SERVER["DOCUMENT_ROOT"].'/';
+$ONESCRIPT   = URLencode_path($_SERVER['SCRIPT_NAME']); //Used for URL's
+$DOC_ROOT    = $_SERVER['DOCUMENT_ROOT'].'/';
 $WEB_ROOT    = URLencode_path(basename($DOC_ROOT)).'/'.$ACCESS_ROOT;
-$WEBSITE     = $_SERVER["HTTP_HOST"].'/';
+$WEBSITE     = $_SERVER['HTTP_HOST'].'/';
 
-$ONESCRIPT_file   = $_SERVER["SCRIPT_FILENAME"];  //Non-url use
+$ONESCRIPT_file   = $_SERVER['SCRIPT_FILENAME'];  //Non-url use
 $ONESCRIPT_path   = dirname($ONESCRIPT_file).'/'; //Non-url use //Do not use dir_name().
 $LOGIN_ATTEMPTS   = $ONESCRIPT_file.'.invalid_login_attempts';
 
@@ -177,6 +207,11 @@ $ftypes   = explode(',', strtolower(str_replace(' ', '', $config_ftypes))); //fi
 $fclasses = explode(',', strtolower(str_replace(' ', '', $config_fclass))); //for file types with icons
 $excluded_list = (explode(",", $config_excluded));
 
+//Used in hashit() and js_hash_scripts().  IE<9 is WAY slow, so keep it low.
+//For 200 iterations: (time on IE8) > (37 x time on FF). And the difference grows with the iterations.
+//If you change this, or any other aspect of either hashit() or js_hash_scripts(), do so while logged in.
+//Then, manually update your password as instructed on the Admin/Generate Hash page.
+$PRE_ITERATIONS = 200;
 //end System values & setup*****************************************************
 
 
@@ -190,7 +225,7 @@ function hte($input) { return htmlentities($input, ENT_QUOTES, 'UTF-8'); }//end 
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.4.13
+// OneFileCMS Language Settings v3.4.15
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -204,20 +239,20 @@ $_['LANG'] = 'EN';
 //
 // If present as a trailing comment, "## NT ##" means 'Need Translation'.
 //
+// These first few settings control a few font and layout settings.
 // In some instances, some langauges may use significantly longer words or phrases than others.
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
-//
-$_['front_links_font_size']  = '1.0em';  //Buttons on Index page.
+$_['front_links_font_size']  = '1.0em';   //Buttons on Index page.
 $_['front_links_margin_L']   = '1.0em';
-$_['button_font_size']       = '0.9em';  //Buttons on Edit page.
+$_['button_font_size']       = '0.9em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
 $_['button_padding']         = '4px 10px';
-$_['image_info_font_size']   = '1em';    //show_img_msg_01  &  _02
-$_['image_info_pos']         = '';       //If 1 or true, moves the info down a line for more space.
-$_['select_all_label_size']  = '.84em';  //Font size of $_['Select_All']
-$_['select_all_label_width'] = '72px';   //Width of space for $_['Select_All']
+$_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
+$_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
+$_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
+$_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All']
 $_['Admin']   = 'Admin';
-$_['bytes']   = 'bytes'; //####
+$_['bytes']   = 'bytes';   //####
 $_['Cancel']  = 'Cancel';
 $_['Close']   = 'Close';
 $_['Copy']    = 'Copy';
@@ -243,6 +278,7 @@ $_['successful'] = 'successful';
 $_['To']         = 'To';
 $_['Upload']     = 'Upload';
 $_['Username']   = 'Username';
+$_['Working']    = 'Working - please wait...'; //####
 $_['Log_In']     = 'Log In';
 $_['Log_Out']    = 'Log Out';
 $_['Admin_Options']  = 'Administration Options';
@@ -326,9 +362,9 @@ $_['upload_txt_03'] = 'Maximum size of each file:';
 $_['upload_txt_01'] = '(php.ini: upload_max_filesize)';
 $_['upload_txt_04'] = 'Maximum total upload size:';
 $_['upload_txt_02'] = '(php.ini: post_max_size)';
-$_['upload_txt_05'] = 'For uploaded files that already exist: '; //#### 
+$_['upload_txt_05'] = 'For uploaded files that already exist: '; //####
 $_['upload_txt_06'] = 'Rename (to filename.ext.001 etc...)';
-$_['upload_txt_07'] = 'Overwrite';                               //#### 
+$_['upload_txt_07'] = 'Overwrite'; //####
 $_['upload_err_01'] = 'Error 1: File too large. From php.ini:';
 $_['upload_err_02'] = 'Error 2: File too large. (Exceeds MAX_FILE_SIZE HTML form element)';
 $_['upload_err_03'] = 'Error 3: The uploaded file was only partially uploaded.';
@@ -337,27 +373,25 @@ $_['upload_err_05'] = 'Error 5:';
 $_['upload_err_06'] = 'Error 6: Missing a temporary folder.';
 $_['upload_err_07'] = 'Error 7: Failed to write file to disk.';
 $_['upload_err_08'] = 'Error 8: A PHP extension stopped the file upload.';
-$_['upload_msg_01'] = 'No file selected for upload.';
 $_['upload_msg_02'] = 'Destination folder invalid:';
 $_['upload_msg_03'] = 'Upload cancelled.';
 $_['upload_msg_04'] = 'Uploading:';
 $_['upload_msg_05'] = 'Upload successful!';
 $_['upload_msg_06'] = 'Upload failed:';
-$_['upload_msg_07'] = 'A pre-existing file was overwritten.'; //#### 
+$_['upload_msg_07'] = 'A pre-existing file was overwritten.'; //####
 $_['new_file_txt_01'] = 'File or Folder will be created in the current folder.';
 $_['new_file_txt_02'] = 'Some invalid characters are:';
 $_['new_file_msg_01'] = 'File or folder not created:';
 $_['new_file_msg_02'] = 'Name contains an invalid character:';
-$_['new_file_msg_03'] = 'Not created - no name given';
 $_['new_file_msg_04'] = 'File or folder already exists:';
 $_['new_file_msg_05'] = 'Created file:';
 $_['new_file_msg_07'] = 'Created folder:';
-$_['CRM_txt_02']  = 'The new location must already exist.';
-$_['CRM_txt_04']  = 'New Name';
-$_['CRM_msg_01']  = 'Error - new parent location does not exist:';
-$_['CRM_msg_02']  = 'Error - source file does not exist:';
-$_['CRM_msg_03']  = 'Error - new file or folder already exists:';
-$_['CRM_msg_05']  = 'Error during';
+$_['CRM_txt_02'] = 'The new location must already exist.';
+$_['CRM_txt_04'] = 'New Name';
+$_['CRM_msg_01'] = 'Error - new parent location does not exist:';
+$_['CRM_msg_02'] = 'Error - source file does not exist:';
+$_['CRM_msg_03'] = 'Error - new file or folder already exists:';
+$_['CRM_msg_05'] = 'Error during';
 $_['delete_msg_03']   = 'Delete error:';
 $_['session_warning'] = 'Warning: Session timeout soon!';
 $_['session_expired'] = 'SESSION EXPIRED';
@@ -379,8 +413,8 @@ $_['error_reporting_06'] = '(nothing, not even white-space, should have been out
 $_['admin_txt_00'] = 'Old Backup Found';
 $_['admin_txt_01'] = 'A backup file was created in case of an error during a username or password change. Therefore, it may contain old information and should be deleted if not needed. In any case, it will be automatically overwritten on the next password or username change.';
 $_['admin_txt_02'] = 'General Information';
-$_['admin_txt_14'] = 'For a small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep them secret, of course). Every little bit helps...'; //####
-$_['admin_txt_16'] = 'OneFileCMS can be used to edit itself.  However, be sure to have a backup ready for the inevitable ytpo...'; //####
+$_['admin_txt_14'] = 'For a small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep them secret, of course). Every little bit helps...';
+$_['admin_txt_16'] = 'OneFileCMS can be used to edit itself.  However, be sure to have a backup ready for the inevitable ytpo...';
 $_['pw_current'] = 'Current Password';
 $_['pw_change']  = 'Change Password';
 $_['pw_new']     = 'New Password';
@@ -393,16 +427,17 @@ $_['pw_txt_04'] = 'Case-sensitive: "A" =/= "a"';
 $_['pw_txt_06'] = 'Must contain at least one non-space character.';
 $_['pw_txt_08'] = 'May contain spaces in the middle. Ex: "This is a password or username!"';
 $_['pw_txt_10'] = 'Leading and trailing spaces are ignored.';
-$_['pw_txt_12'] = 'In recording the change, only one file is updated: either the active copy of OneFileCMS, or, if specified, an external configuration file.';
+$_['pw_txt_12'] = 'In recording the change, only one file is updated: either the active copy of OneFileCMS, or - if specified, an external configuration file.';
 $_['pw_txt_14'] = 'If an incorrect current password is entered, you will be logged out, but you may log back in.';
-$_['change_pw_01']  = 'Password changed!';
-$_['change_pw_02']  = 'Password NOT changed.';
-$_['change_pw_03']  = 'Incorrect current password. Login to try again.';
-$_['change_pw_04']  = '"New" and "Confirm New" values do not match.';
-$_['change_pw_05']  = 'Updating';
-$_['change_pw_06']  = 'external config file';
-$_['change_un_01']  = 'Username changed!';
-$_['change_un_02']  = 'Username NOT changed.';
+$_['change_pw_01'] = 'Password changed!';
+$_['change_pw_02'] = 'Password NOT changed.';
+$_['change_pw_03'] = 'Incorrect current password. Login to try again.';
+$_['change_pw_04'] = '"New" and "Confirm New" values do not match.';
+$_['change_pw_05'] = 'Updating';
+$_['change_pw_06'] = 'external config file';
+$_['change_pw_07'] = 'All fields are required.'; //####
+$_['change_un_01'] = 'Username changed!';
+$_['change_un_02'] = 'Username NOT changed.';
 $_['update_failed'] = 'Update failed - could not save file.';
 $_['mcd_msg_01'] = 'files moved.';
 $_['mcd_msg_02'] = 'files copied.';
@@ -431,7 +466,7 @@ function Session_Startup() { //*************************************************
 	if ( !isset($_SESSION['valid']) ) { $_SESSION['valid'] = 0; }
 
 	//Logging in?
-	if ( isset($_POST["username"]) && isset($_POST["password"]) ) { Login_response(); }
+	if ( isset($_POST['username']) && isset($_POST['password']) ) { Login_response(); }
 
 	session_regenerate_id(true); //Helps prevent session fixation & hijacking.
 
@@ -478,11 +513,15 @@ function Verify_IDLE_POST_etc() { //********************************************
 
 
 
-function hashit($key){ //*******************************************************
+function hashit($key,$pre = false){ //******************************************
 	//This is the super-secret stuff - Keep it secret, keep it safe!
 	//If you change anything here, or the $SALT, manually update the hash for your password from the Generate Hash page.
-	global $SALT;
+	global $SALT, $PRE_ITERATIONS;
 	$hash = trim($key); // trim off leading & trailing whitespace.
+
+	//If generating a hash from the Hash_Page(), also do the "pre-hash".  Generally,
+	//the "pre-hash" is done client-side during a login attempt, or when changing p/w or u/n.
+	if ($pre) { for ( $x=0; $x < $PRE_ITERATIONS; $x++ ) {$hash = hash('sha256', $hash.$SALT);}  }
 
 	for ( $x=0; $x < 10001; $x++ ) { $hash = hash('sha256', $hash.$SALT); }
 	return $hash;
@@ -634,7 +673,7 @@ function Get_GET() { //*** Get main parameters *********************************
 
 
 function Verify_Page_Conditions() { //******************************************
-	global $_, $ONESCRIPT, $ipath, $param1, $filename, $page, $EX, $message, $VALID_POST;
+	global $_, $ONESCRIPT_file, $ipath, $param1, $filename, $page, $EX, $message, $VALID_POST;
 
 	//If exited admin pages, restore $ipath 
 	if    ( ($page == "index") && $_SESSION['admin_page'] ) {
@@ -678,7 +717,7 @@ function Verify_Page_Conditions() { //******************************************
 		$page = "index";
 	}
 	//If editing OneFileCMS itself, show caution message.
-	elseif ($filename == trim(rawurldecode($ONESCRIPT), '/')) {
+	elseif ($filename == trim($_SERVER['SCRIPT_NAME'], '/')) {
 		$message .= '<style>#message_box_contents {background: red;}</style>';
 		$message .= '<style>#message_box          {color: white;}   </style>';
 		$message .= $EX.'<b>'.hsc($_['edit_caution_01']).' '.$EX.hsc($_['edit_caution_02']).'</b><br>';
@@ -1000,7 +1039,7 @@ function Cancel_Submit_Buttons($submit_label) { //******************************
 	<p>
 	<input type="button" class="button" id="cancel" value="<?php echo hsc($_['Cancel']) ?>"
 		onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
-	<input type="submit" class="button" id="submit" value="<?php echo hsc($submit_label);?>" style="margin-left: 1em;">
+	<input type="submit" class="button" id="submitty" value="<?php echo hsc($submit_label);?>" style="margin-left: 1em;">
 <?php
 	//Do not close the <p> tag yet/here. Leave it open for potential content on individual pages.
 }//end Cancel_Submit_Buttons() //***********************************************
@@ -1254,7 +1293,7 @@ function Hash_Page() { //*******************************************************
 	<form id="hash" name="hash" method="post" action="<?php echo $ONESCRIPT.$param1.$param3; ?>">
 		<?php echo $INPUT_NUONCE; ?>
 		<?php echo hsc($_['pass_to_hash']) ?>
-		<input type="text" name="whattohash" id="whattohash" value="<?php echo hsc($_POST["whattohash"]) ?>">
+		<input type="text" name="whattohash" id="whattohash" value="<?php echo hsc($_POST['whattohash']) ?>">
 		<p><?php Cancel_Submit_Buttons($_['Generate_Hash']) ?>
 		<script>document.getElementById('whattohash').focus()</script>
 	</form>
@@ -1281,11 +1320,13 @@ function Hash_response() { //***************************************************
 	global $_, $message;
 	$_POST['whattohash'] = trim($_POST['whattohash']); // trim whitespace.
 
-	//Ignore/don't hash empty string - passwords can't be blank.
+	//Ignore/don't hash an empty string - passwords can't be blank.
 	if ($_POST['whattohash'] == "") { return; }
 
+	//The second parameter to hashit(), 1, tells hashit() to also do the "pre-hash", which is
+	//normally done client-side during a login attempt, p/w change, or u/n change.
 	$message .= hsc($_['Password']).': '.hsc($_POST['whattohash']).'<br>';
-	$message .= hsc($_['Hash']).': '.hashit($_POST["whattohash"]).'<br>';
+	$message .= hsc($_['Hash']).': '.hashit($_POST['whattohash'], 1).'<br>';
 }//end Hash_response() //*******************************************************
 
 
@@ -1294,17 +1335,22 @@ function Hash_response() { //***************************************************
 //******************************************************************************
 function Change_PWUN_Page($pwun, $type, $page_title, $label_new, $label_confirm) {
 	//$pwun must = "pw" or "un"
-	global $_, $EX, $ONESCRIPT, $param1, $param3, $INPUT_NUONCE, $config_title, $PWUN_RULES;
+	global $_, $EX, $ONESCRIPT, $param1, $param2, $param3, $INPUT_NUONCE, $config_title, $PWUN_RULES;
+
+	$params = $param1.$param2.'&amp;p='. $_SESSION['recent_pages'][1];
 ?>
-	<h2><?php echo hsc($page_title) ?></h2>
+	<?php //preserve space for message_box even when there's no message. ?>
+	<style>#message_box {min-height: 2em;}</style>
 	
+	<h2><?php echo hsc($page_title) ?></h2>
+
 	<form id="change" method="post" action="<?php echo $ONESCRIPT.$param1.$param3; ?>">
 		<input type="hidden" name="<?php echo $pwun ?>" value="">
 		
 		<?php echo $INPUT_NUONCE; ?>
 		
 		<p><?php echo hsc($_['pw_current']) ?><br>
-		<input type="password" name="current_pw" id="current_pw" value="">
+		<input type="password" name="password" id="password" value="">
 		
 		<p><?php echo hsc($label_new) ?><br>
 		<input type="<?php echo $type ?>" name="new1" id="new1" value="">
@@ -1312,8 +1358,11 @@ function Change_PWUN_Page($pwun, $type, $page_title, $label_new, $label_confirm)
 		<p><?php echo hsc($label_confirm) ?><br>
 		<input type="<?php echo $type ?>" name="new2" id="new2" value="">
 		
-		<?php Cancel_Submit_Buttons($_['Submit']) ?>
-		<script>document.getElementById('current_pw').focus()</script>
+		<p><input type="button" class="button" id="cancel" value="<?php echo hsc($_['Cancel']) ?>"
+			onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
+		<input type="button" class="button"    id="submitty" value="<?php echo hsc($_['Submit']) ?>" style="margin-left: 1em;">
+		
+		<script>document.getElementById('password').focus()</script>
 	</form>
 
 	<div class="info">
@@ -1322,6 +1371,9 @@ function Change_PWUN_Page($pwun, $type, $page_title, $label_new, $label_confirm)
 	<p><?php echo hsc($_['pw_txt_14']) ?>
 	</div>
 <?php
+	//Note: The button with id="submitty" above must NOT be of type="submit" NOR have an id="submit", or the event_scripts won't work.
+	event_scripts('change', 'submitty', $pwun); //Doesn't work if an id="submit"
+	js_hash_scripts();
 }//end Change_PWUN_Page() //****************************************************
 
 
@@ -1373,7 +1425,7 @@ function Change_PWUN_response($PWUN, $msg){ //**********************************
 		   $ONESCRIPT_file, $ONESCRIPT_file_backup, $CONFIG_file, $CONFIG_file_backup;
 
 	// trim white-space from input values
-	$current_pass = trim($_POST['current_pw']);
+	$current_pass = trim($_POST['password']);
 	$new_pwun     = trim($_POST['new1']);
 	$confirm_pwun = trim($_POST['new2']);
 
@@ -1385,8 +1437,8 @@ function Change_PWUN_response($PWUN, $msg){ //**********************************
 	}
 	//If any field is blank...
 	elseif ( ($current_pass == "") || ($new_pwun == "") || ($confirm_pwun == "") ) {
-		$message .= $error_msg.'<br>';
-	}	
+		$message .= $error_msg.hsc($_['change_pw_07']).'<br>';
+	}
 	//If new & Confirm values don't match...
 	elseif ($new_pwun != $confirm_pwun) {
 		$message .= $error_msg.hsc($_['change_pw_04']).'<br>';
@@ -1448,16 +1500,22 @@ function Logout() { //**********************************************************
 function Login_Page() { //******************************************************
 	global $_, $ONESCRIPT;
 ?>
+	<?php //preserve space for message_box even when there's no message. ?>
+	<style>#message_box {height: 3.1em;}</style>
+
 	<h2><?php echo hsc($_['Log_In']) ?></h2>
-	<form method="post" action="<?php echo $ONESCRIPT; ?>">
-		<label for="username"><?php echo hsc($_['login_txt_01']) ?></label>
-		<input type="text"     name="username" id="username">
-		<label for="password"><?php echo hsc($_['login_txt_02']) ?></label>
-		<input type="password" name="password" id="password">
-		<input type="submit" class="button" value="<?php echo hsc($_['Enter']) ?>">
+	<form method="post" id="login_form" name="login_form" action="<?php echo $ONESCRIPT; ?>">
+		<label for ="username"><?php echo hsc($_['login_txt_01']) ?></label>
+		<input name="username" type="text"     id="username">
+		<label for ="password"><?php echo hsc($_['login_txt_02']) ?></label>
+		<input name="password" type="password" id="password">
+		<input type="button"  class="button"   id="login" value="<?php echo hsc($_['Enter']) ?>">
 	</form>
 	<script>document.getElementById('username').focus();</script>
 <?php
+	//Note: The "login" button above must NOT be of type="submit", NOR have an id="submit", or the event_scripts won't work.
+	event_scripts('login_form', 'login');
+	js_hash_scripts();
 }//end Login_Page() //**********************************************************
 
 
@@ -1580,7 +1638,7 @@ function Table_of_Files($full_list) { //****************************************
 		
 		//Used to not show rename & delete options for active copy of OneFileCMS.
 		$IS_OFCMS = false;
-		if ( $ipath.$file == trim(rawurldecode($ONESCRIPT), '/') ) { $IS_OFCMS = true;  }
+		if ( $ipath.$file == trim($_SERVER['SCRIPT_NAME'], '/') ) { $IS_OFCMS = true;  }
 		
 		if ( ($SHOWTYPE && !$excluded) || is_dir($ipath.$file) ) {
 			$HREF_params = $ONESCRIPT.$param1;
@@ -1626,12 +1684,12 @@ function Index_Page(){ //*******************************************************
 		echo '<INPUT '.$input_attribs.' onclick="Select_All();">';
 		
 		echo '<div id="mcd_submit">';
-		$onclick_m = 'onclick="return Confirm_Submit( \'move\');   "';
-		$onclick_c = 'onclick="return Confirm_Submit( \'copy\');   "';
-		$onclick_d = 'onclick="return Confirm_Submit( \'delete\' );"';
-		echo '<button TYPE=button id=delete '.$onclick_m.'>'.$ICONS['move'  ].'&nbsp;'.hsc($_['Move']  ).'</button>';
-		echo '<button TYPE=button id=delete '.$onclick_c.'>'.$ICONS['copy'  ].'&nbsp;'.hsc($_['Copy']  ).'</button>';
-		echo '<button TYPE=button id=delete '.$onclick_d.'>'.$ICONS['delete'].'&nbsp;'.hsc($_['Delete']).'</button>';
+		$onclick_m = 'onclick="Confirm_Submit( \'move\');   "';
+		$onclick_c = 'onclick="Confirm_Submit( \'copy\');   "';
+		$onclick_d = 'onclick="Confirm_Submit( \'delete\' );"';
+		echo '<button TYPE=button '.$onclick_m.'>'.$ICONS['move'  ].'&nbsp;'.hsc($_['Move']  ).'</button>';
+		echo '<button TYPE=button '.$onclick_c.'>'.$ICONS['copy'  ].'&nbsp;'.hsc($_['Copy']  ).'</button>';
+		echo '<button TYPE=button '.$onclick_d.'>'.$ICONS['delete'].'&nbsp;'.hsc($_['Delete']).'</button>';
 		echo '</div>'; //end mcd_submit
 	}
 
@@ -1854,8 +1912,8 @@ function Edit_Page() { //*******************************************************
 
 function Edit_response(){ //***If on Edit page, and [Save] clicked *************
 	global $_, $EX, $message, $filename;
-	$filename = $_POST["filename"];
-	$contents = $_POST["contents"];
+	$filename = $_POST['filename'];
+	$contents = $_POST['contents'];
 
 	$contents = str_replace("\r\n", "\n", $contents); //Make sure EOL is only newline char.
 	$contents = str_replace("\r"  , "\n", $contents); //Make sure EOL is only newline char.
@@ -1926,7 +1984,7 @@ function Upload_response() { //*************************************************
 		
 		$filecount++;
 		$filename    = $_FILES['upload_file']['name'][$N];
-		$destination = Check_path($_POST["upload_destination"]);
+		$destination = Check_path($_POST['upload_destination']);
 		$savefile_msg = '';		
 		
 		$MAXUP1 = ini_get('upload_max_filesize');
@@ -1965,7 +2023,7 @@ function Upload_response() { //*************************************************
 		}
 	}//end foreach $_FILES
 	
-	if ($filecount == 0) { $message .= $EX.'<b>'.hsc($_['upload_msg_01']).'</b><br>'; }
+	if ($filecount == 0) { $page = "upload"; } //If nothing selected, just reload Upload page.
 }//end Upload_response() //*****************************************************
 
 
@@ -1991,10 +2049,10 @@ function New_response($post, $isfile){ //***************************************
 
 	$page      = "index"; //Return to index if folder, or on error.
 
-	$new_name  = trim($_POST["$post"], $WHSPC_SLASH); //Trim whitespace & slashes.
+	$new_name  = trim($_POST[$post], $WHSPC_SLASH); //Trim whitespace & slashes.
 	
-	if ($isfile) { $filename  = $ipath.$new_name;     }
-	else         { $new_ipath = $ipath.$new_name.'/'; }
+	if ($isfile) { $f_or_f = "file";   $filename  = $ipath.$new_name;     }
+	else         { $f_or_f = "folder"; $new_ipath = $ipath.$new_name.'/'; }
 
 	$msg_new  = '<span class="filename">'.hte($new_name).'</span><br>';
 
@@ -2002,8 +2060,9 @@ function New_response($post, $isfile){ //***************************************
 		$message .= $EX.'<b>'.hsc($_['new_file_msg_01']).'</b> '.$msg_new;
 		$message .= '<b>'.hsc($_['new_file_msg_02']).'<span class="mono"> '.hte($INVALID_CHARS).'</span></b>';
 		
-	}elseif ($new_name == ""){
-		$message .= $EX.'<b>'.hsc($_['new_file_msg_03']).'</b>';  //No name given.
+	}elseif ($new_name == ""){ //No new name given.
+		$page   = "new".$f_or_f;
+		$param3 = '&amp;p=index'; //For [Cancel] button
 		
 	}elseif (file_exists($filename)) { //Does file or folder already exist ?
 		$message .= $EX.'<b>'.hsc($_['new_file_msg_04']).' '.$msg_new;
@@ -2022,7 +2081,7 @@ function New_response($post, $isfile){ //***************************************
 	}else{
 		$message .= $EX.'<b>'.hsc($_['new_file_msg_01']).':</b><br>'.$msg_new; //'Error - new file not created:'
 	}
-}//end New_response //**********************************************************
+}//end New_response() //********************************************************
 
 
 
@@ -2094,8 +2153,8 @@ function CRM_response($action, $msg1, $show_message = 3){ //********************
 	//$show_message: 0 = none; 1 = errors only; 2 = successes only; 3 = all messages (default).
 	global $_, $ipath, $filename, $page, $param1, $param2, $message, $EX, $INVALID_CHARS, $WHSPC_SLASH;
 
-	$old_name      = trim($_POST["old_name"], $WHSPC_SLASH);     //Trim whitespace & slashes.
-	$new_name_only = trim($_POST["new_name"], $WHSPC_SLASH);
+	$old_name      = trim($_POST['old_name'], $WHSPC_SLASH);     //Trim whitespace & slashes.
+	$new_name_only = trim($_POST['new_name'], $WHSPC_SLASH);
 	$new_location  = trim($_POST['new_location'], $WHSPC_SLASH);
 	if ($new_location != "") { $new_location .= '/'; }
 	$new_name      = $new_location.$new_name_only;
@@ -2389,6 +2448,30 @@ function pad(num){ if ( num < 10 ){ num = "0" + num; }; return num; }
 
 
 
+function trim($string) {
+
+	//trim leading whitespace
+	$len = $string.length;
+	$trimmed = "";
+	for (var $x=0; $x < $len; $x++) {
+		$charcode = $string.charCodeAt($x);
+		if ( $charcode > 32) { $trimmed += $string.substr($x); $x = $len; }
+	}
+
+	//trim trailing whitespace
+	$string = $trimmed;
+	$len = $string.length;
+	$trimmed = "";
+	for ($x=($len-1); $x >= 0; $x--) {
+		$charcode = $string.charCodeAt($x);
+		if ( $charcode > 32) { $trimmed += $string.substr(0,$x+1); $x = -1; }
+	}
+
+	return $trimmed;
+}//end trim()
+
+
+
 function FormatTime(Seconds) {
 	var Hours = Math.floor(Seconds / 3600); Seconds = Seconds % 3600;
 	var Minutes = Math.floor(Seconds / 60); Seconds = Seconds % 60;
@@ -2535,138 +2618,266 @@ function Edit_Page_scripts() { //***********************************************
 		}
 	}
 ?>
-	<!--======== Provide feedback re: unsaved changes ========-->
-	<script>
+<!--======== Provide feedback re: unsaved changes ========-->
+<script>
 
-	var File_textarea    = document.getElementById('file_contents');
-	var Save_File_button = document.getElementById('save_file');
-	var Reset_button     = document.getElementById('reset');
+var File_textarea    = document.getElementById('file_contents');
+var Save_File_button = document.getElementById('save_file');
+var Reset_button     = document.getElementById('reset');
+
+if (File_textarea) { var start_value = File_textarea.value; }
+
+var submitted  = false;
+var changed    = false;
+
+// a few var's for Wide_View()
+var Main_div		 = document.getElementById('main');
+var Wide_View_button = document.getElementById('wide_view');
+var main_width_default = '<?php echo $MAIN_WIDTH ?>';
+
+
+// The following events only apply when the element is active.
+// [Save] is disabled unless there are changes to the open file.
+Save_File_button.onfocus = function()     { Save_File_button.style.backgroundColor = "rgb(255,250,150)";
+										    Save_File_button.style.borderColor = "#F00"; }
+Save_File_button.onblur  = function()     { Save_File_button.style.backgroundColor ="#Fee";
+										    Save_File_button.style.borderColor = "#Faa"; }
+Save_File_button.onmouseover = function() { Save_File_button.style.backgroundColor = "rgb(255,250,150)";
+										    Save_File_button.style.borderColor = "#F00"; }
+Save_File_button.onmouseout  = function() { Save_File_button.style.backgroundColor = "#Fee";
+										    Save_File_button.style.borderColor = "#Faa"; }
+
+
+Main_div.style.width = "<?php echo $current_view ?>"; //Set current width
+
+if ( Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>' ) {
+	Wide_View_button.value = '<?php echo addslashes($_['Normal_View']) ?>';
+}
+
+
+function Wide_View() {
+	if ( File_textarea ) { File_textarea.style.width = '99.8%'; }
 	
-	if (File_textarea) { var start_value = File_textarea.value; }
-
-	var submitted  = false;
-	var changed    = false;
-
-	// a few var's for Wide_View()
-	var Main_div		 = document.getElementById('main');
-	var Wide_View_button = document.getElementById('wide_view');
-	var main_width_default = '<?php echo $MAIN_WIDTH ?>';
-
-
-	// The following events only apply when the element is active.
-	// [Save] is disabled unless there are changes to the open file.
-	Save_File_button.onfocus = function()     { Save_File_button.style.backgroundColor = "rgb(255,250,150)";
-											    Save_File_button.style.borderColor = "#F00"; }
-	Save_File_button.onblur  = function()     { Save_File_button.style.backgroundColor ="#Fee";
-											    Save_File_button.style.borderColor = "#Faa"; }
-	Save_File_button.onmouseover = function() { Save_File_button.style.backgroundColor = "rgb(255,250,150)";
-											    Save_File_button.style.borderColor = "#F00"; }
-	Save_File_button.onmouseout  = function() { Save_File_button.style.backgroundColor = "#Fee";
-											    Save_File_button.style.borderColor = "#Faa"; }
-
-
-	Main_div.style.width = "<?php echo $current_view ?>"; //Set current width
-
-	if ( Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>' ) {
+	if (Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>') {
+		Main_div.style.width = main_width_default;
+		Wide_View_button.value = "<?php echo addslashes($_['Wide_View'])?>";
+		document.cookie = 'edit_view=' + main_width_default;
+	}else{
+		Main_div.style.width = '<?php echo $WIDE_VIEW_WIDTH ?>';
 		Wide_View_button.value = '<?php echo addslashes($_['Normal_View']) ?>';
+		document.cookie = 'edit_view=<?php echo $WIDE_VIEW_WIDTH ?>';
 	}
+}
 
 
-	function Wide_View() {
-		if ( File_textarea ) { File_textarea.style.width = '99.8%'; }
-		
-		if (Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>') {
-			Main_div.style.width = main_width_default;
-			Wide_View_button.value = "<?php echo addslashes($_['Wide_View'])?>";
-			document.cookie = 'edit_view=' + main_width_default;
-		}else{
-			Main_div.style.width = '<?php echo $WIDE_VIEW_WIDTH ?>';
-			Wide_View_button.value = '<?php echo addslashes($_['Normal_View']) ?>';
-			document.cookie = 'edit_view=<?php echo $WIDE_VIEW_WIDTH ?>';
-		}
+function Reset_file_status_indicators() {
+	changed = false;
+	File_textarea.style.backgroundColor = "#F9FFF9";  //light green
+	Save_File_button.style.backgroundColor = "";
+	Save_File_button.style.borderColor = "";
+	Save_File_button.style.borderWidth = "1px";
+	Save_File_button.disabled = "disabled";
+	Save_File_button.value = "<?php echo addslashes($_['save_1'])?>";
+	Reset_button.disabled = "disabled";
+}
+
+
+window.onbeforeunload = function() {
+	if ( changed && !submitted ) {
+		//FF4+ Ingores the supplied msg below & only uses a system msg for the prompt.
+		return "<?php echo addslashes($_['unload_unsaved']) ?>";
 	}
+}
 
 
-	function Reset_file_status_indicators() {
-		changed = false;
-		File_textarea.style.backgroundColor = "#F9FFF9";  //light green
-		Save_File_button.style.backgroundColor = "";
-		Save_File_button.style.borderColor = "";
-		Save_File_button.style.borderWidth = "1px";
-		Save_File_button.disabled = "disabled";
-		Save_File_button.value = "<?php echo addslashes($_['save_1'])?>";
-		Reset_button.disabled = "disabled";
-	}
-
-
-	window.onbeforeunload = function() {
-		if ( changed && !submitted ) {
-			//FF4+ Ingores the supplied msg below & only uses a system msg for the prompt.
-			return "<?php echo addslashes($_['unload_unsaved']) ?>";
-		}
-	}
-
-
-	window.onunload = function() {
-		//without this, a browser back then forward would reload file with local/
-		// unsaved changes, but with a green b/g as tho that's the file's contents.
-		if (!submitted) {
-			File_textarea.value = start_value;
-			Reset_file_status_indicators();
-		}
-	}
-
-
-	//With selStart & selEnd == 0, moves cursor to start of text field.
-	function setSelRange(inputEl, selStart, selEnd) {
-		if (inputEl.setSelectionRange) {
-			inputEl.focus();
-			inputEl.setSelectionRange(selStart, selEnd);
-		} else if (inputEl.createTextRange) {
-			var range = inputEl.createTextRange();
-			range.collapse(true);
-			range.moveEnd('character', selEnd);
-			range.moveStart('character', selStart);
-			range.select();
-		}
-	}
-
-
-	function Check_for_changes(event){
-		var keycode=event.keyCode? event.keyCode : event.charCode;
-		changed = (File_textarea.value != start_value);
-		if (changed){
-			document.getElementById('message_box').innerHTML = " "; // Must have a space, or it won't clear the msg.
-			File_textarea.style.backgroundColor    = "#Fee";//light red
-			Save_File_button.style.backgroundColor ="#Fee";
-			Save_File_button.style.borderColor = "#Faa";  //less light red
-			Save_File_button.style.borderWidth = "1px";
-			Save_File_button.disabled = "";
-			Reset_button.disabled = "";
-			Save_File_button.value = "<?php echo addslashes($_['save_2'])?>";
-		}else{
-			Reset_file_status_indicators()
-		}
-	}
-
-
-	//Reset textarea value to when page was loaded.
-	//Used by [Reset] button, and when page unloads (browser back, etc).
-	//Needed becuase if the page is reloaded (ctl-r, or browser back/forward, etc.),
-	//the text stays changed, but "changed" gets set to false, which looses warning.
-	function Reset_File() {
-		if (changed) {
-			if ( !(confirm("<?php echo addslashes($_['confirm_reset']) ?>")) ) { return; }
-		}
+window.onunload = function() {
+	//without this, a browser back then forward would reload file with local/
+	// unsaved changes, but with a green b/g as tho that's the file's contents.
+	if (!submitted) {
 		File_textarea.value = start_value;
 		Reset_file_status_indicators();
-		setSelRange(File_textarea, 0, 0) //Move cursor to start of textarea.
 	}
+}
 
+
+//With selStart & selEnd == 0, moves cursor to start of text field.
+function setSelRange(inputEl, selStart, selEnd) {
+	if (inputEl.setSelectionRange) {
+		inputEl.focus();
+		inputEl.setSelectionRange(selStart, selEnd);
+	} else if (inputEl.createTextRange) {
+		var range = inputEl.createTextRange();
+		range.collapse(true);
+		range.moveEnd('character', selEnd);
+		range.moveStart('character', selStart);
+		range.select();
+	}
+}
+
+
+function Check_for_changes(event){
+	var keycode=event.keyCode? event.keyCode : event.charCode;
+	changed = (File_textarea.value != start_value);
+	if (changed){
+		document.getElementById('message_box').innerHTML = " "; // Must have a space, or it won't clear the msg.
+		File_textarea.style.backgroundColor    = "#Fee";//light red
+		Save_File_button.style.backgroundColor ="#Fee";
+		Save_File_button.style.borderColor = "#Faa";  //less light red
+		Save_File_button.style.borderWidth = "1px";
+		Save_File_button.disabled = "";
+		Reset_button.disabled = "";
+		Save_File_button.value = "<?php echo addslashes($_['save_2'])?>";
+	}else{
+		Reset_file_status_indicators()
+	}
+}
+
+
+//Reset textarea value to when page was loaded.
+//Used by [Reset] button, and when page unloads (browser back, etc).
+//Needed becuase if the page is reloaded (ctl-r, or browser back/forward, etc.),
+//the text stays changed, but "changed" gets set to false, which looses warning.
+function Reset_File() {
+	if (changed) {
+		if ( !(confirm("<?php echo addslashes($_['confirm_reset']) ?>")) ) { return; }
+	}
+	File_textarea.value = start_value;
 	Reset_file_status_indicators();
-	</script>
+	setSelRange(File_textarea, 0, 0) //Move cursor to start of textarea.
+}
+
+Reset_file_status_indicators();
+</script>
 <?php
 }//end Edit_Page_scripts() //***************************************************
+
+
+
+
+function event_scripts($form_id, $button_id, $pwun=''){ //**********************
+	global $_;
+
+	//pre-hash "new1" & "new2" only if changing p/w (not if changing u/n).
+	$hash_new_new = '';
+	if ($pwun == 'pw') {
+		$hash_new_new = " hash('new1'); hash('new2');";
+	}//end if changing p/w --------------------------------------
+?>
+<script>
+var $form          = document.getElementById('<?php echo $form_id ?>');
+var $submit_button = document.getElementById('<?php echo $button_id ?>');
+var $message_box   = document.getElementById('message_box');
+var $thispage      = false; //Used to ignore keyup if keydown started on prior page.
+var $submitdown    = false; //Used in document.mouseup event
+
+
+//Key or mouse down events trigger "Working..." message.
+$form.onkeydown            = function(event) {events_down(event, 13);} //Form captures Enter key (13)
+$submit_button.onkeydown   = function(event) {events_down(event, 32);} //Submit button captures Space key (32)
+$submit_button.onmousedown = function(event) {$submitdown = true; events_down(event,  0);}
+
+//Key or mouse up events trigger hash and submit.
+$form.onkeyup              = function(event) {events_up(event, 13);}
+$submit_button.onkeyup     = function(event) {events_up(event, 32);}
+$submit_button.onmouseup   = function(event) {events_up(event,  0);} //For mouse events, keyCode is 0 or undefined, and ignored.
+
+
+function events_down(event, capture_key) {if (!event) {var event = window.event;} //if IE
+	$thispage = true; //Make sure keydown was on this page.
+	if ((event.type.substr(0,3) == 'key') && (event.keyCode != capture_key)) {return true;}
+	$message_box.innerHTML = '<div id="message_box_contents"><b><?php echo $_['Working'] ?></b>';
+}
+
+
+function events_up(event, capture_key) {if (!event) {var event = window.event;} //if IE
+	if (!$thispage) {return false;} //Ignore keyup if there was no keydown on this page.
+	if ((event.type.substr(0,3) == 'key') && (event.keyCode != capture_key)) {return true;}
+	if (!pre_validate()) {return false};
+	$submit_button.disabled = "disabled";  //Prevent extra clicks
+	hash('password');
+	<?php echo $hash_new_new ?>
+	$form.submit();
+}
+
+
+document.onmouseup = function(event) {if (!event) {var event = window.event;} //if IE
+	//if mousedown was on submit button, but mouseup wasn't, clear message.
+
+	var target = event.target || event.srcElement //= most brosers || IE
+	if ($submitdown && ($submit_button.id != target.id) ) { $message_box.innerHTML = ''; } 
+	$submitdown = false;
+}
+
+
+function pre_validate() {
+	var $pw = document.getElementById('password');
+
+	//These must exist for checks below.
+	var $username = $pw;    var $new1 = $pw;    var $new2 = $pw;
+
+	if (document.getElementById('username')){
+		var $username = document.getElementById('username');
+	}
+	if (document.getElementById('new1')){
+		var $new1 = document.getElementById('new1');
+		var $new2 = document.getElementById('new2');
+	}
+
+
+	//If any field is blank..
+	if (($username.value == '') || ($pw.value == '') || ($new1.value == '') || ($new2.value == '')) {
+		$message_box.innerHTML = '<div id="message_box_contents"><b><?php echo $_['change_pw_07'] ?></b>';
+		return false;
+	}
+	//If new & confirm new values do not match...
+	if (trim($new1.value) != trim($new2.value)) {
+		$message_box.innerHTML = '<div id="message_box_contents"><b><?php echo $_['change_pw_04'] ?></b>';
+		return false;
+	}
+	return true;
+}//end pre_validate()
+</script>
+<?php
+}//end event_scripts() //*******************************************************
+
+
+
+
+function js_hash_scripts() { //*************************************************
+	global $SALT, $PRE_ITERATIONS;
+
+//Used to hash p/w's client side.  This does not really add any security to the server side application that uses it,
+//as the "pre-hash" becomes the actual p/w as far as the server is concerned, and is just as vulnerable to exposure 
+//while in transit. However, this does help to protect the user's plain-text p/w, which may be used elsewhere.
+?>
+<script>
+/* hex_sha256() (and directly associated functions)
+ *
+ * A JavaScript implementation of SHA-256, as defined in FIPS 180-2
+ * Version 2.2 Copyright Angel Marin, Paul Johnston 2000 - 2009.
+ * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
+ * Distributed under the BSD License
+ * See http://pajhome.org.uk/crypt/md5 for details.
+ * Also http://anmar.eu.org/projects/jssha2/
+ */
+var hexcase=0;function hex_sha256(a){return rstr2hex(rstr_sha256(str2rstr_utf8(a)))}function sha256_vm_test(){return hex_sha256("abc").toLowerCase()=="ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"}function rstr_sha256(a){return binb2rstr(binb_sha256(rstr2binb(a),a.length*8))}function rstr2hex(c){try{hexcase}catch(g){hexcase=0}var f=hexcase?"0123456789ABCDEF":"0123456789abcdef";var b="";var a;for(var d=0;d<c.length;d++){a=c.charCodeAt(d);b+=f.charAt((a>>>4)&15)+f.charAt(a&15)}return b}function str2rstr_utf8(c){var b="";var d=-1;var a,e;while(++d<c.length){a=c.charCodeAt(d);e=d+1<c.length?c.charCodeAt(d+1):0;if(55296<=a&&a<=56319&&56320<=e&&e<=57343){a=65536+((a&1023)<<10)+(e&1023);d++}if(a<=127){b+=String.fromCharCode(a)}else{if(a<=2047){b+=String.fromCharCode(192|((a>>>6)&31),128|(a&63))}else{if(a<=65535){b+=String.fromCharCode(224|((a>>>12)&15),128|((a>>>6)&63),128|(a&63))}else{if(a<=2097151){b+=String.fromCharCode(240|((a>>>18)&7),128|((a>>>12)&63),128|((a>>>6)&63),128|(a&63))}}}}}return b}function rstr2binb(b){var a=Array(b.length>>2);for(var c=0;c<a.length;c++){a[c]=0}for(var c=0;c<b.length*8;c+=8){a[c>>5]|=(b.charCodeAt(c/8)&255)<<(24-c%32)}return a}function binb2rstr(b){var a="";for(var c=0;c<b.length*32;c+=8){a+=String.fromCharCode((b[c>>5]>>>(24-c%32))&255)}return a}function sha256_S(b,a){return(b>>>a)|(b<<(32-a))}function sha256_R(b,a){return(b>>>a)}function sha256_Ch(a,c,b){return((a&c)^((~a)&b))}function sha256_Maj(a,c,b){return((a&c)^(a&b)^(c&b))}function sha256_Sigma0256(a){return(sha256_S(a,2)^sha256_S(a,13)^sha256_S(a,22))}function sha256_Sigma1256(a){return(sha256_S(a,6)^sha256_S(a,11)^sha256_S(a,25))}function sha256_Gamma0256(a){return(sha256_S(a,7)^sha256_S(a,18)^sha256_R(a,3))}function sha256_Gamma1256(a){return(sha256_S(a,17)^sha256_S(a,19)^sha256_R(a,10))}function sha256_Sigma1512(a){return(sha256_S(a,14)^sha256_S(a,18)^sha256_S(a,41))}function sha256_Gamma1512(a){return(sha256_S(a,19)^sha256_S(a,61)^sha256_R(a,6))}var sha256_K=new Array(1116352408,1899447441,-1245643825,-373957723,961987163,1508970993,-1841331548,-1424204075,-670586216,310598401,607225278,1426881987,1925078388,-2132889090,-1680079193,-1046744716,-459576895,-272742522,264347078,604807628,770255983,1249150122,1555081692,1996064986,-1740746414,-1473132947,-1341970488,-1084653625,-958395405,-710438585,113926993,338241895,666307205,773529912,1294757372,1396182291,1695183700,1986661051,-2117940946,-1838011259,-1564481375,-1474664885,-1035236496,-949202525,-778901479,-694614492,-200395387,275423344,430227734,506948616,659060556,883997877,958139571,1322822218,1537002063,1747873779,1955562222,2024104815,-2067236844,-1933114872,-1866530822,-1538233109,-1090935817,-965641998);function binb_sha256(n,o){var p=new Array(1779033703,-1150833019,1013904242,-1521486534,1359893119,-1694144372,528734635,1541459225);var k=new Array(64);var B,A,z,y,w,u,t,s;var r,q,x,v;n[o>>5]|=128<<(24-o%32);n[((o+64>>9)<<4)+15]=o;for(r=0;r<n.length;r+=16){B=p[0];A=p[1];z=p[2];y=p[3];w=p[4];u=p[5];t=p[6];s=p[7];for(q=0;q<64;q++){if(q<16){k[q]=n[q+r]}else{k[q]=safe_add(safe_add(safe_add(sha256_Gamma1256(k[q-2]),k[q-7]),sha256_Gamma0256(k[q-15])),k[q-16])}x=safe_add(safe_add(safe_add(safe_add(s,sha256_Sigma1256(w)),sha256_Ch(w,u,t)),sha256_K[q]),k[q]);v=safe_add(sha256_Sigma0256(B),sha256_Maj(B,A,z));s=t;t=u;u=w;w=safe_add(y,x);y=z;z=A;A=B;B=safe_add(x,v)}p[0]=safe_add(B,p[0]);p[1]=safe_add(A,p[1]);p[2]=safe_add(z,p[2]);p[3]=safe_add(y,p[3]);p[4]=safe_add(w,p[4]);p[5]=safe_add(u,p[5]);p[6]=safe_add(t,p[6]);p[7]=safe_add(s,p[7])}return p}function safe_add(a,d){var c=(a&65535)+(d&65535);var b=(a>>16)+(d>>16)+(c>>16);return(b<<16)|(c&65535)};
+</script>
+
+
+<script>
+//OneFileCMS wrapper function for using hash functions
+function hash($element_id) {
+	var $input = document.getElementById($element_id);
+	var $hash = trim($input.value); //trim() defined in common_scripts()
+	var $SALT = '<?php echo $SALT ?>';
+	var $PRE_ITERATIONS = <?php echo $PRE_ITERATIONS ?>; //$PRE_ITERATIONS also used in hashit()
+	if ($hash.length < 1) {$input.value = $hash; return;} //Don't hash nothing.
+	for ( $x=0; $x < $PRE_ITERATIONS; $x++ ) { $hash = hex_sha256($hash + $SALT); } ;
+	$input.value = $hash;
+}//end hash_256()
+</script>
+<?php
+}//end js_hash_scripts() //*****************************************************
 
 
 
@@ -2699,8 +2910,6 @@ b, strong { font-weight: bold;   }
 table { border-collapse:separate; border-spacing:0; }
 th,td { text-align:left; font-weight:400; }
 
-a { border: 1px solid transparent; color: rgb(100,45,0); text-decoration: none; }
-
 label { font-size : 1em; font-weight: bold; }
 
 pre {
@@ -2714,14 +2923,15 @@ input[type="text"]     { width: 100%; border: 1px solid #807568; padding: 1px 1p
 input[type="password"] { width: 100%; border: 1px solid #807568; padding: 0   1px 0   0; }
 input[type="file"]     { width: 100%; border: 1px solid #807568; background-color: white; }
 
-input[readonly]       { color: #333; background-color: #EEE; }
-input[disabled]       { color: #555; background-color: #EEE; }
+input[readonly]        { color: #333; background-color: #EEE; }
+input[disabled]        { color: #555; background-color: #EEE; }
 
 input:focus  { background-color: rgb(255,250,150); }
 input:hover  { background-color: rgb(255,250,150); }
 
-button:focus { background-color: rgb(255,250,150); }
-button:hover { background-color: rgb(255,250,150); }
+button:focus  { background-color: rgb(255,250,150); }
+button:hover  { background-color: rgb(255,250,150); }
+button:active { background-color: rgb(245,245,50);  }
 
 /* --- layout --- */
 
@@ -2780,8 +2990,9 @@ button:hover { background-color: rgb(255,250,150); }
 	background : #EEE;
 	}
 
-#message_box  #X_box:hover {background-color: rgb(255,250,150);}
-#message_box  #X_box:focus {background-color: rgb(255,250,150);}
+#message_box  #X_box:hover  {background-color: rgb(255,250,150);}
+#message_box  #X_box:focus  {background-color: rgb(255,250,150);}
+#message_box  #X_box:active {background-color: rgb(245,245,50); }
 
 .filename { font-family: courier; }
 
@@ -2822,8 +3033,8 @@ table.index_T td { border : 1px inset silver; vertical-align: middle;}
 
 /*Index table file select boxes*/
 .ckbox {padding: 2px 4px 0 4px}
-.ckbox:hover { background-color: rgb(255,250,150); }
 .ckbox:focus { background-color: rgb(255,250,150); }
+.ckbox:hover { background-color: rgb(255,250,150); }
 
 
 #index_page_buttons     { margin: 0 0 .5em 0; }
@@ -2843,9 +3054,10 @@ table.index_T td { border : 1px inset silver; vertical-align: middle;}
 	background-color: #EEE;
 	}
 
-a:hover { border: 1px solid #807568; background-color: rgb(255,250,150); }
-a:focus { border: 1px solid #807568; background-color: rgb(255,250,150); }
-
+a { border: 1px solid transparent; color: rgb(100,45,0); text-decoration: none; }
+a:focus  { border: 1px solid #807568; background-color: rgb(255,250,150); }
+a:hover  { border: 1px solid #807568; background-color: rgb(255,250,150); }
+a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
 
 /*** Select All [x]  [Move] [Copy] [Delete] ***/
 
@@ -2869,8 +3081,9 @@ a:focus { border: 1px solid #807568; background-color: rgb(255,250,150); }
 	background-color: #EEE;
 	}
 
-#mcd_submit button:hover { background-color: rgb(255,250,150); }
-#mcd_submit button:focus { background-color: rgb(255,250,150); }
+#mcd_submit button:focus  { background-color: rgb(255,250,150); }
+#mcd_submit button:hover  { background-color: rgb(255,250,150); }
+#mcd_submit button:active { background-color: rgb(245,245,50); }
 
 .buttons_right         { float: right; }
 .buttons_right .button { margin-left: .5em; }
@@ -2885,7 +3098,8 @@ a:focus { border: 1px solid #807568; background-color: rgb(255,250,150); }
 	background-color: #EEE;  /*#d4d4d4*/
 	}
 
-.button[disabled]  { color: #777; background-color: #EEE; }
+.button[disabled] { color: #777; background-color: #EEE; }
+.button:active    { background-color: rgb(245,245,50); }
 
 
 /* --- header --- */
@@ -2907,8 +3121,9 @@ a:focus { border: 1px solid #807568; background-color: rgb(255,250,150); }
 	padding-bottom: .1em;
 	}
 
-.nav a:hover { border: 1px solid #807568; }
-.nav a:focus { border: 1px solid #807568; }
+.nav a:hover  { border: 1px solid #807568; }
+.nav a:focus  { border: 1px solid #807568; }
+.nav a:active { border: 1px solid #807568; }
 
 
 /* --- edit --- */
@@ -3116,9 +3331,9 @@ if (!isset($_SESSION['admin_page'])) {
 	$_SESSION['admin_ipath'] = '';
 }
 
-Init_ICONS();
-
 if ($_SESSION['valid']) {
+
+	Init_ICONS();
 
 	undo_magic_quotes();
 
@@ -3134,7 +3349,7 @@ if ($_SESSION['valid']) {
 	
 	//Used to disable some options if editing OneFileCMS itself.
 	$Editing_OFCMS = false;
-	if ( isset($filename) && ($filename == trim(rawurldecode($ONESCRIPT), '/')) ) { $Editing_OFCMS = true; }
+	if ( isset($filename) && ($filename == trim($_SERVER['SCRIPT_NAME'], '/')) ) { $Editing_OFCMS = true; }
 
 	//Don't show path header on some pages.
 	$Show_Path = true;
@@ -3142,10 +3357,6 @@ if ($_SESSION['valid']) {
 	if ( in_array($page, $pages_dont_show_path) ){ $Show_Path = false; } //
 
 }//end if $_SESSION[valid] 
-
-//Finish up/prepare to send page contents.
-$early_output = ob_get_clean(); // Should be blank unless trouble-shooting.
-header('Content-type: text/html; charset=UTF-8');
 
 //end logic to determine page action *******************************************
 
@@ -3155,7 +3366,10 @@ header('Content-type: text/html; charset=UTF-8');
 //******************************************************************************
 //Output page contents
 //******************************************************************************
-?><!DOCTYPE html>
+$early_output = ob_get_clean(); // Should be blank unless trouble-shooting.
+header('Content-type: text/html; charset=UTF-8');
+?>
+<!DOCTYPE html>
 <html><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="robots" content="noindex">
