@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.15
+// OneFileCMS Language Settings v3.4.16
 
 $_['LANGUAGE'] = 'Dutch (Nederlands)'; //NL
 $_['LANG'] = 'NL';
@@ -18,8 +18,8 @@ $_['LANG'] = 'NL';
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
 $_['front_links_font_size']  = '0.8em';   //Buttons on Index page.
 $_['front_links_margin_L']   = '0.4em';
-$_['button_font_size']       = '0.7em';   //Buttons on Edit page.
-$_['button_margin_L']        = '0.5em';
+$_['button_font_size']       = '0.8em';   //Buttons on Edit page.
+$_['button_margin_L']        = '0.7em';
 $_['button_padding']         = '4px 10px';
 $_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
@@ -82,7 +82,7 @@ $_['Generate_Hash']  = 'Genereer Verward Wachtwoord (Hash)';
 
 $_['save_1']      = 'Opslaan';
 $_['save_2']      = 'WIJZIGINGEN OPSLAAN!';
-$_['reset']       = 'Reset - wijzingen ongedaan maken';
+$_['reset']       = 'Reset';
 $_['Wide_View']   = 'Wijd Gezichtsveld';
 $_['Normal_View'] = 'Normaal Gezichtsveld';
 $_['Open_View']   = 'Openen/Bekijken in browser venster';

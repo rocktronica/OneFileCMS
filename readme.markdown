@@ -1,8 +1,13 @@
 # OneFileCMS
 
-## Current version: 3.4.15
+## Current version: 3.4.16
 
 ## Recent changes
+
+### November 23, 2012 (v3.4.16)
+
+- Added icons to lower buttons on edit page.
+- And a few code tweaks & improvements.
 
 ### November 18, 2012 (v3.4.15)
 
@@ -125,7 +130,7 @@ Now, since there is no database or other means of granular control or access log
   (Only tested on versions 5.2.8, 5.2.17, 5.3.3, and 5.4 + )
 - File permission privileges on your host.
 - Javascript enabled browswer.
-- And- but if you wish to see the icons- a browser that supports inline SVG.  
+- And- but only if you wish to see the icons- a browser that supports inline SVG.  
   (If your browser doesn't support inline SVG, OneFileCMS will still work, just without any icons.)
 
 ## License, Credit, Et Cetera  
@@ -143,7 +148,8 @@ Now, since there is no database or other means of granular control or access log
 
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
 - Issue with Chrome's XSS filter: Editing some legitimate files with OneFileCMS will trigger the filter and disable much of the javascript provided functionallity, but only while on the edit page with such a file, and only after a [Save].
-- The connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text during login.  However, this is true of most online login systems, unless SSL or the like is employed.
+- The connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text* during login.  However, this is true of most online login systems, unless SSL or the like is employed.  
+  *As of version 3.4.15, a client-side hash of the user's "plain-text" password is now sent to the server.  Yes, the "hash" is still a "plain-text" password as far as the server is concerned, but the user's raw password is now protected.
 - Be aware that only some very basic data & error checking is performed.  (But, it's getting better...)  
 - Anything else?
 

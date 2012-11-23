@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.15
+// OneFileCMS Language Settings v3.4.16
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -19,7 +19,7 @@ $_['LANG'] = 'ES';
 $_['front_links_font_size']  = '1.0em';   //Buttons on Index page.
 $_['front_links_margin_L']   = '0.5em';
 $_['button_font_size']       = '0.9em';   //Buttons on Edit page.
-$_['button_margin_L']        = '0.4em';
+$_['button_margin_L']        = '0.7em';
 $_['button_padding']         = '4px 5px';
 $_['image_info_font_size']   = '.95em';   //show_img_msg_01  &  _02
 $_['image_info_pos']         = ' ';       //If 1 or true, moves the info down a line for more space.
@@ -82,7 +82,7 @@ $_['Generate_Hash']  = 'Generar Hash';
 
 $_['save_1']      = 'Guardar';
 $_['save_2']      = '¡GUARDAR CAMBIOS!';
-$_['reset']       = 'Reiniciar - perder los cambios';
+$_['reset']       = 'Reiniciar';
 $_['Wide_View']   = 'Vista Ampliada';
 $_['Normal_View'] = 'Vista Normal';
 $_['Open_View']   = 'Abrir/Ver en una ventana del navegador';

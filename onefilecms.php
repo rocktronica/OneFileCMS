@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.15';
+$OFCMS_version = '3.4.16';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -115,8 +115,8 @@ $config_stypes = "*"; // Shown types; only files of the given types should show 
 
 $config_itypes = "jpg,gif,png,bmp,ico"; //image types to display on edit page.
 // _ftypes & _fclass must have the same number of values. bin is default.
-$config_ftypes = "bin,z,gz,7z,zip,jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,pl ,ini,cfg,conf,log,asp,js ,htm,html,dtd,htaccess";
-$config_fclass = "bin,z,z ,z ,z  ,img,img,img,img,img,svg,txt,txt,css,php,txt,txt,cfg,cfg ,txt,txt,txt,htm,htm ,txt,txt";
+$config_ftypes = "bin,z,gz,7z,zip,jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,pl ,ini,cfg,conf,log,asp,js ,htm,html,dtd,htaccess,markdown";
+$config_fclass = "bin,z,z ,z ,z  ,img,img,img,img,img,svg,txt,txt,css,php,txt,txt,cfg,cfg ,txt,txt,txt,htm,htm ,txt,txt,txt";
 
 $EX = '<b>( ! )</b> '; //EXclaimation point "icon" Used in $message's
 
@@ -130,6 +130,8 @@ $ACCESS_ROOT = ''; //Restrict access to a particular folder.  Leave empty for $W
 	// < ? php                    //(without the spaces around the ?, of course)
 	// $option1 = "value";
 	// etc...
+
+
 //end CONFIGURABLE INFO ********************************************************
 
 
@@ -138,9 +140,13 @@ $ACCESS_ROOT = ''; //Restrict access to a particular folder.  Leave empty for $W
 //******************************************************************************
 //System values & setup
 
-//If there is one, include external config file.
+//If specified, include external config file.
 if ( isset($config_file) && is_file($config_file) ) { include($config_file); }
 else { $config_file = ''; } //If not found, clear it.
+
+
+
+
 
 //Requires PHP 5.1, due to changes in some functions.
 //Earliest version the author has for testing is 5.2.8 (50208)
@@ -225,7 +231,7 @@ function hte($input) { return htmlentities($input, ENT_QUOTES, 'UTF-8'); }//end 
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.4.15
+// OneFileCMS Language Settings v3.4.16
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -304,7 +310,7 @@ $_['pass_to_hash']   = 'Password to hash:';
 $_['Generate_Hash']  = 'Generate Hash';
 $_['save_1']      = 'Save';
 $_['save_2']      = 'SAVE CHANGES!';
-$_['reset']       = 'Reset - loose changes';
+$_['reset']       = 'Reset';
 $_['Wide_View']   = 'Wide View';
 $_['Normal_View'] = 'Normal View';
 $_['Open_View']   = 'Open/View in browser window';
@@ -992,8 +998,8 @@ function Page_Header(){ //******************************************************
 		<?php echo $OFCMS_version.' ('.hsc($_['on']).'&nbsp;php&nbsp;'.phpversion().')'; ?>
 		
 		<div class="nav">
-			<a href="/" target="_blank"><?php echo $favicon ?>
-			<b><?php echo hte($WEBSITE) ?></b></a>
+			<b><a href="/" target="_blank"><?php echo $favicon ?>
+			<?php echo hte($WEBSITE) ?></a></b>
 			<?php if ($page != "login") { ?>
 			| <a href="<?php echo $ONESCRIPT ?>?p=logout"><?php echo hsc($_['Log_Out']) ?></a>
 			<?php } ?>
@@ -1037,9 +1043,9 @@ function Cancel_Submit_Buttons($submit_label) { //******************************
 	$params = $param1.$param2.'&amp;p='. $_SESSION['recent_pages'][1];
 ?>
 	<p>
-	<input type="button" class="button" id="cancel" value="<?php echo hsc($_['Cancel']) ?>"
-		onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
-	<input type="submit" class="button" id="submitty" value="<?php echo hsc($submit_label);?>" style="margin-left: 1em;">
+	<button type="button" class="button" id="cancel" onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
+		<?php echo hsc($_['Cancel']) ?></button>
+	<button type="submit" class="button" id="submitty" style="margin-left: 1em;"><?php echo hsc($submit_label);?></button>
 <?php
 	//Do not close the <p> tag yet/here. Leave it open for potential content on individual pages.
 }//end Cancel_Submit_Buttons() //***********************************************
@@ -1160,7 +1166,7 @@ function Init_ICONS() { //******************************************************
 	$extra_new = '<g transform="translate(4,6)">'.$circle_plus.'</g>';
 	$extra_z   = '<text x="4" y="12" style="font-size:8pt;font-weight:900;fill:blue ;font-family:Arial;">z</text>';
 
-
+	//The icons
 	$ICONS['bin'] =  '<svg class="icon" version="1.1" width="14" height="16">'.
 		  '<g transform="translate( 0.5,0.5)">'.$one .'</g>'.
 		  '<g transform="translate( 3.5,0.5)">'.$zero.'</g>'.'<g transform="translate( 9.5,0.5)">'.$one .'</g>'.
@@ -1237,20 +1243,16 @@ function Admin_Page() { //******************************************************
 	<h2><?php echo hsc($_['Admin_Options']) ?></h2>
 
 	<span class="admin_buttons">
-	<input type="button" class="button" id="cancel"    value="<?php echo hsc($_['Close']) ?>"
-		onclick="parent.location = '<?php echo $ONESCRIPT.$param1.$params ?>'">
-
-	<input type="button" class="button" id="changepw" value="<?php echo hsc($_['pw_change']) ?>"
-		onclick="parent.location = '<?php echo $ONESCRIPT.$param1.'&amp;p=changepw' ?>'">
-
-	<input type="button" class="button" id="changeun" value="<?php echo hsc($_['un_change']) ?>"
-		onclick="parent.location = '<?php echo $ONESCRIPT.$param1.'&amp;p=changeun' ?>'">
-
-	<input type="button" class="button" id="hash"      value="<?php echo hsc($_['Generate_Hash']) ?>"
-		onclick="parent.location = '<?php echo $ONESCRIPT.$param1.'&amp;p=hash' ?>'">
-
-	<input type="button" class="button" id="editOFCMS" value="<?php echo hsc($_['Edit'].' '.$config_title) ?>"
-		onclick="parent.location = '<?php echo $ONESCRIPT.$edit_params ?>'">
+	<button type="button" class="button" id="cancel"    onclick="parent.location =
+		<?php echo "'".$ONESCRIPT.$param1.$params.'\'">'.hsc($_['Close']) ?></button>
+	<button type="button" class="button" id="changepw"  onclick="parent.location =
+		<?php echo "'".$ONESCRIPT.$param1.'&amp;p=changepw\'">'.hsc($_['pw_change']) ?></button>
+	<button type="button" class="button" id="changeun"  onclick="parent.location =
+		<?php echo "'".$ONESCRIPT.$param1.'&amp;p=changeun\'">'.hsc($_['un_change']) ?></button>
+	<button type="button" class="button" id="hash"      onclick="parent.location =
+		<?php echo "'".$ONESCRIPT.$param1.'&amp;p=hash\'">'.hsc($_['Generate_Hash']) ?></button>
+	<button type="button" class="button" id="editOFCMS" onclick="parent.location =
+		<?php echo "'".$ONESCRIPT.$edit_params.'\'">'.hsc($_['Edit'].' '.$config_title) ?></button>
 	</span>
 
 	<div class="info">
@@ -1581,37 +1583,30 @@ function List_File($file, $type, $f_or_f, $DS, $IS_OFCMS, $HREF_params, $param3)
 	if (in_array($type,$fclasses)) { $icon = $ICONS[$type];}
 	elseif ($type == 'dir')        { $icon = $ICONS['folder']; }
 	else                           { $icon = $ICONS['bin']; } //default
+
+	//File options & info
+	$ren_mov   = '<a href="'.$HREF_params.'&amp;p=rename'.$f_or_f.'" title="'.hsc($_['Ren_Move']).'">'.$ICONS['ren_mov'].'</a>';
+	$copy      = '<a href="'.$HREF_params.'&amp;p=copy'.$f_or_f.'"   title="'.hsc($_['Copy']).'"    >'.$ICONS['copy'].'</a>';
+	$delete    = '<a href="'.$HREF_params.'&amp;p=delete'.$f_or_f.'" title="'.hsc($_['Delete']).'"  >'.$ICONS['delete'].'</a>';
+	$checkbox  = '<div class="ckbox"><INPUT TYPE=checkbox NAME="files[]" VALUE="'.hsc($file).'"></div>';
+	$file_name = '<a href="'.$HREF_params.$param3.'"  title="'.hsc($_['Edit_View']).'">'.$icon.'&nbsp;'.hte($file).$DS.'</a>';
+	$file_size = number_format(filesize($ipath.$file)).' B';
+	$file_time = '<script>FileTimeStamp('.filemtime($ipath.$file).', 1, 0);</script>'; 
+
+	//For directories, don't show file size (which is always 0).
+	if (is_dir($ipath.$file)) { $file_size = ''; }
+
+	//If file is OneFileCMS, only show Copy - don't show Rename, Delete, or checkbox options.
+	if ($IS_OFCMS) { $ren_mov = $delete = $checkbox = ''; }
 ?>
 	<tr>
-		<td class="RCD"><?php 
-		if (!$IS_OFCMS){
-			echo '<a href="'.$HREF_params.'&amp;p=rename'.$f_or_f.'" title="'.hsc($_['Ren_Move']).'">'.$ICONS['ren_mov'].'</a>';
-		} ?>
-		</td>
-		<td class="RCD"><?php
-			echo '<a href="'.$HREF_params.'&amp;p=copy'.$f_or_f.'"   title="'.hsc($_['Copy']).'"    >'.$ICONS['copy'].'</a>' ?>
-		</td>
-		<td class="RCD"><?php 
-		if (!$IS_OFCMS){
-			echo '<a href="'.$HREF_params.'&amp;p=delete'.$f_or_f.'" title="'.hsc($_['Delete']).'"  >'.$ICONS['delete'].'</a>';
-		} ?>
-		</td>
-		<?php if (!$IS_OFCMS){
-			echo '<td class="ckbox"><INPUT TYPE=checkbox NAME="files[]" VALUE="'.hsc($file).'"></td>';
-		}else { echo '<td></td>'; }
-		?>
-		<td class="file_name"><?php
-			echo '<a href="'.$HREF_params.$param3.'"  title="'.hsc($_['Edit_View']).'">';
-			echo $icon.'&nbsp;'.hte($file).$DS.'</a>';
-		 ?></td>
-		<td class="meta_T file_size">&nbsp;<?php
-		if (!is_dir($ipath.$file)) { 
-			echo number_format(filesize($ipath.$file)).' B';
-		}?>
-		</td>
-		<td class="meta_T file_time"> &nbsp;
-			<script>FileTimeStamp(<?php echo filemtime($ipath.$file); ?>, 1, 0);</script>
-		</td>
+		<td class="RCD"><?php echo $ren_mov; ?></td>
+		<td class="RCD"><?php echo $copy;    ?></td>
+		<td class="RCD"><?php echo $delete;  ?></td>
+		<td class=""   ><?php echo $checkbox;?></td>
+		<td class="file_name"       ><?php echo $file_name; ?></td>
+		<td class="meta_T file_size"><?php echo $file_size; ?></td>
+		<td class="meta_T file_time"><?php echo $file_time; ?></td>
 	</tr>
 <?php
 }//end List_File() //***********************************************************
@@ -1710,7 +1705,10 @@ function Index_Page(){ //*******************************************************
 
 
 function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
-	global $_, $ONESCRIPT, $param1, $filename;
+	global $_, $ONESCRIPT, $param1, $filename, $WIDE_VIEW_WIDTH;
+
+	$attribs = 'type="button" id="wide_view" class="button" onclick="Wide_View();"';
+	$wide_view_button = '<button '.$attribs.'>'.hsc($_['Wide_View']).'</button>';
 
 	//For [Close] button: if came from admin page, return there.
 	$params = $param1;
@@ -1728,11 +1726,9 @@ function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
 		</div>
 		
 		<div class="buttons_right">
-		<?php if ($text_editable) { ?>
-			<input type="button" id="wide_view" class="button" value="<?php echo hsc($_['Wide_View']) ?>" onclick="Wide_View();">
-		<?php }?>
-			<input type="button" id="close1" class="button" value="<?php echo hsc($_['Close']) ?>"
-				onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
+			<?php if ($text_editable) { echo $wide_view_button; } ?>
+			<button type="button" id="close1" class="button" onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
+				<?php echo hsc($_['Close']) ?></button>
 			<script>document.getElementById('close1').focus();</script>
 		</div>
 		<div class=clear></div>
@@ -1744,32 +1740,27 @@ function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
 
 
 function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
-	global $_, $ONESCRIPT, $param1, $param2, $MAX_IDLE_TIME, $Editing_OFCMS;
-	$Button = '<input type="button" class="button" value="';
-	$ACTION = '" onclick="parent.location = \''.$ONESCRIPT.$param1.$param2.'&amp;p=';
+	global $_, $ICONS, $ONESCRIPT, $param1, $param2, $MAX_IDLE_TIME, $Editing_OFCMS;
 
-	//For [Close] button: if came from admin page, return there.
-	$params = $param1;
-	if ( $_SESSION['admin_page'] ) { $params .= '&amp;p=admin'; }
+	$save_disabled = 'document.getElementById("save_file").disabled = "disabled";';
+	$reset_button = '<input type="button" class="button" value="'.hsc($_['reset']).'" onclick="Reset_File()" id="reset">';
 ?>
 	<div class="edit_btns_bottom">
-	<?php if ($text_editable && !$too_large_to_edit) { //Show save & reset only if editable file ?>
-		<?php echo Timeout_Timer($MAX_IDLE_TIME, 'timer1','timer', 'LOGOUT');
-	  ?><input type="submit" class="button" value="Save"                           onclick="submitted = true;" id="save_file"><?php
-	  ?><input type="button" class="button" value="<?php echo hsc($_['reset']) ?>" onclick="Reset_File()"      id="reset">
-		<script>
-			//Set disabled with js instead of via input attribute in case js is disabled.
-			//Otherwise, if js is disabled, user would be unable to save changes.
-			document.getElementById('save_file').disabled = "disabled";
-			document.getElementById('reset').disabled     = "disabled";
-		</script>
-<?php }
-	//Don't show [Rename] or [Delete] if editing OneFileCMS itself.
+		<?php if ($text_editable && !$too_large_to_edit) { //Show save & reset only if editable file ?>
+			<?php echo Timeout_Timer($MAX_IDLE_TIME, 'timer1','timer', 'LOGOUT');
+			?><input type="submit" class="button" value="Save" onclick="submitted = true;" id="save_file"><?php
+			echo $reset_button;
+			?><script>
+				<?php echo $save_disabled ?>
+				document.getElementById('reset').disabled = "disabled";
+			</script><?php
+		}//end if editable
 
-	if (!$Editing_OFCMS) { echo $Button.hsc($_['Ren_Move']).$ACTION.'renamefile\'">'; }
-	echo                        $Button.hsc($_['Copy'])    .$ACTION.'copyfile\'">';
-	if (!$Editing_OFCMS) { echo $Button.hsc($_['Delete'])  .$ACTION.'deletefile\'" id="delete">'; }
-	echo                        $Button.hsc($_['Close']).'" onclick="parent.location = \''.$ONESCRIPT.$params.'\'">'
+		//Don't show [Rename] or [Delete] if editing OneFileCMS itself.
+		$Button = '<button type=button class="button RCD" onclick="parent.location=\''.$ONESCRIPT.$param1.$param2;	
+		if (!$Editing_OFCMS) { echo $Button.'&amp;p=renamefile\'">'.$ICONS['ren_mov'].hsc($_['Ren_Move']).'</button>'; }
+		/*Always show copy*/   echo $Button.'&amp;p=copyfile\'">'  .$ICONS['copy']   .hsc($_['Copy'])    .'</button>';
+		if (!$Editing_OFCMS) { echo $Button.'&amp;p=deletefile\'">'.$ICONS['delete'] .hsc($_['Delete'])  .'</button>'; }
 ?>
 	</div>
 <?php
@@ -1780,7 +1771,7 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
 
 //******************************************************************************
 function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message){
-	global $_, $ONESCRIPT, $param1, $param2, $param3, $filename, $itypes, $INPUT_NUONCE, $EX,  $raw_contents;
+	global $_, $ONESCRIPT, $param1, $param2, $param3, $filename, $itypes, $INPUT_NUONCE, $EX, $raw_contents;
 ?>
 	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$param1.$param2.$param3 ?>">
 		<?php echo $INPUT_NUONCE; ?>
@@ -2624,6 +2615,7 @@ function Edit_Page_scripts() { //***********************************************
 var File_textarea    = document.getElementById('file_contents');
 var Save_File_button = document.getElementById('save_file');
 var Reset_button     = document.getElementById('reset');
+var focus            = ''; //used by Save_File_button events
 
 if (File_textarea) { var start_value = File_textarea.value; }
 
@@ -2639,14 +2631,15 @@ var main_width_default = '<?php echo $MAIN_WIDTH ?>';
 // The following events only apply when the element is active.
 // [Save] is disabled unless there are changes to the open file.
 Save_File_button.onfocus = function()     { Save_File_button.style.backgroundColor = "rgb(255,250,150)";
-										    Save_File_button.style.borderColor = "#F00"; }
+										    Save_File_button.style.borderColor = "#F00"; focus='save'; }
 Save_File_button.onblur  = function()     { Save_File_button.style.backgroundColor ="#Fee";
-										    Save_File_button.style.borderColor = "#Faa"; }
+										    Save_File_button.style.borderColor = "#Faa"; focus=''; }
 Save_File_button.onmouseover = function() { Save_File_button.style.backgroundColor = "rgb(255,250,150)";
 										    Save_File_button.style.borderColor = "#F00"; }
-Save_File_button.onmouseout  = function() { Save_File_button.style.backgroundColor = "#Fee";
-										    Save_File_button.style.borderColor = "#Faa"; }
-
+Save_File_button.onmouseout  = function() { if (focus!='save') {
+												Save_File_button.style.backgroundColor = "#Fee";
+												Save_File_button.style.borderColor = "#Faa";
+											} }
 
 Main_div.style.width = "<?php echo $current_view ?>"; //Set current width
 
@@ -2803,7 +2796,7 @@ function events_up(event, capture_key) {if (!event) {var event = window.event;} 
 document.onmouseup = function(event) {if (!event) {var event = window.event;} //if IE
 	//if mousedown was on submit button, but mouseup wasn't, clear message.
 
-	var target = event.target || event.srcElement //= most brosers || IE
+	var target = event.target || event.srcElement; //target = most brosers || IE
 	if ($submitdown && ($submit_button.id != target.id) ) { $message_box.innerHTML = ''; } 
 	$submitdown = false;
 }
@@ -3098,8 +3091,8 @@ a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
 	background-color: #EEE;  /*#d4d4d4*/
 	}
 
-.button[disabled] { color: #777; background-color: #EEE; }
-.button:active    { background-color: rgb(245,245,50); }
+.button:active    { background-color: rgb(245,245,50); }                  /*first*/
+.button[disabled] { color: #777; background-color: #EEE; cursor: default} /*second - order matters*/
 
 
 /* --- header --- */
@@ -3254,7 +3247,10 @@ hr { /*-- -- -- -- -- -- --*/
 	}
 
 .edit_btns_bottom {float: right;}
-.edit_btns_bottom .button { margin-left: .5em; } /*Adjusted by langauge files*/
+.edit_btns_bottom .button { margin-left: .7em; } /*Adjusted by langauge files*/
+.edit_btns_bottom .RCD { padding-left: 5px; padding-right: 6px; }
+.edit_btns_bottom svg  { padding : 0 4px 0 0; }
+
 
 input[type="text"].old_new_name {width  : 50%; margin-bottom: .2em;}
 
@@ -3298,7 +3294,7 @@ function Language_and_config_adjusted_styles() { //*****************************
 .image_info { font-size: <?php echo $_['image_info_font_size'] ?>; }   /*Default 1em*/
 
 .edit_btns_bottom .button {
-	margin-left: <?php echo $_['button_margin_L'] ?>; /*Default .5em*/
+	margin-left: <?php echo $_['button_margin_L'] ?>; /*Default .7em*/
 	}
 	
 #select_all_label { font-size: <?php echo $_['select_all_label_size']?>; } /*Default .84em */

@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.15
+// OneFileCMS Language Settings v3.4.16
 
 $_['LANGUAGE'] = 'Deutsch';
 $_['LANG'] = 'DE';
@@ -18,9 +18,9 @@ $_['LANG'] = 'DE';
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
 $_['front_links_font_size']  = '0.9em';   //Buttons on Index page.
 $_['front_links_margin_L']   = '0.3em';
-$_['button_font_size']       = '.7em';    //Buttons on Edit page.
-$_['button_margin_L']        = '.5em';
-$_['button_padding']         = '4px 5px';
+$_['button_font_size']       = '0.8em';   //Buttons on Edit page.
+$_['button_margin_L']        = '0.7em';
+$_['button_padding']         = '4px 2px';
 $_['image_info_font_size']   = '.95em';   //show_img_msg_01  &  _02
 $_['image_info_pos']         = '1';       //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
@@ -82,7 +82,7 @@ $_['Generate_Hash']  = 'Streuwert generieren';
 
 $_['save_1']      = 'Speichern';
 $_['save_2']      = 'ÄNDERUNGEN SPEICHERN!';
-$_['reset']       = 'Zurücksetzen - Änderungen verwerfen';
+$_['reset']       = 'Zurücksetzen';
 $_['Wide_View']   = 'Breitenadaptierte Ansicht';
 $_['Normal_View'] = 'Normale Ansicht';
 $_['Open_View']   = 'Ansicht im Browser-Fenster';

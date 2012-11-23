@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.15
+// OneFileCMS Language Settings v3.4.16
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -82,7 +82,7 @@ $_['Generate_Hash']  = 'Generate Hash';
 
 $_['save_1']      = 'Save';
 $_['save_2']      = 'SAVE CHANGES!';
-$_['reset']       = 'Reset - loose changes';
+$_['reset']       = 'Reset';
 $_['Wide_View']   = 'Wide View';
 $_['Normal_View'] = 'Normal View';
 $_['Open_View']   = 'Open/View in browser window';
