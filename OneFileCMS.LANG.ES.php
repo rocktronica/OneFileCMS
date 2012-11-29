@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.16
+// OneFileCMS Language Settings v3.4.17
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -25,6 +25,9 @@ $_['image_info_font_size']   = '.95em';   //show_img_msg_01  &  _02
 $_['image_info_pos']         = ' ';       //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '110px';   //Width of space for $_['Select_All']
+
+$_['HTML']    = 'HTML';    //## NT ##
+$_['WYSIWYG'] = 'WYSIWYG'; //## NT ##
 
 $_['Admin']   = 'Administrador';
 $_['bytes']   = 'bytes';
@@ -160,6 +163,8 @@ $_['upload_err_05'] = 'Error 5: ';
 $_['upload_err_06'] = 'Error 6: Carpeta temporal no encontrada.';
 $_['upload_err_07'] = 'Error 7: No se pudo guardar el archivo en el disco.';
 $_['upload_err_08'] = 'Error 8: Una extensión de PHP detuvo la subida del archivo.';
+$_['upload_error_01a'] = 'Eror de subida.  Total de datos POST (mayormente el peso del archivo) excedido post_max_size =';
+$_['upload_error_01b'] = '(desde php.ini)';
 
 $_['upload_msg_02'] = 'La carpeta de destino no existe: ';
 $_['upload_msg_03'] = 'Subida cancelada.';
@@ -188,14 +193,11 @@ $_['session_warning'] = 'Advertencia: ¡La sesión terminará pronto!';
 $_['session_expired'] = 'SESIÓN TERMINADA';
 $_['unload_unsaved']  = '                 ¡Los cambios no guardados se perderán!';
 $_['confirm_reset']   = '¿Reiniciar el archivo y descartar cambios no guardados?';
-
-$_['OFCMS_requires']   = 'OneFileCMS necesita PHP';
-$_['logout_msg']       = 'Has cerrado la sesión satisfactoriamente.';
-$_['upload_error_01a'] = 'Eror de subida.  Total de datos POST (mayormente el peso del archivo) excedido post_max_size =';
-$_['upload_error_01b'] = '(desde php.ini)';
-$_['edit_caution_01']  = 'PRECAUCIÓN';
-$_['edit_caution_02']  = 'Estás editando la copia activa de OneFileCMS - ¡HACÉ UNA COPIA DE SEGURIDAD Y TENÉ CUIDADO!';
-$_['time_out_txt']     = 'Tiempo de Espera de Sesión Agotado:';
+$_['OFCMS_requires']  = 'OneFileCMS necesita PHP';
+$_['logout_msg']      = 'Has cerrado la sesión satisfactoriamente.';
+$_['edit_caution_01'] = 'PRECAUCIÓN';
+$_['edit_caution_02'] = 'Estás editando la copia activa de OneFileCMS - ¡HACÉ UNA COPIA DE SEGURIDAD Y TENÉ CUIDADO!';
+$_['time_out_txt']    = 'Tiempo de Espera de Sesión Agotado:';
 
 $_['error_reporting_01'] = 'Display errors is'; //## NT ##
 $_['error_reporting_02'] = 'Log errors is'; //## NT ##

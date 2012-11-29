@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.16
+// OneFileCMS Language Settings v3.4.17
 
 $_['LANGUAGE'] = 'Deutsch';
 $_['LANG'] = 'DE';
@@ -25,6 +25,9 @@ $_['image_info_font_size']   = '.95em';   //show_img_msg_01  &  _02
 $_['image_info_pos']         = '1';       //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '76px';    //Width of space for $_['Select_All']
+
+$_['HTML']    = 'HTML';    //## NT ##
+$_['WYSIWYG'] = 'WYSIWYG'; //## NT ##
 
 $_['Admin']   = 'Konfiguration';
 $_['bytes']   = 'bytes';
@@ -160,6 +163,8 @@ $_['upload_err_05'] = 'Fehler 5:';
 $_['upload_err_06'] = 'Fehler 6: Konnte kein temporäres Verzeichnis finden.';
 $_['upload_err_07'] = 'Fehler 7: Die Datei konnte nicht gespeichert werden.';
 $_['upload_err_08'] = 'Fehler 8: Eine PHP-Erweiterung hat das Heraufladen der Datei gestoppt.';
+$_['upload_error_01a'] = ' Fehler beim Heraufladen.  Die Gesamtmenge and heraufgeladenen Daten (in Hauptsache die Datei) überschreitet die post_max_size = ';
+$_['upload_error_01b'] = ' (der php.ini)';
 
 $_['upload_msg_02'] = 'Der Zielordner existiert nicht: ';
 $_['upload_msg_03'] = 'Das Heraufladen wurde abgebrochen.';
@@ -188,14 +193,11 @@ $_['session_warning'] = 'Achtung: Die sitzung wird ende bald!';
 $_['session_expired'] = 'SITZUNG ABGELAUFEN';
 $_['unload_unsaved']  = '               Nicht gespeicherte Änderungen gehen verloren!';
 $_['confirm_reset']   = 'Soll der Inhalt der Datei zurückgesetzt werden (Änderungen gehen verloren)?';
-
-$_['OFCMS_requires']   = 'OneFileCMS erfordert PHP';
-$_['logout_msg']       = 'Sie wurden erfolgreich abgemeldet.';
-$_['upload_error_01a'] = ' Fehler beim Heraufladen.  Die Gesamtmenge and heraufgeladenen Daten (in Hauptsache die Datei) überschreitet die post_max_size = ';
-$_['upload_error_01b'] = ' (der php.ini)';
-$_['edit_caution_01']  = 'ACHTUNG ';
-$_['edit_caution_02']  = ' Sie bearbeiten gerade die aktive Version von OneFileCMS - Sichern Sie den Code und seien Sie vorsichtig !!';
-$_['time_out_txt']     = 'Automatischer Sitzungsstopp in:';
+$_['OFCMS_requires']  = 'OneFileCMS erfordert PHP';
+$_['logout_msg']      = 'Sie wurden erfolgreich abgemeldet.';
+$_['edit_caution_01'] = 'ACHTUNG ';
+$_['edit_caution_02'] = ' Sie bearbeiten gerade die aktive Version von OneFileCMS - Sichern Sie den Code und seien Sie vorsichtig !!';
+$_['time_out_txt']    = 'Automatischer Sitzungsstopp in:';
 
 $_['error_reporting_01'] = 'Anzeigen von Fehlern ist';
 $_['error_reporting_02'] = 'Loggen von Fehlern ist';

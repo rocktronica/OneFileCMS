@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.16';
+$OFCMS_version = '3.4.17';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -91,10 +91,10 @@ $MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;  //In seconds.
 $MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings (like gc) may limit its max effective value.
 
-$MAIN_WIDTH    = '800px'; //Width of main <div> defining page layout.          Can be px, pt, em, or %.  Assumes px otherwise.
+$MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.          Can be px, pt, em, or %.  Assumes px otherwise.
 $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked.  Can be px, pt, em, or %.  Assumes px otherwise.
 				
-$MAX_IMG_W   = 800;  //Max width to display images. (main width is 800)
+$MAX_IMG_W   = 810;  //Max width to display images. (main width is 810)
 $MAX_IMG_H   = 1000; //Max height.  I don't know, it just looks reasonable.
 
 $MAX_EDIT_SIZE = 150000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
@@ -115,8 +115,8 @@ $config_stypes = "*"; // Shown types; only files of the given types should show 
 
 $config_itypes = "jpg,gif,png,bmp,ico"; //image types to display on edit page.
 // _ftypes & _fclass must have the same number of values. bin is default.
-$config_ftypes = "bin,z,gz,7z,zip,jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,pl ,ini,cfg,conf,log,asp,js ,htm,html,dtd,htaccess,markdown";
-$config_fclass = "bin,z,z ,z ,z  ,img,img,img,img,img,svg,txt,txt,css,php,txt,txt,cfg,cfg ,txt,txt,txt,htm,htm ,txt,txt,txt";
+$config_ftypes = "bin,z,gz,7z,zip,jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,pl ,ini,cfg,conf,log,asp,js ,htm,html,dtd,htaccess,markdown,md";
+$config_fclass = "bin,z,z ,z ,z  ,img,img,img,img,img,svg,txt,txt,css,php,txt,txt,cfg,cfg ,txt,txt,txt,htm,htm ,txt,txt     ,txt     ,txt";
 
 $EX = '<b>( ! )</b> '; //EXclaimation point "icon" Used in $message's
 
@@ -124,14 +124,18 @@ $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copi
 
 $ACCESS_ROOT = ''; //Restrict access to a particular folder.  Leave empty for $WEB_ROOT (entire website).
 
+//Optional external wysiwyg editor. Paths are relative to OneFileCMS.
+$WYSIWYG_PLUGIN = 'plugins/tinymce_init.php';                      //Init settings.
+$WYSIWYG_SOURCE = 'plugins/tinymce/jscripts/tiny_mce/tiny_mce.js'; //used in $WYSIWYG_PLUGIN
+//$WYSIWYG_PLUGIN = 'plugins/ckeditor_init.php';     //Init settings
+//$WYSIWYG_SOURCE = 'plugins/ckeditor/ckeditor.js';  //used in $WYSIWYG_PLUGIN
+
 //External config file, if there is one.  Any settings in the $config_file will supersede those above.
 //$config_file = 'OFCMS_config.SAMPLE.php';  // Path is relative to OneFileCMS.
 	//Format for external config file is basic php:
 	// < ? php                    //(without the spaces around the ?, of course)
 	// $option1 = "value";
 	// etc...
-
-
 //end CONFIGURABLE INFO ********************************************************
 
 
@@ -144,9 +148,10 @@ $ACCESS_ROOT = ''; //Restrict access to a particular folder.  Leave empty for $W
 if ( isset($config_file) && is_file($config_file) ) { include($config_file); }
 else { $config_file = ''; } //If not found, clear it.
 
-
-
-
+//If specified, validate $WYSIWYG_PLUGIN & _SOURCE. Actual include is at end of OneFileCMS.
+$WYSIWYG_VALID = 0;
+if ( isset($WYSIWYG_PLUGIN) && is_file($WYSIWYG_PLUGIN) &&
+	 isset($WYSIWYG_SOURCE) && is_file($WYSIWYG_SOURCE) ) { $WYSIWYG_VALID = 1; }
 
 //Requires PHP 5.1, due to changes in some functions.
 //Earliest version the author has for testing is 5.2.8 (50208)
@@ -231,7 +236,7 @@ function hte($input) { return htmlentities($input, ENT_QUOTES, 'UTF-8'); }//end 
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.4.16
+// OneFileCMS Language Settings v3.4.17
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -252,11 +257,13 @@ $_['front_links_font_size']  = '1.0em';   //Buttons on Index page.
 $_['front_links_margin_L']   = '1.0em';
 $_['button_font_size']       = '0.9em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
-$_['button_padding']         = '4px 10px';
+$_['button_padding']         = '4px 7px';
 $_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All']
+$_['HTML']    = 'HTML';    //####
+$_['WYSIWYG'] = 'WYSIWYG'; //####
 $_['Admin']   = 'Admin';
 $_['bytes']   = 'bytes';   //####
 $_['Cancel']  = 'Cancel';
@@ -379,6 +386,8 @@ $_['upload_err_05'] = 'Error 5:';
 $_['upload_err_06'] = 'Error 6: Missing a temporary folder.';
 $_['upload_err_07'] = 'Error 7: Failed to write file to disk.';
 $_['upload_err_08'] = 'Error 8: A PHP extension stopped the file upload.';
+$_['upload_error_01a'] = 'Upload Error. Total POST data (mostly filesize) exceeded post_max_size =';
+$_['upload_error_01b'] = '(from php.ini)';
 $_['upload_msg_02'] = 'Destination folder invalid:';
 $_['upload_msg_03'] = 'Upload cancelled.';
 $_['upload_msg_04'] = 'Uploading:';
@@ -403,13 +412,11 @@ $_['session_warning'] = 'Warning: Session timeout soon!';
 $_['session_expired'] = 'SESSION EXPIRED';
 $_['unload_unsaved']  = ' Unsaved changes will be lost!';
 $_['confirm_reset']   = 'Reset file and loose unsaved changes?';
-$_['OFCMS_requires']   = 'OneFileCMS requires PHP';
-$_['logout_msg']       = 'You have successfully logged out.';
-$_['upload_error_01a'] = 'Upload Error. Total POST data (mostly filesize) exceeded post_max_size =';
-$_['upload_error_01b'] = '(from php.ini)';
-$_['edit_caution_01']  = 'CAUTION';
-$_['edit_caution_02']  = 'You are editing the active copy of OneFileCMS - BACK IT UP & BE CAREFUL !!';
-$_['time_out_txt']     = 'Session time out in:';
+$_['OFCMS_requires']  = 'OneFileCMS requires PHP';
+$_['logout_msg']      = 'You have successfully logged out.';
+$_['edit_caution_01'] = 'CAUTION';
+$_['edit_caution_02'] = 'You are editing the active copy of OneFileCMS - BACK IT UP & BE CAREFUL !!';
+$_['time_out_txt']    = 'Session time out in:';
 $_['error_reporting_01'] = 'Display errors is';
 $_['error_reporting_02'] = 'Log errors is';
 $_['error_reporting_03'] = 'Error reporting is set to';
@@ -1120,11 +1127,11 @@ function Init_ICONS() { //******************************************************
 
 	function icon_folder($extra = ""){ //**********************************
 		return '<svg class="icon" version="1.1" width="18" height="16"><g transform="translate(0,1)">'.
-			'<path  d="M0.5, 1  L8,1  L9,2  L9,3  L16.5,3  L17,3.5  L17,13.5  L.5,13.5  L.5,.5"'.
+			'<path  d="M0.5, 1  L8,1  L9,2  L9,3  L16.5,3  L17,3.5  L17,13.5  L.5,13.5  L.5,.5" '.
 				'fill="#F0CD28" stroke="rgb(200,170,15)" stroke-width="1" />'.
-			'<path  d="M1.5, 8  L7, 8  L8.5,6.3  L16,6.3  L7.5, 6.3   L6.5,7.5  L1.5,7.5"'.
+			'<path  d="M1.5, 8  L7, 8  L8.5,6.3  L16,6.3  L7.5, 6.3   L6.5,7.5  L1.5,7.5" '.
 				'fill="transparent" stroke="white" stroke-width="1" />'.
-			'<path  d="M1.5,13  L1.5,2  L7.5,2  L8.5,3  L8.5,4  L15.5,4 L16,4.5  L16,13"'.
+			'<path  d="M1.5,13  L1.5,2  L7.5,2  L8.5,3  L8.5,4  L15.5,4 L16,4.5  L16,13" '.
 				'fill="transparent" stroke="white" stroke-width="1" />'.
 			$extra.'</g></svg>';
 	}//end icon_folder() //************************************************
@@ -1531,9 +1538,9 @@ function Login_response() { //**************************************************
 	$attempts = 0;
 	$elapsed  = 0;
 
-	//Check for prior failed attempts
+	//Check for prior login attempts (but don't increment count just yet)
 	if (is_file($LOGIN_ATTEMPTS)) {
-		$attempts = (int)file_get_contents($LOGIN_ATTEMPTS); //Don't increment yet...
+		$attempts = (int)file_get_contents($LOGIN_ATTEMPTS);
 		$elapsed  = time() - filemtime($LOGIN_ATTEMPTS);
 	}
 	if ($attempts > 0) { $message .= '<b>'.hsc($_['login_msg_01a']).' '.$attempts.' '.hsc($_['login_msg_01b']).'</b><br>'; }
@@ -1549,18 +1556,17 @@ function Login_response() { //**************************************************
 	$_POST['password'] = trim($_POST['password']);
 	$_POST['username'] = trim($_POST['username']);
 
-	//Validate password.
-	$VALID_PASSWORD = (hashit($_POST['password']) == $HASHWORD);
-
 	//validate login.
 	if ( ($_POST['password'] == "") || ($_POST['username'] == "") )  {
 		return; //Ignore login attempt if either username or password is blank.
-	}elseif ( $VALID_PASSWORD && ($_POST['username'] == $USERNAME) ) {
+		
+	}elseif ( (hashit($_POST['password']) == $HASHWORD) && ($_POST['username'] == $USERNAME) ) {
 		session_regenerate_id(true);
 		$_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT']; //for user consistancy check.
 		$_SESSION['valid'] = 1;
 		$page = "index";
 		if ( is_file($LOGIN_ATTEMPTS) ) { unlink($LOGIN_ATTEMPTS); } //delete invalid attempts count file
+		
 	}else{
 		file_put_contents($LOGIN_ATTEMPTS, ++$attempts); //increment attempts
 		$message  = $EX.'<b>'.hsc($_['login_msg_03']).$attempts.'</b><br>';
@@ -1705,14 +1711,30 @@ function Index_Page(){ //*******************************************************
 
 
 function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
-	global $_, $ONESCRIPT, $param1, $filename, $WIDE_VIEW_WIDTH;
+	global $_, $ONESCRIPT, $param1, $param2, $filename, $WIDE_VIEW_WIDTH, $WYSIWYG_VALID, $EDIT_MODE, $ON_OFF_label;
 
-	$attribs = 'type="button" id="wide_view" class="button" onclick="Wide_View();"';
-	$wide_view_button = '<button '.$attribs.'>'.hsc($_['Wide_View']).'</button>';
+	//[Edit WYSIWYG] / [Edit HTML] button.
+	$ON_OFF_button    = '';
+	if ($text_editable && $WYSIWYG_VALID) {
+		$set_cookie = "document.cookie='edit_mode=".(!$EDIT_MODE*1)."'; ";
+		$edit_page  = "parent.location='".$ONESCRIPT.$param1.$param2."&p=edit';";
+		$attribs    = 'type=button class=button id=on_off onclick="'.$set_cookie.$edit_page.'"';
+		$ON_OFF_button = '<button '.$attribs.'>'.$_['Edit'].' '.hte($ON_OFF_label).'</button>';
+	}
 
-	//For [Close] button: if came from admin page, return there.
-	$params = $param1;
+	//[Wide View] / [Normal View] button.
+	$wide_view_button = '';  //Doesn't work with wysiwyg loaded (onclick conflict?).
+	if ($text_editable && !$EDIT_MODE) { 
+		$attribs = 'type="button" id="wide_view" class="button" onclick="Wide_View();"';
+		$wide_view_button = '<button '.$attribs.'>'.hsc($_['Wide_View']).'</button>';
+	}
+
+	//[Close] button
+	$params = $param1; //If came from admin page, return there.
 	if ( $_SESSION['admin_page'] ) { $params .= '&amp;p=admin'; }
+	$onclick = 'onclick="parent.location = \''.$ONESCRIPT.$params.'\'"';
+	$attribs = 'type="button" id="close1" class="button" '.$onclick;
+	$close_button = '<button '.$attribs.'>'.hsc($_['Close']).'</button>';
 ?>
 	<div class="edit_btns_top">
 		<div class="file_meta">
@@ -1726,9 +1748,9 @@ function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
 		</div>
 		
 		<div class="buttons_right">
-			<?php if ($text_editable) { echo $wide_view_button; } ?>
-			<button type="button" id="close1" class="button" onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
-				<?php echo hsc($_['Close']) ?></button>
+			<?php echo $wide_view_button; ?>
+			<?php echo $ON_OFF_button; ?>
+			<?php echo $close_button; ?>			
 			<script>document.getElementById('close1').focus();</script>
 		</div>
 		<div class=clear></div>
@@ -1740,26 +1762,36 @@ function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
 
 
 function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
-	global $_, $ICONS, $ONESCRIPT, $param1, $param2, $MAX_IDLE_TIME, $Editing_OFCMS;
+	global $_, $ICONS, $ONESCRIPT, $param1, $param2, $MAX_IDLE_TIME, $Editing_OFCMS, $WYSIWYG_VALID,  $EDIT_MODE;
 
-	$save_disabled = 'document.getElementById("save_file").disabled = "disabled";';
-	$reset_button = '<input type="button" class="button" value="'.hsc($_['reset']).'" onclick="Reset_File()" id="reset">';
+	$disabled = 'disabled';
+	$reset_onlick = 'Reset_File()'; //Reset_File() is in Edit_Page_scripts();
+
+	//If using a WYSIWYG editor, Edit_Page_scripts() aren't loaded.
+	//When so, make sure [Save] & [Reset] are enabled, and [Reset] works.
+	if ($WYSIWYG_VALID && $EDIT_MODE) {
+		$disabled = ''; 
+		$reset_onlick = "confirm('".addslashes($_['confirm_reset'])."')"; 
+	}
+
+	$reset_button = '<input type="reset" class="button" value="'.hsc($_['reset']).'" onclick="return '.$reset_onlick.'" id="reset">';
 ?>
 	<div class="edit_btns_bottom">
-		<?php if ($text_editable && !$too_large_to_edit) { //Show save & reset only if editable file ?>
-			<?php echo Timeout_Timer($MAX_IDLE_TIME, 'timer1','timer', 'LOGOUT');
-			?><input type="submit" class="button" value="Save" onclick="submitted = true;" id="save_file"><?php
+		<?php
+		if ($text_editable && !$too_large_to_edit) { //Show save & reset only if editable file
+			echo Timeout_Timer($MAX_IDLE_TIME, 'timer1','timer', 'LOGOUT');
+			echo '<button type="submit" class="button" onclick="submitted = true;" id="save_file">'.$_['save_1'].'</button>';
 			echo $reset_button;
 			?><script>
-				<?php echo $save_disabled ?>
-				document.getElementById('reset').disabled = "disabled";
+				document.getElementById("save_file").disabled = "<?php echo $disabled ?>";
+				document.getElementById('reset').disabled     = "<?php echo $disabled ?>";
 			</script><?php
 		}//end if editable
-
+		
 		//Don't show [Rename] or [Delete] if editing OneFileCMS itself.
 		$Button = '<button type=button class="button RCD" onclick="parent.location=\''.$ONESCRIPT.$param1.$param2;	
 		if (!$Editing_OFCMS) { echo $Button.'&amp;p=renamefile\'">'.$ICONS['ren_mov'].hsc($_['Ren_Move']).'</button>'; }
-		/*Always show copy*/   echo $Button.'&amp;p=copyfile\'">'  .$ICONS['copy']   .hsc($_['Copy'])    .'</button>';
+		/*Always show Copy*/   echo $Button.'&amp;p=copyfile\'">'  .$ICONS['copy']   .hsc($_['Copy'])    .'</button>';
 		if (!$Editing_OFCMS) { echo $Button.'&amp;p=deletefile\'">'.$ICONS['delete'] .hsc($_['Delete'])  .'</button>'; }
 ?>
 	</div>
@@ -1770,12 +1802,18 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
 
 
 //******************************************************************************
-function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message){
-	global $_, $ONESCRIPT, $param1, $param2, $param3, $filename, $itypes, $INPUT_NUONCE, $EX, $raw_contents;
+function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message, $file_ENC){
+	global $_, $ONESCRIPT, $param1, $param2, $param3, $filename, $itypes, $INPUT_NUONCE, $EX, 
+		   $raw_contents, $WYSIWYG_VALID, $EDIT_MODE;
+	
+	$load_Edit_Page_scripts = false; //Don't load if not needed.
 ?>
 	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$param1.$param2.$param3 ?>">
-		<?php echo $INPUT_NUONCE; ?>
 <?php
+		echo $INPUT_NUONCE;
+
+		Edit_Page_buttons_top($text_editable, $file_ENC);
+		
 		if ( !in_array( strtolower($ext), $itypes) ) { //If non-image...
 				
 			if (!$text_editable) { // If non-text file...
@@ -1785,7 +1823,10 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
  				echo '<p class="edit_disabled">'.$too_large_to_edit_message.'</p>';
 				
 			}else{
-				if (PHP_VERSION_ID  < 50400) {  // 5.4.0
+				//Load Edit_Page_scripts() only if not in wysiwyg mode.
+				$load_Edit_Page_scripts = ( !$WYSIWYG_VALID || !$EDIT_MODE );
+				
+				if (PHP_VERSION_ID < 50400) { // 5.4.0
 					$filecontents = hsc($raw_contents);
 				}else{
 					$filecontents = htmlspecialchars($raw_contents,ENT_SUBSTITUTE | ENT_QUOTES, 'UTF-8');
@@ -1800,7 +1841,7 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 					echo hsc($_['edit_txt_04']).'<br></pre>';
 				}else{
 					echo '<input type="hidden" name="filename" value="'.hsc($filename).'">';
-					echo '<textarea id="file_contents" name="contents" cols="70" rows="25"';
+					echo '<textarea id="file_editor" name="contents" cols="70" rows="25" ';
 					echo 'onkeyup="Check_for_changes(event);">'.$filecontents.'</textarea>'.PHP_EOL;
 				}
 			}//end if/else non-text file...
@@ -1808,7 +1849,8 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 		
 		Edit_Page_buttons($text_editable, $too_large_to_edit);
 		
-		Edit_Page_scripts();
+		//The Edit_Page_scripts() don't work when TinyMCE is loaded.
+		if ( $load_Edit_Page_scripts ) { Edit_Page_scripts(); }
 ?>	</form>
 <?php
 	if ($text_editable && !$too_large_to_edit && !$bad_chars) { Edit_Page_Notes(); }
@@ -1842,7 +1884,7 @@ function Edit_Page_Notes() { //*************************************************
 
 
 function Edit_Page() { //*******************************************************
-	global $_, $filename, $filecontents, $raw_contents, $etypes, $itypes, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE;
+	global $_, $filename, $filecontents, $raw_contents, $etypes, $itypes, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $WYSIWYG_VALID;
 	clearstatcache ();
 
 	//Determine if a text editable file type
@@ -1853,6 +1895,9 @@ function Edit_Page() { //*******************************************************
 	
 	$too_large_to_edit = (filesize($filename) > $MAX_EDIT_SIZE);
 	$too_large_to_view = (filesize($filename) > $MAX_VIEW_SIZE);
+	
+	//Don't load $WYSIWYG_PLUGIN if not needed
+	if (!$text_editable || $too_large_to_edit) {$WYSIWYG_VALID = 0;}
 
 	if ($text_editable && !$too_large_to_view) {
 		$raw_contents = file_get_contents($filename);
@@ -1881,9 +1926,7 @@ function Edit_Page() { //*******************************************************
 	echo hte(basename($filename)).'</a>';
 	echo '</h2>'.PHP_EOL;
 
-	Edit_Page_buttons_top($text_editable, $file_ENC);
-
-	Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message);
+	Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message, $file_ENC);
 	
 	if ( in_array( $ext, $itypes) ) { show_image(); }
 
@@ -1944,9 +1987,9 @@ function Upload_Page() { //*****************************************************
 		echo $INPUT_NUONCE;
 		
 		echo '<div class="action"><LABEL>'.hsc($_['upload_txt_05']).'</LABEL></div>';
-		echo '<div class="action">'; //So <LABEL>'s wrap w/o word breaks if $MAIN_WIDTH is narrow.
-			echo '<LABEL><INPUT TYPE=radio NAME=ifexists VALUE=rename checked> '.hsc($_['upload_txt_06']).'</LABEL>';
-			echo '<LABEL><INPUT TYPE=radio NAME=ifexists VALUE=overwrite     > '.hsc($_['upload_txt_07']).'</LABEL> ';
+		echo '<div class="ren_over">'; //So <LABEL>'s wrap w/o word breaks if $MAIN_WIDTH is narrow.
+			echo '<label><INPUT TYPE=radio NAME=ifexists VALUE=rename checked> '.hsc($_['upload_txt_06']).'</label>';
+			echo '<label><INPUT TYPE=radio NAME=ifexists VALUE=overwrite     > '.hsc($_['upload_txt_07']).'</label>';
 		echo '</div>';
 		
 		echo '<input type="hidden" name="upload_destination" value="'.hsc($ipath).'" ><p>';
@@ -2612,7 +2655,7 @@ function Edit_Page_scripts() { //***********************************************
 <!--======== Provide feedback re: unsaved changes ========-->
 <script>
 
-var File_textarea    = document.getElementById('file_contents');
+var File_textarea    = document.getElementById('file_editor');
 var Save_File_button = document.getElementById('save_file');
 var Reset_button     = document.getElementById('reset');
 var focus            = ''; //used by Save_File_button events
@@ -2644,7 +2687,7 @@ Save_File_button.onmouseout  = function() { if (focus!='save') {
 Main_div.style.width = "<?php echo $current_view ?>"; //Set current width
 
 if ( Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>' ) {
-	Wide_View_button.value = '<?php echo addslashes($_['Normal_View']) ?>';
+	Wide_View_button.innerHTML = '<?php echo addslashes($_['Normal_View']) ?>';
 }
 
 
@@ -2653,11 +2696,11 @@ function Wide_View() {
 	
 	if (Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>') {
 		Main_div.style.width = main_width_default;
-		Wide_View_button.value = "<?php echo addslashes($_['Wide_View'])?>";
+		Wide_View_button.innerHTML = "<?php echo addslashes($_['Wide_View'])?>";
 		document.cookie = 'edit_view=' + main_width_default;
 	}else{
 		Main_div.style.width = '<?php echo $WIDE_VIEW_WIDTH ?>';
-		Wide_View_button.value = '<?php echo addslashes($_['Normal_View']) ?>';
+		Wide_View_button.innerHTML = '<?php echo addslashes($_['Normal_View']) ?>';
 		document.cookie = 'edit_view=<?php echo $WIDE_VIEW_WIDTH ?>';
 	}
 }
@@ -2670,7 +2713,7 @@ function Reset_file_status_indicators() {
 	Save_File_button.style.borderColor = "";
 	Save_File_button.style.borderWidth = "1px";
 	Save_File_button.disabled = "disabled";
-	Save_File_button.value = "<?php echo addslashes($_['save_1'])?>";
+	Save_File_button.innerHTML = "<?php echo addslashes($_['save_1'])?>";
 	Reset_button.disabled = "disabled";
 }
 
@@ -2712,14 +2755,14 @@ function Check_for_changes(event){
 	var keycode=event.keyCode? event.keyCode : event.charCode;
 	changed = (File_textarea.value != start_value);
 	if (changed){
-		document.getElementById('message_box').innerHTML = " "; // Must have a space, or it won't clear the msg.
+		document.getElementById('message_box').innerHTML = " "; //Must have a space, or it won't clear the msg.
 		File_textarea.style.backgroundColor    = "#Fee";//light red
 		Save_File_button.style.backgroundColor ="#Fee";
 		Save_File_button.style.borderColor = "#Faa";  //less light red
 		Save_File_button.style.borderWidth = "1px";
 		Save_File_button.disabled = "";
 		Reset_button.disabled = "";
-		Save_File_button.value = "<?php echo addslashes($_['save_2'])?>";
+		Save_File_button.innerHTML = "<?php echo addslashes($_['save_2'])?>";
 	}else{
 		Reset_file_status_indicators()
 	}
@@ -2732,7 +2775,7 @@ function Check_for_changes(event){
 //the text stays changed, but "changed" gets set to false, which looses warning.
 function Reset_File() {
 	if (changed) {
-		if ( !(confirm("<?php echo addslashes($_['confirm_reset']) ?>")) ) { return; }
+		if ( !(confirm("<?php echo addslashes($_['confirm_reset']) ?>")) ) { return false; }
 	}
 	File_textarea.value = start_value;
 	Reset_file_status_indicators();
@@ -2930,7 +2973,7 @@ button:active { background-color: rgb(245,245,50);  }
 
 .container {
 	border : 0px solid #807568;
-	width  : 800px;     /*Adjusted by $MAIN_WIDTH config variable*/
+	width  : 810px;     /*Adjusted by $MAIN_WIDTH config variable*/
 	margin : 0 auto 2em auto;
 	}
 
@@ -3091,7 +3134,7 @@ a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
 	background-color: #EEE;  /*#d4d4d4*/
 	}
 
-.button:active    { background-color: rgb(245,245,50); }                  /*first*/
+.button:active    { background-color: rgb(245,245,50); }                  /*first                 */
 .button[disabled] { color: #777; background-color: #EEE; cursor: default} /*second - order matters*/
 
 
@@ -3137,7 +3180,7 @@ a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
 
 .view_file { font: .9em Courier; background-color: #F8F8F8; overflow:hidden}
 
-#file_contents {
+#file_editor {
 	border: 1px solid #999;
 	font  : .9em Courier;
 	margin: 0 0 .7em 0;
@@ -3145,7 +3188,7 @@ a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
 	height: 32em;
 	}
 
-#file_contents:focus { border: 1px solid #Fdd; }
+#file_editor:focus { border: 1px solid #Fdd; }
 
 .file_meta	{ float: left; margin-top: .6em; font-size: .95em; color: #222; }
 
@@ -3251,7 +3294,6 @@ hr { /*-- -- -- -- -- -- --*/
 .edit_btns_bottom .RCD { padding-left: 5px; padding-right: 6px; }
 .edit_btns_bottom svg  { padding : 0 4px 0 0; }
 
-
 input[type="text"].old_new_name {width  : 50%; margin-bottom: .2em;}
 
 .old_backup_T {float: left; margin-bottom: .3em;}
@@ -3264,8 +3306,10 @@ input[type="text"].old_new_name {width  : 50%; margin-bottom: .2em;}
 .C    {color: #006400; border: 1px solid #008400}
 .D    {color: #b00;    border: 1px solid #b00}
 
-.action       {display: inline-block}
-.action label {margin: 0 2em 0 0}
+.action   {display: inline-block}
+.ren_over {display: inline-block}
+.ren_over input {margin: 0 0 0 2em}
+.ren_over label {font-weight: normal}
 </style>
 <?php
 }//end style_sheet() //*********************************************************
@@ -3277,7 +3321,7 @@ function Language_and_config_adjusted_styles() { //*****************************
 	global $_, $MAIN_WIDTH;
 ?>
 <style>
-.container { width: <?php echo $MAIN_WIDTH ?>; } /*Default 800px*/
+.container { width: <?php echo $MAIN_WIDTH ?>; } /*Default 810px*/
 
 .button {
 	padding  : <?php echo $_['button_padding']   ?>; /*Default 4px 10px */
@@ -3328,6 +3372,11 @@ if (!isset($_SESSION['admin_page'])) {
 }
 
 if ($_SESSION['valid']) {
+
+	//Set current $EDIT_MODE & text for Edit page [Edit WYSIWIG/HTML] button
+	if ( $WYSIWYG_VALID && isset($_COOKIE['edit_mode']) && ($_COOKIE['edit_mode'] == '1')) {
+		   $EDIT_MODE = '1'; $ON_OFF_label = $_['HTML']; }
+	else { $EDIT_MODE = '0'; $ON_OFF_label = $_['WYSIWYG']; }
 
 	Init_ICONS();
 
@@ -3408,3 +3457,5 @@ if ($_SESSION['valid']) {
 
 echo '</div>'; //end container/login_page
 echo '</body></html>';
+
+if ( ($page == "edit") && $WYSIWYG_VALID && ($EDIT_MODE == 1) ) { include($WYSIWYG_PLUGIN); }

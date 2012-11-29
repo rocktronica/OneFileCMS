@@ -1,9 +1,9 @@
 <?php 
-// OneFileCMS sample external config file.  v3.4.15
+// OneFileCMS sample external config file.  v3.4.17
 // For versions 3.3.15 and later.  (Updated $HASHWORD, removed $PASSWORD & $USE_HASH)
 // (Versions prior to 3.3.06 used an .ini format)
 //
-// Basically, below is just a copy & paste of the OneFileCMS config section.
+// Basically, what follows is just a copy & paste of the OneFileCMS config section.
 
 
 // CONFIGURABLE INFO ***********************************************************
@@ -60,4 +60,8 @@ $ACCESS_ROOT = ''; //Restrict access to a particular folder.  Leave empty for $W
 	// < ? php                    //(without the spaces around the ?, of course)
 	// $option1 = "value";
 	// etc...
+
+//Name of optional external wysiwyg editor (js file). Path is relative to OneFileCMS.
+//$WYSIWYG_INIT   = 'plugins/tinymce-onefilecms_init.ALPHA.3.php';   //Init settings for TinyMCE.
+//$WYSIWYG_SOURCE = 'plugins/tinymce/jscripts/tiny_mce/tiny_mce.js'; //used in $WYSIWYG_INIT
 //end CONFIGURABLE INFO ********************************************************

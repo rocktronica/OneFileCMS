@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.16
+// OneFileCMS Language Settings v3.4.17
 
 $_['LANGUAGE'] = 'Dutch (Nederlands)'; //NL
 $_['LANG'] = 'NL';
@@ -25,6 +25,9 @@ $_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '90px';    //Width of space for $_['Select_All']
+
+$_['HTML']    = 'HTML';    //## NT ##
+$_['WYSIWYG'] = 'WYSIWYG'; //## NT ##
 
 $_['Admin']   = 'Beheer';
 $_['bytes']   = 'bytes';
@@ -160,6 +163,8 @@ $_['upload_err_05'] = 'Fout 5: ';
 $_['upload_err_06'] = 'Fout 6: Geen tijdelijke map aanwezig.';
 $_['upload_err_07'] = 'Fout 7: Schrijven van bestand naar opslagmedium mislukt.';
 $_['upload_err_08'] = 'Fout 8: Een PHP extensie heeft de zending van bestanden gestopt.';
+$_['upload_error_01a'] = 'Upload Fout. Totale POST data (meerendeel bestandsgrootte) overschrijdt post_max_size =';
+$_['upload_error_01b'] = '(van php.ini)';
 
 $_['upload_msg_02'] = 'Doelmap ongeldig:';
 $_['upload_msg_03'] = 'Upload geannuleerd.';
@@ -188,14 +193,11 @@ $_['session_warning'] = 'Waarschuwing: Sessie verloopt binnenkort!';
 $_['session_expired'] = 'SESSIE VERLOPEN';
 $_['unload_unsaved']  = 'Niet opgeslagen wijzigen zullen verloren gaan!';
 $_['confirm_reset']   = 'Herstel bestand en verlies niet opgeslagen wijzigingen?';
-
-$_['OFCMS_requires']   = 'OneFileCMS vereist PHP';
-$_['logout_msg']       = 'U bent succesvol afgemeld.';
-$_['upload_error_01a'] = 'Upload Fout. Totale POST data (meerendeel bestandsgrootte) overschrijdt post_max_size =';
-$_['upload_error_01b'] = '(van php.ini)';
-$_['edit_caution_01']  = 'VOORZICHTIG';
-$_['edit_caution_02']  = 'U bent de actieve kopie van OneFileCMS aan het bewerken - MAAK EEN BACK-UP & WEES VOORZICHTIG !!';
-$_['time_out_txt']     = 'Sessie verloopt in:';
+$_['OFCMS_requires']  = 'OneFileCMS vereist PHP';
+$_['logout_msg']      = 'U bent succesvol afgemeld.';
+$_['edit_caution_01'] = 'VOORZICHTIG';
+$_['edit_caution_02'] = 'U bent de actieve kopie van OneFileCMS aan het bewerken - MAAK EEN BACK-UP & WEES VOORZICHTIG !!';
+$_['time_out_txt']    = 'Sessie verloopt in:';
 
 $_['error_reporting_01'] = 'Weergave van fouten is';
 $_['error_reporting_02'] = 'Loggen van fouten is';

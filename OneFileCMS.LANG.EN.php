@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.16
+// OneFileCMS Language Settings v3.4.17
 
 $_['LANGUAGE'] = 'English'; //EN
 $_['LANG'] = 'EN';
@@ -20,11 +20,14 @@ $_['front_links_font_size']  = '1.0em';   //Buttons on Index page.
 $_['front_links_margin_L']   = '1.0em';
 $_['button_font_size']       = '0.9em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
-$_['button_padding']         = '4px 10px';
+$_['button_padding']         = '4px 7px';
 $_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All']
+
+$_['HTML']    = 'HTML';    //####
+$_['WYSIWYG'] = 'WYSIWYG'; //####
 
 $_['Admin']   = 'Admin';
 $_['bytes']   = 'bytes';   //####
@@ -160,6 +163,8 @@ $_['upload_err_05'] = 'Error 5:';
 $_['upload_err_06'] = 'Error 6: Missing a temporary folder.';
 $_['upload_err_07'] = 'Error 7: Failed to write file to disk.';
 $_['upload_err_08'] = 'Error 8: A PHP extension stopped the file upload.';
+$_['upload_error_01a'] = 'Upload Error. Total POST data (mostly filesize) exceeded post_max_size =';
+$_['upload_error_01b'] = '(from php.ini)';
 
 $_['upload_msg_02'] = 'Destination folder invalid:';
 $_['upload_msg_03'] = 'Upload cancelled.';
@@ -188,14 +193,11 @@ $_['session_warning'] = 'Warning: Session timeout soon!';
 $_['session_expired'] = 'SESSION EXPIRED';
 $_['unload_unsaved']  = ' Unsaved changes will be lost!';
 $_['confirm_reset']   = 'Reset file and loose unsaved changes?';
-
-$_['OFCMS_requires']   = 'OneFileCMS requires PHP';
-$_['logout_msg']       = 'You have successfully logged out.';
-$_['upload_error_01a'] = 'Upload Error. Total POST data (mostly filesize) exceeded post_max_size =';
-$_['upload_error_01b'] = '(from php.ini)';
-$_['edit_caution_01']  = 'CAUTION';
-$_['edit_caution_02']  = 'You are editing the active copy of OneFileCMS - BACK IT UP & BE CAREFUL !!';
-$_['time_out_txt']     = 'Session time out in:';
+$_['OFCMS_requires']  = 'OneFileCMS requires PHP';
+$_['logout_msg']      = 'You have successfully logged out.';
+$_['edit_caution_01'] = 'CAUTION';
+$_['edit_caution_02'] = 'You are editing the active copy of OneFileCMS - BACK IT UP & BE CAREFUL !!';
+$_['time_out_txt']    = 'Session time out in:';
 
 $_['error_reporting_01'] = 'Display errors is';
 $_['error_reporting_02'] = 'Log errors is';
