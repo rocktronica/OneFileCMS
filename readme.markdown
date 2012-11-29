@@ -5,17 +5,17 @@
 ### November 29, 2012 (v3.4.17)
 
 - WYSIWYG is here!  
-Due to popular demand (ie: it has been requested more than once), WYSYWIG editors can now be "plugged in" and used with OneFileCMS.  Currently, only [TinyMCE](http://tinymce.moxiecode.com/) and [CKEditor](http://ckeditor.com/) have been tested (and on a very limited scale). Others may work - but I don't know yet.  And, naturally, the inclusion and use of such editors is completely optional, of course.
+Due to popular demand (ie: it has been requested more than once), WYSYWIG editors can now be "plugged in" and used with OneFileCMS.  Currently, only [TinyMCE](http://tinymce.moxiecode.com/) and [CKEditor](http://ckeditor.com/) have been tested (and on a very limited scale). Others may work - but I don't know yet.  And, naturally, the use or inclusion of such editors is completely optional, of course.
 
 	**No actual WYSIWYG editors are included with OneFileCMS** - any desired editor must be obtained seperately.
 
-	A brief how-to on using either editor can be found in their respective sample "init" files included in the plugins folder of the OneFileCMS repo. Any suitable init file may be used, as long as the correct path to the editor's javascript source file is specified, and - for CKEditor - the id of the OneFileCMS textarea, "file_editor", must also be specified. 
+	A brief how-to on using either editor can be found in their respective sample "init" files included in the plugins folder of the OneFileCMS repo. Any suitable init file for a given editor may be used, as long as the correct path to the editor's javascript source file is specified, and - for CKEditor - the id of the OneFileCMS textarea, "file_editor", is also be specified. 
 
 	Now, while everything seems to work, I have little to no experience using TinyMCE, CKEditor, or any other such application. So, if there is something missing or not working as expected, please let me know (open an "issue" on the Issues page).
 
 	Notes:  
 
-	- These editors have their own, extensive, event controls (responses to key & mouse input), so the OneFileCMS edit page event scripts are not loaded when an editor is in use.  The primary effect is the loss of the file status indicators - [Save] will not change to [SAVE CHANGES!], background color will not change, etc., and any "unsaved changes" alerts are handled by the active editor.  Also, the [Wide View] button will be unavailable.  
+	- These editors have their own, extensive, event controls (responses to keyboard & mouse input), so the OneFileCMS edit page event scripts are not loaded when an editor is in use.  The primary effect is the loss of incidental file status indicators - [Save] will not change to [SAVE CHANGES!], background color will not change, etc., and any "unsaved changes" alerts should be handled by the active editor.  Also, the [Wide View] button will be unavailable.  
   
 	- The TinyMCE "init" file included in the OneFileCMS repo specifies the use of the TinyMCE "fullpage" plugin, which produces an "unsaved changes" alert every time you exit the Edit page - even if no changes have been made to the file in the editor.  
 
@@ -31,7 +31,7 @@ Due to popular demand (ie: it has been requested more than once), WYSYWIG editor
 - Added client-side hashing of passwords.  
   This is primarily a benefit for the user, as it does not really add any security to the server side application that uses it (such as OneFileCMS).  The reason is that this "pre-hash" simply becomes the actual password as far as the server is concerned, and is just as vulnerable to exposure while in transit. However, it does help to protect the user's plain-text password, which may be used elsewhere.  
 
-While a slightly different solution has been used, I want to thank [fermuch](http://github.com/fermuch) for the original idea and solution suggestion.  That solution was not used was due to its utilization of external files, and a weak hashing algorithm (sha1), and due to my (limited) understanding of the usefullness (or lack thereof) of client side hashing - at the time.  Well, after quite a bit of additional reading and consideration, that understanding has evolved a bit, and is summerized above.
+	While a slightly different solution has been used, I want to thank [fermuch](http://github.com/fermuch) for the original idea and solution suggestion.  That solution was not used was due to its utilization of external files, and a weak hashing algorithm (sha1), and due to my (limited) understanding of the usefullness (or lack thereof) of client side hashing - at the time.  Well, after quite a bit of additional reading and consideration, that understanding has evolved a bit, and is summerized above.
 
 - Also added a "please wait..." message while computing the client-side hashes - primarily for IE versions < 9, which are MUCH slower than FF or Chrome (by a factor of 37 or more).  Subsequently, the number of iterations for the client-side hashing is quite low (compared to the server side), but still causes a 1 - 2 second delay on the login screen, and a 3 - 6 second delay on the Change Password screen.  On FF and Chrome, however, the delay is much shorter, almost unnoticable.
 
@@ -87,7 +87,7 @@ Coupling a utilitarian code editor with basic file managing functions, OneFileCM
 - All the basic file management features like renaming, moving, copying, deleting, and uploading.
   (For complex processes, like batch renaming or mass uploads, you're going to want to use an FTP program.)
 - A basic text editor.
-- Alerts if you try to leave editing with unsaved changes.
+- WYSIWYG editors may be added as plugins
 - A Login delay after too many invalid login attempts.
 - Adjustable idle time before auto-logout.
 - Easily modifiable & re-brandable.
