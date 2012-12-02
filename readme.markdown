@@ -2,6 +2,10 @@
 
 ## Recent changes
 
+### December 02, 2012
+
+-  Just a note: there is an issue using a wysiwyg editor when onefilecm.php is in a sub-folder, or related to using the $ACCESS_ROOT option (restricting onefilecms access to a folder).  WYSIWYG seems to otherwise work fine when onefilecms.php is in the root folder of a site.
+
 ### November 29, 2012 (v3.4.17)
 
 - WYSIWYG is here!  
@@ -57,7 +61,7 @@ Due to popular demand (ie: it has been requested more than once), WYSYWIG editor
 #### Language files
 
 - German (Deutsch) courtesy of [codeless](http://github.com/codeless).
-- Spanish (Espanõla) courtesy of [fermuch](http://github.com/fermuch).
+- Spanish (Espanï¿½la) courtesy of [fermuch](http://github.com/fermuch).
 - Dutch (Nederlands) courtesy of [symsec](http://github.com/symsec).  
 - Russian courtesy of [zaykin](https://github.com/zaykin).  
 
