@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.17
+// OneFileCMS Language Settings v3.4.18
 
 $_['LANGUAGE'] = 'Russian'; //RU
 $_['LANG'] = 'RU';
@@ -52,7 +52,8 @@ $_['Moved']   = 'Перемещено';
 $_['on']      = 'в';
 
 $_['Password']   = 'Пароль';
-$_['Rename']     = 'Rename';
+$_['Rename']     = 'Rename'; //## NT ##
+$_['Source']     = 'Source'; //## NT ##
 $_['successful'] = 'успешно';
 $_['To']         = 'В';
 $_['Upload']     = 'Загрузить';

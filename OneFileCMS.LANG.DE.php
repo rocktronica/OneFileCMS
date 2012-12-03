@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.17
+// OneFileCMS Language Settings v3.4.18
 
 $_['LANGUAGE'] = 'Deutsch';
 $_['LANG'] = 'DE';
@@ -53,6 +53,7 @@ $_['on']      = 'läuft unter';
 
 $_['Password']   = 'Passwort';
 $_['Rename']     = 'Umbenennen';
+$_['Source']     = 'Source'; //## NT ##
 $_['successful'] = 'Erfolgreich';
 $_['To']         = 'Auf';
 $_['Upload']     = 'Heraufladen';

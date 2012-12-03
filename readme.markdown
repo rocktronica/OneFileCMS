@@ -2,6 +2,12 @@
 
 ## Recent changes
 
+### December 03, 2012 (v3.4.18)
+
+Of course, everything comes with a price (exacerbated by my apparent lack of testing...)
+
+- Anyway, the current release partly fixes an issue when trying to use a wysiwyg editor with onefilecms.php installed in a sub-folder of a site.  The issue is - it didn't work.  Now it does - mostly. However, there is still an issue using wysiwyg editors if the $ACCESS_ROOT variable is set to anything but blank (root).
+
 ### December 02, 2012
 
 -  Just a note: there is an issue using a wysiwyg editor when onefilecm.php is in a sub-folder, or related to using the $ACCESS_ROOT option (restricting onefilecms access to a folder).  WYSIWYG seems to otherwise work fine when onefilecms.php is in the root folder of a site.
@@ -35,9 +41,9 @@ Due to popular demand (ie: it has been requested more than once), WYSYWIG editor
 - Added client-side hashing of passwords.  
   This is primarily a benefit for the user, as it does not really add any security to the server side application that uses it (such as OneFileCMS).  The reason is that this "pre-hash" simply becomes the actual password as far as the server is concerned, and is just as vulnerable to exposure while in transit. However, it does help to protect the user's plain-text password, which may be used elsewhere.  
 
-	While a slightly different solution has been used, I want to thank [fermuch](http://github.com/fermuch) for the original idea and solution suggestion.  That solution was not used was due to its utilization of external files, and a weak hashing algorithm (sha1), and due to my (limited) understanding of the usefullness (or lack thereof) of client side hashing - at the time.  Well, after quite a bit of additional reading and consideration, that understanding has evolved a bit, and is summerized above.
-
 - Also added a "please wait..." message while computing the client-side hashes - primarily for IE versions < 9, which are MUCH slower than FF or Chrome (by a factor of 37 or more).  Subsequently, the number of iterations for the client-side hashing is quite low (compared to the server side), but still causes a 1 - 2 second delay on the login screen, and a 3 - 6 second delay on the Change Password screen.  On FF and Chrome, however, the delay is much shorter, almost unnoticable.
+
+- I want to thank [fermuch](http://github.com/fermuch) for the client-side hashing suggestion.  While a somewhat different approach was ultlimately employed, his original solution provided the insight needed to approach the idea in general.
 
 ### November 12, 2012 (v3.4.14)
 
@@ -54,16 +60,6 @@ Due to popular demand (ie: it has been requested more than once), WYSYWIG editor
 - Thanks to [symsec](http://github.com/symsec) for the Dutch (Nederlands) language file!
 - Otherwise, mostly some incidental code improvements and cleanup.
 
-### October 21, 2012 (v3.4.12)
-
-- On the Upload Page, added an option to select either automatic rename or overwrite of pre-existing files.
-
-#### Language files
-
-- German (Deutsch) courtesy of [codeless](http://github.com/codeless).
-- Spanish (Espanï¿½la) courtesy of [fermuch](http://github.com/fermuch).
-- Dutch (Nederlands) courtesy of [symsec](http://github.com/symsec).  
-- Russian courtesy of [zaykin](https://github.com/zaykin).  
 
 --------------------------------------------------------------------------------
 
@@ -131,6 +127,11 @@ Well, because "OneFileCMS" sounds way cooler (relatively speaking) than "OneFile
 ### Multi-Language Support?
 
 Yes!  Currently, English (EN), German (DE), Spanish (ES), Dutch (NL), and Russian (RU) are available.
+
+- German (Deutsch) courtesy of [codeless](http://github.com/codeless).
+- Spanish (Espanõla) courtesy of [fermuch](http://github.com/fermuch).
+- Dutch (Nederlands) courtesy of [symsec](http://github.com/symsec).  
+- Russian courtesy of [zaykin](https://github.com/zaykin).  
 
 If you speak another language and would like to contribute, translations are welcomed and appreciated!  Just use the English language file (or any of the others) as a template, and translate each word, phrase, etc., as appropriate.
 

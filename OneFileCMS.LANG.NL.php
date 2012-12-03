@@ -1,7 +1,7 @@
 <?php
-// OneFileCMS Language Settings v3.4.17
+// OneFileCMS Language Settings v3.4.18
 
-$_['LANGUAGE'] = 'Dutch (Nederlands)'; //NL
+$_['LANGUAGE'] = 'Dutch (Nederlands)';
 $_['LANG'] = 'NL';
 
 // If no translation or value is desired for a particular setting, do not delete
@@ -53,6 +53,7 @@ $_['on']      = 'on';
 
 $_['Password']   = 'Wachtwoord';
 $_['Rename']     = 'Hernoemen';
+$_['Source']     = 'Source'; //## NT ##
 $_['successful'] = 'succesvol';
 $_['To']         = 'Aan';
 $_['Upload']     = 'Upload';

@@ -1,7 +1,7 @@
 <?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.17';
+$OFCMS_version = '3.4.18';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -65,7 +65,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ob_start(); //Catch any early output. Closed prior to page output.
 ini_set('session.use_trans_sid', 0);    //make sure URL supplied SESSID's are not used
 ini_set('session.use_only_cookies', 1); //make sure URL supplied SESSID's are not used
-error_reporting(0); //0 for none, or (E_ALL &~ E_STRICT) for trouble-shooting.
+error_reporting(0); //0 for none, or (E_ALL &~ E_STRICT) for trouble-shooting. 
 ini_set('display_errors', 'off');         //Only turn on for trouble-shooting.
 ini_set('log_errors'    , 'off');         //Only turn on for trouble-shooting.
 ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
@@ -85,7 +85,7 @@ $HASHWORD = "cff29a3b595b427ef8d01c089d368c7706a8c68ecc75d566642e313ee97ff659"; 
 $SALT     = 'somerandomsalt';
 
 //Name of optional external language file.  If file is not found, the built-in defaults will be used.
-//$LANGUAGE_FILE = "OneFileCMS.LANG.EN.php";  //Path is relative to OneFileCMS.
+//$LANGUAGE_FILE = "OneFileCMS.LANG.EN.php";  //Path is relative to root of website
 
 $MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;  //In seconds.
@@ -93,7 +93,7 @@ $MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings (like 
 
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.          Can be px, pt, em, or %.  Assumes px otherwise.
 $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked.  Can be px, pt, em, or %.  Assumes px otherwise.
-				
+
 $MAX_IMG_W   = 810;  //Max width to display images. (main width is 810)
 $MAX_IMG_H   = 1000; //Max height.  I don't know, it just looks reasonable.
 
@@ -122,16 +122,17 @@ $EX = '<b>( ! )</b> '; //EXclaimation point "icon" Used in $message's
 
 $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copies of OneFileCMS.
 
-$ACCESS_ROOT = ''; //Restrict access to a particular folder.  Leave empty for $WEB_ROOT (entire website).
+//Restrict access to a particular folder.  Leave empty for $WEB_ROOT (entire website).
+$ACCESS_ROOT = '';  //Path is relative to root of website. 
 
-//Optional external wysiwyg editor. Paths are relative to OneFileCMS.
-$WYSIWYG_PLUGIN = 'plugins/tinymce_init.php';                      //Init settings.
-$WYSIWYG_SOURCE = 'plugins/tinymce/jscripts/tiny_mce/tiny_mce.js'; //used in $WYSIWYG_PLUGIN
+//Optional external wysiwyg editor. Paths are relative to root of website.
 //$WYSIWYG_PLUGIN = 'plugins/ckeditor_init.php';     //Init settings
 //$WYSIWYG_SOURCE = 'plugins/ckeditor/ckeditor.js';  //used in $WYSIWYG_PLUGIN
+//$WYSIWYG_PLUGIN = 'plugins/tinymce_init.php';                      //Init settings.
+//$WYSIWYG_SOURCE = 'plugins/tinymce/jscripts/tiny_mce/tiny_mce.js'; //used in $WYSIWYG_PLUGIN
 
 //External config file, if there is one.  Any settings in the $config_file will supersede those above.
-//$config_file = 'OFCMS_config.SAMPLE.php';  // Path is relative to OneFileCMS.
+//$config_file = 'OFCMS_config.SAMPLE.php';  // Path is relative to root of website.
 	//Format for external config file is basic php:
 	// < ? php                    //(without the spaces around the ?, of course)
 	// $option1 = "value";
@@ -144,14 +145,30 @@ $WYSIWYG_SOURCE = 'plugins/tinymce/jscripts/tiny_mce/tiny_mce.js'; //used in $WY
 //******************************************************************************
 //System values & setup
 
+$DOC_ROOT  = $_SERVER['DOCUMENT_ROOT'].'/';
+
+chdir($DOC_ROOT); //Allow OneFileCMS.php to be started from any dir on the site.
+
+$INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file & folder names.  Space deliminated.
+$WHSPC_SLASH = "\x00..\x20/";  //Whitespace & forward slash. For trimming file & folder name inputs.
+
 //If specified, include external config file.
 if ( isset($config_file) && is_file($config_file) ) { include($config_file); }
 else { $config_file = ''; } //If not found, clear it.
 
-//If specified, validate $WYSIWYG_PLUGIN & _SOURCE. Actual include is at end of OneFileCMS.
-$WYSIWYG_VALID = 0;
+//If specified, cleanup & validate $WYSIWYG_PLUGIN & _SOURCE. Actual include is at end of OneFileCMS.
+$WYSIWYG_PLUGIN = $DOC_ROOT.trim($WYSIWYG_PLUGIN, $WHSPC_SLASH);
+$WYSIWYG_SOURCE = '/'.trim($WYSIWYG_SOURCE, $WHSPC_SLASH);
+$WYSIWYG_VALID = 0; //Default to invalid.
 if ( isset($WYSIWYG_PLUGIN) && is_file($WYSIWYG_PLUGIN) &&
-	 isset($WYSIWYG_SOURCE) && is_file($WYSIWYG_SOURCE) ) { $WYSIWYG_VALID = 1; }
+	 isset($WYSIWYG_SOURCE) && is_file($DOC_ROOT.$WYSIWYG_SOURCE) ) { $WYSIWYG_VALID = 1; }
+
+//Clean up, validate, and limit access to the folder $ACCESS_ROOT.
+if (!isset($ACCESS_ROOT)) { $ACCESS_ROOT = ''; }
+$ACCESS_ROOT = Check_path($ACCESS_ROOT);
+if (!is_dir($ACCESS_ROOT)) { $ACCESS_ROOT=''; }
+if ($ACCESS_ROOT != '') { chdir($ACCESS_ROOT); }
+
 
 //Requires PHP 5.1, due to changes in some functions.
 //Earliest version the author has for testing is 5.2.8 (50208)
@@ -182,15 +199,9 @@ ini_set('session.gc_maxlifetime', $MAX_IDLE_TIME + 100); //in case the default i
 
 $TO_WARNING = 120; //seconds. When idle time remaining is less than this value, $timeout_warning is displayed
 
-//Clean up & validate $ACCESS_ROOT.
-$ACCESS_ROOT = Check_path($ACCESS_ROOT);
-if (!is_dir($ACCESS_ROOT)) {$ACCESS_ROOT='';}
-if (!$ACCESS_ROOT == '') {$ACCESS_ROOT .= '/';}
-
-$ONESCRIPT   = URLencode_path($_SERVER['SCRIPT_NAME']); //Used for URL's
-$DOC_ROOT    = $_SERVER['DOCUMENT_ROOT'].'/';
-$WEB_ROOT    = URLencode_path(basename($DOC_ROOT)).'/'.$ACCESS_ROOT;
-$WEBSITE     = $_SERVER['HTTP_HOST'].'/';
+$ONESCRIPT = URLencode_path($_SERVER['SCRIPT_NAME']); //Used for URL's
+$WEB_ROOT  = URLencode_path(basename($DOC_ROOT)).'/'.$ACCESS_ROOT;
+$WEBSITE   = $_SERVER['HTTP_HOST'].'/';
 
 $ONESCRIPT_file   = $_SERVER['SCRIPT_FILENAME'];  //Non-url use
 $ONESCRIPT_path   = dirname($ONESCRIPT_file).'/'; //Non-url use //Do not use dir_name().
@@ -203,9 +214,6 @@ $CONFIG_file_backup    = $ONESCRIPT_path.$config_file.'.BACKUP.php'; //used for 
 $CONFIG_url_backup     =  URLencode_path($CONFIG_file_backup);       //used for p/w & u/n updates.
 
 $VALID_PAGES = array("login","logout","admin","hash","changepw","changeun","index","edit","upload","uploaded","newfile","renamefile","copyfile","deletefile","deletefolder","newfolder","renamefolder","copyfolder","mcdaction");
-
-$INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file & folder names.  Space deliminated.
-$WHSPC_SLASH = "\x00..\x20/";  //Whitespace & forward slash. For trimming file & folder name inputs.
 
 //Make arrays out of a few $config_variables for actual use later.
 //First, remove spaces and make lowercase.
@@ -236,9 +244,9 @@ function hte($input) { return htmlentities($input, ENT_QUOTES, 'UTF-8'); }//end 
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.4.17
+// OneFileCMS Language Settings v3.4.18
 
-$_['LANGUAGE'] = 'English'; //EN
+$_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
 
 // If no translation or value is desired for a particular setting, do not delete
@@ -287,6 +295,7 @@ $_['Moved']   = 'Moved';
 $_['on']      = 'on';
 $_['Password']   = 'Password';
 $_['Rename']     = 'Rename';
+$_['Source']     = 'Source';  //#### 
 $_['successful'] = 'successful';
 $_['To']         = 'To';
 $_['Upload']     = 'Upload';
@@ -461,7 +470,7 @@ $_['mcd_msg_03'] = 'files deleted.';
 
 
 function Session_Startup() { //*************************************************
-	global $SESSION_NAME, $page, $VALID_POST, $DOC_ROOT, $ACCESS_ROOT;
+	global $SESSION_NAME, $page, $VALID_POST;
 
 	$limit    = 0; //0 = session.
 	$path     = '';
@@ -486,9 +495,6 @@ function Session_Startup() { //*************************************************
 	if ( $_SESSION['valid'] ) { Verify_IDLE_POST_etc(); }
 
 	$_SESSION['nuonce'] = sha1(mt_rand().microtime()); //provided in <forms> to verify POST
-
-	//Allow OneFileCMS.php to be started from any dir on the site.
-	chdir($DOC_ROOT.$ACCESS_ROOT); //Limit access to the folder $ACCESS_ROOT.
 }//end Session_Startup() //*****************************************************
 
 
@@ -506,6 +512,7 @@ function Verify_IDLE_POST_etc() { //********************************************
 		if ( $idle_time > $MAX_IDLE_TIME ) {
 			Logout();
 			$message .= hsc($_['verify_msg_01']).'<br>';
+			return;
 		}
 	}
 
@@ -551,7 +558,7 @@ function Error_reporting_and_early_output($show_status = 0, $show_types = 0) {//
 	$E_level = error_reporting();
 	$E_types = '';
 	$spc = ' &nbsp; '; // or '<br>' or PHP_EOL or whatever...
-	if ( $E_level &     1 ) { $E_types  = 'E_ERROR'            .$spc; }
+	if ( $E_level &     1 ) { $E_types .= 'E_ERROR'            .$spc; }
 	if ( $E_level &     2 ) { $E_types .= 'E_WARNING'          .$spc; }
 	if ( $E_level &     4 ) { $E_types .= 'E_PARSE'            .$spc; }
 	if ( $E_level &     8 ) { $E_types .= 'E_NOTICE'           .$spc; }
@@ -606,6 +613,7 @@ function Update_Recent_Pages() { //*********************************************
 	global $page;
 
 	if (!isset($_SESSION['recent_pages'])) { $_SESSION['recent_pages'] = array($page); }
+
 	$pages = count($_SESSION['recent_pages']);
 
 	//Only update if actually a new page
@@ -616,7 +624,6 @@ function Update_Recent_Pages() { //*********************************************
 
 	//Only need 3 most recent pages (increase if needed)
 	if ($pages > 3) { array_pop($_SESSION['recent_pages']); }
-
 
 }//end Update_Recent_Pages() //*************************************************
 
@@ -1061,7 +1068,7 @@ function Cancel_Submit_Buttons($submit_label) { //******************************
 
 
 function show_image(){ //*******************************************************
-	global $_, $filename, $MAX_IMG_W, $MAX_IMG_H;
+	global $_, $filename, $MAX_IMG_W, $MAX_IMG_H, $ACCESS_ROOT;
 	
 	$IMG = $filename;
 	$img_info = getimagesize($IMG);
@@ -1082,8 +1089,8 @@ function show_image(){ //*******************************************************
 	echo hsc($_['show_img_msg_01']).round($SCALE*100).
 		 hsc($_['show_img_msg_02']).' '.$img_info[0].' x '.$img_info[1].').</p>';
 	echo '<div class=clear></div>'.PHP_EOL;
-	echo '<a  href="/'.URLencode_path($IMG).'" target="_blank">'.PHP_EOL;
-	echo '<img src="/'.URLencode_path($IMG).'" width="'.($img_info[$W] * $SCALE).'"></a>'.PHP_EOL;
+	echo '<a  href="/'.URLencode_path($ACCESS_ROOT.$IMG).'" target="_blank">'.PHP_EOL;
+	echo '<img src="/'.URLencode_path($ACCESS_ROOT.$IMG).'" width="'.($img_info[$W] * $SCALE).'"></a>'.PHP_EOL;
 }//end show_image() //**********************************************************
 
 
@@ -1674,7 +1681,7 @@ function Index_Page(){ //*******************************************************
 
 	$full_list = Sort_Seperate($ipath, scandir('./'.$ipath));
 	$file_count = count($full_list);
-	
+
 	echo '<form method="post" name="mcdselect" action="'.$ONESCRIPT.$param1.'&amp;p=mcdaction">';
 	echo '<input type="hidden" name="mcdaction" value="">';
 
@@ -1823,7 +1830,8 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
  				echo '<p class="edit_disabled">'.$too_large_to_edit_message.'</p>';
 				
 			}else{
-				//Load Edit_Page_scripts() only if not in wysiwyg mode.
+				//Load Edit_Page_scripts() only if not in wysiwyg mode and an editable file.
+				//They don't work when a wysiwyg editor is loaded. (loaded after </form>)
 				$load_Edit_Page_scripts = ( !$WYSIWYG_VALID || !$EDIT_MODE );
 				
 				if (PHP_VERSION_ID < 50400) { // 5.4.0
@@ -1848,11 +1856,10 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 		}//end if non-image
 		
 		Edit_Page_buttons($text_editable, $too_large_to_edit);
-		
-		//The Edit_Page_scripts() don't work when TinyMCE is loaded.
-		if ( $load_Edit_Page_scripts ) { Edit_Page_scripts(); }
 ?>	</form>
 <?php
+	if ( $load_Edit_Page_scripts ) { Edit_Page_scripts(); }
+
 	if ($text_editable && !$too_large_to_edit && !$bad_chars) { Edit_Page_Notes(); }
 }//end Edit_Page_form() //******************************************************
 
@@ -1884,7 +1891,7 @@ function Edit_Page_Notes() { //*************************************************
 
 
 function Edit_Page() { //*******************************************************
-	global $_, $filename, $filecontents, $raw_contents, $etypes, $itypes, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $WYSIWYG_VALID;
+	global $_, $filename, $filecontents, $raw_contents, $etypes, $itypes, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $WYSIWYG_VALID, $ACCESS_ROOT;
 	clearstatcache ();
 
 	//Determine if a text editable file type
@@ -1922,7 +1929,7 @@ function Edit_Page() { //*******************************************************
 	echo '<style>#message_box { min-height: 1.88em; }</style>';
 
 	echo '<h2 id="edit_header">'.$header2.' ';
-	echo '<a class="h2_filename" href="/'.URLencode_path($filename).'" target="_blank" title="'.$_['Open_View'].'">';
+	echo '<a class="h2_filename" href="/'.URLencode_path($ACCESS_ROOT.$filename).'" target="_blank" title="'.$_['Open_View'].'">';
 	echo hte(basename($filename)).'</a>';
 	echo '</h2>'.PHP_EOL;
 
@@ -2609,7 +2616,7 @@ function Select_All() {
 		$select_all_label.innerHTML = '<?php echo addslashes($_['Select_All']) ?>';
 	}
 
-	//Start x at 1 as files[0] is a dummy <input> used to force an array even if only one file.
+	//Start x at 1 as files[0] is a dummy <input> used to force an array even if only one file is in a folder.
 	for (var x = 1; x < last ; x++) { files[x].checked = select_all.checked; }
 }
 
@@ -3375,7 +3382,7 @@ if ($_SESSION['valid']) {
 
 	//Set current $EDIT_MODE & text for Edit page [Edit WYSIWIG/HTML] button
 	if ( $WYSIWYG_VALID && isset($_COOKIE['edit_mode']) && ($_COOKIE['edit_mode'] == '1')) {
-		   $EDIT_MODE = '1'; $ON_OFF_label = $_['HTML']; }
+		   $EDIT_MODE = '1'; $ON_OFF_label = $_['Source']; }
 	else { $EDIT_MODE = '0'; $ON_OFF_label = $_['WYSIWYG']; }
 
 	Init_ICONS();
@@ -3412,6 +3419,7 @@ if ($_SESSION['valid']) {
 //Output page contents
 //******************************************************************************
 $early_output = ob_get_clean(); // Should be blank unless trouble-shooting.
+ob_start();
 header('Content-type: text/html; charset=UTF-8');
 ?>
 <!DOCTYPE html>
