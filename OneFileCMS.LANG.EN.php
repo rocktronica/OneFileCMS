@@ -1,7 +1,7 @@
 <?php
-// OneFileCMS Language Settings v3.4.18
+// OneFileCMS Language Settings v3.4.19
 
-$_['LANGUAGE'] = 'English'; //EN
+$_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
 
 // If no translation or value is desired for a particular setting, do not delete
@@ -26,11 +26,11 @@ $_['image_info_pos']         = '';        //If 1 or true, moves the info down a 
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All']
 
-$_['HTML']    = 'HTML';    //####
-$_['WYSIWYG'] = 'WYSIWYG'; //####
+$_['HTML']    = 'HTML';    
+$_['WYSIWYG'] = 'WYSIWYG'; 
 
 $_['Admin']   = 'Admin';
-$_['bytes']   = 'bytes';   //####
+$_['bytes']   = 'bytes';   
 $_['Cancel']  = 'Cancel';
 $_['Close']   = 'Close';
 $_['Copy']    = 'Copy';
@@ -58,7 +58,7 @@ $_['successful'] = 'successful';
 $_['To']         = 'To';
 $_['Upload']     = 'Upload';
 $_['Username']   = 'Username';
-$_['Working']    = 'Working - please wait...'; //####
+$_['Working']    = 'Working - please wait...'; 
 $_['Log_In']     = 'Log In';
 $_['Log_Out']    = 'Log Out';
 
@@ -120,7 +120,7 @@ $_['login_msg_02b'] = 'seconds to try again.';
 $_['login_msg_03']  = 'INVALID LOGIN ATTEMPT #';
 
 $_['edit_note_00']  = 'NOTES:';
-$_['edit_note_01a'] = 'Remember- your';
+$_['edit_note_01a'] = 'Remember- ';
 $_['edit_note_01b'] = 'is';
 $_['edit_note_02']  = 'So save changes before the clock runs out, or the changes will be lost!';
 $_['edit_note_03']  = 'With some browsers, such as Chrome, if you click the browser [Back] then browser [Forward], the file state may not be accurate. To correct, click the browser\'s [Reload].';
@@ -152,9 +152,9 @@ $_['upload_txt_03'] = 'Maximum size of each file:';
 $_['upload_txt_01'] = '(php.ini: upload_max_filesize)';
 $_['upload_txt_04'] = 'Maximum total upload size:';
 $_['upload_txt_02'] = '(php.ini: post_max_size)';
-$_['upload_txt_05'] = 'For uploaded files that already exist: '; //####
+$_['upload_txt_05'] = 'For uploaded files that already exist: '; 
 $_['upload_txt_06'] = 'Rename (to filename.ext.001 etc...)';
-$_['upload_txt_07'] = 'Overwrite'; //####
+$_['upload_txt_07'] = 'Overwrite'; 
 
 $_['upload_err_01'] = 'Error 1: File too large. From php.ini:';
 $_['upload_err_02'] = 'Error 2: File too large. (Exceeds MAX_FILE_SIZE HTML form element)';
@@ -172,7 +172,7 @@ $_['upload_msg_03'] = 'Upload cancelled.';
 $_['upload_msg_04'] = 'Uploading:';
 $_['upload_msg_05'] = 'Upload successful!';
 $_['upload_msg_06'] = 'Upload failed:';
-$_['upload_msg_07'] = 'A pre-existing file was overwritten.'; //####
+$_['upload_msg_07'] = 'A pre-existing file was overwritten.'; 
 
 $_['new_file_txt_01'] = 'File or Folder will be created in the current folder.';
 $_['new_file_txt_02'] = 'Some invalid characters are:';
@@ -237,7 +237,7 @@ $_['change_pw_04'] = '"New" and "Confirm New" values do not match.';
 $_['change_pw_05'] = 'Updating';
 $_['change_pw_06'] = 'external config file';
 
-$_['change_pw_07'] = 'All fields are required.'; //####
+$_['change_pw_07'] = 'All fields are required.'; 
 $_['change_un_01'] = 'Username changed!';
 $_['change_un_02'] = 'Username NOT changed.';
 

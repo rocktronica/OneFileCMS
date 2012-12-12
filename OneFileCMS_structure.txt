@@ -1,4 +1,4 @@
-OneFileCMS Version 3.4.15 structure/layout
+OneFileCMS Version 3.4.19 structure/layout
 
 LICENSE
 
@@ -6,9 +6,8 @@ SOME BASIC SECURITY & ERROR LOG SETTINGS
 
 CONFIGURATION SECTION
 
-OTHER GLOBAL/SYSTEM VALUES
-
 MISC FUNCTIONS:
+	System_setup()
 	hsc()
 	hte()
 	Default_Language()
@@ -17,9 +16,11 @@ MISC FUNCTIONS:
 	hashit()
 	Error_reporting_and_early_output()
 	Update_Recent_Pages()
+	strip_array()
 	undo_magic_quotes()
+	Validate_params()
 	Get_GET()
-	Verify_page_conditions()
+	Verify_Page_Conditions()
 	has_invalid_char()
 	URLencode_path()
 	dir_name()
@@ -57,7 +58,7 @@ PAGE & RESPONSE FUNCTIONS:
 	Logout()
 	Login_Page()
 	Login_response()
-	List_Files()
+	List_File()
 	Table_of_Files()
 	Index_Page()
 	Edit_Page_buttons_top()
@@ -110,6 +111,7 @@ STYLESHEET FUNCTIONS:
 
 LOGIC TO DETERMINE PAGE ACTION
 	Load Default_Language()
+	System_setup()
 	If specified, load external language file
 	Verify PHP version
 	Session_Startup()

@@ -1,10 +1,7 @@
 <?php /*************************************************************************
-Sample code to use the TinyMCE editor with OneFileCMS (as of v3.4.17).
+Sample code to use the TinyMCE editor with OneFileCMS (as of v3.4.19).
 
-This file is a modified version of "tinymce/examples/full.html", from the tinymce v3.5.7 distribution.
-The "fullpage" plugin has been added, some of the "buttons" have been re-arranged,
-and a few settings added to the end (mostly commented out, but available).
-For information on tinymce, visit tinymce.moxiecode.com.
+For information on TinyMCE, visit tinymce.moxiecode.com.
 
 Here is a brief how-to:
 (The "plugin" folder used below is not required, or may be named anything you like.)
@@ -16,14 +13,18 @@ Here is a brief how-to:
  3) From the github.com/Self-Evident/OneFileCMS repo, copy the file 
     "tinymce_init.php" into the "plugins/" folder.
 
- 4) In the configuration section of OneFileCMS, add the following two variables:
-    $WYSIWYG_PLUGIN = 'plugins/tinymce-onefilecms_init.php';           //Init settings for TinyMCE. (This file)
-    $WYSIWYG_SOURCE = 'plugins/tinymce/jscripts/tiny_mce/tiny_mce.js'; //used in $WYSIWYG_PLUGIN
+ 4) In the configuration section of OneFileCMS, add the following variable:
+    $WYSIWYG_PLUGIN = 'plugins/tinymce_init.php';  //Init settings for TinyMCE (this file).
 
- 5) In OneFileCMS- open a file for editing, and click [Edit WYSIWIG].
+ 5) In the "init" file indicated above: 
+      - specify the source file of the actual plugin via a <script src= ...> tag.
+
+	    (see below).
+
+ 6) In OneFileCMS- open a file for editing, and click [Edit WYSIWIG].
 *****************************************************************************/?>
 
-<script type="text/javascript" src="<?php echo $WYSIWYG_SOURCE ?>"></script>
+<script type="text/javascript" src="/plugins/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>
 <script type="text/javascript"> 
 	tinyMCE.init({
 		// General options

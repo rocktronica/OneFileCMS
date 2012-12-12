@@ -1,7 +1,7 @@
 <?php
-// OneFileCMS Language Settings v3.4.18
+// OneFileCMS Language Settings v3.4.19
 
-$_['LANGUAGE'] = 'Dutch (Nederlands)';
+$_['LANGUAGE'] = 'Nederlands (Dutch)';
 $_['LANG'] = 'NL';
 
 // If no translation or value is desired for a particular setting, do not delete

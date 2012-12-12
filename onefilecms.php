@@ -1,7 +1,7 @@
-<?php
+<?php  
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.18';
+$OFCMS_version = '3.4.19';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -62,12 +62,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 //Some basic security & error log settings**************************************
+$ER = 0; $DE = 'off';                  //Disable error_reporting and display_erros.
+//$ER = E_ALL | E_STRICT; $DE = 'on';  //Uncomment for trouble-shooting.     //##### 
 ob_start(); //Catch any early output. Closed prior to page output.
 ini_set('session.use_trans_sid', 0);    //make sure URL supplied SESSID's are not used
 ini_set('session.use_only_cookies', 1); //make sure URL supplied SESSID's are not used
-error_reporting(0); //0 for none, or (E_ALL &~ E_STRICT) for trouble-shooting. 
-ini_set('display_errors', 'off');         //Only turn on for trouble-shooting.
-ini_set('log_errors'    , 'off');         //Only turn on for trouble-shooting.
+error_reporting($ER); //0 for none, or (E_ALL &~ E_STRICT) for trouble-shooting.
+ini_set('display_errors', $DE);             //Only turn on for trouble-shooting.
+ini_set('log_errors'    , 'off');           //Only turn on for trouble-shooting.
 ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
 //Determine good folder for session file? Default is tmp/, which is not secure, but it may not be a serious concern.
 //session_save_path($safepath)  or  ini_set('session.save_path', $safepath)
@@ -85,7 +87,8 @@ $HASHWORD = "cff29a3b595b427ef8d01c089d368c7706a8c68ecc75d566642e313ee97ff659"; 
 $SALT     = 'somerandomsalt';
 
 //Name of optional external language file.  If file is not found, the built-in defaults will be used.
-//$LANGUAGE_FILE = "OneFileCMS.LANG.EN.php";  //Path is relative to root of website
+//Path can be absolute to the filesystem, or relative to root of website - if chdir($DOC_ROOT). (current method)
+//$LANGUAGE_FILE = "OneFileCMS.LANG.EN.php";
 
 $MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;  //In seconds.
@@ -106,7 +109,7 @@ $UPLOAD_FIELDS = 6; //Number of upload fields on Upload File(s) page. Max value 
 $config_favicon   = "favicon.ico"; //Path is relative to root of website.
 $config_excluded  = ""; //files to exclude from directory listings- CaSe sEnsiTive!
 
-$config_etypes = "html,htm,xhtml,php,pl,css,js,txt,text,cfg,conf,ini,csv,svg,log,dtd,htaccess"; //Editable file types.
+$config_etypes = "svg,asp,cfg,conf,csv,css,dtd,htm,html,xhtml,htaccess,ini,js,log,markdown,md,php,pl,txt,text"; //Editable file types.
 $config_stypes = "*"; // Shown types; only files of the given types should show up in the file-listing
 	// Use $config_stypes exactly like $config_etypes (list of extensions separated by commas).
 	// If $config_stypes is set to null - by intention or by error - only folders will be shown.
@@ -114,74 +117,65 @@ $config_stypes = "*"; // Shown types; only files of the given types should show 
 	// If $config_stypes is set to "html,htm" for example, only file with the extension "html" or "htm" will get listed.
 
 $config_itypes = "jpg,gif,png,bmp,ico"; //image types to display on edit page.
-// _ftypes & _fclass must have the same number of values. bin is default.
-$config_ftypes = "bin,z,gz,7z,zip,jpg,gif,png,bmp,ico,svg,txt,cvs,css,php,pl ,ini,cfg,conf,log,asp,js ,htm,html,dtd,htaccess,markdown,md";
-$config_fclass = "bin,z,z ,z ,z  ,img,img,img,img,img,svg,txt,txt,css,php,txt,txt,cfg,cfg ,txt,txt,txt,htm,htm ,txt,txt     ,txt     ,txt";
+//File types (extensions).  _ftypes & _fclass must have the same number of values. bin is default.
+$config_ftypes = "bin,z,gz,7z,zip,jpg,gif,png,bmp,ico,svg,asp,cfg,conf,csv,css,dtd,htm,html,xhtml,htaccess,ini,js,log,markdown,md,php,pl,txt,text";
+//Cooresponding file classes to _ftypes - used to determine icons for directory listing.
+$config_fclass = "bin,z,z ,z ,z  ,img,img,img,img,img,svg,txt,txt,cfg ,txt,css,txt,htm,htm ,htm  ,txt     ,txt,txt,txt,txt   ,txt,php,php,txt,txt";
 
 $EX = '<b>( ! )</b> '; //EXclaimation point "icon" Used in $message's
 
 $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copies of OneFileCMS.
 
-//Restrict access to a particular folder.  Leave empty for $WEB_ROOT (entire website).
-$ACCESS_ROOT = '';  //Path is relative to root of website. 
+//Init file for optional external wysiwyg editor.
+//Sample init files are availble in the OneFileCMS repo, but the actual editors are not.
+//Path can be absolute to the filesystem, or relative to root of website - if chdir($DOC_ROOT). (current method)
+//$WYSIWYG_PLUGIN = 'plugins/tinymce_init.php';
+//$WYSIWYG_PLUGIN = 'plugins/ckeditor_init.php';
 
-//Optional external wysiwyg editor. Paths are relative to root of website.
-//$WYSIWYG_PLUGIN = 'plugins/ckeditor_init.php';     //Init settings
-//$WYSIWYG_SOURCE = 'plugins/ckeditor/ckeditor.js';  //used in $WYSIWYG_PLUGIN
-//$WYSIWYG_PLUGIN = 'plugins/tinymce_init.php';                      //Init settings.
-//$WYSIWYG_SOURCE = 'plugins/tinymce/jscripts/tiny_mce/tiny_mce.js'; //used in $WYSIWYG_PLUGIN
-
-//External config file, if there is one.  Any settings in the $config_file will supersede those above.
-//$config_file = 'OFCMS_config.SAMPLE.php';  // Path is relative to root of website.
-	//Format for external config file is basic php:
-	// < ? php                    //(without the spaces around the ?, of course)
-	// $option1 = "value";
-	// etc...
+//External config file, if there is one.  Any settings it contains will supersede those above.
+//Path can be absolute to the filesystem, or relative to root of website - if chdir($DOC_ROOT). (current method)
+//See the sample file in the OneFileCMS github repo for format example.
+//$config_file = 'OFCMS_config.SAMPLE.php';
 //end CONFIGURABLE INFO ********************************************************
 
 
 
 
-//******************************************************************************
-//System values & setup
+function System_Setup() { //System Setup ***************************************
+	global $_, $LANGUAGE_FILE, $config_file,  $WYSIWYG_PLUGIN, $WYSIWYG_VALID, $DOC_ROOT, $WEB_ROOT, $WEBSITE,
+	$USERNAME, $HASHWORD, $MAX_ATTEMPTS, $LOGIN_DELAY, $MAX_IMG_W, $MAX_IMG_H, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, 
+	$MAX_IDLE_TIME, $MAIN_WIDTH, $WIDE_VIEW_WIDTH, $UPLOAD_FIELDS, $config_favicon, $EX, $SESSION_NAME, 
+	$ONESCRIPT,  $ONESCRIPT_file, $ONESCRIPT_backup, $ONESCRIPT_file_backup, 
+	$CONFIG_backup, $CONFIG_file,$CONFIG_file_backup, $LOGIN_ATTEMPTS,
+	$TO_WARNING, $INVALID_CHARS, $WHSPC_SLASH, $VALID_PAGES, $SHOWALLFILES,
+	$config_etypes, $config_stypes, $config_itypes, $config_ftypes, $config_fclass, $config_excluded, 
+	$etypes, $itypes, $ftypes, $fclasses, $excluded_list, $PRE_ITERATIONS, $EX, $message, $VERS; //$VERS used durring developement.
 
-$DOC_ROOT  = $_SERVER['DOCUMENT_ROOT'].'/';
+mb_internal_encoding('utf-8');
 
-chdir($DOC_ROOT); //Allow OneFileCMS.php to be started from any dir on the site.
+$DOC_ROOT = $_SERVER['DOCUMENT_ROOT'].'/'; //root folder of website.
 
-$INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file & folder names.  Space deliminated.
-$WHSPC_SLASH = "\x00..\x20/";  //Whitespace & forward slash. For trimming file & folder name inputs.
+//Allow OneFileCMS.php to be started from any dir on the site.
+//This also effects the path for include() files:
+//The path for an include file can be absolute to the filesystem,
+//     or relative to OneFileCMS - if no chdir() done,       //#####
+//     or relative to root of website - if chdir($DOC_ROOT). (current method)//#####
+chdir($DOC_ROOT);
 
-//If specified, include external config file.
-if ( isset($config_file) && is_file($config_file) ) { include($config_file); }
-else { $config_file = ''; } //If not found, clear it.
-
-//If specified, cleanup & validate $WYSIWYG_PLUGIN & _SOURCE. Actual include is at end of OneFileCMS.
-$WYSIWYG_PLUGIN = $DOC_ROOT.trim($WYSIWYG_PLUGIN, $WHSPC_SLASH);
-$WYSIWYG_SOURCE = '/'.trim($WYSIWYG_SOURCE, $WHSPC_SLASH);
-$WYSIWYG_VALID = 0; //Default to invalid.
-if ( isset($WYSIWYG_PLUGIN) && is_file($WYSIWYG_PLUGIN) &&
-	 isset($WYSIWYG_SOURCE) && is_file($DOC_ROOT.$WYSIWYG_SOURCE) ) { $WYSIWYG_VALID = 1; }
-
-//Clean up, validate, and limit access to the folder $ACCESS_ROOT.
-if (!isset($ACCESS_ROOT)) { $ACCESS_ROOT = ''; }
-$ACCESS_ROOT = Check_path($ACCESS_ROOT);
-if (!is_dir($ACCESS_ROOT)) { $ACCESS_ROOT=''; }
-if ($ACCESS_ROOT != '') { chdir($ACCESS_ROOT); }
-
-
-//Requires PHP 5.1, due to changes in some functions.
-//Earliest version the author has for testing is 5.2.8 (50208)
-define('PHP_VERSION_ID_REQUIRED',50100);   //Ex: 5.1.23 is 50123
-define('PHP_VERSION_REQUIRED'  ,'5.1 + '); //Used in exit() message.
-
-//The predefined constant PHP_VERSION_ID has only been available since 5.2.7.
-//So, if needed, convert PHP_VERSION (a string) to PHP_VERSION_ID (a number).
-//Ex: 5.1.23 converts to 50123.
-if (!defined('PHP_VERSION_ID')) {
-	$phpversion = explode('.', PHP_VERSION);
-	define('PHP_VERSION_ID', ($phpversion[0] * 10000 + $phpversion[1] * 100 + $phpversion[2]));
+//If specified & found, include external config file. Otherwise clear it.
+if     ( isset($config_file) && is_file($config_file) ) {
+	include($config_file);
 }
+elseif ( isset($config_file) && !is_file($config_file) ) {
+	$message .= $EX.'<b>$config_file '.$_['Not_found'].':</b> '.$config_file.'<br>';
+	$message .= '<b>getcwd() == </b>'.getcwd().'<br>';
+	$config_file = '';
+}
+else { $config_file = ''; }
+
+//If specified, validate $WYSIWYG_PLUGIN. Actual include is at end of OneFileCMS.
+$WYSIWYG_VALID = 0; //Default to invalid.
+if ( isset($WYSIWYG_PLUGIN) && is_file($WYSIWYG_PLUGIN) ) { $WYSIWYG_VALID = 1; }
 
 //Determine if valid units are set for $MAIN_WIDTH.  If not, assume px.
 $main_units   = substr($MAIN_WIDTH, -2); //should be px, pt, em, or %.
@@ -195,25 +189,40 @@ if ( ($main_units != "px") && ($main_units != "pt") && ($main_units != "em") && 
 	$WIDE_VIEW_WIDTH = ($WIDE_VIEW_WIDTH * 1).'px';
 }
 
+//Requires PHP 5.1, due to changes in some functions.
+define('PHP_VERSION_ID_REQUIRED',50100);   //Ex: 5.1.23 is 50123
+define('PHP_VERSION_REQUIRED'  ,'5.1 + '); //Used in exit() message.
+
+//The predefined constant PHP_VERSION_ID has only been available since 5.2.7.
+//So, if needed, convert PHP_VERSION (a string) to PHP_VERSION_ID (an integer).
+//Ex: 5.1.23 converts to 50123.
+if (!defined('PHP_VERSION_ID')) {
+	$phpversion = explode('.', PHP_VERSION);
+	define('PHP_VERSION_ID', ($phpversion[0] * 10000 + $phpversion[1] * 100 + $phpversion[2]));
+}
+
+$ONESCRIPT = URLencode_path($_SERVER['SCRIPT_NAME']); //Used for URL's
+$WEB_ROOT  = basename($DOC_ROOT).'/'; //Used only for screen output - Non-url use.
+$WEBSITE   = $_SERVER['HTTP_HOST'].'/';
+
+$ONESCRIPT_file = $_SERVER['SCRIPT_FILENAME'];  //Non-url use
+$ONESCRIPT_path = dirname($ONESCRIPT_file).'/'; //Non-url use - Do not use dir_name().
+$LOGIN_ATTEMPTS = $ONESCRIPT_file.'.invalid_login_attempts';
+
+$ONESCRIPT_backup      = $ONESCRIPT.'.BACKUP.php';                   //used for p/w & u/n updates.
+$ONESCRIPT_file_backup = $ONESCRIPT_file.'.BACKUP.php';              //used for p/w & u/n updates.
+$CONFIG_backup         = URLencode_path($config_file).'.BACKUP.php'; //used for p/w & u/n updates.
+$CONFIG_file           = $ONESCRIPT_path.basename($config_file);     //used for p/w & u/n updates.
+$CONFIG_file_backup    = $CONFIG_file.'.BACKUP.php';                 //used for p/w & u/n updates.
+
 ini_set('session.gc_maxlifetime', $MAX_IDLE_TIME + 100); //in case the default is less.
 
 $TO_WARNING = 120; //seconds. When idle time remaining is less than this value, $timeout_warning is displayed
 
-$ONESCRIPT = URLencode_path($_SERVER['SCRIPT_NAME']); //Used for URL's
-$WEB_ROOT  = URLencode_path(basename($DOC_ROOT)).'/'.$ACCESS_ROOT;
-$WEBSITE   = $_SERVER['HTTP_HOST'].'/';
+$INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file & folder names.  Space deliminated.
+$WHSPC_SLASH = "\x00..\x20/";  //Whitespace & forward slash. For trimming file & folder name inputs.
 
-$ONESCRIPT_file   = $_SERVER['SCRIPT_FILENAME'];  //Non-url use
-$ONESCRIPT_path   = dirname($ONESCRIPT_file).'/'; //Non-url use //Do not use dir_name().
-$LOGIN_ATTEMPTS   = $ONESCRIPT_file.'.invalid_login_attempts';
-
-$ONESCRIPT_url_backup  = $ONESCRIPT.'.BACKUP.php';                   //used for p/w & u/n updates.
-$ONESCRIPT_file_backup = $ONESCRIPT_file.'.BACKUP.php';              //used for p/w & u/n updates.
-$CONFIG_file           = $ONESCRIPT_path.$config_file;               //used for p/w & u/n updates.
-$CONFIG_file_backup    = $ONESCRIPT_path.$config_file.'.BACKUP.php'; //used for p/w & u/n updates.
-$CONFIG_url_backup     =  URLencode_path($CONFIG_file_backup);       //used for p/w & u/n updates.
-
-$VALID_PAGES = array("login","logout","admin","hash","changepw","changeun","index","edit","upload","uploaded","newfile","renamefile","copyfile","deletefile","deletefolder","newfolder","renamefolder","copyfolder","mcdaction");
+$VALID_PAGES = array("login","logout","admin","hash","changepw","changeun","index","edit","upload","uploaded","newfile","renamefile","copyfile","deletefile","deletefolder","newfolder","renamefolder","copyfolder","mcdaction", "phpinfo");
 
 //Make arrays out of a few $config_variables for actual use later.
 //First, remove spaces and make lowercase.
@@ -231,20 +240,20 @@ $excluded_list = (explode(",", $config_excluded));
 //If you change this, or any other aspect of either hashit() or js_hash_scripts(), do so while logged in.
 //Then, manually update your password as instructed on the Admin/Generate Hash page.
 $PRE_ITERATIONS = 200;
-//end System values & setup*****************************************************
+}//end  System_Setup() //*******************************************************
 
 
 
 
 function hsc($input) { return htmlspecialchars($input, ENT_QUOTES, 'UTF-8'); }//end hsc() //********
-function hte($input) { return htmlentities($input, ENT_QUOTES, 'UTF-8'); }//end hte()***************
+function hte($input) { return htmlentities($input, ENT_QUOTES, 'UTF-8'); }//end hte() //************
 
 
 
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.4.18
+// OneFileCMS Language Settings v3.4.19
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -356,7 +365,7 @@ $_['login_msg_02a'] = 'Please wait';
 $_['login_msg_02b'] = 'seconds to try again.';
 $_['login_msg_03']  = 'INVALID LOGIN ATTEMPT #';
 $_['edit_note_00']  = 'NOTES:';
-$_['edit_note_01a'] = 'Remember- your';
+$_['edit_note_01a'] = 'Remember- ';
 $_['edit_note_01b'] = 'is';
 $_['edit_note_02']  = 'So save changes before the clock runs out, or the changes will be lost!';
 $_['edit_note_03']  = 'With some browsers, such as Chrome, if you click the browser [Back] then browser [Forward], the file state may not be accurate. To correct, click the browser\'s [Reload].';
@@ -630,13 +639,16 @@ function Update_Recent_Pages() { //*********************************************
 
 
 
+function strip_array($var) { //*************************************************
+	if (is_array($var)) {return array_map("strip_array", $var); }
+	else                {return stripslashes($var); }
+	//Note: stripslashes also handles cases when magic_quotes_sybase is on. 
+}//end strip_array() //*********************************************************
+
+
+
+
 function undo_magic_quotes(){ //************************************************
-
-	function strip_array($var) {
-		if (is_array($var)) {return array_map("strip_array", $var); }
-		else                {return stripslashes($var); }
-	} //Note: stripslashes also handles cases when magic_quotes_sybase is on.
-
 	if (get_magic_quotes_gpc()) {
 		if (isset($_GET))    { $_GET     = strip_array($_GET);    }
 		if (isset($_POST))   { $_POST    = strip_array($_POST);   }
@@ -647,16 +659,46 @@ function undo_magic_quotes(){ //************************************************
 
 
 
+function Validate_params() { //*************************************************
+	global $_, $ipath, $filename, $page, $param1, $param2, $param3, $Editing_OFCMS, $EX, $message;
+
+	//Pages that require a valid $filename
+	$file_pages = array("edit", "renamefile", "copyfile", "deletefile");
+
+	//Make sure $filename & $page go together
+	if ( ($filename != "") && !in_array($page, $file_pages) ) { $filename = "";  }
+	if ( ($filename == "") &&  in_array($page, $file_pages) ) { $page = "index"; }
+
+	//Init $param's used in <a> href's & <form> actions
+	$param1 = '?i='.URLencode_path($ipath); //$param1 must not be blank.
+	if ($filename == "") { $param2 = ""; } else { $param2 = '&amp;f='.rawurlencode(basename($filename)); }
+	if ($page == ""    ) { $param3 = ""; } else { $param3 = '&amp;p='.$page; }
+
+	$Editing_OFCMS = false;
+	//If editing OneFileCMS itself, show caution message.
+	if ($filename == trim($_SERVER['SCRIPT_NAME'], '/')) {
+		$Editing_OFCMS = true;
+		$message .= '<style>#message_box_contents {background: red;}</style>';
+		$message .= '<style>#message_box          {color: white;}   </style>';
+		$message .= $EX.'<b>'.hsc($_['edit_caution_01']).' '.$EX.hsc($_['edit_caution_02']).'</b><br>';
+	}
+	
+}//end Validate_params() //*****************************************************
+
+
+
+
 function Get_GET() { //*** Get main parameters *********************************
+	global $_, $ipath, $filename, $page, $VALID_PAGES, $EX, $message;
 	// i=some/path/,  f=somefile.xyz,  p=somepage
 	// $ipath      ,  $filename     ,  $page
-	// Get_GET() should not be called unless $_SESSION['valid'] == 1
-	global $_, $ipath, $filename, $page, $param1, $param2, $param3, $VALID_PAGES, $EX, $message;
+	// Perform initial, basic, validation.
+	// Get_GET() should not be called unless $_SESSION['valid'] == 1 (or true)
 
 	//Initialize & validate $ipath
 	if (isset($_GET["i"])) {
 		$ipath = Check_path($_GET["i"],1);
-		if ( $ipath === false || !is_dir($ipath)) { $ipath = ""; }
+		if ( $ipath === false || !is_dir($ipath)) { $ipath = ''; }
 	}else {
 		$ipath = "";
 	}
@@ -675,18 +717,6 @@ function Get_GET() { //*** Get main parameters *********************************
 		$message .= $EX.hsc($_['get_get_msg_02']).' <b>'.hte($page).'</b><br>';
 		$page = "index";  //If invalid $_GET["p"]
 	}
-
-	//Pages that require a valid $filename
-	$file_pages = array("edit", "renamefile", "copyfile", "deletefile");
-
-	//Make sure $filename & $page go together
-	if ( ($filename != "") && !in_array($page, $file_pages) ) { $filename = "";  }
-	if ( ($filename == "") &&  in_array($page, $file_pages) ) { $page = "index"; }
-
-	//Init $param's used in <a> href's & <form> actions
-	$param1 = '?i='.URLencode_path($ipath); //$param1 must not be blank.
-	if ($filename == "") { $param2 = ""; } else { $param2 = '&amp;f='.rawurlencode(basename($filename)); }
-	if ($page == ""    ) { $param3 = ""; } else { $param3 = '&amp;p='.$page; }
 }//end Get_GET() //*************************************************************
 
 
@@ -735,12 +765,6 @@ function Verify_Page_Conditions() { //******************************************
 	elseif ( ($page == "uploaded") && !$VALID_POST ) {
 		$message .= $EX.'<b> '.hsc($_['upload_error_01a']).' '.ini_get('post_max_size').'</b> '.hsc($_['upload_error_01b']).'<br>';
 		$page = "index";
-	}
-	//If editing OneFileCMS itself, show caution message.
-	elseif ($filename == trim($_SERVER['SCRIPT_NAME'], '/')) {
-		$message .= '<style>#message_box_contents {background: red;}</style>';
-		$message .= '<style>#message_box          {color: white;}   </style>';
-		$message .= $EX.'<b>'.hsc($_['edit_caution_01']).' '.$EX.hsc($_['edit_caution_02']).'</b><br>';
 	}
 }//end Verify_Page_Conditions() //**********************************************
 
@@ -973,12 +997,11 @@ function rDel($path){ //********************************************************
 function Current_Path_Header(){ //**********************************************
  	// Current path. ie: webroot/current/path/
 	// Each level is a link to that level.
-
 	global $ONESCRIPT, $ipath, $WEB_ROOT;
 
 	echo '<h2>';
 		//Root folder of web site.
-		echo '<a id="path_0" href="'.$ONESCRIPT.'" class="path"> '.hte(rawurldecode(trim($WEB_ROOT, '/'))).'</a>/';
+		echo '<a id="path_0" href="'.$ONESCRIPT.'" class="path"> '.hte(trim($WEB_ROOT, ' /')).'</a>/';
 		$x=0; //need here for focus() in case at webroot.
 		
 		if ($ipath != "" ) { //if not at root, show the rest
@@ -1006,20 +1029,18 @@ function Page_Header(){ //******************************************************
 	if (file_exists($DOC_ROOT.trim($config_favicon,'/'))) {
 		$favicon =  '<img src="/'.URLencode_path($config_favicon).'" alt="">';
 	}
-?>
-	<div id="header">
-		<a href="<?php echo $ONESCRIPT?>" id="logo"><?php echo $config_title; ?></a>
-		<?php echo $OFCMS_version.' ('.hsc($_['on']).'&nbsp;php&nbsp;'.phpversion().')'; ?>
-		
-		<div class="nav">
-			<b><a href="/" target="_blank"><?php echo $favicon ?>
-			<?php echo hte($WEBSITE) ?></a></b>
-			<?php if ($page != "login") { ?>
-			| <a href="<?php echo $ONESCRIPT ?>?p=logout"><?php echo hsc($_['Log_Out']) ?></a>
-			<?php } ?>
-		</div><div class=clear></div>
-	</div><!-- end header -->
-<?php
+
+	echo '<div id="header">';
+		echo '<a href="'.$ONESCRIPT.'" id="logo">'.$config_title.'</a> '.$OFCMS_version.' ';
+		echo '<a href="'.$ONESCRIPT.'?p=phpinfo'.'" target=_blank>';
+		echo '('.hsc($_['on']).'&nbsp;php&nbsp;'.phpversion().')</a>';
+
+		echo '<div class="nav">';
+			echo '<b><a href="/" target="_blank">'.$favicon.' ';
+			echo hte($WEBSITE).'</a></b>';
+			if ($page != "login") {	echo ' | <a href="'.$ONESCRIPT.'?p=logout">'.hsc($_['Log_Out']).'</a>'; }
+		echo '</div><div class=clear></div>';
+	echo '</div>';//<!-- end header -->
 }//end Page_Header() //*********************************************************
 
 
@@ -1052,7 +1073,7 @@ function message_box() { //*****************************************************
 
 function Cancel_Submit_Buttons($submit_label) { //******************************
 	//$submit_label = Rename, Copy, Delete, etc...
-	global $_, $ONESCRIPT, $ONESCRIPT_url_backup, $ipath, $param1, $param2, $page;
+	global $_, $ONESCRIPT, $ipath, $param1, $param2, $page;
 
 	$params = $param1.$param2.'&amp;p='. $_SESSION['recent_pages'][1];
 ?>
@@ -1068,8 +1089,8 @@ function Cancel_Submit_Buttons($submit_label) { //******************************
 
 
 function show_image(){ //*******************************************************
-	global $_, $filename, $MAX_IMG_W, $MAX_IMG_H, $ACCESS_ROOT;
-	
+	global $_, $filename, $MAX_IMG_W, $MAX_IMG_H;
+
 	$IMG = $filename;
 	$img_info = getimagesize($IMG);
 
@@ -1089,8 +1110,8 @@ function show_image(){ //*******************************************************
 	echo hsc($_['show_img_msg_01']).round($SCALE*100).
 		 hsc($_['show_img_msg_02']).' '.$img_info[0].' x '.$img_info[1].').</p>';
 	echo '<div class=clear></div>'.PHP_EOL;
-	echo '<a  href="/'.URLencode_path($ACCESS_ROOT.$IMG).'" target="_blank">'.PHP_EOL;
-	echo '<img src="/'.URLencode_path($ACCESS_ROOT.$IMG).'" width="'.($img_info[$W] * $SCALE).'"></a>'.PHP_EOL;
+	echo '<a  href="/'.URLencode_path($IMG).'" target="_blank">'.PHP_EOL;
+	echo '<img src="/'.URLencode_path($IMG).'" width="'.($img_info[$W] * $SCALE).'"></a>'.PHP_EOL;
 }//end show_image() //**********************************************************
 
 
@@ -1239,7 +1260,7 @@ function List_Backup($file, $file_url){ //**************************************
 
 
 function Admin_Page() { //******************************************************
-	global $_, $ONESCRIPT, $ONESCRIPT_url_backup, $ONESCRIPT_file_backup, $CONFIG_url_backup,
+	global $_, $ONESCRIPT, $ONESCRIPT_backup, $ONESCRIPT_file_backup, $CONFIG_backup,
 		   $ipath, $filename, $param1, $param2, $EX, $config_title,  $CONFIG_file_backup;
 
 	// Restore/Preserve $ipath prior to admin page in case OneFileCMS is edited (which would change $ipath).
@@ -1271,15 +1292,13 @@ function Admin_Page() { //******************************************************
 
 	<div class="info">
 
-<?php //Check for & indicate if backups exists from a prior p/w or u/n change.
+<?php  //Check for & indicate if backups exists from a prior p/w or u/n change.
 	clearstatcache ();
 	if (is_file($ONESCRIPT_file_backup) || is_file($CONFIG_file_backup) ) {
-		
 		echo '<p><b>'.hsc($_['admin_txt_00']).'</b></p>';
-		if (is_file($ONESCRIPT_file_backup)) { List_Backup($ONESCRIPT_file_backup, $ONESCRIPT_url_backup); }
-		if (is_file($CONFIG_file_backup))    { List_Backup($CONFIG_file_backup, $CONFIG_url_backup); }
-		echo '<p>'.hsc($_['admin_txt_01']);
-		echo '<hr>';
+		if (is_file($ONESCRIPT_file_backup)) { List_Backup($ONESCRIPT_file_backup, $ONESCRIPT_backup); }
+		if (is_file($CONFIG_file_backup))    { List_Backup($CONFIG_file_backup, $CONFIG_backup); }
+		echo '<p>'.hsc($_['admin_txt_01']).'<hr>';
 		$focus_on = 'old_backup'; //id of filename listed
 	}else {
 		$focus_on = 'cancel';
@@ -1477,7 +1496,7 @@ function Change_PWUN_response($PWUN, $msg){ //**********************************
 		}
 		
 		//If specified & it exists, update external config file.
-		//$config_file (lowercase) is the user supplied config value, with its path relative to $ONESCRIPT.
+		//$config_file (lowercase) is the user supplied config value.
 		//$CONFIG_file (uppercase) includes full filesystem path.
 		if ( isset($config_file) && is_file($CONFIG_file) ) {
 			$message .= $_['change_pw_05'].' '.$_['change_pw_06'].'. . . ';
@@ -1609,7 +1628,7 @@ function List_File($file, $type, $f_or_f, $DS, $IS_OFCMS, $HREF_params, $param3)
 	//For directories, don't show file size (which is always 0).
 	if (is_dir($ipath.$file)) { $file_size = ''; }
 
-	//If file is OneFileCMS, only show Copy - don't show Rename, Delete, or checkbox options.
+	//If file is OneFileCMS, don't show Rename, Delete, or checkbox options.
 	if ($IS_OFCMS) { $ren_mov = $delete = $checkbox = ''; }
 ?>
 	<tr>
@@ -1657,7 +1676,7 @@ function Table_of_Files($full_list) { //****************************************
 				$type   = 'dir';
 				$HREF_params .= URLencode_path($file).'/';
 				$param3 = '';
-				$DS = ' /'; //End with a directory seperator to indicated a folder.
+				$DS = ' /'; //End with a forward slash to indicate a folder.
 			}else {
 				$f_or_f = "file";
 				$type = $fclasses[array_search($ext, $ftypes)];
@@ -1681,7 +1700,7 @@ function Index_Page(){ //*******************************************************
 
 	$full_list = Sort_Seperate($ipath, scandir('./'.$ipath));
 	$file_count = count($full_list);
-
+	
 	echo '<form method="post" name="mcdselect" action="'.$ONESCRIPT.$param1.'&amp;p=mcdaction">';
 	echo '<input type="hidden" name="mcdaction" value="">';
 
@@ -1797,9 +1816,9 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
 		
 		//Don't show [Rename] or [Delete] if editing OneFileCMS itself.
 		$Button = '<button type=button class="button RCD" onclick="parent.location=\''.$ONESCRIPT.$param1.$param2;	
-		if (!$Editing_OFCMS) { echo $Button.'&amp;p=renamefile\'">'.$ICONS['ren_mov'].hsc($_['Ren_Move']).'</button>'; }
-		/*Always show Copy*/   echo $Button.'&amp;p=copyfile\'">'  .$ICONS['copy']   .hsc($_['Copy'])    .'</button>';
-		if (!$Editing_OFCMS) { echo $Button.'&amp;p=deletefile\'">'.$ICONS['delete'] .hsc($_['Delete'])  .'</button>'; }
+		if (!$Editing_OFCMS) { echo $Button.'&amp;p=renamefile\'">'.$ICONS['ren_mov'].'&nbsp;'.hsc($_['Ren_Move']).'</button>'; }
+		/*Always show Copy*/   echo $Button.'&amp;p=copyfile\'">'  .$ICONS['copy']   .'&nbsp;'.hsc($_['Copy'])    .'</button>';
+		if (!$Editing_OFCMS) { echo $Button.'&amp;p=deletefile\'">'.$ICONS['delete'] .'&nbsp;'.hsc($_['Delete'])  .'</button>'; }
 ?>
 	</div>
 <?php
@@ -1856,8 +1875,8 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 		}//end if non-image
 		
 		Edit_Page_buttons($text_editable, $too_large_to_edit);
-?>	</form>
-<?php
+	echo '</form>';
+
 	if ( $load_Edit_Page_scripts ) { Edit_Page_scripts(); }
 
 	if ($text_editable && !$too_large_to_edit && !$bad_chars) { Edit_Page_Notes(); }
@@ -1891,7 +1910,7 @@ function Edit_Page_Notes() { //*************************************************
 
 
 function Edit_Page() { //*******************************************************
-	global $_, $filename, $filecontents, $raw_contents, $etypes, $itypes, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $WYSIWYG_VALID, $ACCESS_ROOT;
+	global $_, $filename, $filecontents, $raw_contents, $etypes, $itypes, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $WYSIWYG_VALID;
 	clearstatcache ();
 
 	//Determine if a text editable file type
@@ -1929,7 +1948,7 @@ function Edit_Page() { //*******************************************************
 	echo '<style>#message_box { min-height: 1.88em; }</style>';
 
 	echo '<h2 id="edit_header">'.$header2.' ';
-	echo '<a class="h2_filename" href="/'.URLencode_path($ACCESS_ROOT.$filename).'" target="_blank" title="'.$_['Open_View'].'">';
+	echo '<a class="h2_filename" href="/'.URLencode_path($filename).'" target="_blank" title="'.$_['Open_View'].'">';
 	echo hte(basename($filename)).'</a>';
 	echo '</h2>'.PHP_EOL;
 
@@ -2134,17 +2153,17 @@ function Set_Input_width() { //*************************************************
 	// $MAIN_WIDTH: Set in config section, may be in em, px, pt, or %. Ignoring % for now.
 	// Width of 1 character = .625em = 10px = 7.5pt  (1em = 16px = 12pt)
 
-	$main_units   = substr($MAIN_WIDTH, -2);
-	$main_width   = $MAIN_WIDTH * 1;
+	$main_units  = substr($MAIN_WIDTH, -2);
+	$main_width  = $MAIN_WIDTH * 1;
 
-	$root_enc    =  mb_detect_encoding($WEB_ROOT);           //ASCII? UTF8? etc...
-	$root_width  = (mb_strlen(rawurldecode($WEB_ROOT), $root_enc));
+	$root_enc    = mb_detect_encoding($WEB_ROOT);           //ASCII? UTF8? etc...
+	$root_width  = mb_strlen($WEB_ROOT, $root_enc);
 
-	$label_enc   =  mb_detect_encoding($_['New_Location']);  //ASCII? UTF8? etc...
-	$label_width = (mb_strlen($_['New_Location'], $label_enc));
+	$label_enc   = mb_detect_encoding($_['New_Location']);  //ASCII? UTF8? etc...
+	$label_width = mb_strlen($_['New_Location'], $label_enc);
 
 	//convert to em
-	$root_width *= .625;
+	$root_width  *= .625;
 	$label_width *= .625;
 	if     ( $main_units == "px") { $main_width = $main_width / 16 ; }
 	elseif ( $main_units == "pt") { $main_width = $main_width / 12 ; }
@@ -2178,7 +2197,7 @@ function CRM_Page($action, $title, $name_id, $old_name) { //********************
 		echo '<label>'.hsc($_['CRM_txt_04']).':</label>';
 		echo '<input type=text name=new_name id=new_name class=old_new_name value="'.hsc(basename($new_name)).'"><br>';
 		echo '<label>'.hsc($_['New_Location']).':</label>';
-		echo '<span class="web_root">'.hte(urldecode($WEB_ROOT)).'</span>';
+		echo '<span class="web_root">'.hte($WEB_ROOT).'</span>';
 		echo '<input type=text name=new_location id=new_location value="'.hsc(dir_name($new_name)).'"><br>';
 		echo '('.hsc($_['CRM_txt_02']).')<p>';
 		Cancel_Submit_Buttons($action);
@@ -2385,7 +2404,7 @@ function MCD_response($action, $msg1, $success_msg = '') { //*******************
 
 	$successful = $count - $errors;
 	
-	if ($errors) { $message .= $EX.' <b>'.$errors.' '.hsc($_['errors']).'.</b> '; }
+	if ($errors) {$message .= $EX.' <b>'.$errors.' '.hsc($_['errors']).'.</b><br>';}
 	
 	if ($count > 1) {$message .= '<b>'.$successful.' '.hsc($success_msg).'</b><br>';}
 
@@ -3363,9 +3382,10 @@ function Language_and_config_adjusted_styles() { //*****************************
 
 Default_Language(); // Load Default Language settings
 
-//If specified in config, check for & load external $LANGUAGE_FILE
-if ( isset($LANGUAGE_FILE) && is_file($LANGUAGE_FILE) ) { include($LANGUAGE_FILE); }
+System_Setup();
 
+//If specified, check for & load external $LANGUAGE_FILE
+if ( isset($LANGUAGE_FILE) && is_file($LANGUAGE_FILE) ) { include($LANGUAGE_FILE); }
 
 if( PHP_VERSION_ID < PHP_VERSION_ID_REQUIRED ) {
 	exit( 'PHP '.PHP_VERSION.'<br>'.hsc($_['OFCMS_requires']).' '.PHP_VERSION_REQUIRED );
@@ -3387,21 +3407,21 @@ if ($_SESSION['valid']) {
 
 	Init_ICONS();
 
+	Init_Macros();
+
 	undo_magic_quotes();
 
 	Get_GET();
 
-	Init_Macros();
+	if ($page == "phpinfo") { phpinfo(); die; }
+
+	Validate_params();
 
 	Respond_to_POST();
 
-	Verify_Page_Conditions();
+	Verify_Page_Conditions(); //Must come after Respond_to_POST()
 
 	Update_Recent_Pages();
-	
-	//Used to disable some options if editing OneFileCMS itself.
-	$Editing_OFCMS = false;
-	if ( isset($filename) && ($filename == trim($_SERVER['SCRIPT_NAME'], '/')) ) { $Editing_OFCMS = true; }
 
 	//Don't show path header on some pages.
 	$Show_Path = true;

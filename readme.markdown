@@ -2,6 +2,29 @@
 
 ## Recent changes
 
+### December 12, 2012 (v3.4.19)
+
+- Slightly adjusted how wysiwyg plugins are implemented - removed $WYSIWIG_SOURCE config variable.
+
+- Two steps forward, one step back...  
+	Just for now - removed the $ACCESS_ROOT option.  I was coding in circles and getting no where while trying to reconcile various issues:  
+
+	- With OneFileCMS in any folder other than the web root,
+	- With OneFileCMS in a folder other than $ACCESS_ROOT  
+	- Depending on the above, can't delete the backup copy of OneFileCMS created by a p/w or u/n change).
+	- External file references (config, language, plugins) affected by the above.  
+	- Should $ACCESS_ROOT also restrict access to OneFileCMS itself?  That would prevent p/w & u/n changes.
+	- Display of the current/path/header/ varies depending on $ACESS_ROOT.
+	- Combining the above.
+	
+	A solution is in the works, but I'm going to take some time to make sure no new problems are introduced by the eventual fix. (hahaha...) It will probably end up being simple, but it's not yet...
+
+- Just a general note on security: due to the fundamental structure of OneFileCMS - primarily that it's one file, and that there is no seperate database for authentication - there are certain inherent security limitations that need to be kept in mind:  
+	- The first is that all OneFileCMS users are "admins", with the ability to upload and edit files with any type of code.
+	- Next, as a direct consequence of the prior point, is that any restriction imposed by some potential feature, such as the $ACCESS_ROOT option that limited access to a specific folder, is only - at most - a guard against accidental access and modification of files outside of the "accessible" folder.   This is not to say that such features are not useful, this is simply to provide a realistic expectation of security - that OneFileCMS should only be used with trusted users.
+
+As a final note - some additional features are being considered for the future, but the current issues noted above need to be resolved first.
+
 ### December 03, 2012 (v3.4.18)
 
 Of course, everything comes with a price (exacerbated by my apparent lack of testing...)
@@ -45,22 +68,6 @@ Due to popular demand (ie: it has been requested more than once), WYSYWIG editor
 
 - I want to thank [fermuch](http://github.com/fermuch) for the client-side hashing suggestion.  While a somewhat different approach was ultlimately employed, his original solution provided the insight needed to approach the idea in general.
 
-### November 12, 2012 (v3.4.14)
-
-- Courtesy of [Fuchur777](github.com/Fuchur777), added option to restrict OneFileCMS to a specified folder (and it's sub-folders).
-- Fixed issue on Upload page if using PHP v3.2.12 or earlier.
-- A few miscellaneous code improvements.
-
-### November 11, 2012
-
-- Thanks to [zaykin](https://github.com/zaykin) for the Russian language file!
-
-### November 5, 2012 (v3.4.13)
-
-- Thanks to [symsec](http://github.com/symsec) for the Dutch (Nederlands) language file!
-- Otherwise, mostly some incidental code improvements and cleanup.
-
-
 --------------------------------------------------------------------------------
 
 # OneFileCMS
@@ -77,6 +84,14 @@ Edit screen:
 OneFileCMS is just that: It's a flat, light, one file CMS (Content Management System) contained entirely in an easy-to-implement database-less PHP script.
 
 Coupling a utilitarian code editor with basic file managing functions, OneFileCMS can maintain an entire website completely in-browser without any external programs.
+
+## What it is not:
+
+- OneFileCMS would not be the best option for a site maintained by multiple users with different levels of privileges, unless all of the users are trusted to stay within their designated areas of responsibility. Since OneFileCMS allows file uploads, and editing files directly on the web server, there is simply no way to restrict undesired actions. A user with access restricted to a particular folder could simply upload an unrestricted version of OneFileCMS (or ANY such file).
+
+	The $ACCESS_ROOT configuration variable in OneFileCMS simply provides an option to generally restrict actions to a particular directory.  But, as mentioned, this is useful only if you trust the person editing the site with $ACCESS_ROOT enabled.  It does not prevent the issues mentioned above - such as uploading an unrestricted version of OneFileCMS.
+
+	These issues are not unique to OneFileCMS - they will exist in any CMS that permits unrestricted file uploads & editing.
 
 ## Demo
 
@@ -129,7 +144,7 @@ Well, because "OneFileCMS" sounds way cooler (relatively speaking) than "OneFile
 Yes!  Currently, English (EN), German (DE), Spanish (ES), Dutch (NL), and Russian (RU) are available.
 
 - German (Deutsch) courtesy of [codeless](http://github.com/codeless).
-- Spanish (Espanıla) courtesy of [fermuch](http://github.com/fermuch).
+- Spanish (Espan√µla) courtesy of [fermuch](http://github.com/fermuch).
 - Dutch (Nederlands) courtesy of [symsec](http://github.com/symsec).  
 - Russian courtesy of [zaykin](https://github.com/zaykin).  
 
