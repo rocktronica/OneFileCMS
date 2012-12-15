@@ -3407,8 +3407,6 @@ if ($_SESSION['valid']) {
 
 	Init_ICONS();
 
-	Init_Macros();
-
 	undo_magic_quotes();
 
 	Get_GET();
@@ -3416,6 +3414,8 @@ if ($_SESSION['valid']) {
 	if ($page == "phpinfo") { phpinfo(); die; }
 
 	Validate_params();
+
+	Init_Macros(); //Must go after Get_GET()/Validate_params().
 
 	Respond_to_POST();
 

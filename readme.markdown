@@ -16,8 +16,9 @@
 	- Should $ACCESS_ROOT also restrict access to OneFileCMS itself?  That would prevent p/w & u/n changes.
 	- Display of the current/path/header/ varies depending on $ACESS_ROOT.
 	- Combining the above.
+	- A number of other things I can't recall at the moment... (didn't write them down...)
 	
-	A solution is in the works, but I'm going to take some time to make sure no new problems are introduced by the eventual fix. (hahaha...) It will probably end up being simple, but it's not yet...
+	A solution is in the works, but I'm going to take some time to make sure no new problems are introduced by the eventual fix. (hahaha...):
 
 - Just a general note on security: due to the fundamental structure of OneFileCMS - primarily that it's one file, and that there is no seperate database for authentication - there are certain inherent security limitations that need to be kept in mind:  
 	- The first is that all OneFileCMS users are "admins", with the ability to upload and edit files with any type of code.
