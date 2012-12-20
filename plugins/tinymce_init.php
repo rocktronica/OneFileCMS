@@ -14,12 +14,17 @@ Here is a brief how-to:
     "tinymce_init.php" into the "plugins/" folder.
 
  4) In the configuration section of OneFileCMS, add the following variable:
-    $WYSIWYG_PLUGIN = 'plugins/tinymce_init.php';  //Init settings for TinyMCE (this file).
+    $WYSIWYG_PLUGIN = 'plugins/tinymce_init.php'; // Init settings for TinyMCE (this file).
 
- 5) In the "init" file indicated above: 
-      - specify the source file of the actual plugin via a <script src= ...> tag.
+	Path can be absolute to the filesystem, or relative to root of website.
 
-	    (see below).
+ 5) In the "init" file specified by $WYSIWYG_PLUGIN (this file): 
+    - specify the source file of the actual plugin via a <script src= ...> tag.*
+
+
+	*Note: In this case, the plugin path is absolute, but still relative to the root of the website, 
+	and the leading forward slash is generally required. 
+	(This is in contrast to configuration values such as $WYSIWYG_PLUGIN.)
 
  6) In OneFileCMS- open a file for editing, and click [Edit WYSIWIG].
 *****************************************************************************/?>

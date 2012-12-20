@@ -16,10 +16,15 @@ Here is a brief how-to:
  4) In the configuration section of OneFileCMS, add the following variable:
     $WYSIWYG_PLUGIN = 'plugins/ckeditor_init.php';  //Init settings for CKEditor (this file).
 
- 5) In the "init" file indicated above: 
-      - specify the source file of the actual plugin via a <script src= ...> tag.
-	  - specify the id of the OneFileCMS textarea, "file_editor", in the CKEDITOR.replace() call
-	    (see below).
+	Path can be absolute to the filesystem, or relative to root of website.
+
+ 5) In the "init" file specified by $WYSIWYG_PLUGIN (ie: this file): 
+    1) specify the source file of the actual plugin via a <script src= ...> tag.*
+	2) specify the id of the OneFileCMS textarea, "file_editor", in the CKEDITOR.replace() call
+	    
+	*Note: In this case, the plugin path is absolute, but still relative to the root of the website, 
+	and the leading forward slash is generally required. 
+	(This is in contrast to configuration values such as $WYSIWYG_PLUGIN.)
 
  6) In OneFileCMS- open a file for editing, and click [Edit WYSIWIG].
 *****************************************************************************/?>

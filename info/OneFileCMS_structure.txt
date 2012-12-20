@@ -1,4 +1,4 @@
-OneFileCMS Version 3.4.19 structure/layout
+OneFileCMS Version 3.4.20 structure/layout
 
 LICENSE
 
@@ -16,9 +16,10 @@ MISC FUNCTIONS:
 	hashit()
 	Error_reporting_and_early_output()
 	Update_Recent_Pages()
-	strip_array()
 	undo_magic_quotes()
+		strip_array()
 	Validate_params()
+	Valid_Path()
 	Get_GET()
 	Verify_Page_Conditions()
 	has_invalid_char()
@@ -112,10 +113,12 @@ STYLESHEET FUNCTIONS:
 LOGIC TO DETERMINE PAGE ACTION
 	Load Default_Language()
 	System_setup()
-	If specified, load external language file
 	Verify PHP version
 	Session_Startup()
+	Init_Icons()
 	Get_GET()
+	Validate_params()
+	Valid_Path()
 	Init_Macros()
 	Respond_to_POST()
 	Verify_page_conditions()

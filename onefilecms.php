@@ -1,7 +1,7 @@
-<?php  
+<?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.19';
+$OFCMS_version = '3.4.20';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -62,14 +62,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 //Some basic security & error log settings**************************************
-$ER = 0; $DE = 'off';                  //Disable error_reporting and display_erros.
-//$ER = E_ALL | E_STRICT; $DE = 'on';  //Uncomment for trouble-shooting.     //##### 
+$ER = 0;  $DE = 'off';   //Default to  no error_reporting and no display_errors.
+$ER = E_ALL & ~E_STRICT; $DE = 'on';  //For trouble-shooting. //##### 
+
 ob_start(); //Catch any early output. Closed prior to page output.
 ini_set('session.use_trans_sid', 0);    //make sure URL supplied SESSID's are not used
 ini_set('session.use_only_cookies', 1); //make sure URL supplied SESSID's are not used
 error_reporting($ER); //0 for none, or (E_ALL &~ E_STRICT) for trouble-shooting.
-ini_set('display_errors', $DE);             //Only turn on for trouble-shooting.
-ini_set('log_errors'    , 'off');           //Only turn on for trouble-shooting.
+ini_set('display_errors', $DE);
+ini_set('log_errors'    , 'off');
 ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
 //Determine good folder for session file? Default is tmp/, which is not secure, but it may not be a serious concern.
 //session_save_path($safepath)  or  ini_set('session.save_path', $safepath)
@@ -86,10 +87,6 @@ $HASHWORD = "cff29a3b595b427ef8d01c089d368c7706a8c68ecc75d566642e313ee97ff659"; 
 //$HASHWORD = "cff29a3b595b427ef8d01c089d368c7706a8c68ecc75d566642e313ee97ff659"; //"password"
 $SALT     = 'somerandomsalt';
 
-//Name of optional external language file.  If file is not found, the built-in defaults will be used.
-//Path can be absolute to the filesystem, or relative to root of website - if chdir($DOC_ROOT). (current method)
-//$LANGUAGE_FILE = "OneFileCMS.LANG.EN.php";
-
 $MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;  //In seconds.
 $MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings (like gc) may limit its max effective value.
@@ -97,12 +94,12 @@ $MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings (like 
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.          Can be px, pt, em, or %.  Assumes px otherwise.
 $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked.  Can be px, pt, em, or %.  Assumes px otherwise.
 
-$MAX_IMG_W   = 810;  //Max width to display images. (main width is 810)
-$MAX_IMG_H   = 1000; //Max height.  I don't know, it just looks reasonable.
-
 $MAX_EDIT_SIZE = 150000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
 $MAX_VIEW_SIZE = 1000000; // If file > $MAX_EDIT_SIZE, don't even view in OneFileCMS.
                           // The default max view size is completely arbitrary. Basically, it was 2am and seemed like a good idea at the time.
+
+$MAX_IMG_W   = 810;  //Max width (in px) to display images. (main width is 810)
+$MAX_IMG_H   = 1000; //Max height (in px).  I don't know, it just looks reasonable.
 
 $UPLOAD_FIELDS = 6; //Number of upload fields on Upload File(s) page. Max value is ini_get('max_file_uploads').
 
@@ -126,56 +123,100 @@ $EX = '<b>( ! )</b> '; //EXclaimation point "icon" Used in $message's
 
 $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copies of OneFileCMS.
 
+//Restrict access to a particular folder.  Leave empty for access to entire website.
+// "some/path/" is relative to root of website (with no leading slash).
+//$ACCESS_ROOT = 'some/path/';
+
+
+//Notes for $LANGUAGE_FILE, $WYSIWYG_PLUGIN, and $CONFIG_FILE:
+//
+// Filename paths can be:
+//  1) Absolute to the filesystem:  "/some/path/from/system/root/somefile.php"  or
+//  2) Relative to root of website: "some/path/from/web/root/somefile.php"
+
+//Name of optional external language file.  If file is not found, the built-in defaults will be used.
+//$LANGUAGE_FILE = "OneFileCMS.LANG.EN.php";
+
 //Init file for optional external wysiwyg editor.
 //Sample init files are availble in the OneFileCMS repo, but the actual editors are not.
-//Path can be absolute to the filesystem, or relative to root of website - if chdir($DOC_ROOT). (current method)
 //$WYSIWYG_PLUGIN = 'plugins/tinymce_init.php';
 //$WYSIWYG_PLUGIN = 'plugins/ckeditor_init.php';
 
-//External config file, if there is one.  Any settings it contains will supersede those above.
-//Path can be absolute to the filesystem, or relative to root of website - if chdir($DOC_ROOT). (current method)
+//Name of optional external config file.  Any settings it contains will supersede those above.
 //See the sample file in the OneFileCMS github repo for format example.
-//$config_file = 'OFCMS_config.SAMPLE.php';
+//$CONFIG_FILE = 'OneFileCMS.config.SAMPLE.php';
 //end CONFIGURABLE INFO ********************************************************
 
 
 
 
-function System_Setup() { //System Setup ***************************************
-	global $_, $LANGUAGE_FILE, $config_file,  $WYSIWYG_PLUGIN, $WYSIWYG_VALID, $DOC_ROOT, $WEB_ROOT, $WEBSITE,
-	$USERNAME, $HASHWORD, $MAX_ATTEMPTS, $LOGIN_DELAY, $MAX_IMG_W, $MAX_IMG_H, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, 
-	$MAX_IDLE_TIME, $MAIN_WIDTH, $WIDE_VIEW_WIDTH, $UPLOAD_FIELDS, $config_favicon, $EX, $SESSION_NAME, 
-	$ONESCRIPT,  $ONESCRIPT_file, $ONESCRIPT_backup, $ONESCRIPT_file_backup, 
-	$CONFIG_backup, $CONFIG_file,$CONFIG_file_backup, $LOGIN_ATTEMPTS,
-	$TO_WARNING, $INVALID_CHARS, $WHSPC_SLASH, $VALID_PAGES, $SHOWALLFILES,
-	$config_etypes, $config_stypes, $config_itypes, $config_ftypes, $config_fclass, $config_excluded, 
-	$etypes, $itypes, $ftypes, $fclasses, $excluded_list, $PRE_ITERATIONS, $EX, $message, $VERS; //$VERS used durring developement.
+function System_Setup() { //****************************************************
 
-mb_internal_encoding('utf-8');
+global $config_title, $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS, 
+	$MAIN_WIDTH, $WIDE_VIEW_WIDTH, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $config_excluded, 
+	$config_etypes, $config_stypes,$config_itypes, $config_ftypes, $config_fclass, 
+	$SHOWALLFILES, $etypes, $itypes, $ftypes, $fclasses, $excluded_list, 
+	$LANGUAGE_FILE, $ACCESS_ROOT, $ACCESS_ROOT_len, $WYSIWYG_PLUGIN, $WYSIWYG_VALID, 
+	$TO_WARNING, $INVALID_CHARS, $WHSPC_SLASH, $VALID_PAGES, 
+	$ONESCRIPT,  $ONESCRIPT_file, $ONESCRIPT_backup, $ONESCRIPT_file_backup, 
+	$CONFIG_backup, $CONFIG_FILE,$CONFIG_FILE_backup, $VALID_CONFIG_FILE, 
+	$DOC_ROOT, $WEB_ROOT, $WEBSITE, $PRE_ITERATIONS, $EX, $message;
 
 $DOC_ROOT = $_SERVER['DOCUMENT_ROOT'].'/'; //root folder of website.
 
 //Allow OneFileCMS.php to be started from any dir on the site.
-//This also effects the path for include() files:
-//The path for an include file can be absolute to the filesystem,
-//     or relative to OneFileCMS - if no chdir() done,       //#####
-//     or relative to root of website - if chdir($DOC_ROOT). (current method)//#####
-chdir($DOC_ROOT);
+//This also effects the path in an include("path/somefile.php")
+chdir($DOC_ROOT); 
+
+mb_internal_encoding('utf-8');
+
+$INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file & folder names.  Space deliminated.
+$WHSPC_SLASH = "\x00..\x20/";  //Whitespace & forward slash. For trimming file & folder name inputs.
+
+$ONESCRIPT = URLencode_path($_SERVER['SCRIPT_NAME']); //Used for URL's
+$WEB_ROOT  = basename($DOC_ROOT).'/'; //Used only for screen output - Non-url use.
+$WEBSITE   = $_SERVER['HTTP_HOST'].'/';
+
+$ONESCRIPT_file        = $_SERVER['SCRIPT_FILENAME'];  //Non-url use
+$ONESCRIPT_backup      = $ONESCRIPT.'.BACKUP.php';       //used for p/w & u/n updates.
+$ONESCRIPT_file_backup = $ONESCRIPT_file.'.BACKUP.php';  //used for p/w & u/n updates.
+$LOGIN_ATTEMPTS        = $ONESCRIPT_file.'.invalid_login_attempts';
 
 //If specified & found, include external config file. Otherwise clear it.
-if     ( isset($config_file) && is_file($config_file) ) {
-	include($config_file);
+$VALID_CONFIG_FILE = 0;
+if     (!isset($CONFIG_FILE)) { $CONFIG_FILE = ''; }
+elseif ( isset($CONFIG_FILE) && is_file($CONFIG_FILE) ) {
+	$VALID_CONFIG_FILE = 1;
+	include($CONFIG_FILE);
+	$CONFIG_backup         = URLencode_path($CONFIG_FILE).'.BACKUP.php'; //used for p/w & u/n updates.
+	$CONFIG_FILE_backup    = $CONFIG_FILE.'.BACKUP.php';                 //used for p/w & u/n updates.
 }
-elseif ( isset($config_file) && !is_file($config_file) ) {
-	$message .= $EX.'<b>$config_file '.$_['Not_found'].':</b> '.$config_file.'<br>';
+elseif ( isset($CONFIG_FILE) && !is_file($CONFIG_FILE) ) {
+	$message .= $EX.'<b>$CONFIG_FILE '.$_['Not_found'].':</b> '.$CONFIG_FILE.'<br>';
 	$message .= '<b>getcwd() == </b>'.getcwd().'<br>';
-	$config_file = '';
+	$CONFIG_FILE = '';
 }
-else { $config_file = ''; }
+
+
+//If specified, check for & load external $LANGUAGE_FILE
+if ( isset($LANGUAGE_FILE) && is_file($LANGUAGE_FILE) ) { include($LANGUAGE_FILE); }
+
 
 //If specified, validate $WYSIWYG_PLUGIN. Actual include is at end of OneFileCMS.
 $WYSIWYG_VALID = 0; //Default to invalid.
 if ( isset($WYSIWYG_PLUGIN) && is_file($WYSIWYG_PLUGIN) ) { $WYSIWYG_VALID = 1; }
+
+
+//If specified, clean up & validate $ACCESS_ROOT.
+if (!isset($ACCESS_ROOT)) { $ACCESS_ROOT = ''; } //At least make sure it's set.
+if (!is_dir($_SERVER['DOCUMENT_ROOT'].'/'.$ACCESS_ROOT) || (Check_path($ACCESS_ROOT,1) === false) ) {
+	$message .= $EX.'<b>$ACCESS_ROOT '.$_['Invalid_path'].': </b>'.$ACCESS_ROOT.'<br>';
+	$ACCESS_ROOT = '';
+}
+if ($ACCESS_ROOT != '') { $ACCESS_ROOT = trim($ACCESS_ROOT, ' /').'/';}
+$ACCESS_ROOT_enc = mb_detect_encoding($ACCESS_ROOT);
+$ACCESS_ROOT_len = mb_strlen($ACCESS_ROOT, $ACCESS_ROOT_enc);
+
 
 //Determine if valid units are set for $MAIN_WIDTH.  If not, assume px.
 $main_units   = substr($MAIN_WIDTH, -2); //should be px, pt, em, or %.
@@ -183,11 +224,13 @@ if ( ($main_units != "px") && ($main_units != "pt") && ($main_units != "em") && 
 	$MAIN_WIDTH = ($MAIN_WIDTH * 1).'px';
 }
 
+
 //Determine if valid units are set for $WIDE_VIEW_WIDTH.  If not, assume px.
 $main_units   = substr($WIDE_VIEW_WIDTH, -2); //should be px, pt, em, or %.
 if ( ($main_units != "px") && ($main_units != "pt") && ($main_units != "em") && (substr($WIDE_VIEW_WIDTH, -1) != '%')) {
 	$WIDE_VIEW_WIDTH = ($WIDE_VIEW_WIDTH * 1).'px';
 }
+
 
 //Requires PHP 5.1, due to changes in some functions.
 define('PHP_VERSION_ID_REQUIRED',50100);   //Ex: 5.1.23 is 50123
@@ -201,26 +244,10 @@ if (!defined('PHP_VERSION_ID')) {
 	define('PHP_VERSION_ID', ($phpversion[0] * 10000 + $phpversion[1] * 100 + $phpversion[2]));
 }
 
-$ONESCRIPT = URLencode_path($_SERVER['SCRIPT_NAME']); //Used for URL's
-$WEB_ROOT  = basename($DOC_ROOT).'/'; //Used only for screen output - Non-url use.
-$WEBSITE   = $_SERVER['HTTP_HOST'].'/';
-
-$ONESCRIPT_file = $_SERVER['SCRIPT_FILENAME'];  //Non-url use
-$ONESCRIPT_path = dirname($ONESCRIPT_file).'/'; //Non-url use - Do not use dir_name().
-$LOGIN_ATTEMPTS = $ONESCRIPT_file.'.invalid_login_attempts';
-
-$ONESCRIPT_backup      = $ONESCRIPT.'.BACKUP.php';                   //used for p/w & u/n updates.
-$ONESCRIPT_file_backup = $ONESCRIPT_file.'.BACKUP.php';              //used for p/w & u/n updates.
-$CONFIG_backup         = URLencode_path($config_file).'.BACKUP.php'; //used for p/w & u/n updates.
-$CONFIG_file           = $ONESCRIPT_path.basename($config_file);     //used for p/w & u/n updates.
-$CONFIG_file_backup    = $CONFIG_file.'.BACKUP.php';                 //used for p/w & u/n updates.
 
 ini_set('session.gc_maxlifetime', $MAX_IDLE_TIME + 100); //in case the default is less.
 
 $TO_WARNING = 120; //seconds. When idle time remaining is less than this value, $timeout_warning is displayed
-
-$INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file & folder names.  Space deliminated.
-$WHSPC_SLASH = "\x00..\x20/";  //Whitespace & forward slash. For trimming file & folder name inputs.
 
 $VALID_PAGES = array("login","logout","admin","hash","changepw","changeun","index","edit","upload","uploaded","newfile","renamefile","copyfile","deletefile","deletefolder","newfolder","renamefolder","copyfolder","mcdaction", "phpinfo");
 
@@ -253,7 +280,7 @@ function hte($input) { return htmlentities($input, ENT_QUOTES, 'UTF-8'); }//end 
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.4.19
+// OneFileCMS Language Settings v3.4.20
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -279,10 +306,10 @@ $_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All']
-$_['HTML']    = 'HTML';    //####
-$_['WYSIWYG'] = 'WYSIWYG'; //####
+$_['HTML']    = 'HTML';
+$_['WYSIWYG'] = 'WYSIWYG';
 $_['Admin']   = 'Admin';
-$_['bytes']   = 'bytes';   //####
+$_['bytes']   = 'bytes';  
 $_['Cancel']  = 'Cancel';
 $_['Close']   = 'Close';
 $_['Copy']    = 'Copy';
@@ -304,12 +331,12 @@ $_['Moved']   = 'Moved';
 $_['on']      = 'on';
 $_['Password']   = 'Password';
 $_['Rename']     = 'Rename';
-$_['Source']     = 'Source';  //#### 
+$_['Source']     = 'Source'; 
 $_['successful'] = 'successful';
 $_['To']         = 'To';
 $_['Upload']     = 'Upload';
 $_['Username']   = 'Username';
-$_['Working']    = 'Working - please wait...'; //####
+$_['Working']    = 'Working - please wait...';
 $_['Log_In']     = 'Log In';
 $_['Log_Out']    = 'Log Out';
 $_['Admin_Options']  = 'Administration Options';
@@ -331,6 +358,7 @@ $_['Clear_All']      = 'Clear All';
 $_['New_Location']   = 'New Location';
 $_['No_files']       = 'No files selected.';
 $_['Not_found']      = 'Not found';
+$_['Invalid_path']   = 'Invalid path';
 $_['pass_to_hash']   = 'Password to hash:';
 $_['Generate_Hash']  = 'Generate Hash';
 $_['save_1']      = 'Save';
@@ -393,9 +421,9 @@ $_['upload_txt_03'] = 'Maximum size of each file:';
 $_['upload_txt_01'] = '(php.ini: upload_max_filesize)';
 $_['upload_txt_04'] = 'Maximum total upload size:';
 $_['upload_txt_02'] = '(php.ini: post_max_size)';
-$_['upload_txt_05'] = 'For uploaded files that already exist: '; //####
+$_['upload_txt_05'] = 'For uploaded files that already exist: ';
 $_['upload_txt_06'] = 'Rename (to filename.ext.001 etc...)';
-$_['upload_txt_07'] = 'Overwrite'; //####
+$_['upload_txt_07'] = 'Overwrite';
 $_['upload_err_01'] = 'Error 1: File too large. From php.ini:';
 $_['upload_err_02'] = 'Error 2: File too large. (Exceeds MAX_FILE_SIZE HTML form element)';
 $_['upload_err_03'] = 'Error 3: The uploaded file was only partially uploaded.';
@@ -411,7 +439,7 @@ $_['upload_msg_03'] = 'Upload cancelled.';
 $_['upload_msg_04'] = 'Uploading:';
 $_['upload_msg_05'] = 'Upload successful!';
 $_['upload_msg_06'] = 'Upload failed:';
-$_['upload_msg_07'] = 'A pre-existing file was overwritten.'; //####
+$_['upload_msg_07'] = 'A pre-existing file was overwritten.';
 $_['new_file_txt_01'] = 'File or Folder will be created in the current folder.';
 $_['new_file_txt_02'] = 'Some invalid characters are:';
 $_['new_file_msg_01'] = 'File or folder not created:';
@@ -466,7 +494,7 @@ $_['change_pw_03'] = 'Incorrect current password. Login to try again.';
 $_['change_pw_04'] = '"New" and "Confirm New" values do not match.';
 $_['change_pw_05'] = 'Updating';
 $_['change_pw_06'] = 'external config file';
-$_['change_pw_07'] = 'All fields are required.'; //####
+$_['change_pw_07'] = 'All fields are required.';
 $_['change_un_01'] = 'Username changed!';
 $_['change_un_02'] = 'Username NOT changed.';
 $_['update_failed'] = 'Update failed - could not save file.';
@@ -559,7 +587,7 @@ function hashit($key,$pre = false){ //******************************************
 
 
 
-function Error_reporting_and_early_output($show_status = 0, $show_types = 0) {//
+function Error_reporting_status_and_early_output($show_status = 0, $show_types = 0) {//
 //Display the status of error_reporting(), and ini_get() of display_errors & log_errors.
 //Also displays any early output caught by ob_start().
 	global $_, $early_output;
@@ -613,7 +641,7 @@ function Error_reporting_and_early_output($show_status = 0, $show_types = 0) {//
 		echo '<span style="background-color: white; border: 1px solid white">';
 		echo hte($early_output).'</span></pre>';
 	}
-}//end Error_reporting_and_early_output() //************************************
+}//end Error_reporting_status_and_early_output() //*****************************
 
 
 
@@ -639,16 +667,14 @@ function Update_Recent_Pages() { //*********************************************
 
 
 
-function strip_array($var) { //*************************************************
-	if (is_array($var)) {return array_map("strip_array", $var); }
-	else                {return stripslashes($var); }
-	//Note: stripslashes also handles cases when magic_quotes_sybase is on. 
-}//end strip_array() //*********************************************************
-
-
-
-
 function undo_magic_quotes(){ //************************************************
+
+	function strip_array($var) {
+		//stripslashes() also handles cases when magic_quotes_sybase is on. 
+		if (is_array($var)) {return array_map("strip_array", $var); }
+		else                {return stripslashes($var); }
+	}//end strip_array()
+
 	if (get_magic_quotes_gpc()) {
 		if (isset($_GET))    { $_GET     = strip_array($_GET);    }
 		if (isset($_POST))   { $_POST    = strip_array($_POST);   }
@@ -682,8 +708,50 @@ function Validate_params() { //*************************************************
 		$message .= '<style>#message_box          {color: white;}   </style>';
 		$message .= $EX.'<b>'.hsc($_['edit_caution_01']).' '.$EX.hsc($_['edit_caution_02']).'</b><br>';
 	}
-	
 }//end Validate_params() //*****************************************************
+
+
+
+
+function Valid_Path($path, $gotoroot=true) { //*********************************
+	//$gotoroot: if true, return to index page of $ACCESS_ROOT.
+	global  $ipath, $filename, $page, $param1, $param2, $param3, $ACCESS_ROOT, $ACCESS_ROOT_len, $message;
+	
+	//Limit access to the folder $ACCESS_ROOT:
+	//$ACCESS_ROOT = some/root/path/
+	//$path1       = some/root/path/...(or deeper)   : good
+	//$path2       = some/root/                      : bad
+	//$path3       = some/other/path/                : bad
+
+	$path_enc     = mb_detect_encoding($path);
+	$path_len     = mb_strlen($path, $path_enc);
+
+	$path_root    = mb_substr($path, 0, $ACCESS_ROOT_len);
+
+	$good_path = false;
+
+	if ($_SESSION['admin_page']) {
+		//Permit Admin actions: changing p/w, u/n, editing OneFile...
+		$ACCESS_ROOT == '';
+		return true;
+	}
+
+	elseif ( $path_len <  $ACCESS_ROOT_len ) { $good_path = false; }
+	else                          { $good_path = ($path_root == $ACCESS_ROOT); }
+
+	if (!$good_path && $gotoroot) {
+		$ipath    = $ACCESS_ROOT;
+		$filename = '';
+		//$page     = 'index';  //##### If set to index here, can't logout.
+		$param1   = '?i='.$ipath;
+		$param2   = '';
+		$param3   = '';
+		$_GET     = '';
+		$_POST    = '';
+	}
+
+	return $good_path;
+}//end Valid_Path() //**********************************************************
 
 
 
@@ -772,7 +840,7 @@ function Verify_Page_Conditions() { //******************************************
 
 
 function has_invalid_char($string) { //*****************************************
-	global $INVALID_CHARS, $INVALID_CHARS_array;
+	global $INVALID_CHARS;
 	$INVALID_CHARS_array = explode(' ', $INVALID_CHARS);
 	foreach ($INVALID_CHARS_array as $bad_char) {
 		if (strpos($string, $bad_char) !== false) { return true; }
@@ -997,21 +1065,36 @@ function rDel($path){ //********************************************************
 function Current_Path_Header(){ //**********************************************
  	// Current path. ie: webroot/current/path/
 	// Each level is a link to that level.
-	global $ONESCRIPT, $ipath, $WEB_ROOT;
+	global $ONESCRIPT, $ipath, $WEB_ROOT, $ACCESS_ROOT, $ACCESS_ROOT_len, $message;
+
+	$unaccessable = '';
+	$_1st_accessable = trim($WEB_ROOT, ' /');
+	$remaining_path = trim(substr($ipath, $ACCESS_ROOT_len), ' /');	
+
+	if ($ACCESS_ROOT != '') {
+		$unaccessable    = dirname($ACCESS_ROOT);
+		$_1st_accessable = basename($ACCESS_ROOT);
+		
+		if ($unaccessable == '.') { $unaccessable = $WEB_ROOT; }
+		else { $unaccessable = $WEB_ROOT.dirname($ACCESS_ROOT).'/'; }
+		$unaccessable = trim(str_replace('/', ' / ',$unaccessable));
+	}
 
 	echo '<h2>';
-		//Root folder of web site.
-		echo '<a id="path_0" href="'.$ONESCRIPT.'" class="path"> '.hte(trim($WEB_ROOT, ' /')).'</a>/';
+		//Root (or $ACCESS_ROOT) folder of web site.
+		$p1 = '?i='.URLencode_path($ACCESS_ROOT);
+		echo hte($unaccessable).'<a id="path_0" href="'.$ONESCRIPT.$p1.'" class="path">'.hte($_1st_accessable).'</a>/';
 		$x=0; //need here for focus() in case at webroot.
 		
-		if ($ipath != "" ) { //if not at root, show the rest
-			$path_levels  = explode("/",trim($ipath,'/') );
+		if ($remaining_path != "" ) { //if not at root, show the rest
+			$path_levels  = explode("/",trim($remaining_path,'/') );
 			$levels = count($path_levels); //If levels=3, indexes = 0, 1, 2  etc...
 			$current_path = "";
 			
 			for ($x=0; $x < $levels; $x++) {
 				$current_path .= $path_levels[$x].'/';
-				echo '<a id="path_'.($x+1).'" href="'.$ONESCRIPT.'?i='.URLencode_path($current_path).'" class="path">';
+				$p1 = '?i='.URLencode_path($ACCESS_ROOT.$current_path);
+				echo '<a id="path_'.($x+1).'" href="'.$ONESCRIPT.$p1.'" class="path">';
 				echo hte($path_levels[$x]).'</a>/';
 			}
 		}//end if (not at root)
@@ -1030,11 +1113,13 @@ function Page_Header(){ //******************************************************
 		$favicon =  '<img src="/'.URLencode_path($config_favicon).'" alt="">';
 	}
 
+	$on_php = '('.hsc($_['on']).'&nbsp;php&nbsp;'.phpversion().')';
+	if ($_SESSION["valid"]) { $on_php = '<a href="'.$ONESCRIPT.'?p=phpinfo'.'" target=_blank>'.$on_php.'</a>';}
+
 	echo '<div id="header">';
 		echo '<a href="'.$ONESCRIPT.'" id="logo">'.$config_title.'</a> '.$OFCMS_version.' ';
-		echo '<a href="'.$ONESCRIPT.'?p=phpinfo'.'" target=_blank>';
-		echo '('.hsc($_['on']).'&nbsp;php&nbsp;'.phpversion().')</a>';
-
+		echo $on_php;
+		
 		echo '<div class="nav">';
 			echo '<b><a href="/" target="_blank">'.$favicon.' ';
 			echo hte($WEBSITE).'</a></b>';
@@ -1241,8 +1326,8 @@ function List_Backup($file, $file_url){ //**************************************
 	global $_, $ONESCRIPT, $ICONS;
 
 	clearstatcache ();
-	$href = $ONESCRIPT.'?i='.dir_name($file_url).'&amp;f='.basename($file_url);
-	$edit_link = '<a href="'.$href.'&amp;p=edit'.'" id="old_backup">'.hte(rawurldecode(basename($file_url))).'</a>';
+	$href = $ONESCRIPT.'?i='.dir_name(trim($file_url,'/')).'&amp;f='.basename($file_url);
+	$edit_link = '<a href="'.$href.'&amp;p=edit'.'" id="old_backup">'.hte(basename($file)).'</a>';
 ?>
 	<table class="index_T old_backup_T"><tr>
 	<td class="file_name"><?php echo $edit_link; ?></td>
@@ -1261,7 +1346,7 @@ function List_Backup($file, $file_url){ //**************************************
 
 function Admin_Page() { //******************************************************
 	global $_, $ONESCRIPT, $ONESCRIPT_backup, $ONESCRIPT_file_backup, $CONFIG_backup,
-		   $ipath, $filename, $param1, $param2, $EX, $config_title,  $CONFIG_file_backup;
+		   $ipath, $filename, $param1, $param2, $EX, $config_title,  $CONFIG_FILE_backup;
 
 	// Restore/Preserve $ipath prior to admin page in case OneFileCMS is edited (which would change $ipath).
 	if   ( $_SESSION['admin_page'] ) { $ipath  = $_SESSION['admin_ipath'];
@@ -1294,10 +1379,10 @@ function Admin_Page() { //******************************************************
 
 <?php  //Check for & indicate if backups exists from a prior p/w or u/n change.
 	clearstatcache ();
-	if (is_file($ONESCRIPT_file_backup) || is_file($CONFIG_file_backup) ) {
+	if (is_file($ONESCRIPT_file_backup) || is_file($CONFIG_FILE_backup) ) {
 		echo '<p><b>'.hsc($_['admin_txt_00']).'</b></p>';
 		if (is_file($ONESCRIPT_file_backup)) { List_Backup($ONESCRIPT_file_backup, $ONESCRIPT_backup); }
-		if (is_file($CONFIG_file_backup))    { List_Backup($CONFIG_file_backup, $CONFIG_backup); }
+		if (is_file($CONFIG_FILE_backup))    { List_Backup($CONFIG_FILE_backup, $CONFIG_backup); }
 		echo '<p>'.hsc($_['admin_txt_01']).'<hr>';
 		$focus_on = 'old_backup'; //id of filename listed
 	}else {
@@ -1456,8 +1541,8 @@ function Update_config($search_for, $replace_with, $search_file, $backup_file) {
 
 function Change_PWUN_response($PWUN, $msg){ //**********************************
 	//Update $USERNAME or $HASHWORD. Default $page = changepw or changeun
-	global $_, $ONESCRIPT, $USERNAME, $HASHWORD, $EX, $message, $page, $config_file,
-		   $ONESCRIPT_file, $ONESCRIPT_file_backup, $CONFIG_file, $CONFIG_file_backup;
+	global $_, $ONESCRIPT, $USERNAME, $HASHWORD, $EX, $message, $page, 
+		   $ONESCRIPT_file, $ONESCRIPT_file_backup, $CONFIG_FILE, $CONFIG_FILE_backup, $VALID_CONFIG_FILE;
 
 	// trim white-space from input values
 	$current_pass = trim($_POST['password']);
@@ -1496,11 +1581,9 @@ function Change_PWUN_response($PWUN, $msg){ //**********************************
 		}
 		
 		//If specified & it exists, update external config file.
-		//$config_file (lowercase) is the user supplied config value.
-		//$CONFIG_file (uppercase) includes full filesystem path.
-		if ( isset($config_file) && is_file($CONFIG_file) ) {
+		if ( $VALID_CONFIG_FILE ) {
 			$message .= $_['change_pw_05'].' '.$_['change_pw_06'].'. . . ';
-			$updated = Update_config($search_for, $replace_with, $CONFIG_file, $CONFIG_file_backup);
+			$updated = Update_config($search_for, $replace_with, $CONFIG_FILE, $CONFIG_FILE_backup);
 		}else{ //Update OneFileCMS
 			$message .= $_['change_pw_05'].' OneFileCMS . . . ';
 			$updated = Update_config($search_for, $replace_with, $ONESCRIPT_file, $ONESCRIPT_file_backup);
@@ -1696,7 +1779,7 @@ function Table_of_Files($full_list) { //****************************************
 
 
 function Index_Page(){ //*******************************************************
-	global $_, $ICONS, $ONESCRIPT, $ipath, $param1, $ftypes, $fclasses, $excluded_list;
+	global $_, $ICONS, $ONESCRIPT, $ipath, $param1, $ftypes, $fclasses;
 
 	$full_list = Sort_Seperate($ipath, scandir('./'.$ipath));
 	$file_count = count($full_list);
@@ -2018,7 +2101,6 @@ function Upload_Page() { //*****************************************************
 			echo '<label><INPUT TYPE=radio NAME=ifexists VALUE=overwrite     > '.hsc($_['upload_txt_07']).'</label>';
 		echo '</div>';
 		
-		echo '<input type="hidden" name="upload_destination" value="'.hsc($ipath).'" ><p>';
 		for ($x = 0; $x < $UPLOAD_FIELDS; $x++) {
 			//size attibute is for FF (and is not em, px, pt, or %).
 			//width attribute is for IE & Chrome, and can be set via css (in style_sheet()).
@@ -2034,7 +2116,7 @@ function Upload_Page() { //*****************************************************
 
 
 function Upload_response() { //*************************************************
-	global $_, $filename, $page, $EX, $message, $UPLOAD_FIELDS;
+	global $_, $filename, $ipath, $page, $EX, $message, $UPLOAD_FIELDS;
 
 	$page  = "index"; //return to index.
 
@@ -2044,7 +2126,7 @@ function Upload_response() { //*************************************************
 		
 		$filecount++;
 		$filename    = $_FILES['upload_file']['name'][$N];
-		$destination = Check_path($_POST['upload_destination']);
+		$destination = $ipath;
 		$savefile_msg = '';		
 		
 		$MAXUP1 = ini_get('upload_max_filesize');
@@ -2089,14 +2171,14 @@ function Upload_response() { //*************************************************
 
 
 
-function New_Page($title, $id) { //*********************************************
+function New_Page($title, $new_f_or_f) { //*********************************************
 	global $_, $FORM_COMMON, $INVALID_CHARS;
 
 	echo '<h2>'.hte($title).'</h2>';
 	echo $FORM_COMMON;
 		echo '<p>'.hsc($_['new_file_txt_01'].' '.$_['new_file_txt_02']);
 		echo '<span class="mono"> '.hte($INVALID_CHARS).'</span></p>';
-		echo '<input type="text" name="'.$id.'" id="'.$id.'" value=""><p>';
+		echo '<input type="text" name="'.$new_f_or_f.'" id="'.$new_f_or_f.'" value=""><p>';
 		Cancel_Submit_Buttons($_['Create']);
 	echo '</form>';
 }//end New_Page() //************************************************************
@@ -2147,7 +2229,7 @@ function New_response($post, $isfile){ //***************************************
 
 
 function Set_Input_width() { //*************************************************
-	global $_, $WEB_ROOT, $MAIN_WIDTH;
+	global $_, $WEB_ROOT, $MAIN_WIDTH, $ACCESS_ROOT;
 
 	// (width of <input type=text>) = $MAIN_WIDTH - (Width of <label>) - (width of <span>$WEB_ROOT</span>)
 	// $MAIN_WIDTH: Set in config section, may be in em, px, pt, or %. Ignoring % for now.
@@ -2156,8 +2238,8 @@ function Set_Input_width() { //*************************************************
 	$main_units  = substr($MAIN_WIDTH, -2);
 	$main_width  = $MAIN_WIDTH * 1;
 
-	$root_enc    = mb_detect_encoding($WEB_ROOT);           //ASCII? UTF8? etc...
-	$root_width  = mb_strlen($WEB_ROOT, $root_enc);
+	$root_enc    = mb_detect_encoding($WEB_ROOT.$ACCESS_ROOT);  //ASCII? UTF8? etc...
+	$root_width  = mb_strlen($WEB_ROOT.$ACCESS_ROOT, $root_enc);
 
 	$label_enc   = mb_detect_encoding($_['New_Location']);  //ASCII? UTF8? etc...
 	$label_width = mb_strlen($_['New_Location'], $label_enc);
@@ -2179,26 +2261,34 @@ function Set_Input_width() { //*************************************************
 
 
 
-function CRM_Page($action, $title, $name_id, $old_name) { //********************
-	//$action = 'Copy' or 'Rename'.
-	global $_, $WEB_ROOT, $ipath, $param1, $filename, $FORM_COMMON;
+function CRM_Page($action, $title, $action_id, $old_full_name) { //******************
+	//$action    = 'Copy' or 'Rename'.
+	//$action_id = 'copy_file' or 'rename_file'
+	global $_, $WEB_ROOT, $ipath, $param1, $filename, $FORM_COMMON, $ACCESS_ROOT, $ACCESS_PATH;
 
-	$new_name = $old_name; //default
+	$new_full_name = $old_full_name; //default
 
-	if (is_dir($old_name)) { $param1 = '?i='.dir_name($ipath); } //If dir, return to parent on [Cancel]
+	if (is_dir($old_full_name)) {
+		$param1 = '?i='.dir_name($ipath); //If dir, return to parent on [Cancel]
+		$ACCESS_PATH = dir_name($ACCESS_PATH);
+	} 
 
 	Set_Input_width();
 
 	echo '<h2>'.hsc($action.' '.$title).'</h2>';
 
 	echo $FORM_COMMON;
-		echo '<input type="hidden" name="'.$name_id.'"  value="'.hsc($name_id).'">';
-		echo '<input type="hidden" name=old_name  value="'.hsc($old_name).'">';
+		echo '<input type="hidden" name="'.$action_id.'"  value="'.hsc($action_id).'">';
+		echo '<input type="hidden" name=old_full_name     value="'.hsc($old_full_name).'">';
+		
 		echo '<label>'.hsc($_['CRM_txt_04']).':</label>';
-		echo '<input type=text name=new_name id=new_name class=old_new_name value="'.hsc(basename($new_name)).'"><br>';
+		echo '<input type=text name=new_name class=new_name value="'.hsc(basename($new_full_name)).'"><br>';
+		
 		echo '<label>'.hsc($_['New_Location']).':</label>';
-		echo '<span class="web_root">'.hte($WEB_ROOT).'</span>';
-		echo '<input type=text name=new_location id=new_location value="'.hsc(dir_name($new_name)).'"><br>';
+		echo '<span class="web_root">'.hte($WEB_ROOT.$ACCESS_ROOT).'</span>';
+		echo '<input type=hidden name=base_location value="'.hsc($ACCESS_ROOT).'">';
+		echo '<input type=text   name=new_location  value="'.hsc($ACCESS_PATH).'"><br>';
+		
 		echo '('.hsc($_['CRM_txt_02']).')<p>';
 		Cancel_Submit_Buttons($action);
 	echo '</form>';
@@ -2213,19 +2303,19 @@ function CRM_response($action, $msg1, $show_message = 3){ //********************
 	//$show_message: 0 = none; 1 = errors only; 2 = successes only; 3 = all messages (default).
 	global $_, $ipath, $filename, $page, $param1, $param2, $message, $EX, $INVALID_CHARS, $WHSPC_SLASH;
 
-	$old_name      = trim($_POST['old_name'], $WHSPC_SLASH);     //Trim whitespace & slashes.
+	$old_full_name = trim($_POST['old_full_name'], $WHSPC_SLASH);     //Trim whitespace & slashes.
 	$new_name_only = trim($_POST['new_name'], $WHSPC_SLASH);
 	$new_location  = trim($_POST['new_location'], $WHSPC_SLASH);
 	if ($new_location != "") { $new_location .= '/'; }
-	$new_name      = $new_location.$new_name_only;
-	$filename      = $old_name; //default if error.
+	$new_full_name = $new_location.$new_name_only;
+	$filename      = $old_full_name; //default if error.
 
-	$isfile = 0; if (is_file($old_name)) { $isfile = 1;} //File or folder?
+	$isfile = 0; if (is_file($old_full_name)) { $isfile = 1;} //File or folder?
 
 	//Common message lines
 	$com_msg  = '<div id="message_left">'.hte($_['From']).'<br>'.hte($_['To']).'</div>';
-	$com_msg .= '<b>: </b><span class="filename">'.hte($old_name).'</span><br>';
-	$com_msg .= '<b>: </b><span class="filename">'.hte($new_name).'</span><br>';
+	$com_msg .= '<b>: </b><span class="filename">'.hte($old_full_name).'</span><br>';
+	$com_msg .= '<b>: </b><span class="filename">'.hte($new_full_name).'</span><br>';
 
 	$err_msg = ''; //Error message.
 	$scs_msg = ''; //Success message.
@@ -2233,11 +2323,11 @@ function CRM_response($action, $msg1, $show_message = 3){ //********************
 	$error = 1; //0 = no error, 1 = an error. Default to error. Used for return value.
 
 	//Check old name for invalid chars (like .. ) (Unlikely to be false outside a malicious attempt)
-	if ( Check_path($old_name,$show_message) === false ) {
-		$bad_name = $old_name;
-	}elseif ( !file_exists($old_name) ) {
+	if ( Check_path($old_full_name,$show_message) === false ) {
+		$bad_name = $old_full_name;
+	}elseif ( !file_exists($old_full_name) ) {
 		$err_msg .= $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_02']).'</b><br>';
-		$bad_name = $old_name;
+		$bad_name = $old_full_name;
 	//Check new name for invalid chars, including slashes.
 	}elseif ( has_invalid_char($new_name_only) ) {
 		$err_msg .= $EX.'<b>'.hsc($_['new_file_msg_02']).'<span class="filename"> '.hte($INVALID_CHARS).'</span></b><br>';
@@ -2250,16 +2340,16 @@ function CRM_response($action, $msg1, $show_message = 3){ //********************
 		$err_msg .= $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_01']).'</b><br>';
 		$bad_name = $new_location;
 	//Don't overwrite existing files.
-	}elseif ( file_exists($new_name) ) {
-		$bad_name = $new_name;
+	}elseif ( file_exists($new_full_name) ) {
+		$bad_name = $new_full_name;
 		$err_msg .= $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_03']).'</b><br>';
-	}elseif ( $action($old_name, $new_name )) {
+	}elseif ( $action($old_full_name, $new_full_name )) {
 		$scs_msg .= '<b>'.hsc($msg1.' '.$_['successful']).'</b><br>'.$com_msg;
 		if   ($isfile) {
 			$ipath    = $new_location;
-			$filename = $new_name;
+			$filename = $new_full_name;
 		}else {//folder
-			$ipath    = $new_name.'/';
+			$ipath    = $new_full_name.'/';
 		}
 		$error = 0;
 	}else{
@@ -2326,7 +2416,8 @@ function Delete_response($target, $show_message=3) { //*************************
 
 
 function MCD_Page($action, $page_title, $classes = '') { //*********************
-	global $_, $ICONS, $WEB_ROOT, $ONESCRIPT, $ipath, $param1, $filename, $page, $INPUT_NUONCE;
+	//$action = mcd_mov or mcd_cpy or mcd_del
+	global $_, $ICONS, $WEB_ROOT, $ONESCRIPT, $ipath, $param1, $filename, $page, $ACCESS_ROOT, $ACCESS_PATH, $INPUT_NUONCE;
 
 	//Prep for a single file or folder
 	if( $page == "deletefile" || $page == "deletefolder" ){
@@ -2345,8 +2436,9 @@ function MCD_Page($action, $page_title, $classes = '') { //*********************
 		
 		if ( ($_POST['mcdaction'] == 'copy') || ($_POST['mcdaction'] == 'move') ) {
 			echo '<label>'.hsc($_['New_Location']).':</label>';
-			echo '<span class="web_root">'.hte($WEB_ROOT).'</span>';
-			echo '<input type="text" name="new_location" id="new_location" value="'.hsc($ipath).'">';
+			echo '<span class="web_root">'.hte($WEB_ROOT.$ACCESS_ROOT).'</span>';
+			echo '<input type=hidden name=base_location value="'.hsc($ACCESS_ROOT).'">';
+			echo '<input type=text   name=new_location  id=new_location value="'.hsc($ACCESS_PATH).'">';
 			echo '<p>('.hsc($_['CRM_txt_02']).')</p>';
 		}
 		 
@@ -2389,13 +2481,13 @@ function MCD_response($action, $msg1, $success_msg = '') { //*******************
 		}
 	}elseif ( ($_POST['new_location'] != "") && !is_dir($_POST['new_location']) ) {
 		$message .= $EX.'<b>'.$msg1.' '.$_['CRM_msg_01'].'</b><br>';
-		$message .= '<span class="filename">'.hte($_POST['new_location']).'/</span><br>';
+		$message .= '<span class="filename">'.hte($_POST['new_location']).'</span><br>';
 		return;
 	}else { //move or rCopy
 		$mcd_ipath = $ipath; //CRM_response() changes $ipath to $new_location
 		
 		foreach ($files as $file){
-			$_POST['old_name'] = $mcd_ipath.$file;
+			$_POST['old_full_name'] = $mcd_ipath.$file;
 			$_POST['new_name'] = $file;
 		  //$_POST['new_location'] should already be set by the client ( via MCD_Page() ).
 			$errors  += CRM_response($action, $msg1, $show_message);
@@ -2476,23 +2568,41 @@ function Load_Selected_Page(){ //***********************************************
 
 
 function Respond_to_POST() { //*************************************************
-	global $_, $VALID_POST, $page, $message;
+	global $_, $VALID_POST, $ipath, $page, $EX, $message;
 
 	if (!$VALID_POST) { return; }
+	
+	//First, validate any $_POST'ed paths against $ACCESS_ROOT.
+	if (isset($_POST["old_full_name"]) && !Valid_Path($_POST["old_full_name"], false)) {
+		//unlikely, but just in case
+		$message .= $EX.'<b>'.$_['Invalid_path'].': </b><span class=filename>'.$_POST["old_full_name"].'</span>';
+		$VALID_POST = 0;
+		return;
+	}
+	if (isset($_POST["new_location"])) {
+		$_POST["new_location"] = $_POST['base_location'].$_POST["new_location"]; //For CRM_ & MCD_response's
+		if (!Valid_Path($_POST["new_location"], false)) {  
+			$message .= $EX.'<b>'.$_['Invalid_path'].': </b><span class=filename>'.$_POST["new_location"].'</span>';
+			$VALID_POST = 0;
+			return;
+		}
+	}
 
-	elseif (isset($_POST['mcd_mov']      )) { MCD_response('rename', $_['Ren_Move'], $_['mcd_msg_01']); } //move == rename
+	if     (isset($_POST['mcd_mov']      )) { MCD_response('rename', $_['Ren_Move'], $_['mcd_msg_01']); } //move == rename
 	elseif (isset($_POST['mcd_cpy']      )) { MCD_response('rCopy' , $_['Copy']    , $_['mcd_msg_02']); }
 	elseif (isset($_POST['mcd_del']      )) { MCD_response('rDel'  , $_['Delete']  , $_['mcd_msg_03']); }
-	elseif (isset($_POST['whattohash']   )) { Hash_response();           }
+	elseif (isset($_POST['whattohash']   )) { Hash_response(); }
 	elseif (isset($_POST['pw']           )) { Change_PWUN_response('pw', $_['change_pw_02']);}
 	elseif (isset($_POST['un']           )) { Change_PWUN_response('un', $_['change_un_02']);}
-	elseif (isset($_POST['filename']     )) { Edit_response();           }
+	elseif (isset($_POST['filename']     )) { Edit_response(); }
 	elseif (isset($_POST['new_file']     )) { New_response('new_file'  , 1);} //1=file
 	elseif (isset($_POST['new_folder']   )) { New_response('new_folder', 0);} //0=folder
 	elseif (isset($_POST['rename_file']  )) { CRM_response('rename', $_['Ren_Move']);}
 	elseif (isset($_POST['copy_file']    )) { CRM_response('rCopy' , $_['Copy']   ); }
 	elseif (isset($_FILES['upload_file']['name']))  { Upload_response(); }
 
+	//If Changed p/w, u/n, or other Admin Page action, make sure to not return to a folder outside of $ACCESS_ROOT.
+	Valid_Path($ipath, true);
 }//end Respond_to_POST() //*****************************************************
 
 
@@ -2908,9 +3018,11 @@ function pre_validate() {
 function js_hash_scripts() { //*************************************************
 	global $SALT, $PRE_ITERATIONS;
 
-//Used to hash p/w's client side.  This does not really add any security to the server side application that uses it,
-//as the "pre-hash" becomes the actual p/w as far as the server is concerned, and is just as vulnerable to exposure 
-//while in transit. However, this does help to protect the user's plain-text p/w, which may be used elsewhere.
+//Used to hash p/w's client side.  This does not really add any security to the 
+//server side application that uses it, as the "pre-hash" becomes the actual p/w 
+//as far as the server is concerned, and is just as vulnerable to exposure while 
+//in transit. However, this does help to protect the user's plain-text p/w, which
+//may be used elsewhere.
 ?>
 <script>
 /* hex_sha256() (and directly associated functions)
@@ -3320,7 +3432,7 @@ hr { /*-- -- -- -- -- -- --*/
 .edit_btns_bottom .RCD { padding-left: 5px; padding-right: 6px; }
 .edit_btns_bottom svg  { padding : 0 4px 0 0; }
 
-input[type="text"].old_new_name {width  : 50%; margin-bottom: .2em;}
+input[type="text"].new_name {width  : 50%; margin-bottom: .2em;}
 
 .old_backup_T {float: left; margin-bottom: .3em;}
 
@@ -3384,9 +3496,6 @@ Default_Language(); // Load Default Language settings
 
 System_Setup();
 
-//If specified, check for & load external $LANGUAGE_FILE
-if ( isset($LANGUAGE_FILE) && is_file($LANGUAGE_FILE) ) { include($LANGUAGE_FILE); }
-
 if( PHP_VERSION_ID < PHP_VERSION_ID_REQUIRED ) {
 	exit( 'PHP '.PHP_VERSION.'<br>'.hsc($_['OFCMS_requires']).' '.PHP_VERSION_REQUIRED );
 }
@@ -3415,7 +3524,17 @@ if ($_SESSION['valid']) {
 
 	Validate_params();
 
-	Init_Macros(); //Must go after Get_GET()/Validate_params().
+	Valid_Path($ipath, true);
+
+	//$ACCESS_ROOT.$ACCESS_PATH == $ipath
+	//$ipath_enc = mb_detect_encoding($ipath);
+	$ipath_len = mb_strlen($ipath);
+	$ACCESS_PATH = '';
+	if (($ACCESS_ROOT_len < $ipath_len)) {
+		$ACCESS_PATH = trim(mb_substr($ipath, $ACCESS_ROOT_len), ' /').'/';
+	}
+
+	Init_Macros(); //Needs to be after Get_Get()/Validate_params()/Valid_Path()
 
 	Respond_to_POST();
 
@@ -3423,7 +3542,7 @@ if ($_SESSION['valid']) {
 
 	Update_Recent_Pages();
 
-	//Don't show path header on some pages.
+	//Don't show current/path/ header on some pages.
 	$Show_Path = true;
 	$pages_dont_show_path = array("login","admin","hash","changepw","changeun");
 	if ( in_array($page, $pages_dont_show_path) ){ $Show_Path = false; } //
@@ -3457,7 +3576,7 @@ common_scripts();
 
 echo '</head><body>';
 
-Error_reporting_and_early_output(1,0);
+Error_reporting_status_and_early_output(0,0); //0,0 will only show any early output.
 
 if ($_SESSION['valid']) { echo '<div id="main" class="container" >'; }
 else                    { echo '<div id="main" class="login_page">'; }
