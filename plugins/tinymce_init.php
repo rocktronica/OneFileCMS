@@ -13,7 +13,7 @@ Here is a brief how-to:
  3) From the github.com/Self-Evident/OneFileCMS repo, copy the file 
     "tinymce_init.php" into the "plugins/" folder.
 
- 4) In the configuration section of OneFileCMS, add the following variable:
+ 4) In the configuration section of OneFileCMS, uncomment or add the following variable:
     $WYSIWYG_PLUGIN = 'plugins/tinymce_init.php'; // Init settings for TinyMCE (this file).
 
 	Path can be absolute to the filesystem, or relative to root of website.
@@ -22,11 +22,12 @@ Here is a brief how-to:
     - specify the source file of the actual plugin via a <script src= ...> tag.*
 
 
-	*Note: In this case, the plugin path is absolute, but still relative to the root of the website, 
-	and the leading forward slash is generally required. 
+	*Note: In the src attribute of the <script> tag, the plugin path is absolute,
+	       but relative to the root of the website, and the leading forward slash 
+		   is generally required. 
 	(This is in contrast to configuration values such as $WYSIWYG_PLUGIN.)
 
- 6) In OneFileCMS- open a file for editing, and click [Edit WYSIWIG].
+ 6) Reload OneFileCMS, open a file for editing, and click [Edit WYSIWIG].
 *****************************************************************************/?>
 
 <script type="text/javascript" src="/plugins/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>

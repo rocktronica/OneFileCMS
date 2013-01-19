@@ -1,5 +1,9 @@
 # OneFileCMS Change Log
 
+### (January 19, 2013)
+
+- Just some minor updates/wording changes to the readme & plugin/*.init files.
+
 ### v3.4.20 (December 19, 2012)
 
 - The $ACCESS_ROOT option has been reimplemented and is now fully functional\*.  This option limits access to a specified folder (and it's sub-folders).  To use, just specify a valid path relative to the root of the website (no leading slash).  
