@@ -1,10 +1,9 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
-// v3.4.20
+// v3.4.21
 // Sample external config file - this file is OPTIONAL.
 //
-// Basically, what follows is just a copy & paste of the OneFileCMS CONFIGURABLE INFO,
-// except $config_file is not included.
+// Basically, what follows is just a copy & paste of the OneFileCMS CONFIGURABLE INFO.
 
 // CONFIGURABLE INFO ***********************************************************
 $config_title = "OneFileCMS";
@@ -55,6 +54,10 @@ $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copi
 //$ACCESS_ROOT = 'some/path/';
 
 
+//URL of optional external style sheet.  Used as href in <link ...>
+//If file is not found, or is incomplete, the built-in defaults will be used.
+//$CSS_FILE = 'OneFileCMS.css';
+
 //Notes for $LANGUAGE_FILE, $WYSIWYG_PLUGIN, and $CONFIG_FILE:
 //
 // Filename paths can be:
@@ -71,5 +74,5 @@ $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copi
 
 //Name of optional external config file.  Any settings it contains will supersede those above.
 //See the sample file in the OneFileCMS github repo for format example.
-//$CONFIG_FILE = 'OFCMS_config.SAMPLE.php';
+//$CONFIG_FILE = 'OneFileCMS.config.SAMPLE.php';
 //end CONFIGURABLE INFO ********************************************************

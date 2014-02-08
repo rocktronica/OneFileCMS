@@ -1,0 +1,393 @@
+﻿/*******************************************************************************
+Sample, OPTIONAL, external style sheet for OneFileCMS
+*******************************************************************************/
+
+/* --- reset --- */
+* { border : 0; outline: 0; margin: 0; padding: 0;
+    font-family: inherit; font-weight: inherit; font-style : inherit;
+    font-size  : 100%; vertical-align: baseline; }
+
+
+/* --- general formatting --- */
+
+body { font-size: 1em; background: #DDF; font-family: sans-serif; }
+
+p, table, ol { margin-bottom: .6em;}
+
+h1,h2,h3,h4,h5,h6 { font-weight: bold; }
+h2, h3 { font-size: 1.2em; margin: .4em 0 .4em 0; } /*TRBL*/
+
+li { margin-left: 2em }
+
+i, em     { font-style : italic; }
+b, strong { font-weight: bold;   }
+
+:focus { outline:0; }
+
+table { border-collapse:separate; border-spacing:0; }
+th,td { text-align:left; font-weight:400; }
+
+label { font-size : 1em; font-weight: bold; }
+
+pre {
+	background: white;
+	border    : 1px solid #807568;
+	padding   : .2em;
+	margin    : 0;
+	}
+
+input[type="text"]     { width: 100%; border: 1px solid #807568; padding: 1px 1px 1px 0; font : 1em Courier; }
+input[type="password"] { width: 100%; border: 1px solid #807568; padding: 0   1px 0   0; }
+input[type="file"]     { width: 100%; border: 1px solid #807568; background-color: white; }
+
+input[readonly]        { color: #333; background-color: #EEE; }
+input[disabled]        { color: #555; background-color: #EEE; }
+
+input:focus  { background-color: rgb(255,250,150); }
+input:hover  { background-color: rgb(255,250,150); }
+
+button:focus  { background-color: rgb(255,250,150); }
+button:hover  { background-color: rgb(255,250,150); }
+button:active { background-color: rgb(245,245,50);  }
+
+/* --- layout --- */
+
+.container {
+	border : 0px solid #807568;
+	width  : 810px;     /*Adjusted by $MAIN_WIDTH config variable*/
+	margin : 0 auto 2em auto;
+	}
+
+
+#header {
+	border-bottom : 1px solid #807568;
+	padding: 04px 0px 01px 0px;
+	margin : 0 0 .5em 0;
+	}
+
+
+#logo {
+	font-family: 'Trebuchet MS', sans-serif;
+	font-size:2em;
+	font-weight: bold;
+	color: black;
+	padding: .1em;
+	}
+
+
+.h2_filename {
+	border: 1px solid #807568;
+	padding: .1em .2em .1em .2em;
+	font-weight: 700;
+	font-family: courier;
+	background-color: #EEE;
+	}
+
+
+#message_box { border: none; margin: 0 0 .4em 0; padding: 0; }
+
+#message_box_contents { border: 1px solid gray; padding: 4px; background: #FFF000; }
+
+#message_box #message_left {
+	float  : left;
+	margin : 0;
+	padding: 0;
+	border : none;
+	font-weight : 900;
+	}
+
+#message_box  #X_box {
+	display: block;
+	float  : right;
+	margin : 0;
+	padding: 0 2px 0 3px;
+	border : 1px solid gray;
+	font   : 16pt courier;
+	line-height: 18px;
+	background : #EEE;
+	}
+
+#message_box  #X_box:hover  {background-color: rgb(255,250,150);}
+#message_box  #X_box:focus  {background-color: rgb(255,250,150);}
+#message_box  #X_box:active {background-color: rgb(245,245,50); }
+
+.filename { font-family: courier; }
+
+/* --- INDEX directory listing, table format --- */
+table.index_T {
+	min-width: 30em;
+	font-size: .95em;
+	border         : 1px solid #807568;
+	border-collapse: collapse;
+	margin-bottom: .7em;
+	background-color: #FFF;
+	}
+
+table.index_T tr:hover {border: 1px solid #777; background-color: #EEE}
+
+table.index_T td { border : 1px inset silver; vertical-align: middle;}
+
+.index_T td a {
+	display  : block;
+	border   : none;
+	padding  : 2px 4px 2px 4px;
+	overflow : hidden;
+	}
+
+
+.file_name { min-width: 10em; }
+.file_size { min-width:  6em; }
+.file_time { min-width: 15em; }
+
+.meta_T {
+	padding-right : .5em;
+	text-align    : right;
+	font-family   : courier;
+    font-size     : .9em;
+	color         : #333;
+	}
+
+
+/*Index table file select boxes*/
+.ckbox {padding: 2px 4px 0 4px}
+.ckbox:focus { background-color: rgb(255,250,150); }
+.ckbox:hover { background-color: rgb(255,250,150); }
+
+
+#index_page_buttons     { margin: 0 0 .5em 0; }
+#index_page_buttons div { display: inline-block; vertical-align: bottom; }
+
+
+/*** front_links:  [New File] [New Folder] [Upload File] ***/
+.front_links { float: right; }
+ 
+.front_links a {
+	display: inline-block;
+	margin-top  : .2em;
+	border      : 1px solid #807568;
+	font-size   : 1em;  /*Adjusted by langauge files*/
+	margin-left : 1em;  /*Adjusted by langauge files*/
+	padding     : 3px 5px 2px 4px; /*TRBL*/
+	background-color: #EEE;
+	}
+
+a { border: 1px solid transparent; color: rgb(100,45,0); text-decoration: none; }
+a:focus  { border: 1px solid #807568; background-color: rgb(255,250,150); }
+a:hover  { border: 1px solid #807568; background-color: rgb(255,250,150); }
+a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
+
+/*** Select All [x]  [Move] [Copy] [Delete] ***/
+
+#select_all_label { 
+	display: inline-block;
+	font   : 400 .84em arial;
+	width  : 72px;
+	padding: 2px 0 0 2px;
+	color  : #333;
+	}
+
+#mcd_submit button {
+	height   : 1.55em;
+	cursor   : pointer;
+	border   : 1px solid #807568;
+	padding  : 0px 4px 0px 3px;
+	margin-top : .5em;   /* Helps align bottoms with New & Upload buttons */
+	margin-left: 1.0em;     /*Adjusted by langauge files*/
+	font-size: .9em;
+	color    : rgb(100,45,0);
+	background-color: #EEE;
+	}
+
+#mcd_submit button:focus  { background-color: rgb(255,250,150); }
+#mcd_submit button:hover  { background-color: rgb(255,250,150); }
+#mcd_submit button:active { background-color: rgb(245,245,50); }
+
+.buttons_right         { float: right; }
+.buttons_right .button { margin-left: .5em; }
+
+.button {
+	cursor : pointer;
+	border : 1px solid #807568;
+	color  : black;
+	padding    : 4px 10px; /*Adjusted by langauge files*/
+	font-size  : .9em;     /*Adjusted by langauge files*/
+	font-family: sans-serif;
+	background-color: #EEE;  /*#d4d4d4*/
+	}
+
+.button:active    { background-color: rgb(245,245,50); }                  /*first                 */
+.button[disabled] { color: #777; background-color: #EEE; cursor: default} /*second - order matters*/
+
+
+/* --- header --- */
+
+.nav {
+	float     : right;
+	display   : inline-block;
+	margin-top: 1.35em;
+	font-size : 1em;
+	}
+
+.nav a {
+	border: 1px solid transparent;
+	font-weight : bold;
+	padding     : .0em;
+	padding-top   : .2em;
+	padding-left  : .6em;
+	padding-right : .6em;
+	padding-bottom: .1em;
+	}
+
+.nav a:hover  { border: 1px solid #807568; }
+.nav a:focus  { border: 1px solid #807568; }
+.nav a:active { border: 1px solid #807568; }
+
+
+/* --- edit --- */
+
+#edit_header  {margin: 0;}
+
+#edit_form    {margin: 0;}
+
+.edit_disabled {
+	border : 1px solid #807568;
+	width  : 99%;
+	padding: .2em;
+	margin : .5em 0 .6em 0;
+	color  : #333;
+	background-color: #FFF000;
+	line-height: 1.4em;
+	}
+
+.view_file { font: .9em Courier; background-color: #F8F8F8; overflow:hidden}
+
+#file_editor {
+	border: 1px solid #999;
+	font  : .9em Courier;
+	margin: 0 0 .7em 0;
+	width : 99.8%;
+	height: 32em;
+	}
+
+#file_editor:focus { border: 1px solid #Fdd; }
+
+.file_meta	{ float: left; margin-top: .6em; font-size: .95em; color: #222; }
+
+#edit_notes { font-size: .8em; color: #333 ;margin-top: 1em; clear:both; }
+
+.notes      { margin-bottom: .4em; }
+
+
+/* --- log in --- */
+
+.login_page {
+	border  : 1px solid #807568;
+	width   : 370px;
+	margin  : 5em auto;
+	padding : .5em 1.2em .1em 1em;
+	}
+
+.login_page .nav { margin-top: .5em; }
+
+.login_page input {margin: 0 0 .7em 0;}
+
+
+hr { /*-- -- -- -- -- -- --*/
+	line-height  : 0;
+	Xfont-size    : 1px;
+	display : block;
+	position: relative;
+	padding : 0;
+	margin  : .6em auto;
+	width   : 100%;
+	clear   : both;
+	border  : none;
+	border-top   : 1px solid #807568;
+	Xborder-bottom: 1px solid #eee;
+	overflow: visible;
+	}
+
+
+.verify {
+	min-width       : 50%; 
+	font            : 1em Courier;
+	border          : 1px solid gray;
+	border-collapse : collapse;
+	background-color: white;
+	}
+
+.verify th {
+	border          : 1px solid gray;
+	padding         : 0 1em 0 1em;
+	text-align      : center;
+	font-weight     : 900;
+	font-family     : arial;
+	background-color: #EEE;
+	}
+
+.verify td {
+	border : 1px inset silver;
+	padding: .1em 1em .1em .5em;
+	vertical-align: middle;
+	}
+
+.verify_del {
+	font  : 1em Courier;
+	border: 1px solid #F00;
+	padding: .2em .4em;
+	color  : #222;
+	background-color: #FDD;
+	}
+
+.verify_del td { border: 1px solid #F44; }
+
+
+#admin {padding: .3em;}
+
+.admin_buttons .button {margin-right: .5em;}
+
+.clear {clear:both; padding: 0; margin: 0; border: none}
+
+.web_root { border: 0px solid  #807568; border-right: none; font: 1em Courier; padding: 1px; }
+
+.icon {float: left;}
+
+.mono {font-family: courier;}
+
+.info {margin: .7em 0 .5em 0; background: #f9f9f9; padding: .2em .5em;}
+
+.path {padding: 1px 5px 1px 5px} /*TRBL*/
+
+.timer {border: 1px solid gray; padding: 3px .5em 4px .5em;}
+
+.timeout {float:right; font-size: .95em; color: #333;}
+
+.edit_btns_top {margin: .2em 0 .5em 0;}
+
+.image_info {
+	color: #222;
+	font-size: 1em ; /*Adjusted by langauge files*/
+	margin: .7em 0 1em 0;
+	}
+
+.edit_btns_bottom {float: right;}
+.edit_btns_bottom .button { margin-left: .7em; } /*Adjusted by langauge files*/
+.edit_btns_bottom .RCD { padding-left: 5px; padding-right: 6px; }
+.edit_btns_bottom svg  { padding : 0 4px 0 0; }
+
+input[type="text"].new_name {width  : 50%; margin-bottom: .2em;}
+
+.old_backup_T {float: left; margin-bottom: .3em;}
+
+#del_backup   {float: left; margin-left  :  1em; padding: 2px 5px}
+
+/*** For old IE only: text "icons" for Rename, Copy, and Delete ***/
+.RCD1  {font: 900 7pt arial; padding: 0px 3px 0px 3px; margin: 0px; float: left}
+.R    {color: #00a;    border: 1px solid #804000}
+.C    {color: #006400; border: 1px solid #008400}
+.D    {color: #b00;    border: 1px solid #b00}
+
+.action   {display: inline-block}
+.ren_over {display: inline-block}
+.ren_over input {margin: 0 0 0 2em}
+.ren_over label {font-weight: normal}

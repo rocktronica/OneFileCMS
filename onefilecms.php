@@ -1,7 +1,7 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.20';
+$OFCMS_version = '3.4.21';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -62,14 +62,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 //Some basic security & error log settings**************************************
-$ER = 0;  $DE = 'off';   //Default to  no error_reporting and no display_errors.
-$ER = E_ALL & ~E_STRICT; $DE = 'on';  //For trouble-shooting. //##### 
-
 ob_start(); //Catch any early output. Closed prior to page output.
 ini_set('session.use_trans_sid', 0);    //make sure URL supplied SESSID's are not used
 ini_set('session.use_only_cookies', 1); //make sure URL supplied SESSID's are not used
-error_reporting($ER); //0 for none, or (E_ALL &~ E_STRICT) for trouble-shooting.
-ini_set('display_errors', $DE);
+error_reporting(E_ALL & ~E_STRICT);  //(E_ALL &~ E_STRICT) for everything, 0 for none.
+ini_set('display_errors', 'on');
 ini_set('log_errors'    , 'off');
 ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
 //Determine good folder for session file? Default is tmp/, which is not secure, but it may not be a serious concern.
@@ -127,6 +124,10 @@ $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copi
 // "some/path/" is relative to root of website (with no leading slash).
 //$ACCESS_ROOT = 'some/path/';
 
+
+//URL of optional external style sheet.  Used as href in <link ...>
+//If file is not found, or is incomplete, the built-in defaults will be used.
+//$CSS_FILE = 'OneFileCMS.css';
 
 //Notes for $LANGUAGE_FILE, $WYSIWYG_PLUGIN, and $CONFIG_FILE:
 //
@@ -252,7 +253,7 @@ $TO_WARNING = 120; //seconds. When idle time remaining is less than this value, 
 $VALID_PAGES = array("login","logout","admin","hash","changepw","changeun","index","edit","upload","uploaded","newfile","renamefile","copyfile","deletefile","deletefolder","newfolder","renamefolder","copyfolder","mcdaction", "phpinfo");
 
 //Make arrays out of a few $config_variables for actual use later.
-//First, remove spaces and make lowercase.
+//First, remove spaces and make lowercase (for *types).
 $SHOWALLFILES = $stypes = false;
   if ($config_stypes == '*') { $SHOWALLFILES = true; }
   else { $stypes   = explode(',', strtolower(str_replace(' ', '', $config_stypes))); }//shown file types
@@ -260,7 +261,7 @@ $etypes   = explode(',', strtolower(str_replace(' ', '', $config_etypes))); //ed
 $itypes   = explode(',', strtolower(str_replace(' ', '', $config_itypes))); //images types to display
 $ftypes   = explode(',', strtolower(str_replace(' ', '', $config_ftypes))); //file types with icons
 $fclasses = explode(',', strtolower(str_replace(' ', '', $config_fclass))); //for file types with icons
-$excluded_list = (explode(",", $config_excluded));
+$excluded_list = explode(',', str_replace(' ', '', $config_excluded));
 
 //Used in hashit() and js_hash_scripts().  IE<9 is WAY slow, so keep it low.
 //For 200 iterations: (time on IE8) > (37 x time on FF). And the difference grows with the iterations.
@@ -309,7 +310,7 @@ $_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All']
 $_['HTML']    = 'HTML';
 $_['WYSIWYG'] = 'WYSIWYG';
 $_['Admin']   = 'Admin';
-$_['bytes']   = 'bytes';  
+$_['bytes']   = 'bytes';
 $_['Cancel']  = 'Cancel';
 $_['Close']   = 'Close';
 $_['Copy']    = 'Copy';
@@ -1750,7 +1751,7 @@ function Table_of_Files($full_list) { //****************************************
 		$IS_OFCMS = false;
 		if ( $ipath.$file == trim($_SERVER['SCRIPT_NAME'], '/') ) { $IS_OFCMS = true;  }
 		
-		if ( ($SHOWTYPE && !$excluded) || is_dir($ipath.$file) ) {
+		if ( $SHOWTYPE && !$excluded ) {
 			$HREF_params = $ONESCRIPT.$param1;
 			
 			//Set icon type based on if dir, or file type ($ext).
@@ -2524,6 +2525,7 @@ function Page_Title(){ //***<title>Page_Title()</title>*************************
 	elseif ($page == "upload")       { return $_['Upload_File'];   }
 	elseif ($page == "newfile")      { return $_['New_File'];      }
 	elseif ($page == "copyfile" )    { return $_['Copy_Files'];    }
+	elseif ($page == "copyfolder" )  { return $_['Copy_Files'];    }
 	elseif ($page == "renamefile")   { return $_['Ren_Move'].' '.$_['File'];}
 	elseif ($page == "deletefile")   { return $_['Del_Files'];     }
 	elseif ($page == "deletefolder") { return $_['Del_Files'];     }
@@ -3067,7 +3069,7 @@ function style_sheet(){ //******************************************************
 
 /* --- general formatting --- */
 
-body { font-size: 1em; background: #DDD; font-family: sans-serif; }
+body { font-size: 1em; background: #E8E8E8; font-family: sans-serif; }
 
 p, table, ol { margin-bottom: .6em;}
 
@@ -3237,8 +3239,8 @@ a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
 
 #select_all_label { 
 	display: inline-block;
-	font   : 400 .9em arial;
-	width  : 71px;
+	font   : 400 .84em arial;
+	width  : 72px;
 	padding: 2px 0 0 2px;
 	color  : #333;
 	}
@@ -3480,10 +3482,26 @@ function Language_and_config_adjusted_styles() { //*****************************
 	}
 	
 #select_all_label { font-size: <?php echo $_['select_all_label_size']?>; } /*Default .84em */
-#select_all_label { width: <?php echo $_['select_all_label_width']?>; }    /*Default 71px  */
+#select_all_label { width: <?php echo $_['select_all_label_width']?>; }    /*Default 72px  */
 </style>
 <?php
 }//end Language_and_config_adjusted_styles() //*********************************
+
+
+
+
+function Load_style_sheet(){ //*************************************************
+	global $CSS_FILE;
+
+	style_sheet(); //first load built-in defaults
+
+	if ( isset($CSS_FILE) ) { //Check for external file
+		echo '<link rel="stylesheet" type="text/css" href="'.$CSS_FILE.'">';
+	}
+
+	Language_and_config_adjusted_styles();
+
+}//end Load_style_sheet() //****************************************************
 
 
 
@@ -3509,7 +3527,7 @@ if (!isset($_SESSION['admin_page'])) {
 
 if ($_SESSION['valid']) {
 
-	//Set current $EDIT_MODE & text for Edit page [Edit WYSIWIG/HTML] button
+	//Set current $EDIT_MODE & text for Edit page [Edit WYSIWIG/Source] button
 	if ( $WYSIWYG_VALID && isset($_COOKIE['edit_mode']) && ($_COOKIE['edit_mode'] == '1')) {
 		   $EDIT_MODE = '1'; $ON_OFF_label = $_['Source']; }
 	else { $EDIT_MODE = '0'; $ON_OFF_label = $_['WYSIWYG']; }
@@ -3568,9 +3586,7 @@ header('Content-type: text/html; charset=UTF-8');
 <?php
 echo '<title>'.hsc($config_title.' - '.Page_Title()).'</title>'."\n";
 
-style_sheet();
-
-Language_and_config_adjusted_styles();
+Load_style_sheet();
 
 common_scripts();
 

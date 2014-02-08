@@ -1,5 +1,14 @@
 # OneFileCMS Change Log
 
+### v3.4.21 (February 8, 2014)
+
+- Added back the option for external style sheets
+- Cooresponding updates to sample external config file.
+- In addition to specific file names, specific folder names may not be excluded from directory listings.
+- Fixed minor missing page title on Copy Folder page
+- Tweaked a couple css defaults
+
+
 ### (January 19, 2013)
 
 - Just some minor updates/wording changes to the readme & plugin/*.init files.
