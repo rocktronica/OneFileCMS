@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.18
+// OneFileCMS Language Settings v3.4.22
 
 $_['LANGUAGE'] = 'Deutsch';
 $_['LANG'] = 'DE';
@@ -18,6 +18,7 @@ $_['LANG'] = 'DE';
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
 $_['front_links_font_size']  = '0.9em';   //Buttons on Index page.
 $_['front_links_margin_L']   = '0.3em';
+$_['MCD_margin_R']           = '1.0em';   //[Move] [Copy] [Delete] buttons
 $_['button_font_size']       = '0.8em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
 $_['button_padding']         = '4px 2px';
@@ -26,16 +27,17 @@ $_['image_info_pos']         = '1';       //If 1 or true, moves the info down a 
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '76px';    //Width of space for $_['Select_All']
 
-$_['HTML']    = 'HTML';    //## NT ##
+$_['HTML']    = 'HTML';
 $_['WYSIWYG'] = 'WYSIWYG'; //## NT ##
 
 $_['Admin']   = 'Konfiguration';
-$_['bytes']   = 'bytes';
+$_['bytes']   = 'bytes';   //## NT ##
 $_['Cancel']  = 'Abbrechen';
 $_['Close']   = 'Schließen';
 $_['Copy']    = 'Erstellen';
 $_['Copied']  = 'Kopieren';
 $_['Create']  = 'Kopiert';
+$_['Date']    = 'Date';    //## NT ##
 $_['Delete']  = 'Löschen';
 $_['DELETE']  = 'LÖSCHEN';
 $_['Deleted'] = 'Gelöschte';
@@ -49,19 +51,21 @@ $_['From']    = 'Von';
 $_['Hash']    = 'Streuwert';
 $_['Move']    = 'Verschieben';
 $_['Moved']   = 'Verschoben';
+$_['Name']    = 'Name';    //## NT ##
 $_['on']      = 'läuft unter';
 
 $_['Password']   = 'Passwort';
 $_['Rename']     = 'Umbenennen';
+$_['Size']       = 'Size'; //## NT ##
 $_['Source']     = 'Source'; //## NT ##
 $_['successful'] = 'Erfolgreich';
 $_['To']         = 'Auf';
 $_['Upload']     = 'Heraufladen';
 $_['Username']   = 'Benutzername';
-$_['Working']    = 'Working - please wait...'; //## NT ##
-$_['Log_In']     = 'Anmelden';
-$_['Log_Out']    = 'Abmelden';
 
+$_['Working']        = 'Working - please wait...'; //## NT ##
+$_['Log_In']         = 'Anmelden';
+$_['Log_Out']        = 'Abmelden';
 $_['Admin_Options']  = 'Konfiguration Optionen';
 $_['Are_you_sure']   = 'Sind Sie sicher?';
 $_['Edit_View']      = 'Datei Bearbeiten / Ansicht';
@@ -81,6 +85,7 @@ $_['Clear_All']      = 'Deaktivieren Sie alle';
 $_['New_Location']   = 'Neuer Ordner';
 $_['No_files']       = 'Keine Dateien ausgewählt.';
 $_['Not_found']      = 'Nicht gefunden';
+$_['Invalid_path']   = 'Invalid path'; //## NT ##
 $_['pass_to_hash']   = 'Passwort Streuwert:';
 $_['Generate_Hash']  = 'Streuwert generieren';
 
@@ -236,12 +241,13 @@ $_['change_pw_03'] = 'Falsches (derzeitiges) Passwort. Bitte melden Sie sich an,
 $_['change_pw_04'] = 'Die Werte der Felder "Neu" und "Bestätigen" gleichen sich nicht.';
 $_['change_pw_05'] = 'Aktualisierung';
 $_['change_pw_06'] = 'Externe Konfigurationsdatei';
-
 $_['change_pw_07'] = 'All fields are required.'; //## NT ##
+
 $_['change_un_01'] = 'Benutzername wurde geändert!';
 $_['change_un_02'] = 'Benutzername wurde nicht geändert.';
 
 $_['update_failed'] = 'Aktualisierung fehlgeschlagen - die Datei konnte nicht gespeichert werden.';
+
 $_['mcd_msg_01'] = 'Dateien verschoben.';
 $_['mcd_msg_02'] = 'Dateien kopiert.';
 $_['mcd_msg_03'] = 'Dateien gelöscht.';

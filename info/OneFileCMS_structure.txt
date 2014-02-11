@@ -87,6 +87,7 @@ JAVASCRIPT FUNCTIONS:
 		pad()
 		trim()
 		FormatTime()
+		format_number()
 		Countdown()
 		Start_Countdown()
 		FileTimeStamp()

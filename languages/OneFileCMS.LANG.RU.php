@@ -1,7 +1,7 @@
 <?php
-// OneFileCMS Language Settings v3.4.18
+// OneFileCMS Language Settings v3.4.22
 
-$_['LANGUAGE'] = 'Russian'; //RU
+$_['LANGUAGE'] = 'Russian';
 $_['LANG'] = 'RU';
 
 // If no translation or value is desired for a particular setting, do not delete
@@ -18,6 +18,7 @@ $_['LANG'] = 'RU';
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
 $_['front_links_font_size']  = '0.9em';   //Buttons on Index page.
 $_['front_links_margin_L']   = '0.7em';
+$_['MCD_margin_R']           = '1.0em';   //[Move] [Copy] [Delete] buttons
 $_['button_font_size']       = '0.8em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
 $_['button_padding']         = '4px 5px';
@@ -26,7 +27,7 @@ $_['image_info_pos']         = '';        //If 1 or true, moves the info down a 
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All']
 
-$_['HTML']    = 'HTML';    //## NT ##
+$_['HTML']    = 'HTML';
 $_['WYSIWYG'] = 'WYSIWYG'; //## NT ##
 
 $_['Admin']   = 'Админка';
@@ -36,6 +37,7 @@ $_['Close']   = 'Закрыть';
 $_['Copy']    = 'Копия';
 $_['Copied']  = 'Копировать';
 $_['Create']  = 'Создать';
+$_['Date']    = 'Date';    //## NT ##
 $_['Delete']  = 'Удалить';
 $_['DELETE']  = 'УДАЛИТЬ';
 $_['Deleted'] = 'Удалено';
@@ -49,19 +51,21 @@ $_['From']    = 'из';
 $_['Hash']    = 'Хэш';
 $_['Move']    = 'Переместить';
 $_['Moved']   = 'Перемещено';
+$_['Name']    = 'Name';    //## NT ##
 $_['on']      = 'в';
 
 $_['Password']   = 'Пароль';
 $_['Rename']     = 'Rename'; //## NT ##
+$_['Size']       = 'Size'; //## NT ##
 $_['Source']     = 'Source'; //## NT ##
 $_['successful'] = 'успешно';
 $_['To']         = 'В';
 $_['Upload']     = 'Загрузить';
 $_['Username']   = 'Логин';
-$_['Working']    = 'Working - please wait...'; //## NT ##
-$_['Log_In']     = 'Войти';
-$_['Log_Out']    = 'Выйти';
 
+$_['Working']        = 'Working - please wait...'; //## NT ##
+$_['Log_In']         = 'Войти';
+$_['Log_Out']        = 'Выйти';
 $_['Admin_Options']  = 'Настройки Администратора';
 $_['Are_you_sure']   = 'Вы уверены?';
 $_['Edit_View']      = 'Ред. / Смотреть';
@@ -81,6 +85,7 @@ $_['Clear_All']      = 'Очистить всё';
 $_['New_Location']   = 'Новая локализация';
 $_['No_files']       = 'Нет выбранных файлов.';
 $_['Not_found']      = 'Не найдено';
+$_['Invalid_path']   = 'Invalid path'; //## NT ##
 $_['pass_to_hash']   = 'Пароль для хеширования:';
 $_['Generate_Hash']  = 'Сгенерировать Хэш';
 
@@ -149,9 +154,9 @@ $_['edit_msg_02'] = 'записанных байт.';
 $_['edit_msg_03'] = 'Существовала ошибка сохраниния файла .';
 
 $_['upload_txt_03'] = 'Максимальный размер каждого файла:';
-$_['upload_txt_01'] = '(php.ini: upload_max_filesize)';
+$_['upload_txt_01'] = '(php.ini: upload_max_filesize)'; //## NT ##
 $_['upload_txt_04'] = 'Максимальный суммарный размер загружаемого:';
-$_['upload_txt_02'] = '(php.ini: post_max_size)';
+$_['upload_txt_02'] = '(php.ini: post_max_size)'; //## NT ##
 $_['upload_txt_05'] = 'Для загруженных файлов, которые уже существуют: ';
 $_['upload_txt_06'] = 'Переименование (в файле filename.ext.001 и.т.д...)';
 $_['upload_txt_07'] = 'Заменить';
@@ -236,12 +241,13 @@ $_['change_pw_03'] = 'Неправильный текущий пароль, во
 $_['change_pw_04'] = 'Данные "Нового пароля" и "Подтверждения нового пароля" не совпадают.';
 $_['change_pw_05'] = 'Обновить';
 $_['change_pw_06'] = 'внежнюю конфигурацию файла';
-
 $_['change_pw_07'] = 'All fields are required.'; //## NT ##
+
 $_['change_un_01'] = 'Логин изменён!';
 $_['change_un_02'] = 'Логин НЕ изменён.';
 
 $_['update_failed'] = 'Обновление не удалось - файл не сохранился.';
+
 $_['mcd_msg_01'] = 'файлы перемещаются.';
 $_['mcd_msg_02'] = 'файлы копируются.';
 $_['mcd_msg_03'] = 'файлы удалены.';

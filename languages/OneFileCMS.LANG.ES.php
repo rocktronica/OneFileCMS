@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.18
+// OneFileCMS Language Settings v3.4.22
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -18,6 +18,7 @@ $_['LANG'] = 'ES';
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
 $_['front_links_font_size']  = '1.0em';   //Buttons on Index page.
 $_['front_links_margin_L']   = '0.5em';
+$_['MCD_margin_R']           = '1.0em';   //[Move] [Copy] [Delete] buttons
 $_['button_font_size']       = '0.9em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
 $_['button_padding']         = '4px 5px';
@@ -26,22 +27,23 @@ $_['image_info_pos']         = ' ';       //If 1 or true, moves the info down a 
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '110px';   //Width of space for $_['Select_All']
 
-$_['HTML']    = 'HTML';    //## NT ##
+$_['HTML']    = 'HTML';
 $_['WYSIWYG'] = 'WYSIWYG'; //## NT ##
 
 $_['Admin']   = 'Administrador';
-$_['bytes']   = 'bytes';
+$_['bytes']   = 'bytes';   //## NT ##
 $_['Cancel']  = 'Cancelar';
 $_['Close']   = 'Cerrar';
 $_['Copy']    = 'Copiar';
 $_['Copied']  = 'Copiado';
 $_['Create']  = 'Crear';
+$_['Date']    = 'Date';    //## NT ##
 $_['Delete']  = 'Eliminar';
 $_['DELETE']  = 'ELIMINAR';
 $_['Deleted'] = 'Eliminado';
 $_['Edit']    = 'Editar';
 $_['Enter']   = 'Entrar';
-$_['Error']   = 'Error';
+$_['Error']   = 'Error';   //## NT ##
 $_['errors']  = 'errores';
 $_['File']    = 'Archivo';
 $_['Folder']  = 'Carpeta';
@@ -49,19 +51,21 @@ $_['From']    = 'de';
 $_['Hash']    = 'Cadena';
 $_['Move']    = 'Mover';
 $_['Moved']   = 'Movido';
+$_['Name']    = 'Name';    //## NT ##
 $_['on']      = 'activado';
 
 $_['Password']   = 'contraseña';
 $_['Rename']     = 'Renombrar';
+$_['Size']       = 'Size'; //## NT ##
 $_['Source']     = 'Source'; //## NT ##
 $_['successful'] = 'satisfactoriamente';
 $_['To']         = 'Hacia';
 $_['Upload']     = 'Subir';
 $_['Username']   = 'Usuario';
-$_['Working']    = 'Working - please wait...'; //## NT ##
-$_['Log_In']     = 'Iniciar Sesión';
-$_['Log_Out']    = 'Cerrar Sesión';
 
+$_['Working']        = 'Working - please wait...'; //## NT ##
+$_['Log_In']         = 'Iniciar Sesión';
+$_['Log_Out']        = 'Cerrar Sesión';
 $_['Admin_Options']  = 'Opciones de Administración';
 $_['Are_you_sure']   = '¿Estás seguro?';
 $_['Edit_View']      = 'Editar / Ver Archivo';
@@ -77,10 +81,11 @@ $_['Copy_Files']     = 'Copiar archivo(s)';
 $_['Del_Files']      = 'Eliminar Archivo(s)';
 $_['Selected_Files'] = 'Seleccionar Archivos';
 $_['Select_All']     = 'Seleccionar Todos';
-$_['Clear_All']      = 'Limpiar';
+$_['Clear_All']      = 'Limpiar Todos';
 $_['New_Location']   = 'Nueva Posición';
 $_['No_files']       = 'No se seleccionó ningún archivo.';
 $_['Not_found']      = 'No encontrado';
+$_['Invalid_path']   = 'Invalid path'; //## NT ##
 $_['pass_to_hash']   = 'Contraseña del Hash:';
 $_['Generate_Hash']  = 'Generar Hash';
 
@@ -149,9 +154,9 @@ $_['edit_msg_02'] = 'bytes escritos.';
 $_['edit_msg_03'] = 'Ocurrió un error guardando el archivo.';
 
 $_['upload_txt_03'] = 'Nota: El tamaño máximo de subida es de:';
-$_['upload_txt_01'] = '(php.ini: upload_max_filesize)';
+$_['upload_txt_01'] = '(php.ini: upload_max_filesize)'; //## NT ##
 $_['upload_txt_04'] = 'Tamaño total de la subida:';
-$_['upload_txt_02'] = '(php.ini: post_max_size)';
+$_['upload_txt_02'] = '(php.ini: post_max_size)'; //## NT ##
 $_['upload_txt_05'] = 'Para los archivos subidos que ya existen: ';
 $_['upload_txt_06'] = 'Renombrar (hacia filename.ext.001 etc...)';
 $_['upload_txt_07'] = 'Sobreescribir';
@@ -236,12 +241,13 @@ $_['change_pw_03'] = 'Contraseña anterior inválida. Logueate e intenta de nuev
 $_['change_pw_04'] = 'La contraseña y su confirmación no coinciden.';
 $_['change_pw_05'] = 'Actualizando';
 $_['change_pw_06'] = 'archivo de configuración externa';
-
 $_['change_pw_07'] = 'All fields are required.'; //## NT ##
+
 $_['change_un_01'] = '¡Nombre de Usuario Actualizado!';
 $_['change_un_02'] = 'Nombre de Usuario NO Actualizado.';
 
 $_['update_failed'] = 'Actualización fallida. No se pudo guardar el archivo.';
+
 $_['mcd_msg_01'] = 'archivos movidos satisfactoriamente.';
 $_['mcd_msg_02'] = 'archivos copiados satisfactoriamente.';
 $_['mcd_msg_03'] = 'archivos eliminados satisfactoriamente.';

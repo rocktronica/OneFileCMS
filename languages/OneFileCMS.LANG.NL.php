@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.19
+// OneFileCMS Language Settings v3.4.22
 
 $_['LANGUAGE'] = 'Nederlands (Dutch)';
 $_['LANG'] = 'NL';
@@ -18,6 +18,7 @@ $_['LANG'] = 'NL';
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
 $_['front_links_font_size']  = '0.8em';   //Buttons on Index page.
 $_['front_links_margin_L']   = '0.4em';
+$_['MCD_margin_R']           = '1.0em';   //[Move] [Copy] [Delete] buttons
 $_['button_font_size']       = '0.8em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
 $_['button_padding']         = '4px 10px';
@@ -26,42 +27,45 @@ $_['image_info_pos']         = '';        //If 1 or true, moves the info down a 
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '90px';    //Width of space for $_['Select_All']
 
-$_['HTML']    = 'HTML';    //## NT ##
+$_['HTML']    = 'HTML';
 $_['WYSIWYG'] = 'WYSIWYG'; //## NT ##
 
 $_['Admin']   = 'Beheer';
-$_['bytes']   = 'bytes';
+$_['bytes']   = 'bytes';   //## NT ##
 $_['Cancel']  = 'Annuleren';
 $_['Close']   = 'Sluiten';
 $_['Copy']    = 'Kopiëren';
 $_['Copied']  = 'Gekopiëerd';
 $_['Create']  = 'Aanmaken';
+$_['Date']    = 'Date';    //## NT ##
 $_['Delete']  = 'Verwijderen';
 $_['DELETE']  = 'VERWIJDER';
 $_['Deleted'] = 'Verwijderd';
 $_['Edit']    = 'Bewerken';
-$_['Enter']   = 'Enter';
+$_['Enter']   = 'Enter';   //## NT ##
 $_['Error']   = 'Fout';
 $_['errors']  = 'fouten';
 $_['File']    = 'Bestand';
 $_['Folder']  = 'Map';
 $_['From']    = 'Van';
-$_['Hash']    = 'Hash';
+$_['Hash']    = 'Hash';    //## NT ##
 $_['Move']    = 'Verplaats';
 $_['Moved']   = 'Verplaatst';
-$_['on']      = 'on';
+$_['Name']    = 'Name';    //## NT ##
+$_['on']      = 'on';      //## NT ##
 
 $_['Password']   = 'Wachtwoord';
 $_['Rename']     = 'Hernoemen';
+$_['Size']       = 'Size'; //## NT ##
 $_['Source']     = 'Source'; //## NT ##
 $_['successful'] = 'succesvol';
 $_['To']         = 'Aan';
-$_['Upload']     = 'Upload';
+$_['Upload']     = 'Upload'; //## NT ##
 $_['Username']   = 'Gebruikersnaam';
-$_['Working']    = 'Working - please wait...'; //## NT ##
-$_['Log_In']     = 'Inloggen';
-$_['Log_Out']    = 'Uitloggen';
 
+$_['Working']        = 'Working - please wait...'; //## NT ##
+$_['Log_In']         = 'Inloggen';
+$_['Log_Out']        = 'Uitloggen';
 $_['Admin_Options']  = 'Opties voor beheer';
 $_['Are_you_sure']   = 'Weet u het zeker?';
 $_['Edit_View']      = 'Bewerken / weergeven';
@@ -81,12 +85,13 @@ $_['Clear_All']      = 'Verwijder Alles';
 $_['New_Location']   = 'Nieuwe Locatie';
 $_['No_files']       = 'Geen bestanden geselecteerd.';
 $_['Not_found']      = 'Niet gevonden';
+$_['Invalid_path']   = 'Invalid path'; //## NT ##
 $_['pass_to_hash']   = 'Wachtwoord verwarren:';
 $_['Generate_Hash']  = 'Genereer Verward Wachtwoord (Hash)';
 
 $_['save_1']      = 'Opslaan';
 $_['save_2']      = 'WIJZIGINGEN OPSLAAN!';
-$_['reset']       = 'Reset';
+$_['reset']       = 'Reset'; //## NT ##
 $_['Wide_View']   = 'Wijd Gezichtsveld';
 $_['Normal_View'] = 'Normaal Gezichtsveld';
 $_['Open_View']   = 'Openen/Bekijken in browser venster';
@@ -121,10 +126,10 @@ $_['login_msg_03']  = 'ONJUISTE INLOG POGING #';
 
 $_['edit_note_00']  = 'NOTITIES:';
 $_['edit_note_01a'] = 'Onthoudt- uw';
-$_['edit_note_01b'] = 'is';
+$_['edit_note_01b'] = 'is'; //## NT ##
 $_['edit_note_02']  = 'Dus sla uw wijzigingen op voordat de klok afloopt of ze zullen verloren gaan!';
 $_['edit_note_03']  = 'Bij sommige browers, zoals Chrome, komt het voor als u op de [Terug] knop klikt, en daarna [Voorwaarts], dat de toestand van uw instellingen incorrect zijn. Om te corrigeren, klik op de knop [Vernieuwen].';
-$_['edit_note_04']  = 'Chrome may disable some javascript in a page if the page even appears to contain inline javascript in certain contexts. This can affect some features of the OneFileCMS edit page when editing files that legitimately contain such code, such as OneFileCMS itself. However, such files can still be edited and saved with OneFileCMS. The primary function lost is the incidental change of background colors (red/green) indicating whether or not the file has unsaved changes. The issue will be noticed after the first save of such a file.';
+$_['edit_note_04']  = 'Chrome may disable some javascript in a page if the page even appears to contain inline javascript in certain contexts. This can affect some features of the OneFileCMS edit page when editing files that legitimately contain such code, such as OneFileCMS itself. However, such files can still be edited and saved with OneFileCMS. The primary function lost is the incidental change of background colors (red/green) indicating whether or not the file has unsaved changes. The issue will be noticed after the first save of such a file.'; //## NT ##
 
 $_['edit_h2_1']   = 'Weergeven:';
 $_['edit_h2_2']   = 'Bewerken:';
@@ -149,9 +154,9 @@ $_['edit_msg_02'] = 'bytes geschreven.';
 $_['edit_msg_03'] = 'Er was een fout bij het opslaan van bestand:';
 
 $_['upload_txt_03'] = 'Maximum grootte van ieder bestand:';
-$_['upload_txt_01'] = '(php.ini: upload_max_filesize)';
+$_['upload_txt_01'] = '(php.ini: upload_max_filesize)'; //## NT ##
 $_['upload_txt_04'] = 'Maximum totaal upload grootte:';
-$_['upload_txt_02'] = '(php.ini: post_max_size)';
+$_['upload_txt_02'] = '(php.ini: post_max_size)'; //## NT ##
 $_['upload_txt_05'] = 'For uploaded files that already exist: '; //## NT ##
 $_['upload_txt_06'] = 'Rename (to filename.ext.001 etc...)'; //## NT ##
 $_['upload_txt_07'] = 'Overwrite'; //## NT ##
@@ -236,12 +241,13 @@ $_['change_pw_03'] = 'Onjuist huidig wachtwoord opgegeven. Log in en probeert u 
 $_['change_pw_04'] = '"Nieuw" en "Bevestig Nieuw" waardes komen niet overeen.';
 $_['change_pw_05'] = 'Bijwerken';
 $_['change_pw_06'] = 'extern configuratiebestand';
-
 $_['change_pw_07'] = 'All fields are required.'; //## NT ##
+
 $_['change_un_01'] = 'Gebruikersnaam gewijzigd!';
 $_['change_un_02'] = 'Gebruikersnaam NIET gewijzigd.';
 
 $_['update_failed'] = 'Update mislukt - onmogelijk bestand op te slaan.';
+
 $_['mcd_msg_01'] = 'bestanden verplaatst.';
 $_['mcd_msg_02'] = 'bestanden gekopiëerd.';
 $_['mcd_msg_03'] = 'bestanden verwijderd.';

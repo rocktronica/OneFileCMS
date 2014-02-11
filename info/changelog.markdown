@@ -1,10 +1,14 @@
 # OneFileCMS Change Log
 
+### v3.4.22 (February 10, 2014)
+
+- Mostly some changes to prep for sort by column (name, size, or date) feature.
+
 ### v3.4.21 (February 8, 2014)
 
 - Added back the option for external style sheets
 - Cooresponding updates to sample external config file.
-- In addition to specific file names, specific folder names may not be excluded from directory listings.
+- In addition to specific file names, specific folder names may now be excluded from directory listings.
 - Fixed minor missing page title on Copy Folder page
 - Tweaked a couple css defaults
 

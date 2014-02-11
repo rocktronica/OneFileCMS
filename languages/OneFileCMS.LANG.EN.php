@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.20
+// OneFileCMS Language Settings v3.4.22
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -18,6 +18,7 @@ $_['LANG'] = 'EN';
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
 $_['front_links_font_size']  = '1.0em';   //Buttons on Index page.
 $_['front_links_margin_L']   = '1.0em';
+$_['MCD_margin_R']           = '1.0em';   //[Move] [Copy] [Delete] buttons
 $_['button_font_size']       = '0.9em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
 $_['button_padding']         = '4px 7px';
@@ -36,6 +37,7 @@ $_['Close']   = 'Close';
 $_['Copy']    = 'Copy';
 $_['Copied']  = 'Copied';
 $_['Create']  = 'Create';
+$_['Date']    = 'Date';
 $_['Delete']  = 'Delete';
 $_['DELETE']  = 'DELETE';
 $_['Deleted'] = 'Deleted';
@@ -49,19 +51,21 @@ $_['From']    = 'From';
 $_['Hash']    = 'Hash';
 $_['Move']    = 'Move';
 $_['Moved']   = 'Moved';
+$_['Name']    = 'Name';
 $_['on']      = 'on';
 
 $_['Password']   = 'Password';
 $_['Rename']     = 'Rename';
+$_['Size']       = 'Size';
 $_['Source']     = 'Source';
 $_['successful'] = 'successful';
 $_['To']         = 'To';
 $_['Upload']     = 'Upload';
 $_['Username']   = 'Username';
-$_['Working']    = 'Working - please wait...';
-$_['Log_In']     = 'Log In';
-$_['Log_Out']    = 'Log Out';
 
+$_['Working']        = 'Working - please wait...';
+$_['Log_In']         = 'Log In';
+$_['Log_Out']        = 'Log Out';
 $_['Admin_Options']  = 'Administration Options';
 $_['Are_you_sure']   = 'Are you sure?';
 $_['Edit_View']      = 'Edit / View';
@@ -237,12 +241,13 @@ $_['change_pw_03'] = 'Incorrect current password. Login to try again.';
 $_['change_pw_04'] = '"New" and "Confirm New" values do not match.';
 $_['change_pw_05'] = 'Updating';
 $_['change_pw_06'] = 'external config file';
-
 $_['change_pw_07'] = 'All fields are required.';
+
 $_['change_un_01'] = 'Username changed!';
 $_['change_un_02'] = 'Username NOT changed.';
 
 $_['update_failed'] = 'Update failed - could not save file.';
+
 $_['mcd_msg_01'] = 'files moved.';
 $_['mcd_msg_02'] = 'files copied.';
 $_['mcd_msg_03'] = 'files deleted.';

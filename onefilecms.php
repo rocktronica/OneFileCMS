@@ -1,7 +1,7 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.21';
+$OFCMS_version = '3.4.22';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -274,14 +274,18 @@ $PRE_ITERATIONS = 200;
 
 
 function hsc($input) { return htmlspecialchars($input, ENT_QUOTES, 'UTF-8'); }//end hsc() //********
-function hte($input) { return htmlentities($input, ENT_QUOTES, 'UTF-8'); }//end hte() //************
+function hte($input) {
+	$result = htmlentities($input, ENT_QUOTES, 'UTF-8');
+	if ($result == "" ) {return $input;}
+	return $result;
+}//end hte() //************
 
 
 
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.4.20
+// OneFileCMS Language Settings v3.4.22
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -298,15 +302,16 @@ $_['LANG'] = 'EN';
 // These first few settings control a few font and layout settings.
 // In some instances, some langauges may use significantly longer words or phrases than others.
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
-$_['front_links_font_size']  = '1.0em';   //Buttons on Index page.
+$_['front_links_font_size']  = '1.0em';  //Buttons on Index page.
 $_['front_links_margin_L']   = '1.0em';
-$_['button_font_size']       = '0.9em';   //Buttons on Edit page.
+$_['MCD_margin_R']           = '1.0em';  //[Move] [Copy] [Delete] buttons
+$_['button_font_size']       = '0.9em';  //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
 $_['button_padding']         = '4px 7px';
-$_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
-$_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
-$_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
-$_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All']
+$_['image_info_font_size']   = '1em';    //show_img_msg_01  &  _02
+$_['image_info_pos']         = '';       //If 1 or true, moves the info down a line for more space.
+$_['select_all_label_size']  = '.84em';  //Font size of $_['Select_All']
+$_['select_all_label_width'] = '72px';   //Width of space for $_['Select_All']
 $_['HTML']    = 'HTML';
 $_['WYSIWYG'] = 'WYSIWYG';
 $_['Admin']   = 'Admin';
@@ -316,6 +321,7 @@ $_['Close']   = 'Close';
 $_['Copy']    = 'Copy';
 $_['Copied']  = 'Copied';
 $_['Create']  = 'Create';
+$_['Date']    = 'Date';
 $_['Delete']  = 'Delete';
 $_['DELETE']  = 'DELETE';
 $_['Deleted'] = 'Deleted';
@@ -329,9 +335,11 @@ $_['From']    = 'From';
 $_['Hash']    = 'Hash';
 $_['Move']    = 'Move';
 $_['Moved']   = 'Moved';
+$_['Name']    = 'Name';
 $_['on']      = 'on';
 $_['Password']   = 'Password';
 $_['Rename']     = 'Rename';
+$_['Size']       = 'Size';
 $_['Source']     = 'Source'; 
 $_['successful'] = 'successful';
 $_['To']         = 'To';
@@ -1704,10 +1712,14 @@ function List_File($file, $type, $f_or_f, $DS, $IS_OFCMS, $HREF_params, $param3)
 	$ren_mov   = '<a href="'.$HREF_params.'&amp;p=rename'.$f_or_f.'" title="'.hsc($_['Ren_Move']).'">'.$ICONS['ren_mov'].'</a>';
 	$copy      = '<a href="'.$HREF_params.'&amp;p=copy'.$f_or_f.'"   title="'.hsc($_['Copy']).'"    >'.$ICONS['copy'].'</a>';
 	$delete    = '<a href="'.$HREF_params.'&amp;p=delete'.$f_or_f.'" title="'.hsc($_['Delete']).'"  >'.$ICONS['delete'].'</a>';
+
+	$file_size_raw = filesize($ipath.$file);
+	$file_time_raw = filemtime($ipath.$file);
+
 	$checkbox  = '<div class="ckbox"><INPUT TYPE=checkbox NAME="files[]" VALUE="'.hsc($file).'"></div>';
 	$file_name = '<a href="'.$HREF_params.$param3.'"  title="'.hsc($_['Edit_View']).'">'.$icon.'&nbsp;'.hte($file).$DS.'</a>';
-	$file_size = number_format(filesize($ipath.$file)).' B';
-	$file_time = '<script>FileTimeStamp('.filemtime($ipath.$file).', 1, 0);</script>'; 
+	$file_size = '<script>format_number('.$file_size_raw.');</script> B';
+	$file_time = '<script>FileTimeStamp('.$file_time_raw.', 1, 0);</script>';
 
 	//For directories, don't show file size (which is always 0).
 	if (is_dir($ipath.$file)) { $file_size = ''; }
@@ -1736,7 +1748,24 @@ function Table_of_Files($full_list) { //****************************************
 	//dummy input to make sure files[] is always an array in js for Select_All() & Confirm_Ready().
 	echo '<INPUT TYPE=hidden NAME="files[]" VALUE="">';
 
+
 	echo '<table class="index_T">';
+
+	//Header row: | Select All|[ ]|        Name        |   Size   |    Date    |
+	echo '<tr>';
+		echo '<th colspan=3 id="select_all_th">';
+		echo '<LABEL for=select_all id=select_all_label>'.$_['Select_All'].'</LABEL>';
+	echo '</th>';
+	echo '<th class="ckbox">';
+		$input_attribs = 'TYPE=checkbox NAME=select_all id=select_all VALUE=select_all';
+		echo '<INPUT '.$input_attribs.' onclick="Select_All();">';
+	echo '</th>';
+	echo '<th>'.$_['Name'].'</th><th>'.$_['Size'].'</th><th>'.$_['Date'].'</th>';
+	echo '</tr>';
+
+
+	//Begin actual rows of directory listing
+	echo '<tbody id="DIRECTORY_LISTING">';
 	foreach ($full_list as $file) {
 		
 		$excluded = FALSE;
@@ -1773,7 +1802,7 @@ function Table_of_Files($full_list) { //****************************************
 			
 		}//end if !is_dir...
 	}//end foreach file
-	echo '</table>';
+	echo '</tbody></table>';
 }//end Table_of_Files() //******************************************************
 
 
@@ -1790,9 +1819,6 @@ function Index_Page(){ //*******************************************************
 
 	echo '<div id=index_page_buttons>';
 	if ($file_count > 0) {
-		$input_attribs = 'TYPE=checkbox NAME=select_all id=select_all VALUE=select_all';
-		echo '<LABEL for=select_all id=select_all_label>'.$_['Select_All'].'</LABEL>';
-		echo '<INPUT '.$input_attribs.' onclick="Select_All();">';
 		
 		echo '<div id="mcd_submit">';
 		$onclick_m = 'onclick="Confirm_Submit( \'move\');   "';
@@ -2655,6 +2681,22 @@ function FormatTime(Seconds) {
 
 
 
+function format_number(number, sep) {
+	sep = typeof sep !== 'undefined' ? sep : ','; //default to a comma
+	var number	= number + "";   // 1234567890     convert number to a string
+	var result  = "";            // 1,234,567,890  sample result
+
+	for (var x = 0; x < number.length ; x += 3) {
+		a = number.length - x - 3;
+		b = number.length - x;
+		result = number.substring(a,b) + result;
+		if (a > 0) {result = sep + result} //add sep if still have more digits
+	}
+	document.write( result );
+}//end format_number()
+
+
+
 function Countdown(count, End_Time, Timer_ID, Timer_CLASS, Action){
 	var Timer        = document.getElementById(Timer_ID);
 	var Current_Time = Math.round(new Date().getTime()/1000); //js uses milliseconds
@@ -3184,7 +3226,9 @@ table.index_T {
 
 table.index_T tr:hover {border: 1px solid #777; background-color: #EEE}
 
-table.index_T td { border : 1px inset silver; vertical-align: middle;}
+table.index_T th { border: 1px inset silver; vertical-align: middle; padding-left: 4px;text-align: center;}
+
+table.index_T td { border: 1px inset silver; vertical-align: middle;}
 
 .index_T td a {
 	display  : block;
@@ -3194,12 +3238,12 @@ table.index_T td { border : 1px inset silver; vertical-align: middle;}
 	}
 
 
-.file_name { min-width: 10em; }
+.file_name { min-width: 10em; max-width: 26em; }
 .file_size { min-width:  6em; }
 .file_time { min-width: 15em; }
 
 .meta_T {
-	padding-right : .5em;
+	padding-right : 4px;
 	text-align    : right;
 	font-family   : courier;
     font-size     : .9em;
@@ -3237,11 +3281,13 @@ a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
 
 /*** Select All [x]  [Move] [Copy] [Delete] ***/
 
-#select_all_label { 
-	display: inline-block;
+#select_all_th { max-width: 70px; text-align: right; padding:  0 3px 0 0px; } /*TRBL*/
+
+#select_all_label {
+	Xdisplay: inline-block;		/* //##### when select all was above table, not in it*/
 	font   : 400 .84em arial;
-	width  : 72px;
-	padding: 2px 0 0 2px;
+	Xwidth  : 72px;				/* //##### when select all was above table, not in it*/
+	Xpadding: 2px 0 0 2px;		/* //##### when select all was above table, not in it*/
 	color  : #333;
 	}
 
@@ -3250,8 +3296,9 @@ a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
 	cursor   : pointer;
 	border   : 1px solid #807568;
 	padding  : 0px 4px 0px 3px;
-	margin-top : .5em;   /* Helps align bottoms with New & Upload buttons */
-	margin-left: 1.0em;     /*Adjusted by langauge files*/
+	margin-top  :  .5em;  /* Helps align bottoms with New & Upload buttons */
+	margin-left : 0.0em;  /* no longer needs adjusted by langauge files*/
+	margin-right: 1.0em;  /* Adjusted by language files */
 	font-size: .9em;
 	color    : rgb(100,45,0);
 	background-color: #EEE;
@@ -3473,7 +3520,7 @@ function Language_and_config_adjusted_styles() { //*****************************
 	margin-left: <?php echo $_['front_links_margin_L']  ?>; /*Default 1em */
 	}
 
-#mcd_submit button{ margin-left: <?php echo $_['front_links_margin_L']  ?>;} /*Default 1em */
+#mcd_submit button{ margin-right: <?php echo $_['MCD_margin_R']  ?>;} /*Default 1em */
 
 .image_info { font-size: <?php echo $_['image_info_font_size'] ?>; }   /*Default 1em*/
 
@@ -3592,7 +3639,7 @@ common_scripts();
 
 echo '</head><body>';
 
-Error_reporting_status_and_early_output(0,0); //0,0 will only show any early output.
+Error_reporting_status_and_early_output(0,0); //0,0 will only show early output.
 
 if ($_SESSION['valid']) { echo '<div id="main" class="container" >'; }
 else                    { echo '<div id="main" class="login_page">'; }
