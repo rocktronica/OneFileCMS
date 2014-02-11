@@ -1,4 +1,4 @@
-<?php 
+<?php
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
 $OFCMS_version = '3.4.22';
