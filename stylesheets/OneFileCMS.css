@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-Sample, OPTIONAL, external style sheet for OneFileCMS
+Sample, OPTIONAL, external style sheet for OneFileCMS.  version 3.4.23
 *******************************************************************************/
 
 /* --- reset --- */
@@ -10,7 +10,7 @@ Sample, OPTIONAL, external style sheet for OneFileCMS
 
 /* --- general formatting --- */
 
-body { font-size: 1em; background: #DDF; font-family: sans-serif; }
+body { font-size: 1em; background: #E8E8E8; font-family: sans-serif; }
 
 p, table, ol { margin-bottom: .6em;}
 
@@ -125,7 +125,9 @@ table.index_T {
 
 table.index_T tr:hover {border: 1px solid #777; background-color: #EEE}
 
-table.index_T td { border : 1px inset silver; vertical-align: middle;}
+table.index_T th { border: 1px inset silver; vertical-align: middle; padding-left: 4px;text-align: center;}
+
+table.index_T td { border: 1px inset silver; vertical-align: middle;}
 
 .index_T td a {
 	display  : block;
@@ -135,12 +137,12 @@ table.index_T td { border : 1px inset silver; vertical-align: middle;}
 	}
 
 
-.file_name { min-width: 10em; }
-.file_size { min-width:  6em; }
-.file_time { min-width: 15em; }
+.file_name { min-width: 10em; max-width: 26em; }
+.file_size { min-width:  6em; padding-left: 10px; }
+.file_time { min-width: 10em; padding-left: 10px; }
 
 .meta_T {
-	padding-right : .5em;
+	padding-right : 4px;
 	text-align    : right;
 	font-family   : courier;
     font-size     : .9em;
@@ -178,11 +180,13 @@ a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
 
 /*** Select All [x]  [Move] [Copy] [Delete] ***/
 
+#select_all_th { min-width: 60px ; max-width: 70px; text-align: right; padding:  0 3px 0 0px; } /*TRBL*/
+
 #select_all_label { 
-	display: inline-block;
+	Xdisplay: inline-block;     /* //##### when select all was above table, not in it*/
 	font   : 400 .84em arial;
-	width  : 72px;
-	padding: 2px 0 0 2px;
+	Xwidth  : 72px;			    /* //##### when select all was above table, not in it*/
+	Xpadding: 2px 0 0 2px;      /* //##### when select all was above table, not in it*/
 	color  : #333;
 	}
 
@@ -190,9 +194,10 @@ a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
 	height   : 1.55em;
 	cursor   : pointer;
 	border   : 1px solid #807568;
-	padding  : 0px 4px 0px 3px;
-	margin-top : .5em;   /* Helps align bottoms with New & Upload buttons */
-	margin-left: 1.0em;     /*Adjusted by langauge files*/
+	padding  : 0px 4px 0px 3px; /*TRBL*/
+	margin-top  :  .5em;  /* Helps align bottoms with New & Upload buttons */
+	margin-left : 0.0em;  /* no longer needs adjusted by langauge files */
+	margin-right: 1.0em;  /* Adjusted by language files */
 	font-size: .9em;
 	color    : rgb(100,45,0);
 	background-color: #EEE;
@@ -391,3 +396,5 @@ input[type="text"].new_name {width  : 50%; margin-bottom: .2em;}
 .ren_over {display: inline-block}
 .ren_over input {margin: 0 0 0 2em}
 .ren_over label {font-weight: normal}
+
+#summary {font-size: .9em; text-align: center}
