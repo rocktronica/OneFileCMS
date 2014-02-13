@@ -148,4 +148,4 @@ GENERATE/OUTPUT THE PAGE
 
 ## [Change Log](http://self-evident.github.com/OneFileCMS/changelog.html)
 
-## [Git Log](https://raw.github.com/Self-Evident/OneFileCMS/gh-pages/git.log)
+## [Git Log](https://raw.github.com/Self-Evident/OneFileCMS/gh-pages/master-branch.git.log)
