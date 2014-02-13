@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.22
+// OneFileCMS Language Settings v3.4.23
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -26,12 +26,12 @@ $_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All']
-
-$_['HTML']    = 'HTML';
-$_['WYSIWYG'] = 'WYSIWYG';
+$_['HTML']                   = 'HTML';
+$_['WYSIWYG']                = 'WYSIWYG';
 
 $_['Admin']   = 'Admin';
 $_['bytes']   = 'bytes';
+
 $_['Cancel']  = 'Cancel';
 $_['Close']   = 'Close';
 $_['Copy']    = 'Copy';
@@ -46,7 +46,9 @@ $_['Enter']   = 'Enter';
 $_['Error']   = 'Error';
 $_['errors']  = 'errors';
 $_['File']    = 'File';
+$_['files']   = 'files';
 $_['Folder']  = 'Folder';
+$_['folders'] = 'folders';
 $_['From']    = 'From';
 $_['Hash']    = 'Hash';
 $_['Move']    = 'Move';

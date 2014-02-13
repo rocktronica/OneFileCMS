@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.22
+// OneFileCMS Language Settings v3.4.23
 
 $_['LANGUAGE'] = 'Nederlands (Dutch)';
 $_['LANG'] = 'NL';
@@ -26,12 +26,12 @@ $_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '90px';    //Width of space for $_['Select_All']
-
-$_['HTML']    = 'HTML';
-$_['WYSIWYG'] = 'WYSIWYG'; //## NT ##
+$_['HTML']                   = 'HTML';
+$_['WYSIWYG']                = 'WYSIWYG'; //## NT ##
 
 $_['Admin']   = 'Beheer';
 $_['bytes']   = 'bytes';   //## NT ##
+
 $_['Cancel']  = 'Annuleren';
 $_['Close']   = 'Sluiten';
 $_['Copy']    = 'Kopiëren';
@@ -46,7 +46,9 @@ $_['Enter']   = 'Enter';   //## NT ##
 $_['Error']   = 'Fout';
 $_['errors']  = 'fouten';
 $_['File']    = 'Bestand';
+$_['files']   = 'files';   //## NT ##
 $_['Folder']  = 'Map';
+$_['folders'] = 'folders'; //## NT ##
 $_['From']    = 'Van';
 $_['Hash']    = 'Hash';    //## NT ##
 $_['Move']    = 'Verplaats';
