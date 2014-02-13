@@ -1,4 +1,4 @@
-OneFileCMS Version 3.4.20 structure/layout
+OneFileCMS Version 3.4.23 structure/layout
 
 LICENSE
 
@@ -59,8 +59,9 @@ PAGE & RESPONSE FUNCTIONS:
 	Logout()
 	Login_Page()
 	Login_response()
-	List_File()
-	Table_of_Files()
+	Get_DIRECTORY_DATA()
+	Create_Table_for_Listing()
+    Index_Page_buttons_top
 	Index_Page()
 	Edit_Page_buttons_top()
 	Edit_Page_buttons()
@@ -83,8 +84,10 @@ PAGE & RESPONSE FUNCTIONS:
 	Respond_to_POST()
 
 JAVASCRIPT FUNCTIONS:
+	init_ICONS_js()
 	common_scripts()
 		pad()
+		hsc()
 		trim()
 		FormatTime()
 		format_number()
@@ -93,6 +96,10 @@ JAVASCRIPT FUNCTIONS:
 		FileTimeStamp()
 		Select_All()
 		Confirm_Submit()
+	Index_Page_scripts()
+		assemble_row()
+		Display_Directory_Summary()
+		Build_Directory
 	Edit_Page_scripts()
 		Wide_View()
 		Reset_file_status_indicators()

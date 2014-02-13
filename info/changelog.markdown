@@ -1,5 +1,10 @@
 # OneFileCMS Change Log
 
+### v3.4.23 (February 12, 2014)
+
+- More changes in prep for sort by column
+- Directory list is now built & displayed client side via javascript.
+
 ### v3.4.22 (February 10, 2014)
 
 - Mostly some changes to prep for sort by column (name, size, or date) feature.

@@ -1,7 +1,7 @@
-<?php
+<?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.4.22';
+$OFCMS_version = '3.4.23';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -91,14 +91,14 @@ $MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings (like 
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.          Can be px, pt, em, or %.  Assumes px otherwise.
 $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked.  Can be px, pt, em, or %.  Assumes px otherwise.
 
-$MAX_EDIT_SIZE = 150000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
+$MAX_EDIT_SIZE = 200000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
 $MAX_VIEW_SIZE = 1000000; // If file > $MAX_EDIT_SIZE, don't even view in OneFileCMS.
                           // The default max view size is completely arbitrary. Basically, it was 2am and seemed like a good idea at the time.
 
 $MAX_IMG_W   = 810;  //Max width (in px) to display images. (main width is 810)
 $MAX_IMG_H   = 1000; //Max height (in px).  I don't know, it just looks reasonable.
 
-$UPLOAD_FIELDS = 6; //Number of upload fields on Upload File(s) page. Max value is ini_get('max_file_uploads').
+$UPLOAD_FIELDS = 10; //Number of upload fields on Upload File(s) page. Max value is ini_get('max_file_uploads').
 
 $config_favicon   = "favicon.ico"; //Path is relative to root of website.
 $config_excluded  = ""; //files to exclude from directory listings- CaSe sEnsiTive!
@@ -285,7 +285,7 @@ function hte($input) {
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.4.22
+// OneFileCMS Language Settings v3.4.23
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -330,7 +330,9 @@ $_['Enter']   = 'Enter';
 $_['Error']   = 'Error';
 $_['errors']  = 'errors';
 $_['File']    = 'File';
+$_['files']   = 'files';
 $_['Folder']  = 'Folder';
+$_['folders'] = 'folders';
 $_['From']    = 'From';
 $_['Hash']    = 'Hash';
 $_['Move']    = 'Move';
@@ -1310,10 +1312,11 @@ function Init_ICONS() { //******************************************************
 	$ICONS['php'] = icon_txt('#333', '#111', '#C3C3FF'); //rgb(195,195,225)
 	$ICONS['css'] = icon_txt('#333', '#111', '#FFE1A5'); //rgb(255,225,165)
 	$ICONS['cfg'] = icon_txt('#444', '#111', '#DDD');
-	$ICONS['upload'] = icon_txt('#333', 'black', 'white', $extra_up);
-	$ICONS['file_new'] = icon_txt('#444', 'black', 'white', $extra_new);
+	$ICONS['dir']    = icon_folder();
 	$ICONS['folder'] = icon_folder();
 	$ICONS['folder_new'] = icon_folder('<g transform="translate(7.5,4)">'.$circle_plus.'</g>');
+	$ICONS['upload']     = icon_txt('#333', 'black', 'white', $extra_up);
+	$ICONS['file_new']   = icon_txt('#444', 'black', 'white', $extra_new);
 	$ICONS['ren_mov'] = icon_folder('<g transform="translate(2.5,3)">'.$pencil.'</g>'.$arc_arrow);
 	$ICONS['move']    = icon_folder($arc_arrow);
 	$ICONS['copy']    = '<svg version="1.1" width="12" height="12"><g transform="translate(1,1)">'.$circle_plus_rev.'</g></svg>';
@@ -1341,7 +1344,7 @@ function List_Backup($file, $file_url){ //**************************************
 	<table class="index_T old_backup_T"><tr>
 	<td class="file_name"><?php echo $edit_link; ?></td>
 	<td class="meta_T file_size">&nbsp;	<?php echo number_format(filesize($file)); ?> B	</td>
-	<td class="meta_T file_time"> &nbsp;<script>FileTimeStamp(<?php echo filemtime($file); ?>, 1, 0);</script></td>
+	<td class="meta_T file_time"> &nbsp;<script>FileTimeStamp(<?php echo filemtime($file); ?>, 1, 0, 1);</script></td>
 	</tr></table>
 
 	<a href="<?php echo $href.'&amp;p=deletefile' ?>" class="button" id="del_backup">
@@ -1699,55 +1702,11 @@ function Login_response() { //**************************************************
 
 
 
-//******************************************************************************
-function List_File($file, $type, $f_or_f, $DS, $IS_OFCMS, $HREF_params, $param3) {
-	global $_, $ICONS, $ipath, $fclasses;
+function Create_Table_for_Listing() { //****************************************
+	global$_;
 
-	//Determine icon to show
-	if (in_array($type,$fclasses)) { $icon = $ICONS[$type];}
-	elseif ($type == 'dir')        { $icon = $ICONS['folder']; }
-	else                           { $icon = $ICONS['bin']; } //default
-
-	//File options & info
-	$ren_mov   = '<a href="'.$HREF_params.'&amp;p=rename'.$f_or_f.'" title="'.hsc($_['Ren_Move']).'">'.$ICONS['ren_mov'].'</a>';
-	$copy      = '<a href="'.$HREF_params.'&amp;p=copy'.$f_or_f.'"   title="'.hsc($_['Copy']).'"    >'.$ICONS['copy'].'</a>';
-	$delete    = '<a href="'.$HREF_params.'&amp;p=delete'.$f_or_f.'" title="'.hsc($_['Delete']).'"  >'.$ICONS['delete'].'</a>';
-
-	$file_size_raw = filesize($ipath.$file);
-	$file_time_raw = filemtime($ipath.$file);
-
-	$checkbox  = '<div class="ckbox"><INPUT TYPE=checkbox NAME="files[]" VALUE="'.hsc($file).'"></div>';
-	$file_name = '<a href="'.$HREF_params.$param3.'"  title="'.hsc($_['Edit_View']).'">'.$icon.'&nbsp;'.hte($file).$DS.'</a>';
-	$file_size = '<script>format_number('.$file_size_raw.');</script> B';
-	$file_time = '<script>FileTimeStamp('.$file_time_raw.', 1, 0);</script>';
-
-	//For directories, don't show file size (which is always 0).
-	if (is_dir($ipath.$file)) { $file_size = ''; }
-
-	//If file is OneFileCMS, don't show Rename, Delete, or checkbox options.
-	if ($IS_OFCMS) { $ren_mov = $delete = $checkbox = ''; }
-?>
-	<tr>
-		<td class="RCD"><?php echo $ren_mov; ?></td>
-		<td class="RCD"><?php echo $copy;    ?></td>
-		<td class="RCD"><?php echo $delete;  ?></td>
-		<td class=""   ><?php echo $checkbox;?></td>
-		<td class="file_name"       ><?php echo $file_name; ?></td>
-		<td class="meta_T file_size"><?php echo $file_size; ?></td>
-		<td class="meta_T file_time"><?php echo $file_time; ?></td>
-	</tr>
-<?php
-}//end List_File() //***********************************************************
-
-
-
-
-function Table_of_Files($full_list) { //****************************************
-	global $_, $ONESCRIPT, $ipath, $param1, $ftypes, $fclasses, $excluded_list, $stypes, $SHOWALLFILES;
-
-	//dummy input to make sure files[] is always an array in js for Select_All() & Confirm_Ready().
+	//dummy input to make sure files[] is always an array for Select_All() & Confirm_Ready().
 	echo '<INPUT TYPE=hidden NAME="files[]" VALUE="">';
-
 
 	echo '<table class="index_T">';
 
@@ -1760,66 +1719,73 @@ function Table_of_Files($full_list) { //****************************************
 		$input_attribs = 'TYPE=checkbox NAME=select_all id=select_all VALUE=select_all';
 		echo '<INPUT '.$input_attribs.' onclick="Select_All();">';
 	echo '</th>';
-	echo '<th>'.$_['Name'].'</th><th>'.$_['Size'].'</th><th>'.$_['Date'].'</th>';
+	echo '<th class="file_name">'.$_['Name'].'</th><th class="file_size">'.$_['Size'].'</th><th class="file_time">'.$_['Date'].'</th>';
 	echo '</tr>';
 
+	//For directory content. Will insert the list later via innerHTML.
+	echo '<tbody id="DIRECTORY_LISTING"></tbody>';
 
-	//Begin actual rows of directory listing
-	echo '<tbody id="DIRECTORY_LISTING">';
-	foreach ($full_list as $file) {
+	echo '</table>';
+
+}//Create_Table_for_Listing() //************************************************
+
+
+
+
+function Get_DIRECTORY_DATA($basic_list) { //***********************************
+	global $_, $ONESCRIPT, $ipath, $param1, $ICONS,
+			$ftypes, $fclasses, $excluded_list, $stypes, $SHOWALLFILES, 
+			$DIRECTORY_COUNT, $DIRECTORY_DATA;
+	
+	foreach ($basic_list as $filename) {
 		
 		$excluded = FALSE;
-		if (in_array($file, $excluded_list)) { $excluded = TRUE; };
+		if (in_array($filename, $excluded_list)) { $excluded = TRUE; };
 		
 		//Get file type & check against $stypes (files types to show)
-		$filename_parts = explode(".", strtolower($file));
+		$filename_parts = explode(".", strtolower($filename));
 		$ext = end($filename_parts);
 		if ($SHOWALLFILES || in_array($ext, $stypes)) { $SHOWTYPE = TRUE; } else { $SHOWTYPE = FALSE; }
 		
 		//Used to not show rename & delete options for active copy of OneFileCMS.
-		$IS_OFCMS = false;
-		if ( $ipath.$file == trim($_SERVER['SCRIPT_NAME'], '/') ) { $IS_OFCMS = true;  }
+		$IS_OFCMS = 0;
+		if ( $ipath.$filename == trim($_SERVER['SCRIPT_NAME'], '/') ) { $IS_OFCMS = 1; }
 		
+		//Determine if $filename is to be shown, save data
 		if ( $SHOWTYPE && !$excluded ) {
-			$HREF_params = $ONESCRIPT.$param1;
 			
 			//Set icon type based on if dir, or file type ($ext).
-			if (is_dir($ipath.$file)) {
-				$f_or_f = 'folder';
-				$type   = 'dir';
-				$HREF_params .= URLencode_path($file).'/';
-				$param3 = '';
-				$DS = ' /'; //End with a forward slash to indicate a folder.
-			}else {
-				$f_or_f = "file";
-				$type = $fclasses[array_search($ext, $ftypes)];
-				$HREF_params .= '&amp;f='.rawurlencode($file);
-				$param3 = '&amp;p=edit';
-				$DS = '';
-			}
+			if (is_dir($ipath.$filename)) { $type = 'dir'; }
+			else {						$type = $fclasses[array_search($ext, $ftypes)]; }
 			
-			List_File($file, $type, $f_or_f, $DS, $IS_OFCMS, $HREF_params, $param3);
+			//Determine icon to show
+			if (in_array($type,$fclasses)) { $icon = $ICONS[$type];}
+			elseif ($type == 'dir')        { $icon = $ICONS['folder']; }
+			else                           { $icon = $ICONS['bin']; } //default
 			
-		}//end if !is_dir...
+			$file_size_raw = filesize($ipath.$filename);
+			$file_time_raw = filemtime($ipath.$filename);
+			
+			//Store data
+			$DIRECTORY_DATA[$DIRECTORY_COUNT] = array('','',0,0);
+			$DIRECTORY_DATA[$DIRECTORY_COUNT][0] = $type;  //used to determine icon & f_or_f
+			$DIRECTORY_DATA[$DIRECTORY_COUNT][1] = $filename;
+			$DIRECTORY_DATA[$DIRECTORY_COUNT][2] = $file_size_raw;
+			$DIRECTORY_DATA[$DIRECTORY_COUNT][3] = $file_time_raw;
+			$DIRECTORY_DATA[$DIRECTORY_COUNT][4] = $IS_OFCMS; //If = 1, Don't show ren, del, ckbox.
+			$DIRECTORY_COUNT++;
+		}//end if $SHOW...
 	}//end foreach file
-	echo '</tbody></table>';
-}//end Table_of_Files() //******************************************************
+}//end Get_DIRECTORY_DATA() //**************************************************
 
 
 
 
-function Index_Page(){ //*******************************************************
-	global $_, $ICONS, $ONESCRIPT, $ipath, $param1, $ftypes, $fclasses;
-
-	$full_list = Sort_Seperate($ipath, scandir('./'.$ipath));
-	$file_count = count($full_list);
-	
-	echo '<form method="post" name="mcdselect" action="'.$ONESCRIPT.$param1.'&amp;p=mcdaction">';
-	echo '<input type="hidden" name="mcdaction" value="">';
+function Index_Page_buttons_top($file_count) { //*******************************
+	global $_, $ONESCRIPT, $param1, $ICONS;
 
 	echo '<div id=index_page_buttons>';
 	if ($file_count > 0) {
-		
 		echo '<div id="mcd_submit">';
 		$onclick_m = 'onclick="Confirm_Submit( \'move\');   "';
 		$onclick_c = 'onclick="Confirm_Submit( \'copy\');   "';
@@ -1837,10 +1803,57 @@ function Index_Page(){ //*******************************************************
 	echo '</div>'; //end front_links
 	echo '</div>'; //end index_page_buttons
 	echo '<div class=clear></div>';
-	
-	if ($file_count > 0) { Table_of_Files($full_list); }
 
-	echo '</form>';
+} //end Index_Page_buttons_top() //*********************************************
+
+
+
+
+function Index_Page(){ //*******************************************************
+	global $_, $ICONS, $ONESCRIPT, $ipath, $param1, $param3, $HREF_params, 
+			$ftypes, $fclasses, $DIRECTORY_COUNT, $DIRECTORY_DATA;
+	
+	init_ICONS_js();
+	Index_Page_scripts(); ##### NEEDS LANGUAGE STRINGS !!
+
+	$DIRECTORY_COUNT = 0;
+
+	//Get basic file (directory) list, and pre-sort 
+	$basic_list = Sort_Seperate($ipath, scandir('./'.$ipath));
+	$file_count = count($basic_list);
+
+	//<form> to contain entire list, and buttons at top.
+	echo '<form method="post" name="mcdselect" action="'.$ONESCRIPT.$param1.'&amp;p=mcdaction">';
+	echo '<input type="hidden" name="mcdaction" value="">'; //along with $page, affects response
+
+	Index_Page_buttons_top($file_count);
+
+	Create_Table_for_Listing(); //sets up table with empty <tbody></tbody>
+
+	if ($file_count > 0) { Get_DIRECTORY_DATA($basic_list); }
+
+	echo "</form>\n\n";
+
+	//"send" data to javascript.
+	echo "<script>\n";
+	for ($x = 0; $x < $DIRECTORY_COUNT; $x++) {
+
+		// DIRECTORY_DATA[$x] = ("type", "file name", filesize, timestamp, is_ofcms)	
+		$data_for_js  = 'DIRECTORY_DATA['.$x.'] = new Array(';
+		$data_for_js .= ' "'.$DIRECTORY_DATA[$x][0].'"';
+		$data_for_js .= ',"'.$DIRECTORY_DATA[$x][1].'"';
+		$data_for_js .= ', '.$DIRECTORY_DATA[$x][2];
+		$data_for_js .= ', '.$DIRECTORY_DATA[$x][3];
+		$data_for_js .= ', '.$DIRECTORY_DATA[$x][4];
+		$data_for_js .= ");\n";
+		
+		echo $data_for_js;
+	}//end for count
+
+	//Display the directory...
+	echo "Build_Directory('DIRECTORY_LISTING');";
+	echo "</script>\n\n";
+
 }//end Index_Page() //**********************************************************
 
 
@@ -1878,7 +1891,7 @@ function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
 				<?php echo hsc($_['meta_txt_01']).' '.number_format(filesize($filename)).' '.hsc($_['bytes']); ?>
 			</span>	&nbsp;
 			<span class="file_time">
-				<?php echo hsc($_['meta_txt_03']).' <script>FileTimeStamp('.filemtime($filename).', 1, 1);</script>'; ?>
+				<?php echo hsc($_['meta_txt_03']).' <script>FileTimeStamp('.filemtime($filename).', 1, 1, 1);</script>'; ?>
 				<?php echo '&nbsp; '.$file_ENC; ?>
 			</span><br>
 		</div>
@@ -2636,6 +2649,36 @@ function Respond_to_POST() { //*************************************************
 
 
 
+function init_ICONS_js() { //***************************************************
+	global $ICONS;
+
+	//Currently, only icons for dir listing needed in js
+?>
+<script>
+var ICONS = new Array();
+
+ICONS['bin'] = '<?php echo $ICONS["bin"] ?>';
+ICONS['z']   = '<?php echo $ICONS["z"] ?>';
+ICONS['img'] = '<?php echo $ICONS["img"] ?>';
+ICONS['svg'] = '<?php echo $ICONS["svg"] ?>';
+ICONS['txt'] = '<?php echo $ICONS["txt"] ?>';
+ICONS['htm'] = '<?php echo $ICONS["htm"] ?>';
+ICONS['php'] = '<?php echo $ICONS["php"] ?>';
+ICONS['css'] = '<?php echo $ICONS["css"] ?>';
+ICONS['cfg'] = '<?php echo $ICONS["cfg"] ?>';
+ICONS['dir']     = '<?php echo $ICONS["dir"] ?>';
+ICONS['folder']  = '<?php echo $ICONS["folder"] ?>';
+ICONS['ren_mov'] = '<?php echo $ICONS["ren_mov"] ?>';
+ICONS['move']    = '<?php echo $ICONS["move"] ?>';
+ICONS['copy']    = '<?php echo $ICONS["copy"] ?>';
+ICONS['delete']  = '<?php echo $ICONS["delete"] ?>';
+</script>
+<?php
+}//end init_ICONS_js() //*******************************************************
+
+
+
+
 function common_scripts() { //**************************************************
 	global $_, $TO_WARNING;
 	
@@ -2643,6 +2686,18 @@ function common_scripts() { //**************************************************
 ?>
 <script>
 function pad(num){ if ( num < 10 ){ num = "0" + num; }; return num; }
+
+
+
+//A basic htmlspecialchars()
+function hsc(text) {
+  return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+}
 
 
 
@@ -2692,7 +2747,7 @@ function format_number(number, sep) {
 		result = number.substring(a,b) + result;
 		if (a > 0) {result = sep + result} //add sep if still have more digits
 	}
-	document.write( result );
+	return result;
 }//end format_number()
 
 
@@ -2736,7 +2791,7 @@ function Start_Countdown(count, ID, CLASS, Action){
 
 
 
-function FileTimeStamp(php_filemtime, show_date, show_offset){
+function FileTimeStamp(php_filemtime, show_date, show_offset, write_return){
 
 	//php's filemtime returns seconds, javascript's date() uses milliseconds.
 	var FileMTime = php_filemtime * 1000;
@@ -2768,7 +2823,8 @@ function FileTimeStamp(php_filemtime, show_date, show_offset){
 	if (show_date)  { DATETIME = FULLDATE + " &nbsp;" + FULLTIME;}
 	if (show_offset){ DATETIME += " ("+offset_FULL+")"; }
 		
-	document.write( DATETIME );
+	if (write_return) { document.write(DATETIME); }
+	else 			  { return DATETIME; }
 }
 
 
@@ -2817,6 +2873,124 @@ function Confirm_Submit(action){
 </script>
 <?php
 }//end common_scripts() //******************************************************
+
+
+
+
+function Index_Page_scripts() { //**********************************************
+	global $_, $ONESCRIPT, $param1, $ipath;
+?>
+<script>
+//Declare DIRECTORY_DATA when scripts are loaded, data added later.
+var DIRECTORY_DATA = new Array();
+
+var ONESCRIPT	= "<?php echo $ONESCRIPT ?>";
+var param1		= "<?php echo $param1 ?>";
+
+
+
+function assemble_row(HREF_params, f_or_f, filetype, filename, file_name){
+		var TABLE_ROW = '';
+		
+		//Assemble cell contents: [move] [copy] [delete] [x] <a>file name</a> etc...
+		ren_mov = '<a href="' + HREF_params + '&amp;p=rename' + f_or_f + '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
+		copy    = '<a href="' + HREF_params + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
+		del     = '<a href="' + HREF_params + '&amp;p=delete' + f_or_f + '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
+		checkbox = '<div class="ckbox"><INPUT TYPE=checkbox NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
+		
+		//Don't show remove, delete, or checkbox options for active copy of OneFileCMS.
+		if (DIRECTORY_DATA[x][4]) { ren_mov = del = checkbox = ''; }
+		
+		TABLE_ROW += "<tr>";
+		TABLE_ROW += '<td class="RCD">' + ren_mov  + '</td>';
+		TABLE_ROW += '<td class="RCD">' + copy     + '</td>';
+		TABLE_ROW += '<td class="RCD">' + del      + '</td>';
+		TABLE_ROW += '<td class=""   >' + checkbox + '</td>';
+		TABLE_ROW += '<td class="file_name"       >' + file_name  + '</td>';
+		TABLE_ROW += '<td class="meta_T file_size">' + file_size  + '</td>';
+		TABLE_ROW += '<td class="meta_T file_time">' + time_stamp + '</td>';
+		TABLE_ROW += "</tr>\n";
+		
+		return TABLE_ROW;
+}//end assemble_row()
+
+
+
+function Display_Directory_Summary() {
+
+	var total_items  = DIRECTORY_DATA.length;
+	var folder_count = 0;
+	var total_bytes  = 0;
+
+	for (x=0; x < DIRECTORY_DATA.length; x++) {
+		filetype = DIRECTORY_DATA[x][0];
+		filename = DIRECTORY_DATA[x][1];
+		if (filetype == "dir"){ folder_count++; }
+		total_bytes += DIRECTORY_DATA[x][2];
+	}
+
+	//Directory Summary
+	document.write('<p id="summary">');
+	document.write(folder_count + " <?php echo $_['folders']?>, &nbsp; ");
+	document.write(total_items - folder_count + ' <?php echo $_['files']?>, ');
+	document.write('&nbsp; ' + format_number(total_bytes) + " <?php echo $_['bytes']?>");
+
+}//end Display_Directory_Summary()
+
+
+
+//Build directory & insert into <tag id=target></tag>.
+function Build_Directory(target) {
+	var TABLE_LIST = "";
+	var folder_count	= 0; 
+	var directory_bytes	= 0;
+	var DS = '';      // ' /' for folders, blank otherwise.
+	var f_or_f = '';  // 'file' or 'folder'
+
+	var HREF_params = '';
+	var filetype = '';
+	var filename = '';
+	var filesize =  0;
+
+	for (x=0; x < DIRECTORY_DATA.length; x++) {
+		
+		filetype = DIRECTORY_DATA[x][0];
+		filename = DIRECTORY_DATA[x][1];
+		filesize = DIRECTORY_DATA[x][2];
+		
+		//folder or file?  And file_size
+		if (filetype == "dir"){
+			folder_count++;
+			DS = ' /';
+			f_or_f = 'folder';
+			HREF_params = ONESCRIPT + param1 + encodeURIComponent(filename);
+			file_size = '';
+		} else {
+			DS = '';
+			f_or_f = 'file';
+			HREF_params = ONESCRIPT + param1 + '&amp;f=' + encodeURIComponent(filename) + '&amp;p=edit';
+			file_size = format_number(filesize) + ' B';
+			directory_bytes += filesize;
+		}
+		
+		file_name  = '<a href="' + HREF_params + '"  title="<?php echo hsc($_['Edit_View']) ?>" >';
+		file_name += ICONS[filetype] + '&nbsp;' + hsc(filename) + DS + '</a>';
+		time_stamp = FileTimeStamp(DIRECTORY_DATA[x][3], 1, 0, 0);
+		
+		TABLE_LIST += assemble_row(HREF_params, f_or_f, filetype, filename, file_name)
+		
+	}//end for x
+
+	//Display listing in table...
+	document.getElementById(target).innerHTML = TABLE_LIST;
+
+	Display_Directory_Summary(); //below table
+
+} //end Build_Directory()
+
+</script>
+<?php
+}//end Index_Page_scripts() //**************************************************
 
 
 
@@ -3239,8 +3413,8 @@ table.index_T td { border: 1px inset silver; vertical-align: middle;}
 
 
 .file_name { min-width: 10em; max-width: 26em; }
-.file_size { min-width:  6em; }
-.file_time { min-width: 15em; }
+.file_size { min-width:  6em; padding-left: 10px; }
+.file_time { min-width: 10em; padding-left: 10px; }
 
 .meta_T {
 	padding-right : 4px;
@@ -3281,13 +3455,13 @@ a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
 
 /*** Select All [x]  [Move] [Copy] [Delete] ***/
 
-#select_all_th { max-width: 70px; text-align: right; padding:  0 3px 0 0px; } /*TRBL*/
+#select_all_th { min-width: 60px ; max-width: 70px; text-align: right; padding:  0 3px 0 0px; } /*TRBL*/
 
-#select_all_label {
-	Xdisplay: inline-block;		/* //##### when select all was above table, not in it*/
+#select_all_label { 
+	Xdisplay: inline-block;     /* //##### when select all was above table, not in it*/
 	font   : 400 .84em arial;
-	Xwidth  : 72px;				/* //##### when select all was above table, not in it*/
-	Xpadding: 2px 0 0 2px;		/* //##### when select all was above table, not in it*/
+	Xwidth  : 72px;			    /* //##### when select all was above table, not in it*/
+	Xpadding: 2px 0 0 2px;      /* //##### when select all was above table, not in it*/
 	color  : #333;
 	}
 
@@ -3295,9 +3469,9 @@ a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
 	height   : 1.55em;
 	cursor   : pointer;
 	border   : 1px solid #807568;
-	padding  : 0px 4px 0px 3px;
+	padding  : 0px 4px 0px 3px; /*TRBL*/
 	margin-top  :  .5em;  /* Helps align bottoms with New & Upload buttons */
-	margin-left : 0.0em;  /* no longer needs adjusted by langauge files*/
+	margin-left : 0.0em;  /* no longer needs adjusted by langauge files */
 	margin-right: 1.0em;  /* Adjusted by language files */
 	font-size: .9em;
 	color    : rgb(100,45,0);
@@ -3497,6 +3671,8 @@ input[type="text"].new_name {width  : 50%; margin-bottom: .2em;}
 .ren_over {display: inline-block}
 .ren_over input {margin: 0 0 0 2em}
 .ren_over label {font-weight: normal}
+
+#summary {font-size: .9em; text-align: center}
 </style>
 <?php
 }//end style_sheet() //*********************************************************
@@ -3520,7 +3696,7 @@ function Language_and_config_adjusted_styles() { //*****************************
 	margin-left: <?php echo $_['front_links_margin_L']  ?>; /*Default 1em */
 	}
 
-#mcd_submit button{ margin-right: <?php echo $_['MCD_margin_R']  ?>;} /*Default 1em */
+#mcd_submit button{ margin-right: <?php echo $_['MCD_margin_R']  ?>;}  /*Default 1em*/
 
 .image_info { font-size: <?php echo $_['image_info_font_size'] ?>; }   /*Default 1em*/
 

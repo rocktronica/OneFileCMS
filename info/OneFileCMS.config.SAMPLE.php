@@ -1,6 +1,6 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
-// v3.4.21
+// v3.4.23
 // Sample external config file - this file is OPTIONAL.
 //
 // Basically, what follows is just a copy & paste of the OneFileCMS CONFIGURABLE INFO.
@@ -20,14 +20,14 @@ $MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings (like 
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.          Can be px, pt, em, or %.  Assumes px otherwise.
 $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked.  Can be px, pt, em, or %.  Assumes px otherwise.
 
-$MAX_EDIT_SIZE = 150000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
+$MAX_EDIT_SIZE = 200000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
 $MAX_VIEW_SIZE = 1000000; // If file > $MAX_EDIT_SIZE, don't even view in OneFileCMS.
                           // The default max view size is completely arbitrary. Basically, it was 2am and seemed like a good idea at the time.
 
 $MAX_IMG_W   = 810;  //Max width (in px) to display images. (main width is 810)
 $MAX_IMG_H   = 1000; //Max height (in px).  I don't know, it just looks reasonable.
 
-$UPLOAD_FIELDS = 6; //Number of upload fields on Upload File(s) page. Max value is ini_get('max_file_uploads').
+$UPLOAD_FIELDS = 10; //Number of upload fields on Upload File(s) page. Max value is ini_get('max_file_uploads').
 
 $config_favicon   = "favicon.ico"; //Path is relative to root of website.
 $config_excluded  = ""; //files to exclude from directory listings- CaSe sEnsiTive!
