@@ -1,5 +1,14 @@
 # OneFileCMS Change Log
 
+### v3.5 (February 20, 2014)
+
+- The directory list can now be sorted by column: name, .ext, size, date.
+- Also has an option to list folders first, or to sort without regard to file or folder.
+- In accomplishing the above, most sorting moved client side.  This permits resorts without another server hit.
+- Added & tweaked some css...
+- Slight restructure of the repo (ie: move a few "extras" files around).
+- NOTE:  versions 3.4.23 & 3.4.24 DO NOT WORK IN IE!  I don't know why yet, mostly likely js related.
+
 ### v3.4.23 (February 12, 2014)
 
 - More changes in prep for sort by column
