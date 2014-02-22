@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.23
+// OneFileCMS Language Settings v3.5.01
 
 $_['LANGUAGE'] = 'Russian';
 $_['LANG'] = 'RU';
@@ -45,7 +45,7 @@ $_['Edit']     = 'Редактировать';
 $_['Enter']    = 'Вход';
 $_['Error']    = 'Ошибка';
 $_['errors']   = 'ошибки';
-$_['ext']      = 'ext';     //## NT ##
+$_['ext']      = 'ext';
 $_['File']     = 'Файл';
 $_['files']    = 'files';   //## NT ##
 $_['Folder']   = 'Папка';
@@ -64,8 +64,8 @@ $_['successful'] = 'успешно';
 $_['To']       = 'В';
 $_['Upload']   = 'Загрузить';
 $_['Username'] = 'Логин';
+$_['Working']  = 'Working - please wait...'; //## NT ##
 
-$_['Working']        = 'Working - please wait...'; //## NT ##
 $_['Log_In']         = 'Войти';
 $_['Log_Out']        = 'Выйти';
 $_['Admin_Options']  = 'Настройки Администратора';
@@ -76,6 +76,7 @@ $_['New_File']       = 'Новый файл';
 $_['Ren_Move']       = 'Переименовать / Переместить';
 $_['Ren_Moved']      = 'Переименованно / Перемещенно';
 $_['folders_first']  = 'folders first'; //## NT ##
+$_['folders_first_info'] = 'Sort folders first, but don\'t change primary sort.'; //## NT ##
 $_['New_Folder']     = 'Новая папка';
 $_['Ren_Folder']     = 'Переименовать / Переместить папку';
 $_['Submit']         = 'Отправить изменения';

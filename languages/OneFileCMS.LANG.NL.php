@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.23
+// OneFileCMS Language Settings v3.5.01
 
 $_['LANGUAGE'] = 'Nederlands (Dutch)';
 $_['LANG'] = 'NL';
@@ -45,7 +45,7 @@ $_['Edit']     = 'Bewerken';
 $_['Enter']    = 'Enter';   //## NT ##
 $_['Error']    = 'Fout';
 $_['errors']   = 'fouten';
-$_['ext']      = 'ext';     //## NT ##
+$_['ext']      = 'ext';
 $_['File']     = 'Bestand';
 $_['files']    = 'files';   //## NT ##
 $_['Folder']   = 'Map';
@@ -64,8 +64,8 @@ $_['successful'] = 'succesvol';
 $_['To']       = 'Aan';
 $_['Upload']   = 'Upload';  //## NT ##
 $_['Username'] = 'Gebruikersnaam';
+$_['Working']  = 'Working - please wait...'; //## NT ##
 
-$_['Working']        = 'Working - please wait...'; //## NT ##
 $_['Log_In']         = 'Inloggen';
 $_['Log_Out']        = 'Uitloggen';
 $_['Admin_Options']  = 'Opties voor beheer';
@@ -76,6 +76,7 @@ $_['New_File']       = 'Nieuw Bestand';
 $_['Ren_Move']       = 'Hernoemen / Verplaatsen';
 $_['Ren_Moved']      = 'Hernoemend / Verplaatst';
 $_['folders_first']  = 'folders first'; //## NT ##
+$_['folders_first_info'] = 'Sort folders first, but don\'t change primary sort.'; //## NT ##
 $_['New_Folder']     = 'Nieuwe Map';
 $_['Ren_Folder']     = 'Hernoem / Verplaats Map';
 $_['Submit']         = 'Verzoek Indienen';

@@ -1,6 +1,16 @@
 # OneFileCMS Change Log
 
-### v3.5 (February 20, 2014)
+### v3.5.01 (February 22, 2014)
+
+- Mostly behind the scenes stuff...
+- Replaced use of htmlentities() (hte()) with htmlspecialchars() (hsc()).  With UTF-8, htmlentites() is superluous.
+- Added hsc() to s number of strings where should have already been.
+- Changed directory sort function a bit. Note: when selecting/deselecting the 'folders first' option, the primary sort will be the last sorted column.
+- Split out a new function, Send_data_to_js(), from Index_Page().
+- Also, in prep for an upcoming update, tagged several places (with //##### ) where file system calls are made. The $filename strings used in the calls may need to be encoded with something   other than UTF-8, depending on the underlying OS's filesystem. 
+    (such as NTFS, which uses UTF-16)
+
+### v3.5 (February 19, 2014)
 
 - The directory list can now be sorted by column: name, .ext, size, date.
 - Also has an option to list folders first, or to sort without regard to file or folder.

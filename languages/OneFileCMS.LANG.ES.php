@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.23
+// OneFileCMS Language Settings v3.5.01
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -45,7 +45,7 @@ $_['Edit']     = 'Editar';
 $_['Enter']    = 'Entrar';
 $_['Error']    = 'Error';   //## NT ##
 $_['errors']   = 'errores';
-$_['ext']      = 'ext';     //## NT ##
+$_['ext']      = 'ext';
 $_['File']     = 'Archivo';
 $_['files']    = 'files';   //## NT ##
 $_['Folder']   = 'Carpeta';
@@ -64,8 +64,8 @@ $_['successful'] = 'satisfactoriamente';
 $_['To']       = 'Hacia';
 $_['Upload']   = 'Subir';
 $_['Username'] = 'Usuario';
+$_['Working']  = 'Working - please wait...'; //## NT ##
 
-$_['Working']        = 'Working - please wait...'; //## NT ##
 $_['Log_In']         = 'Iniciar Sesión';
 $_['Log_Out']        = 'Cerrar Sesión';
 $_['Admin_Options']  = 'Opciones de Administración';
@@ -76,6 +76,7 @@ $_['New_File']       = 'Archivo Nuevo';
 $_['Ren_Move']       = 'Renombrar / Mover';
 $_['Ren_Moved']      = 'Renombrado / Movido';
 $_['folders_first']  = 'folders first'; //## NT ##
+$_['folders_first_info'] = 'Sort folders first, but don\'t change primary sort.'; //## NT ##
 $_['New_Folder']     = 'Carpeta Nueva';
 $_['Ren_Folder']     = 'Renombrar / Mover Carpeta';
 $_['Submit']         = 'Cargar';

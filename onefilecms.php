@@ -1,7 +1,7 @@
-<?php 
+<?php mb_internal_encoding('utf-8');
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5';
+$OFCMS_version = '3.5.01';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -161,15 +161,22 @@ global $config_title, $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS,
 	$TO_WARNING, $INVALID_CHARS, $WHSPC_SLASH, $VALID_PAGES, 
 	$ONESCRIPT,  $ONESCRIPT_file, $ONESCRIPT_backup, $ONESCRIPT_file_backup, 
 	$CONFIG_backup, $CONFIG_FILE,$CONFIG_FILE_backup, $VALID_CONFIG_FILE, 
-	$DOC_ROOT, $WEB_ROOT, $WEBSITE, $PRE_ITERATIONS, $EX, $message;
+	$DOC_ROOT, $WEB_ROOT, $WEBSITE, $PRE_ITERATIONS, $EX, $message,
+	$CLIENT_OS, $ENC_OS, $ENC_UA;
+
+$ENC_OS = 'UTF-8'; //Operating System (Default).  For Windows, use Windows-1252 or ISO-8859-1.
+$ENC_UA = 'UTF-8'; //User Agent - for general use & display.
+
+$CLIENT_OS = php_uname("s"); //Needed when accessing non-ascii/UTF-8 filenames.
+if ($CLIENT_OS == 'Windows NT') {$ENC_OS = 'Windows-1252';} 
+
+mb_detect_order("UTF-8, Windows-1252, ISO-8859-1, ASCII");
 
 $DOC_ROOT = $_SERVER['DOCUMENT_ROOT'].'/'; //root folder of website.
 
 //Allow OneFileCMS.php to be started from any dir on the site.
 //This also effects the path in an include("path/somefile.php")
 chdir($DOC_ROOT); 
-
-mb_internal_encoding('utf-8');
 
 $INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file & folder names.  Space deliminated.
 $WHSPC_SLASH = "\x00..\x20/";  //Whitespace & forward slash. For trimming file & folder name inputs.
@@ -178,10 +185,10 @@ $ONESCRIPT = URLencode_path($_SERVER['SCRIPT_NAME']); //Used for URL's
 $WEB_ROOT  = basename($DOC_ROOT).'/'; //Used only for screen output - Non-url use.
 $WEBSITE   = $_SERVER['HTTP_HOST'].'/';
 
-$ONESCRIPT_file        = $_SERVER['SCRIPT_FILENAME'];  //Non-url use
+$ONESCRIPT_file        = $_SERVER['SCRIPT_FILENAME'];  //Non-url file system use.
 $ONESCRIPT_backup      = $ONESCRIPT.'.BACKUP.php';       //used for p/w & u/n updates.
 $ONESCRIPT_file_backup = $ONESCRIPT_file.'.BACKUP.php';  //used for p/w & u/n updates.
-$LOGIN_ATTEMPTS        = $ONESCRIPT_file.'.invalid_login_attempts';
+$LOGIN_ATTEMPTS        = $ONESCRIPT_file.'.invalid_login_attempts'; //Non-url file system use.
 
 //If specified & found, include external config file. Otherwise clear it.
 $VALID_CONFIG_FILE = 0;
@@ -193,8 +200,8 @@ elseif ( isset($CONFIG_FILE) && is_file($CONFIG_FILE) ) {
 	$CONFIG_FILE_backup    = $CONFIG_FILE.'.BACKUP.php';                 //used for p/w & u/n updates.
 }
 elseif ( isset($CONFIG_FILE) && !is_file($CONFIG_FILE) ) {
-	$message .= $EX.'<b>$CONFIG_FILE '.$_['Not_found'].':</b> '.$CONFIG_FILE.'<br>';
-	$message .= '<b>getcwd() == </b>'.getcwd().'<br>';
+	$message .= $EX.'<b>$CONFIG_FILE '.hsc($_['Not_found']).':</b> '.$CONFIG_FILE.'<br>';
+	$message .= '<b>getcwd() == </b>'.hsc(getcwd()).'<br>';
 	$CONFIG_FILE = '';
 }
 
@@ -211,7 +218,7 @@ if ( isset($WYSIWYG_PLUGIN) && is_file($WYSIWYG_PLUGIN) ) { $WYSIWYG_VALID = 1; 
 //If specified, clean up & validate $ACCESS_ROOT.
 if (!isset($ACCESS_ROOT)) { $ACCESS_ROOT = ''; } //At least make sure it's set.
 if (!is_dir($_SERVER['DOCUMENT_ROOT'].'/'.$ACCESS_ROOT) || (Check_path($ACCESS_ROOT,1) === false) ) {
-	$message .= $EX.'<b>$ACCESS_ROOT '.$_['Invalid_path'].': </b>'.$ACCESS_ROOT.'<br>';
+	$message .= $EX.'<b>$ACCESS_ROOT '.hsc($_['Invalid_path']).': </b>'.$ACCESS_ROOT.'<br>';
 	$ACCESS_ROOT = '';
 }
 if ($ACCESS_ROOT != '') { $ACCESS_ROOT = trim($ACCESS_ROOT, ' /').'/';}
@@ -219,18 +226,18 @@ $ACCESS_ROOT_enc = mb_detect_encoding($ACCESS_ROOT);
 $ACCESS_ROOT_len = mb_strlen($ACCESS_ROOT, $ACCESS_ROOT_enc);
 
 
-//Determine if valid units are set for $MAIN_WIDTH.  If not, assume px.
-$main_units   = substr($MAIN_WIDTH, -2); //should be px, pt, em, or %.
-if ( ($main_units != "px") && ($main_units != "pt") && ($main_units != "em") && (substr($MAIN_WIDTH, -1) != '%')) {
-	$MAIN_WIDTH = ($MAIN_WIDTH * 1).'px';
-}
+function validate_units($cssvalue) { //****************
+	//Determine if valid units are set for $cssvalue:  px, pt, em, or %.
+	$main_units   = substr($cssvalue, -2); 
+	if ( ($main_units != "px") && ($main_units != "pt") && ($main_units != "em") && (substr($cssvalue, -1) != '%')) {
+		$cssvalue = ($cssvalue * 1).'px';   //If not, assume px.
+	}
+	return $cssvalue;
+}//end valid_units() //********************************
 
+$MAIN_WIDTH      = validate_units($MAIN_WIDTH);
 
-//Determine if valid units are set for $WIDE_VIEW_WIDTH.  If not, assume px.
-$main_units   = substr($WIDE_VIEW_WIDTH, -2); //should be px, pt, em, or %.
-if ( ($main_units != "px") && ($main_units != "pt") && ($main_units != "em") && (substr($WIDE_VIEW_WIDTH, -1) != '%')) {
-	$WIDE_VIEW_WIDTH = ($WIDE_VIEW_WIDTH * 1).'px';
-}
+$WIDE_VIEW_WIDTH = validate_units($WIDE_VIEW_WIDTH);
 
 
 //Requires PHP 5.1, due to changes in some functions.
@@ -276,11 +283,10 @@ $PRE_ITERATIONS = 200;
 //#####  #######################################################################
 //Regarding hsc() & hte():
 //Using mb_detect_encoding() (partly) solves an issue on my XP based test setup.
-//But, mb_detect_encoding() return ASCII as appropriate, which htmlentities doesn't recognize.
-//So, we just change it to UTF-8.
-//However, since everything should be in UTF-8, use of htmlentities() is superfluous
-//and may be replaced with just htmlspecialchars() / hsc().
-//But, the replacement will happen only after additional research to confirm the logic/results.
+//But, mb_detect_encoding() may return ASCII, which htmlentities/speicalchars don't recognize.
+//So, just change $enc to UTF-8, of which ASCII is a subset.
+//Additionally, since everything is displayed in UTF-8, use of htmlentities() is superfluous,
+//and was replaced with just htmlspecialchars() / hsc() in v3.5.01
 //#####  #######################################################################
 
 function hsc($input) { //*******************************************************
@@ -289,18 +295,12 @@ function hsc($input) { //*******************************************************
 	return htmlspecialchars($input, ENT_QUOTES, $enc);
 }//end hsc() //*****************************************************************
 
-function hte($input) { //*******************************************************
-	$enc = mb_detect_encoding($input);
-	if ($enc == 'ASCII') {$enc = 'UTF-8';}
-	return htmlentities($input, ENT_QUOTES, $enc);
-}//end hte() //*****************************************************************
-
 
 
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.4.23
+// OneFileCMS Language Settings v3.5.01
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -344,7 +344,7 @@ $_['Edit']    = 'Edit';
 $_['Enter']   = 'Enter';
 $_['Error']   = 'Error';
 $_['errors']  = 'errors';
-$_['ext']     = 'ext';  // filename.ext(ension)
+$_['ext']     = '.ext';  // filename[.ext]ension
 $_['File']    = 'File';
 $_['files']   = 'files';
 $_['Folder']  = 'Folder';
@@ -374,6 +374,7 @@ $_['New_File']       = 'New File';
 $_['Ren_Move']       = 'Rename / Move';
 $_['Ren_Moved']      = 'Renamed / Moved';
 $_['folders_first']  = 'folders first'; //## NT ##
+$_['folders_first_info'] = 'Sort folders first, but don\'t change primary sort.'; //## NT ##
 $_['New_Folder']     = 'New Folder';
 $_['Ren_Folder']     = 'Rename / Move Folder';
 $_['Submit']         = 'Submit Request';
@@ -803,14 +804,14 @@ function Get_GET() { //*** Get main parameters *********************************
 	if (isset($_GET["f"])) { $filename = $ipath.$_GET["f"]; } else { $filename = ""; }
 	if ( ($filename != "") && !is_file($filename)  ) {
 		$message .= $EX.'<b>'.hsc($_['get_get_msg_01']).'</b> ';
-		$message .= hte(dir_name($filename)).'<b>'.hte(basename($filename)).'</b><br>';
+		$message .= hsc(dir_name($filename)).'<b>'.hsc(basename($filename)).'</b><br>';
 		$filename = "";
 	}
 
 	//Initialize & validate $page
 	if (isset($_GET["p"])) { $page = $_GET["p"]; } else { $page = "index"; }
 	if (!in_array($page, $VALID_PAGES)) {
-		$message .= $EX.hsc($_['get_get_msg_02']).' <b>'.hte($page).'</b><br>';
+		$message .= $EX.hsc($_['get_get_msg_02']).' <b>'.hsc($page).'</b><br>';
 		$page = "index";  //If invalid $_GET["p"]
 	}
 }//end Get_GET() //*************************************************************
@@ -947,7 +948,7 @@ function Check_path($path, $show_msg = false) { //******************************
 
 
 
-
+//##### 
 function is_empty($path){ //****************************************************
 	if ($path == "") {$path = '.';}
 	$empty = false;
@@ -959,7 +960,7 @@ function is_empty($path){ //****************************************************
 
 
 
-
+//##### 
 function Sort_Seperate($path, $full_list){ //***********************************
 	//Sort list, then seperate folders & files
 
@@ -978,7 +979,7 @@ function Sort_Seperate($path, $full_list){ //***********************************
 
 
 
-
+//##### 
 function ordinalize($destination,$filename, &$msg) { //*************************
 //if file_exists(file.txt), ordinalize filename until it doesn't
 //ie: file.txt.001,  file.txt.002, file.txt.003  etc...
@@ -995,7 +996,7 @@ function ordinalize($destination,$filename, &$msg) { //*************************
 			$ordinal = sprintf("%03d", ++$ordinal); //  001, 002, 003, etc...
 			$savefile = $destination.$filename.'.'.$ordinal;
 		}
-		$msg .= '<b>'.hsc($_['ord_msg_02']).':</b> <span class="filename">'.hte(basename($savefile)).'</span>';
+		$msg .= '<b>'.hsc($_['ord_msg_02']).':</b> <span class="filename">'.hsc(basename($savefile)).'</span>';
 	}
 	return $savefile;
 }//end ordinalize() //**********************************************************
@@ -1018,7 +1019,7 @@ function supports_svg() { //****************************************************
 
 
 
-
+//##### 
 function rCopy( $old_path, $new_path ) { //*************************************
 	//Recursively copy $old_path to $new_path
 	global $_, $WHSPC_SLASH, $EX, $message;
@@ -1035,7 +1036,7 @@ function rCopy( $old_path, $new_path ) { //*************************************
 	while (strlen($test_path) >= strlen($old_path)) {
 		$test_path = dirname($test_path);
 		if ( $test_path == $old_path ) {
-			$message .= $EX.' <b>'.$_['rCopy_msg_01'].'</b><br>';
+			$message .= $EX.' <b>'.hsc($_['rCopy_msg_01']).'</b><br>';
 			return false;
 		}
 	}
@@ -1062,7 +1063,7 @@ function rCopy( $old_path, $new_path ) { //*************************************
 
 
 
-
+//##### 
 function rDel($path){ //********************************************************
 	//Recursively delete $path & all sub-folders & files.
 	//Returns number of successful unlinks & rmdirs.
@@ -1111,7 +1112,7 @@ function Current_Path_Header(){ //**********************************************
 	echo '<h2>';
 		//Root (or $ACCESS_ROOT) folder of web site.
 		$p1 = '?i='.URLencode_path($ACCESS_ROOT);
-		echo hte($unaccessable).'<a id="path_0" href="'.$ONESCRIPT.$p1.'" class="path">'.hte($_1st_accessable).'</a>/';
+		echo hsc($unaccessable).'<a id="path_0" href="'.$ONESCRIPT.$p1.'" class="path">'.hsc($_1st_accessable).'</a>/';
 		$x=0; //need here for focus() in case at webroot.
 		
 		if ($remaining_path != "" ) { //if not at root, show the rest
@@ -1123,7 +1124,7 @@ function Current_Path_Header(){ //**********************************************
 				$current_path .= $path_levels[$x].'/';
 				$p1 = '?i='.URLencode_path($ACCESS_ROOT.$current_path);
 				echo '<a id="path_'.($x+1).'" href="'.$ONESCRIPT.$p1.'" class="path">';
-				echo hte($path_levels[$x]).'</a>/';
+				echo hsc($path_levels[$x]).'</a>/';
 			}
 		}//end if (not at root)
 	echo '</h2>';
@@ -1150,7 +1151,7 @@ function Page_Header(){ //******************************************************
 		
 		echo '<div class="nav">';
 			echo '<b><a href="/" target="_blank">'.$favicon.' ';
-			echo hte($WEBSITE).'</a></b>';
+			echo hsc($WEBSITE).'</a></b>';
 			if ($page != "login") {	echo ' | <a href="'.$ONESCRIPT.'?p=logout">'.hsc($_['Log_Out']).'</a>'; }
 		echo '</div><div class=clear></div>';
 	echo '</div>';//<!-- end header -->
@@ -1352,13 +1353,13 @@ function Init_ICONS() { //******************************************************
 
 
 
-
+//##### 
 function List_Backup($file, $file_url){ //**************************************
 	global $_, $ONESCRIPT, $ICONS;
 
 	clearstatcache ();
 	$href = $ONESCRIPT.'?i='.dir_name(trim($file_url,'/')).'&amp;f='.basename($file_url);
-	$edit_link = '<a href="'.$href.'&amp;p=edit'.'" id="old_backup">'.hte(basename($file)).'</a>';
+	$edit_link = '<a href="'.$href.'&amp;p=edit'.'" id="old_backup">'.hsc(basename($file)).'</a>';
 ?>
 	<table class="index_T old_backup_T"><tr>
 	<td class="file_name"><?php echo $edit_link; ?></td>
@@ -1529,13 +1530,13 @@ function Change_PWUN_Page($pwun, $type, $page_title, $label_new, $label_confirm)
 
 
 
-
+//##### 
 //******************************************************************************
 function Update_config($search_for, $replace_with, $search_file, $backup_file) {
 	global  $_, $EX, $message;
 
 	if ( !is_file($search_file) ) {
-		$message .= $EX.' <b>'.$_['Not_found'].': </b>'.$search_file.'<br>';
+		$message .= $EX.' <b>'.hsc($_['Not_found']).': </b>'.hsc($search_file).'<br>';
 		return false;
 	}
 
@@ -1554,8 +1555,8 @@ function Update_config($search_for, $replace_with, $search_file, $backup_file) {
 		}
 	}
 
-	//This should not happen...
-	if (!$found){ $message .= $EX.' <b>'.$_['Not_found'].': </b>'.$search_for.'<br>'; return false; }
+	//This should not happen, but just in case...
+	if (!$found){ $message .= $EX.' <b>'.hsc($_['Not_found']).': </b>'.hsc($search_for).'<br>'; return false; }
 	
 	copy($search_file, $backup_file); // Just in case...
 
@@ -1569,7 +1570,7 @@ function Update_config($search_for, $replace_with, $search_file, $backup_file) {
 
 
 
-
+//##### 
 function Change_PWUN_response($PWUN, $msg){ //**********************************
 	//Update $USERNAME or $HASHWORD. Default $page = changepw or changeun
 	global $_, $ONESCRIPT, $USERNAME, $HASHWORD, $EX, $message, $page, 
@@ -1613,10 +1614,10 @@ function Change_PWUN_response($PWUN, $msg){ //**********************************
 		
 		//If specified & it exists, update external config file.
 		if ( $VALID_CONFIG_FILE ) {
-			$message .= $_['change_pw_05'].' '.$_['change_pw_06'].'. . . ';
+			$message .= hsc($_['change_pw_05']).' '.hsc($_['change_pw_06']).'. . . ';
 			$updated = Update_config($search_for, $replace_with, $CONFIG_FILE, $CONFIG_FILE_backup);
 		}else{ //Update OneFileCMS
-			$message .= $_['change_pw_05'].' OneFileCMS . . . ';
+			$message .= hsc($_['change_pw_05']).' OneFileCMS . . . ';
 			$updated = Update_config($search_for, $replace_with, $ONESCRIPT_file, $ONESCRIPT_file_backup);
 		}
 		
@@ -1669,7 +1670,7 @@ function Login_Page() { //******************************************************
 
 
 
-
+//##### 
 function Login_response() { //**************************************************
 	global $_, $EX, $message, $page, $LOGIN_ATTEMPTS, $MAX_ATTEMPTS, $LOGIN_DELAY, $USERNAME, $HASHWORD;
 
@@ -1734,21 +1735,21 @@ function Create_Table_for_Listing() { //****************************************
 
 	<tr>
 	<th colspan=3 id="select_all_th">
-		<LABEL for=select_all id=select_all_label><?php echo $_['Select_All'] ?></LABEL></th>
+		<LABEL for=select_all id=select_all_label><?php echo hsc($_['Select_All']) ?></LABEL></th>
 	<th class="ckbox">
 		<INPUT TYPE=checkbox NAME=select_all id=select_all VALUE=select_all onclick="Select_All();"></th>
 	<th class="file_name ckbox" style="">
-		<label for=folders_first_ckbox id=folders_first_label>
+		<label for=folders_first_ckbox id=folders_first_label title="<?php  echo hsc($_['folders_first_info']) ?>">
 			<?php $ffparams = 'TYPE=checkbox NAME=folder_first id=folders_first_ckbox VALUE=folders_first checked'?>
-			<INPUT <?php echo $ffparams ?> onclick="sort_DIRECTORY(SORT_by, NORMAL);">
-			(<?php echo $_['folders_first'] ?>)
+			<INPUT <?php echo $ffparams ?> onclick="sort_DIRECTORY(SORT_by, SORT_order);">
+			(<?php echo hsc($_['folders_first']) ?>)
 		</label>
-		<a href="#" onclick="sort_DIRECTORY(1, REVERSE);return false"><?php echo $_['Name'] ?></a>
-		<a href="#" onclick="sort_DIRECTORY(5, REVERSE);return false" id=sort_type>[.<?php echo $_['ext'] ?>]</a></th>
+		<a href="#" onclick="sort_DIRECTORY(1, FLIP_IF);return false"><?php echo hsc($_['Name']) ?></a>
+		<a href="#" onclick="sort_DIRECTORY(5, FLIP_IF);return false" id=sort_type>(<?php echo hsc($_['ext']) ?>)</a></th>
 	<th class="file_size">
-		<a href="#" onclick="sort_DIRECTORY(2, REVERSE);return false"><?php echo $_['Size'] ?></a></th>
+		<a href="#" onclick="sort_DIRECTORY(2, FLIP_IF);return false"><?php echo hsc($_['Size']) ?></a></th>
 	<th class="file_time">
-		<a href="#" onclick="sort_DIRECTORY(3, REVERSE);return false"><?php echo $_['Date'] ?></a></th>
+		<a href="#" onclick="sort_DIRECTORY(3, FLIP_IF);return false"><?php echo hsc($_['Date']) ?></a></th>
 	</tr>
 
 	<?php //For directory content. Will insert the list later. (same for footer...) ?>
@@ -1760,22 +1761,21 @@ function Create_Table_for_Listing() { //****************************************
 
 
 
-
+//##### 
 function Get_DIRECTORY_DATA($basic_list) { //***********************************
 	global $_, $ONESCRIPT, $ipath, $param1, $ICONS,
 			$ftypes, $fclasses, $excluded_list, $stypes, $SHOWALLFILES, 
 			$DIRECTORY_COUNT, $DIRECTORY_DATA;
-	
+		
 	foreach ($basic_list as $filename) {
 		
-		$excluded = FALSE;
-		if (in_array($filename, $excluded_list)) { $excluded = TRUE; };
+		if (in_array($filename, $excluded_list)) {$excluded = TRUE;} else {$excluded = FALSE;}
 		
 		//Get file type & check against $stypes (files types to show)
 		$filename_parts = explode(".", strtolower($filename));
 		
 		$segments = count($filename_parts);
-		//Ignore if no $ext:  "filename"  or ".filename"
+		//Check for no $ext:  "filename"  or ".filename"
 		if( $segments === 1 || ( ($segments === 2) && ($filename_parts[0] === ""))) {
 				 $ext =  '';
 		} else { $ext = end($filename_parts); }
@@ -1786,7 +1786,7 @@ function Get_DIRECTORY_DATA($basic_list) { //***********************************
 		$IS_OFCMS = 0;
 		if ( $ipath.$filename == trim($_SERVER['SCRIPT_NAME'], '/') ) { $IS_OFCMS = 1; }
 		
-		//Determine if $filename is to be shown, save data
+		//If $filename is to be shown, save data...
 		if ( $SHOWTYPE && !$excluded ) {
 			
 			//Set icon type based on if dir, or file type ($ext).
@@ -1798,8 +1798,14 @@ function Get_DIRECTORY_DATA($basic_list) { //***********************************
 			elseif ($type == 'dir')        { $icon = $ICONS['folder']; }
 			else                           { $icon = $ICONS['bin']; } //default
 			
-			$file_size_raw = filesize($ipath.$filename);
-			$file_time_raw = filemtime($ipath.$filename);
+			//Get file size & date. Check if file_exists() in case of encoding conflicts with filename.
+			if (file_exists($ipath.$filename)) {
+				$file_size_raw = filesize($ipath.$filename);
+				$file_time_raw = filemtime($ipath.$filename);
+			} else {
+				$file_size_raw = -1; //Use -1 as an unobtrusive, but obvious, error flag.
+				$file_time_raw =  0; //Same as above, except use 0 which is 1970 Jan 1 00:00:00 GMT.
+			}
 			
 			//Store data
 			$DIRECTORY_DATA[$DIRECTORY_COUNT] = array('', '', 0, 0, 0, '');
@@ -1813,6 +1819,36 @@ function Get_DIRECTORY_DATA($basic_list) { //***********************************
 		}//end if $SHOW...
 	}//end foreach file
 }//end Get_DIRECTORY_DATA() //**************************************************
+
+
+
+ 
+function Send_data_to_js() {//**************************************************
+	global $DIRECTORY_DATA, $DIRECTORY_COUNT;
+	//"send" DIRECTORY_DATA to javascript.
+	$data_for_js = "<script>\n";
+
+	$row = 0; //index after filter of . & ..
+	for ($x = 0; $x < $DIRECTORY_COUNT; $x++) {
+		$filename = $DIRECTORY_DATA[$x][1];
+		if ( ($filename != '.') && ($filename != '..') ) {; // skip . & ..
+			$data_for_js .= 'DIRECTORY_DATA['.$row++.'] = new Array(';
+			$data_for_js .= ' "'.     $DIRECTORY_DATA[$x][0].'"';	// "type"
+			$data_for_js .= ',"'.     addslashes($DIRECTORY_DATA[$x][1]).'"';	// "file name"
+			$data_for_js .= ', '.     $DIRECTORY_DATA[$x][2];		// filesize
+			$data_for_js .= ', '.     $DIRECTORY_DATA[$x][3];		// timestamp
+			$data_for_js .= ', '.     $DIRECTORY_DATA[$x][4];		// is_ofcms
+			$data_for_js .= ',"'.     addslashes($DIRECTORY_DATA[$x][5]).'"';	// "ext"
+			$data_for_js .= ");\n";
+		}//end skip . & ..
+	}//end for x
+
+	//Initial sort & display of the directory...
+	$data_for_js .= 'sort_DIRECTORY();'."\n"; //Initial sort by file name.
+
+	$data_for_js .= "</script>\n";
+	echo $data_for_js;
+}//end Send_data_to_js() {//****************************************************
 
 
 
@@ -1844,7 +1880,7 @@ function Index_Page_buttons_top($file_count) { //*******************************
 
 
 
-
+//##### 
 function Index_Page(){ //*******************************************************
 	global $_, $ICONS, $ONESCRIPT, $ipath, $param1, $param3, $HREF_params, 
 			$ftypes, $fclasses, $DIRECTORY_COUNT, $DIRECTORY_DATA;
@@ -1868,31 +1904,9 @@ function Index_Page(){ //*******************************************************
 
 	if ($file_count > 0) { Get_DIRECTORY_DATA($basic_list); }
 
-	echo "</form>\n\n";
+	echo "</form>\n";
 
-	//"send" DIRECTORY_DATA to javascript.
-	echo "<script>\n";
-
-	$row = 0; //index after filter of . & ..
-	for ($x = 0; $x < $DIRECTORY_COUNT; $x++) {
-		$filename = $DIRECTORY_DATA[$x][1];
-		if ( ($filename != '.') && ($filename != '..') ) {; // skip . & ..
-			$data_for_js  = 'DIRECTORY_DATA['.$row++.'] = new Array(';
-			$data_for_js .= ' "'.     $DIRECTORY_DATA[$x][0].'"';	// "type"
-			$data_for_js .= ',"'.     $DIRECTORY_DATA[$x][1].'"';	// "file name"
-			$data_for_js .= ', '.     $DIRECTORY_DATA[$x][2];		// filesize
-			$data_for_js .= ', '.     $DIRECTORY_DATA[$x][3];		// timestamp
-			$data_for_js .= ', '.     $DIRECTORY_DATA[$x][4];		// is_ofcms
-			$data_for_js .= ',"'.     $DIRECTORY_DATA[$x][5].'"';	// "ext"
-			$data_for_js .= ");\n";
-			echo $data_for_js;
-		}//end skip . & ..
-	}//end for x
-
-	//Initial sort & display of the directory...
-	echo 'sort_DIRECTORY(1, NORMAL);'; //initial sort by file name
-
-	echo "</script>\n";
+	Send_data_to_js();
 }//end Index_Page() //**********************************************************
 
 
@@ -1907,7 +1921,7 @@ function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
 		$set_cookie = "document.cookie='edit_mode=".(!$EDIT_MODE*1)."'; ";
 		$edit_page  = "parent.location='".$ONESCRIPT.$param1.$param2."&p=edit';";
 		$attribs    = 'type=button class=button id=on_off onclick="'.$set_cookie.$edit_page.'"';
-		$ON_OFF_button = '<button '.$attribs.'>'.$_['Edit'].' '.hte($ON_OFF_label).'</button>';
+		$ON_OFF_button = '<button '.$attribs.'>'.hsc($_['Edit']).' '.hsc($ON_OFF_label).'</button>';
 	}
 
 	//[Wide View] / [Normal View] button.
@@ -1968,7 +1982,7 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
 		<?php
 		if ($text_editable && !$too_large_to_edit) { //Show save & reset only if editable file
 			echo Timeout_Timer($MAX_IDLE_TIME, 'timer1','timer', 'LOGOUT');
-			echo '<button type="submit" class="button" onclick="submitted = true;" id="save_file">'.$_['save_1'].'</button>';
+			echo '<button type="submit" class="button" onclick="submitted = true;" id="save_file">'.hsc($_['save_1']).'</button>';
 			echo $reset_button;
 			?><script>
 				document.getElementById("save_file").disabled = "<?php echo $disabled ?>";
@@ -2110,8 +2124,8 @@ function Edit_Page() { //*******************************************************
 	echo '<style>#message_box { min-height: 1.88em; }</style>';
 
 	echo '<h2 id="edit_header">'.$header2.' ';
-	echo '<a class="h2_filename" href="/'.URLencode_path($filename).'" target="_blank" title="'.$_['Open_View'].'">';
-	echo hte(basename($filename)).'</a>';
+	echo '<a class="h2_filename" href="/'.URLencode_path($filename).'" target="_blank" title="'.hsc($_['Open_View']).'">';
+	echo hsc(basename($filename)).'</a>';
 	echo '</h2>'.PHP_EOL;
 
 	Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message, $file_ENC);
@@ -2224,14 +2238,14 @@ function Upload_response() { //*************************************************
 		
 		if ( ($destination === false) || (($destination != "") && !is_dir($destination))) {
 			$message .= $EX.'<b>'.hsc($_['upload_msg_02']).'</b><br>';
-			$message .= '<span class="filename">'.hte($destination).'</span></b><br>';
+			$message .= '<span class="filename">'.hsc($destination).'</span></b><br>';
 			$message .= hsc($_['upload_msg_03']).'</b><br>';
 		}else{
-			$message .= '<b>'.hsc($_['upload_msg_04']).'</b> <span class="filename">'.hte($filename).'</span><br>';
+			$message .= '<b>'.hsc($_['upload_msg_04']).'</b> <span class="filename">'.hsc($filename).'</span><br>';
 			
 			if ( isset($_POST['ifexists']) && ($_POST['ifexists'] == 'overwrite') ) {
 				$savefile = $destination.$filename;
-				if (is_file($savefile)) { $savefile_msg .= $_['upload_msg_07'] ; }
+				if (is_file($savefile)) { $savefile_msg .= hsc($_['upload_msg_07']) ; }
 			}else{ //rename to "file.etc.001"  etc...
 				$savefile = ordinalize($destination, $filename, $savefile_msg);
 			}
@@ -2253,10 +2267,10 @@ function Upload_response() { //*************************************************
 function New_Page($title, $new_f_or_f) { //*********************************************
 	global $_, $FORM_COMMON, $INVALID_CHARS;
 
-	echo '<h2>'.hte($title).'</h2>';
+	echo '<h2>'.hsc($title).'</h2>';
 	echo $FORM_COMMON;
 		echo '<p>'.hsc($_['new_file_txt_01'].' '.$_['new_file_txt_02']);
-		echo '<span class="mono"> '.hte($INVALID_CHARS).'</span></p>';
+		echo '<span class="mono"> '.hsc($INVALID_CHARS).'</span></p>';
 		echo '<input type="text" name="'.$new_f_or_f.'" id="'.$new_f_or_f.'" value=""><p>';
 		Cancel_Submit_Buttons($_['Create']);
 	echo '</form>';
@@ -2275,11 +2289,11 @@ function New_response($post, $isfile){ //***************************************
 	if ($isfile) { $f_or_f = "file";   $filename  = $ipath.$new_name;     }
 	else         { $f_or_f = "folder"; $new_ipath = $ipath.$new_name.'/'; }
 
-	$msg_new  = '<span class="filename">'.hte($new_name).'</span><br>';
+	$msg_new  = '<span class="filename">'.hsc($new_name).'</span><br>';
 
 	if (has_invalid_char($new_name)){
 		$message .= $EX.'<b>'.hsc($_['new_file_msg_01']).'</b> '.$msg_new;
-		$message .= '<b>'.hsc($_['new_file_msg_02']).'<span class="mono"> '.hte($INVALID_CHARS).'</span></b>';
+		$message .= '<b>'.hsc($_['new_file_msg_02']).'<span class="mono"> '.hsc($INVALID_CHARS).'</span></b>';
 		
 	}elseif ($new_name == ""){ //No new name given.
 		$page   = "new".$f_or_f;
@@ -2357,14 +2371,14 @@ function CRM_Page($action, $title, $action_id, $old_full_name) { //*************
 	echo '<h2>'.hsc($action.' '.$title).'</h2>';
 
 	echo $FORM_COMMON;
-		echo '<input type="hidden" name="'.$action_id.'"  value="'.hsc($action_id).'">';
+		echo '<input type="hidden" name="'.hsc($action_id).'"  value="'.hsc($action_id).'">';
 		echo '<input type="hidden" name=old_full_name     value="'.hsc($old_full_name).'">';
 		
 		echo '<label>'.hsc($_['CRM_txt_04']).':</label>';
 		echo '<input type=text name=new_name class=new_name value="'.hsc(basename($new_full_name)).'"><br>';
 		
 		echo '<label>'.hsc($_['New_Location']).':</label>';
-		echo '<span class="web_root">'.hte($WEB_ROOT.$ACCESS_ROOT).'</span>';
+		echo '<span class="web_root">'.hsc($WEB_ROOT.$ACCESS_ROOT).'</span>';
 		echo '<input type=hidden name=base_location value="'.hsc($ACCESS_ROOT).'">';
 		echo '<input type=text   name=new_location  value="'.hsc($ACCESS_PATH).'"><br>';
 		
@@ -2392,9 +2406,9 @@ function CRM_response($action, $msg1, $show_message = 3){ //********************
 	$isfile = 0; if (is_file($old_full_name)) { $isfile = 1;} //File or folder?
 
 	//Common message lines
-	$com_msg  = '<div id="message_left">'.hte($_['From']).'<br>'.hte($_['To']).'</div>';
-	$com_msg .= '<b>: </b><span class="filename">'.hte($old_full_name).'</span><br>';
-	$com_msg .= '<b>: </b><span class="filename">'.hte($new_full_name).'</span><br>';
+	$com_msg  = '<div id="message_left">'.hsc($_['From']).'<br>'.hsc($_['To']).'</div>';
+	$com_msg .= '<b>: </b><span class="filename">'.hsc($old_full_name).'</span><br>';
+	$com_msg .= '<b>: </b><span class="filename">'.hsc($new_full_name).'</span><br>';
 
 	$err_msg = ''; //Error message.
 	$scs_msg = ''; //Success message.
@@ -2405,25 +2419,25 @@ function CRM_response($action, $msg1, $show_message = 3){ //********************
 	if ( Check_path($old_full_name,$show_message) === false ) {
 		$bad_name = $old_full_name;
 	}elseif ( !file_exists($old_full_name) ) {
-		$err_msg .= $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_02']).'</b><br>';
+		$err_msg .= $EX.'<b>'.hsc($msg1.' '.hsc($_['CRM_msg_02'])).'</b><br>';
 		$bad_name = $old_full_name;
 	//Check new name for invalid chars, including slashes.
 	}elseif ( has_invalid_char($new_name_only) ) {
-		$err_msg .= $EX.'<b>'.hsc($_['new_file_msg_02']).'<span class="filename"> '.hte($INVALID_CHARS).'</span></b><br>';
+		$err_msg .= $EX.'<b>'.hsc($_['new_file_msg_02']).'<span class="filename"> '.hsc($INVALID_CHARS).'</span></b><br>';
 		$bad_name = $new_name_only;
 	//Check new location for invalid chars etc.
 	}elseif ( Check_path($new_location,$show_message) === false ) {
 		$bad_name = $new_location;
 	//$new_location must already exist as a directory
 	}elseif ( ($new_location != "") && !is_dir($new_location) ) {
-		$err_msg .= $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_01']).'</b><br>';
+		$err_msg .= $EX.'<b>'.hsc($msg1.' '.hsc($_['CRM_msg_01'])).'</b><br>';
 		$bad_name = $new_location;
 	//Don't overwrite existing files.
 	}elseif ( file_exists($new_full_name) ) {
 		$bad_name = $new_full_name;
-		$err_msg .= $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_03']).'</b><br>';
+		$err_msg .= $EX.'<b>'.hsc($msg1.' '.hsc($_['CRM_msg_03'])).'</b><br>';
 	}elseif ( $action($old_full_name, $new_full_name )) {
-		$scs_msg .= '<b>'.hsc($msg1.' '.$_['successful']).'</b><br>'.$com_msg;
+		$scs_msg .= '<b>'.hsc($msg1.' '.hsc($_['successful'])).'</b><br>'.$com_msg;
 		if   ($isfile) {
 			$ipath    = $new_location;
 			$filename = $new_full_name;
@@ -2436,7 +2450,7 @@ function CRM_response($action, $msg1, $show_message = 3){ //********************
 		$err_msg .= $EX.'<b>'.hsc($_['CRM_msg_05'].' '.$msg1).'</b><br>'.$com_msg;
 	}
 	
-	if ($error && ($bad_name !='' )) { $err_msg .= '<span class="filename">'.hte($bad_name).'</span><br>'; }
+	if ($error && ($bad_name !='' )) { $err_msg .= '<span class="filename">'.hsc($bad_name).'</span><br>'; }
 
 	if ( ($show_message & 1) && $error ) { $message .= $err_msg; } //Show error message.
 	if (  $show_message & 2)             { $message .= $scs_msg; } //Show success message.
@@ -2469,14 +2483,14 @@ function Delete_response($target, $show_message=3) { //*************************
 
 	if (rDel($target)) {
 		$scs_msg .= '<b>'.hsc($_['Deleted']).':</b> ';
-		$scs_msg .= '<span class="filename">'.hte(basename($target)).'</span></br>';
+		$scs_msg .= '<span class="filename">'.hsc(basename($target)).'</span></br>';
 		$ipath  = dir_name($target); //Return to parent dir.
 		$param1 = '?i='.URLencode_path($ipath);
 		$filename = "";
 		$param2   = "";
 		$error = 0; //0= no error, 1 = an error.
 	}else { //Error
-		$err_msg .= $EX.'<b>'.hsc($_['delete_msg_03']).'</b> <span class="filename">'.hte($target).'</span><br>';
+		$err_msg .= $EX.'<b>'.hsc($_['delete_msg_03']).'</b> <span class="filename">'.hsc($target).'</span><br>';
 		$page = $_SESSION['recent_pages'][1];
 		if ($page == "edit") {
 			$filename = $target;
@@ -2511,11 +2525,11 @@ function MCD_Page($action, $page_title, $classes = '') { //*********************
 	echo '<h2>'.hsc($page_title).'</h2>';
 
 	echo '<form method="post" action="'.$ONESCRIPT.$param1.'">'.$INPUT_NUONCE;
-		echo '<input type="hidden" name="'.$action.'" value="'.$action.'">'.PHP_EOL;
+		echo '<input type="hidden" name="'.hsc($action).'" value="'.hsc($action).'">'.PHP_EOL;
 		
 		if ( ($_POST['mcdaction'] == 'copy') || ($_POST['mcdaction'] == 'move') ) {
 			echo '<label>'.hsc($_['New_Location']).':</label>';
-			echo '<span class="web_root">'.hte($WEB_ROOT.$ACCESS_ROOT).'</span>';
+			echo '<span class="web_root">'.hsc($WEB_ROOT.$ACCESS_ROOT).'</span>';
 			echo '<input type=hidden name=base_location value="'.hsc($ACCESS_ROOT).'">';
 			echo '<input type=text   name=new_location  id=new_location value="'.hsc($ACCESS_PATH).'">';
 			echo '<p>('.hsc($_['CRM_txt_02']).')</p>';
@@ -2528,11 +2542,11 @@ function MCD_Page($action, $page_title, $classes = '') { //*********************
 		$full_list = Sort_Seperate($ipath, $_POST['files']);
 		
 		echo '<table class="verify '.$classes.'">';
-		echo '<tr><th>'.$_['Selected_Files'].':</th></tr>'."\n";
+		echo '<tr><th>'.hsc($_['Selected_Files']).':</th></tr>'."\n";
 		
 		foreach($full_list as $file) {
-			if (is_dir($ipath.$file)) { echo '<tr><td>'.$ICONS['folder'].'&nbsp;'.hte($file).' /</td></tr>'; }
-			else                      { echo '<tr><td>'.hte($file).'</td></tr>'; }
+			if (is_dir($ipath.$file)) { echo '<tr><td>'.$ICONS['folder'].'&nbsp;'.hsc($file).' /</td></tr>'; }
+			else                      { echo '<tr><td>'.hsc($file).'</td></tr>'; }
 			echo '<input type=hidden  name="files[]" value="'.hsc($file).'">'."\n";
 		}
 		
@@ -2559,8 +2573,8 @@ function MCD_response($action, $msg1, $success_msg = '') { //*******************
 			$errors += Delete_response($ipath.$file, $show_message);
 		}
 	}elseif ( ($_POST['new_location'] != "") && !is_dir($_POST['new_location']) ) {
-		$message .= $EX.'<b>'.$msg1.' '.$_['CRM_msg_01'].'</b><br>';
-		$message .= '<span class="filename">'.hte($_POST['new_location']).'</span><br>';
+		$message .= $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_01']).'</b><br>';
+		$message .= '<span class="filename">'.hsc($_POST['new_location']).'</span><br>';
 		return;
 	}else { //move or rCopy
 		$mcd_ipath = $ipath; //CRM_response() changes $ipath to $new_location
@@ -2655,14 +2669,14 @@ function Respond_to_POST() { //*************************************************
 	//First, validate any $_POST'ed paths against $ACCESS_ROOT.
 	if (isset($_POST["old_full_name"]) && !Valid_Path($_POST["old_full_name"], false)) {
 		//unlikely, but just in case
-		$message .= $EX.'<b>'.$_['Invalid_path'].': </b><span class=filename>'.$_POST["old_full_name"].'</span>';
+		$message .= $EX.'<b>'.hsc($_['Invalid_path']).': </b><span class=filename>'.hsc($_POST["old_full_name"]).'</span>';
 		$VALID_POST = 0;
 		return;
 	}
 	if (isset($_POST["new_location"])) {
 		$_POST["new_location"] = $_POST['base_location'].$_POST["new_location"]; //For CRM_ & MCD_response's
 		if (!Valid_Path($_POST["new_location"], false)) {  
-			$message .= $EX.'<b>'.$_['Invalid_path'].': </b><span class=filename>'.$_POST["new_location"].'</span>';
+			$message .= $EX.'<b>'.hsc($_['Invalid_path']).': </b><span class=filename>'.hsc($_POST["new_location"]).'</span>';
 			$VALID_POST = 0;
 			return;
 		}
@@ -2807,7 +2821,7 @@ function Countdown(count, End_Time, Timer_ID, Timer_CLASS, Action){
 
 	if ( count < 1 ) {
 		if ( Action == 'LOGOUT') {
-			Timer.innerHTML = '<?php echo addslashes($_['session_expired']) ?>';
+			Timer.innerHTML = '<?php echo hsc($_['session_expired']) ?>';
 			//Load login screen, but delay first to make sure really expired:
 			setTimeout('window.location = window.location.pathname',3000); //1000 = 1 second
 		}
@@ -2878,9 +2892,9 @@ function Select_All() {
 	var select_all = document.mcdselect.select_all;
 	
 	if (select_all.checked) {
-		$select_all_label.innerHTML = '<?php echo addslashes($_['Clear_All']) ?>';
+		$select_all_label.innerHTML = '<?php echo hsc($_['Clear_All']) ?>';
 	}else{
-		$select_all_label.innerHTML = '<?php echo addslashes($_['Select_All']) ?>';
+		$select_all_label.innerHTML = '<?php echo hsc($_['Select_All']) ?>';
 	}
 
 	//Start x at 1 as files[0] is a dummy <input> used to force an array even if only one file is in a folder.
@@ -2920,17 +2934,21 @@ function Index_Page_scripts() { //**********************************************
 ?>
 <script>
 //  DIRECTORY_DATA[x] = ("type", "file name", filesize, timestamp, is_ofcms, "ext")	
-var DIRECTORY_DATA    = new Array();
+var DIRECTORY_DATA	  = new Array();
 
 var ONESCRIPT	= "<?php echo $ONESCRIPT ?>";
-var PARAM1		= "<?php echo $param1 ?>";  //capitalize here as it is a const in js.
+var PARAM1		= "<?php echo $param1 ?>";  //capitalize in js as it is used as a constant.
 
-var NORMAL			 = false; // Used in the "reverse" parameter when calling sort_DIRECTORY(),
-var REVERSE			 = true;  // such as on initial page load, and clicking "folders first".
+//a few usefull constants for using sort_DIRECTORY()
+var DESCENDING	= 0;
+var ASCENDING	= 1;
+var FLIP		= 2; //Reverse the current direction (ascending <-> descending)
+var FLIP_IF		= 3; //Flip only if new column selected.
 
-var SORT_by		     = '-1';  // Sort key (column) from DIRECTORY_DATA[x][key]: key = 1 for "file name". -1 for initial page load only.
+//A few flags for using sort_DIRECTORY(). These are not constants.
+var SORT_by		     = '1';   // Sort key (column) from DIRECTORY_DATA[x][key].
 var SORT_order       = true;  // Default to "normal" sort orders (ascending). Set to false for reverse (descending).
-var SORT_folders_1st = true;  // Default to folders first in sort order. false to not consider folders during sort.
+var SORT_folders_1st = true;  // Initially set to false =  did not consider folders during prior sort.
 
 
 
@@ -2957,40 +2975,53 @@ function Sort_Folders_First() { //************************************
 	row = 0
 	for (D = 0; D < folders.length; D++) { DIRECTORY_DATA[row++] = folders[D]; }
 	for (F = 0; F < files.length;   F++) { DIRECTORY_DATA[row++] = files[F];   }
+	
+	SORT_folders_1st = true;
 
 }//end Sort_Folders_First() //****************************************
 
 
 
 
-function sort_DIRECTORY(col, reverse) { //****************************
+function sort_DIRECTORY(col, direction) { //**************************
 
-	//DIRECTORY_DATA[x] = ("type", "file name", filesize, timestamp, is_ofcms, "ext")
-	//col: 1 for "file name", 2 for filesize, 3 for timestamp, 5 for "ext"
-	//reverse: if true, reverse current SORT_order;  if false, maintain current SORT_order
+	//sort DIRECTORY_DATA[] by col and direction
 	
- 	reverse = typeof reverse !== 'undefined' ? reverse : false; //default to maintain current SORT_order
+	//col: 1 for "file name", 2 for filesize, 3 for timestamp, 5 for "ext"
+	//derection: 0 = desending, 1 = ascending, 2 = flip, 3 = flip only if new col != SORT_by
 
-	var alpha          = false; //Set to true when sorting by filename or ext (alphabetically).
-	var $folders_first = document.getElementById('folders_first_ckbox').checked;
+	//SORT_by, SORT_order, SORT_folders_1st: values set by prior (or initial) sort.
 
-	//If same column clicked again, revserse SORT_order.
-	//Else, store new col, but don't reverse the current SORT_order.
-	if (reverse  && (col == SORT_by)) { SORT_order = !SORT_order; } //same sort col, new SORT_order
-	else							  {	SORT_by = col;			  } //new sort col, same SORT_order
+	//If needed, set default col and/or direction.
+	col = typeof col !== 'undefined' ? col : 1;
+	direction = typeof direction !== 'undefined' ? direction : ASCENDING;
 
-	if (SORT_by == 1) { alpha      = true;        } //"file name"
-	if (SORT_by == 5) { alpha      = true;        } //"ext": "txt", "gif", etc...
+	//If new sort column, sort ascending. (FLIP overides, but is not currently used.)
+	if ((col != SORT_by) && (direction != FLIP)) { direction = ASCENDING; SORT_by = col; } 
 
-	if (SORT_order){ // sort normally,
-		if (alpha)  { DIRECTORY_DATA.sort( function (a, b) {return a[col].localeCompare(b[col]);} ); } //alphabetically
-		else        { DIRECTORY_DATA.sort( function (a, b) {return a[col]       -       b[col] ;} ); } //numerically
-	} else         { // else reverse sort.
-		if (alpha)  { DIRECTORY_DATA.sort( function (b, a) {return a[col].localeCompare(b[col]);} ); } //alphabetically
-		else        { DIRECTORY_DATA.sort( function (b, a) {return a[col]       -       b[col] ;} ); } //numerically
-	}
+	//Get status of [x](folders first) checkbox
+	var folders_first_checked = document.getElementById('folders_first_ckbox').checked;
 
-	if ($folders_first) { Sort_Folders_First(); }
+	//If '[x](folders first)' is now checked, but was previously unchecked,
+	//no need to re-sort by col, just sort by folders. Otherwise, first resort by column.
+	if ( !(folders_first_checked && !SORT_folders_1st) ) { 
+		
+		if      ( direction == ASCENDING  ) { SORT_order = true;  }
+		else if ( direction == DESCENDING ) { SORT_order = false; }
+		else if ( direction == FLIP       ) { SORT_order = !SORT_order; }
+		else if ( direction == FLIP_IF    ) { SORT_order = !SORT_order; }
+		else                                { SORT_order = true; }
+		
+		if (col == 1 || col == 5) {  // If "file name" or "ext", sort alphabetically
+			if (SORT_order) { DIRECTORY_DATA.sort( function (a, b) {return a[col].localeCompare(b[col]);} ); }
+			else            { DIRECTORY_DATA.sort( function (b, a) {return a[col].localeCompare(b[col]);} ); }		
+		} else { //sort numerically
+			if (SORT_order) { DIRECTORY_DATA.sort( function (a, b) {return a[col]       -       b[col] ;} ); }
+			else            { DIRECTORY_DATA.sort( function (b, a) {return a[col]       -       b[col] ;} ); }
+		}
+	}//end if folders first only / full resort
+
+	if (folders_first_checked == true) { Sort_Folders_First(); }
 
 	Build_Directory('DIRECTORY_LISTING'); // Show directory with new sort order.
 
@@ -3045,9 +3076,9 @@ function Display_Directory_Summary(target) { //***********************
 
 	//Directory Summary
 	SUMMARY += '<td colspan=7>';
-	SUMMARY += folder_count + " <?php echo $_['folders']?>, &nbsp; ";
-	SUMMARY += total_items - folder_count + ' <?php echo $_['files']?>, ';
-	SUMMARY += '&nbsp; ' + format_number(total_bytes) + " <?php echo $_['bytes']?></td>";
+	SUMMARY += folder_count + " <?php echo hsc($_['folders']) ?>, &nbsp; ";
+	SUMMARY += total_items - folder_count + ' <?php echo hsc($_['files']) ?>, ';
+	SUMMARY += '&nbsp; ' + format_number(total_bytes) + " <?php echo hsc($_['bytes']) ?></td>";
 
 	document.getElementById(target).innerHTML = SUMMARY;  //DISPLAY DIRECTORY LISTING
 
@@ -3157,7 +3188,7 @@ Save_File_button.onmouseout  = function() { if (focus!='save') {
 Main_div.style.width = "<?php echo $current_view ?>"; //Set current width
 
 if ( Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>' ) {
-	Wide_View_button.innerHTML = '<?php echo addslashes($_['Normal_View']) ?>';
+	Wide_View_button.innerHTML = '<?php echo hsc($_['Normal_View']) ?>';
 }
 
 
@@ -3166,11 +3197,11 @@ function Wide_View() {
 	
 	if (Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>') {
 		Main_div.style.width = main_width_default;
-		Wide_View_button.innerHTML = "<?php echo addslashes($_['Wide_View'])?>";
+		Wide_View_button.innerHTML = "<?php echo hsc($_['Wide_View'])?>";
 		document.cookie = 'edit_view=' + main_width_default;
 	}else{
 		Main_div.style.width = '<?php echo $WIDE_VIEW_WIDTH ?>';
-		Wide_View_button.innerHTML = '<?php echo addslashes($_['Normal_View']) ?>';
+		Wide_View_button.innerHTML = '<?php echo hsc($_['Normal_View']) ?>';
 		document.cookie = 'edit_view=<?php echo $WIDE_VIEW_WIDTH ?>';
 	}
 }
@@ -3183,7 +3214,7 @@ function Reset_file_status_indicators() {
 	Save_File_button.style.borderColor = "";
 	Save_File_button.style.borderWidth = "1px";
 	Save_File_button.disabled = "disabled";
-	Save_File_button.innerHTML = "<?php echo addslashes($_['save_1'])?>";
+	Save_File_button.innerHTML = "<?php echo hsc($_['save_1'])?>";
 	Reset_button.disabled = "disabled";
 }
 
@@ -3232,7 +3263,7 @@ function Check_for_changes(event){
 		Save_File_button.style.borderWidth = "1px";
 		Save_File_button.disabled = "";
 		Reset_button.disabled = "";
-		Save_File_button.innerHTML = "<?php echo addslashes($_['save_2'])?>";
+		Save_File_button.innerHTML = "<?php echo hsc($_['save_2'])?>";
 	}else{
 		Reset_file_status_indicators()
 	}
@@ -3291,7 +3322,7 @@ $submit_button.onmouseup   = function(event) {events_up(event,  0);} //For mouse
 function events_down(event, capture_key) {if (!event) {var event = window.event;} //if IE
 	$thispage = true; //Make sure keydown was on this page.
 	if ((event.type.substr(0,3) == 'key') && (event.keyCode != capture_key)) {return true;}
-	$message_box.innerHTML = '<div id="message_box_contents"><b><?php echo $_['Working'] ?></b>';
+	$message_box.innerHTML = '<div id="message_box_contents"><b><?php echo hsc($_['Working']) ?></b>';
 }
 
 
@@ -3332,12 +3363,12 @@ function pre_validate() {
 
 	//If any field is blank..
 	if (($username.value == '') || ($pw.value == '') || ($new1.value == '') || ($new2.value == '')) {
-		$message_box.innerHTML = '<div id="message_box_contents"><b><?php echo $_['change_pw_07'] ?></b>';
+		$message_box.innerHTML = '<div id="message_box_contents"><b><?php echo hsc($_['change_pw_07']) ?></b>';
 		return false;
 	}
 	//If new & confirm new values do not match...
 	if (trim($new1.value) != trim($new2.value)) {
-		$message_box.innerHTML = '<div id="message_box_contents"><b><?php echo $_['change_pw_04'] ?></b>';
+		$message_box.innerHTML = '<div id="message_box_contents"><b><?php echo hsc($_['change_pw_04']) ?></b>';
 		return false;
 	}
 	return true;

@@ -1,4 +1,4 @@
-OneFileCMS Version 3.5 structure/layout
+OneFileCMS Version 3.501 structure/layout
 
 LICENSE
 
@@ -59,9 +59,10 @@ PAGE & RESPONSE FUNCTIONS:
 	Logout()
 	Login_Page()
 	Login_response()
-	Get_DIRECTORY_DATA()
 	Create_Table_for_Listing()
-    Index_Page_buttons_top
+	Get_DIRECTORY_DATA()
+	Send_data_to_js()
+	Index_Page_buttons_top()
 	Index_Page()
 	Edit_Page_buttons_top()
 	Edit_Page_buttons()

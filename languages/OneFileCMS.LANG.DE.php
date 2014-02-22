@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.23
+// OneFileCMS Language Settings v3.5.01
 
 $_['LANGUAGE'] = 'Deutsch';
 $_['LANG'] = 'DE';
@@ -45,7 +45,7 @@ $_['Edit']     = 'Bearbeiten';
 $_['Enter']    = 'Eintreten';
 $_['Error']    = 'Fehler';
 $_['errors']   = 'Fehler';
-$_['ext']      = 'ext';     //## NT ##
+$_['ext']      = 'ext';
 $_['File']     = 'Datei';
 $_['files']    = 'files';   //## NT ##
 $_['Folder']   = 'Ordner';
@@ -64,8 +64,8 @@ $_['successful'] = 'Erfolgreich';
 $_['To']       = 'Auf';
 $_['Upload']   = 'Heraufladen';
 $_['Username'] = 'Benutzername';
+$_['Working']  = 'Working - please wait...'; //## NT ##
 
-$_['Working']        = 'Working - please wait...'; //## NT ##
 $_['Log_In']         = 'Anmelden';
 $_['Log_Out']        = 'Abmelden';
 $_['Admin_Options']  = 'Konfiguration Optionen';
@@ -76,6 +76,7 @@ $_['New_File']       = 'Neuer Datei';
 $_['Ren_Move']       = 'Umbenennen / Verschieben';
 $_['Ren_Moved']      = 'Umbenannt / Verschoben';
 $_['folders_first']  = 'folders first'; //## NT ##
+$_['folders_first_info'] = 'Sort folders first, but don\'t change primary sort.'; //## NT ##
 $_['New_Folder']     = 'Neuer Ordner';
 $_['Ren_Folder']     = 'Ordner umbenennen/verschieben';
 $_['Submit']         = 'Anfrage senden';

@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.4.23
+// OneFileCMS Language Settings v3.5.01
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -45,7 +45,7 @@ $_['Edit']     = 'Edit';
 $_['Enter']    = 'Enter';
 $_['Error']    = 'Error';
 $_['errors']   = 'errors';
-$_['ext']      = 'ext';     //## NT ## filename.ext(ension)
+$_['ext']      = '.ext';    //filename[.ext]ension
 $_['File']     = 'File';
 $_['files']    = 'files';
 $_['Folder']   = 'Folder';
@@ -64,8 +64,8 @@ $_['successful'] = 'successful';
 $_['To']       = 'To';
 $_['Upload']   = 'Upload';
 $_['Username'] = 'Username';
+$_['Working']  = 'Working - please wait...';
 
-$_['Working']        = 'Working - please wait...';
 $_['Log_In']         = 'Log In';
 $_['Log_Out']        = 'Log Out';
 $_['Admin_Options']  = 'Administration Options';
@@ -76,6 +76,7 @@ $_['New_File']       = 'New File';
 $_['Ren_Move']       = 'Rename / Move';
 $_['Ren_Moved']      = 'Renamed / Moved';
 $_['folders_first']  = 'folders first'; //## NT ##
+$_['folders_first_info'] = 'Sort folders first, but don\'t change primary sort.'; //## NT ##
 $_['New_Folder']     = 'New Folder';
 $_['Ren_Folder']     = 'Rename / Move Folder';
 $_['Submit']         = 'Submit Request';

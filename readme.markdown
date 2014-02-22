@@ -1,4 +1,4 @@
-(Updated: 2014-02-20)
+(OnefileCMS updated: 2014-02-22)
 # OneFileCMS
 
 ## Yes, that's exactly what it is!
@@ -38,9 +38,9 @@ Coupling a utilitarian code editor with basic upload and file managing functions
 
 2) **Upload** to anywhere on your site.  
   
-3) **Log in** to OneFileCMS with the default "username" and "password".
+3) **Log in** !
 
-And, of course, change the password...
+The default login info is "username" and "password".  Of course, you'll want to change the password... and probably the username...
 
 As with any CMS, you may also have to modify the file permissions of your site's folders to allow OneFileCMS to modify and create files.  Check with your host if you're not sure, and be aware of any inherent security concerns.  
 
@@ -117,7 +117,7 @@ OneFileCMS can be configured to work with [TinyMCE](http://tinymce.moxiecode.com
 
 ##Needed/potential improvements
 
-- Figure out why it doesn't work in IE.  Most likey it's javascript related, as quite a bit of js was added for client side sorting.
+- Figure out why it doesn't work in IE.  It's probably javascript related, as a bit of js was added recently for client side sorting.
 - It's probably existed for a while, but I just noticed (v3.4.23) that, on some systems - such as Windows, OneFileCMS doesn't like non-ascii characters in file names.  A solution is in the works, but it's not quite ready for prime time...
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
 - Issue with Chrome's XSS filter: Editing some legitimate files with OneFileCMS will trigger the filter and disable much of the javascript provided functionallity, but only while on the edit page with such a file, and only after a [Save].
