@@ -102,8 +102,8 @@ OneFileCMS can be configured to work with [TinyMCE](http://tinymce.moxiecode.com
 (But, a fix is in the works - it just may be a short while...)
 - And- but only if you wish to see the icons- a browser that supports inline SVG.  
   (If your browser doesn't support inline SVG, OneFileCMS will still work, just without any icons.)
-- And currently, as of version 3.4.23, OneFileCMS does not work in IE8 or earlier. I have not yet tried IE9 (as of 2014-02-22).
-  Versions thru 3.4.22 should work with IE. [v3.4.22 is available here](http://self-evident.github.com/OneFileCMS/onefilecms_3.4.22.zip)
+- And currently, as of version 3.4.23, OneFileCMS does not work in IE8 or earlier. I have not yet tried IE9 or later (as of 2014-02-22).  
+  [v3.4.22 is available here](http://self-evident.github.com/OneFileCMS/onefilecms_3.4.22.zip)
 
 ## License, Credit, Et Cetera  
 
@@ -118,11 +118,7 @@ OneFileCMS can be configured to work with [TinyMCE](http://tinymce.moxiecode.com
 
 ##Needed/potential improvements
 
-- Figure out why it doesn't work in IE.  It's probably javascript related, as a bit of js was added recently for client side sorting.
-
-	Update (2/23): it seems the issue is IE doesn't support changing the innerHTML of some tags.  OneFile builds the directory in javascript, then displays it by changing the innerHTML of a <tbody> tag of an existing <table>.  And, since the alternative/fix/workaround would be a whole bunch more work, IE is currently not supported.  
-
-- It's probably existed for a while, but I just noticed (v3.4.23) that, on some systems - such as Windows, OneFileCMS doesn't like non-ascii characters in file names.  A solution is in the works, but it's not quite ready for prime time...
+- As of v3.4.23, doesn't work in IE.  It seems IE doesn't support changing the innerHTML of some tags.  OneFile builds the directory in javascript, then displays it by changing the innerHTML of a &lt;tbody> tag of an existing &lt;table>.  And, since the alternative/fix/workaround would be a whole bunch more work, IE is currently not supported.  
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
 - Issue with Chrome's XSS filter: Editing some legitimate files with OneFileCMS will trigger the filter and disable much of the javascript provided functionallity, but only while on the edit page with such a file, and only after a [Save].
 - The connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text* during login.  However, this is true of most online login systems, unless SSL or the like is employed.  
