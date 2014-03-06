@@ -1,14 +1,21 @@
 # OneFileCMS Change Log
 
+### v3.5.02 (March 6, 2014)
+
+- OneFileCMS can now work with non-ASCII filenames.
+- (But, OneFileCMS itself can not be named with non-ASCII characters. I don't know why.)
+- Increased $PRE_ITERATIONS from 200 to 1000.  This will affect, at least, older IE's, and maybe other browsers as well. For instance, it takes IE8 37 times longer to perform the "pre-iterations" than Firefox.  In anycase, it can, of course, be changed back if needed.  
+  (However, OneFileCMS does not currenly work in IE, so it's kinda academic for now.)
+- Some css tweaks & improvements.
+
 ### v3.5.01 (February 22, 2014)
 
 - Mostly behind the scenes stuff...
-- Replaced use of htmlentities() (hte()) with htmlspecialchars() (hsc()).  With UTF-8, htmlentites() is superluous.
+- Replaced use of htmlentities() with htmlspecialchars().  With UTF-8, htmlentites() is superfluous.
 - Added hsc() to s number of strings where should have already been.
 - Changed directory sort function a bit. Note: when selecting/deselecting the 'folders first' option, the primary sort will be the last sorted column.
-- Split out a new function, Send_data_to_js(), from Index_Page().
-- Also, in prep for an upcoming update, tagged several places (with //##### ) where file system calls are made. The $filename strings used in the calls may need to be encoded with something   other than UTF-8, depending on the underlying OS's filesystem. 
-    (such as NTFS, which uses UTF-16)
+- Split out a new function, Send\_data\_to\_js(), from Index\_Page().
+- Also, in prep for an upcoming update, tagged several places (with //##### ) where file system calls are made. The $filename strings used in the calls may need to be encoded with something other than UTF-8, depending on the underlying OS's filesystem. (such as NTFS, which uses UTF-16)
 
 ### v3.5 (February 19, 2014)
 
@@ -17,7 +24,7 @@
 - In accomplishing the above, most sorting moved client side.  This permits resorts without another server hit.
 - Added & tweaked some css...
 - Slight restructure of the repo (ie: move a few "extras" files around).
-- NOTE:  versions 3.4.23 & 3.4.24 DO NOT WORK IN IE!  I don't know why yet, mostly likely js related.
+- NOTE:  versions 3.4.23 and later DO NOT WORK IN IE!  I don't know why yet, mostly likely js related.
 
 ### v3.4.23 (February 12, 2014)
 

@@ -1,4 +1,4 @@
-OneFileCMS Version 3.501 structure/layout
+OneFileCMS Version 3.5.02 structure/layout
 
 LICENSE
 
@@ -8,8 +8,9 @@ CONFIGURATION SECTION
 
 MISC FUNCTIONS:
 	System_setup()
+	validate_units()
 	hsc()
-	hte()
+	Convert_encoding()
 	Default_Language()
 	Session_Startup()
 	Verify_IDLE_POST_etc()
@@ -26,7 +27,6 @@ MISC FUNCTIONS:
 	URLencode_path()
 	dir_name()
 	Check_path()
-	is_empty()
 	Sort_Seperate()
 	ordinalize()
 	supports_svg()
@@ -61,7 +61,7 @@ PAGE & RESPONSE FUNCTIONS:
 	Login_response()
 	Create_Table_for_Listing()
 	Get_DIRECTORY_DATA()
-	Send_data_to_js()
+	Send_data_to_js_and_display()
 	Index_Page_buttons_top()
 	Index_Page()
 	Edit_Page_buttons_top()
@@ -99,10 +99,11 @@ JAVASCRIPT FUNCTIONS:
 		Confirm_Submit()
 	Index_Page_scripts()
 		Sort_FOlder_First()
-		Sort_DIRECTORY()
+		sort_DIRECTORY()
 		Assemble_row()
-		Display_Directory_Summary()
+		Directory_Summary()
 		Build_Directory
+		Sort_and_Show()
 	Edit_Page_scripts()
 		Wide_View()
 		Reset_file_status_indicators()
@@ -120,6 +121,7 @@ JAVASCRIPT FUNCTIONS:
 STYLESHEET FUNCTIONS:
 	style_sheet()
 	Language_and_config_adjusted_styles()
+	Load_style_sheet()
 
 LOGIC TO DETERMINE PAGE ACTION
 	Load Default_Language()
