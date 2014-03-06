@@ -1,7 +1,7 @@
 <?php mb_internal_encoding('utf-8');
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.02';
+$OFCMS_version = '3.5.03';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -1813,7 +1813,8 @@ function Get_DIRECTORY_DATA() { //**********************************************
 		$filename_OS = $ipath_OS.$raw_filename; //for is_dir() & file_exists() below
 		
 		//Normalize filename encoding for general use & display. (UTF-8, which may not be same as the server's File System)
-		if ($ENC_OS != 'UTF-8') {$filename = Convert_encoding($raw_filename,'UTF-8');}
+		if ($ENC_OS == 'UTF-8') {$filename = $raw_filename;}
+		else                    {$filename = Convert_encoding($raw_filename,'UTF-8');}
 		
 		//Get file .ext & check against $stypes (files types to show)
 		$filename_parts = explode(".", mb_strtolower($filename));

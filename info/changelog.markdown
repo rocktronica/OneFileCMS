@@ -1,5 +1,9 @@
 # OneFileCMS Change Log
 
+### v3.5.03 (March 6, 2014)
+
+- Minor update to Get\_DIRECTORY\_DATA(). Didn't seem to affect all php versions.
+
 ### v3.5.02 (March 6, 2014)
 
 - OneFileCMS can now work with non-ASCII filenames.

@@ -1,4 +1,4 @@
-(OnefileCMS updated: 2014-03-06)
+(OnefileCMS updated: 2014-03-06) 
 # OneFileCMS
 
 ## Yes, that's exactly what it is!
@@ -40,7 +40,7 @@ Coupling a utilitarian code editor with basic upload and file managing functions
   
 3) **Log in** !
 
-The default login info is "username" and "password".  Of course, you'll want to change the password... and probably the username...
+The default login info is "username" and "password".  Of course, you'll want to change those...
 
 As with any CMS, you may also have to modify the file permissions of your site's folders to allow OneFileCMS to modify and create files.  Check with your host if you're not sure, and be aware of any inherent security concerns.  
 
