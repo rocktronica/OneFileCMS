@@ -1,10 +1,16 @@
 # OneFileCMS Change Log
 
-### v3.5.03 (March 6, 2014)
+### v3.5.04 (2014-03-08)
+
+- Fixed "minor" bug - editor not saving changes (introduced in 3.5.02, but just noticed)
+- Some general code improvements & shuffling
+- Some CSS shuffling & tweaks.
+
+### v3.5.03 (2014-03-06)
 
 - Minor update to Get\_DIRECTORY\_DATA(). Didn't seem to affect all php versions.
 
-### v3.5.02 (March 6, 2014)
+### v3.5.02 (2014-03-06)
 
 - OneFileCMS can now work with non-ASCII filenames.
 - (But, OneFileCMS itself can not be named with non-ASCII characters. I don't know why.)
@@ -12,7 +18,7 @@
   (However, OneFileCMS does not currenly work in IE, so it's kinda academic for now.)
 - Some css tweaks & improvements.
 
-### v3.5.01 (February 22, 2014)
+### v3.5.01 (2014-02-22)
 
 - Mostly behind the scenes stuff...
 - Replaced use of htmlentities() with htmlspecialchars().  With UTF-8, htmlentites() is superfluous.
@@ -21,7 +27,7 @@
 - Split out a new function, Send\_data\_to\_js(), from Index\_Page().
 - Also, in prep for an upcoming update, tagged several places (with //##### ) where file system calls are made. The $filename strings used in the calls may need to be encoded with something other than UTF-8, depending on the underlying OS's filesystem. (such as NTFS, which uses UTF-16)
 
-### v3.5 (February 19, 2014)
+### v3.5 (2014-02-19)
 
 - The directory list can now be sorted by column: name, .ext, size, date.
 - Also has an option to list folders first, or to sort without regard to file or folder.
@@ -30,16 +36,16 @@
 - Slight restructure of the repo (ie: move a few "extras" files around).
 - NOTE:  versions 3.4.23 and later DO NOT WORK IN IE!  I don't know why yet, mostly likely js related.
 
-### v3.4.23 (February 12, 2014)
+### v3.4.23 (2014-02-12)
 
 - More changes in prep for sort by column
 - Directory list is now built & displayed client side via javascript.
 
-### v3.4.22 (February 10, 2014)
+### v3.4.22 (2014-02-10)
 
 - Mostly some changes to prep for sort by column (name, size, or date) feature.
 
-### v3.4.21 (February 8, 2014)
+### v3.4.21 (2014-02-08)
 
 - Added back the option for external style sheets
 - Cooresponding updates to sample external config file.
@@ -48,11 +54,11 @@
 - Tweaked a couple css defaults
 
 
-### (January 19, 2013)
+### (2013-01-19)
 
 - Just some minor updates/wording changes to the readme & plugin/*.init files.
 
-### v3.4.20 (December 19, 2012)
+### v3.4.20 (2012-12-19)
 
 - The $ACCESS_ROOT option has been reimplemented and is now fully functional\*.  This option limits access to a specified folder (and it's sub-folders).  To use, just specify a valid path relative to the root of the website (no leading slash).  
 (*Well, as best as I can tell...)

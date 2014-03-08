@@ -1,4 +1,5 @@
-(OnefileCMS updated: 2014-03-06) 
+(updated: 2014-03-08)
+
 # OneFileCMS
 
 ## Yes, that's exactly what it is!
@@ -22,7 +23,6 @@ Coupling a utilitarian code editor with basic upload and file managing functions
 ## Features
  
 - All the basic file management features like renaming, moving, copying, deleting, and uploading.
-  (For complex processes, like batch renaming or mass uploads, you're going to want to use an FTP program.)
 - Sort directory listings by file name, extension, size, or date.
 - A basic text editor.
 - A WYSIWYG editor may be added as a plugin.

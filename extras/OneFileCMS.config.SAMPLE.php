@@ -1,6 +1,6 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
-// v3.5.02+
+// v3.5.04+
 // Sample external config file - this file is OPTIONAL.
 //
 // Basically, what follows is just a copy & paste of the OneFileCMS CONFIGURABLE INFO section.
@@ -10,7 +10,7 @@
 $config_title = "OneFileCMS";
 
 $USERNAME = "username";
-$HASHWORD = "cff29a3b595b427ef8d01c089d368c7706a8c68ecc75d566642e313ee97ff659";
+$HASHWORD = "18350bc2181858e679605434735b1c2db6e7e4bb72b50a6d93d9ad1362f3e1c2";
 //$HASHWORD = "18350bc2181858e679605434735b1c2db6e7e4bb72b50a6d93d9ad1362f3e1c2"; //"password" with $PRE_ITERATIONS = 1000
 $SALT     = 'somerandomsalt';
 

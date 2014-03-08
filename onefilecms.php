@@ -1,7 +1,7 @@
 <?php mb_internal_encoding('utf-8');
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.03';
+$OFCMS_version = '3.5.04';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -125,8 +125,8 @@ $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copi
 //$ACCESS_ROOT = 'some/path/';
 
 
-//URL of optional external style sheet.  Used as href in <link ...>
-//If file is not found, or is incomplete, the built-in defaults will be used.
+//URL of optional external style sheet.  Used as an href in <link ...>
+//If file is not found, or is incomplete, built-in defaults will be used.
 //$CSS_FILE = 'OneFileCMS.css';
 
 
@@ -164,6 +164,20 @@ global $config_title, $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS,
 	$ONESCRIPT,  $ONESCRIPT_file, $ONESCRIPT_backup, $ONESCRIPT_file_backup, 
 	$CONFIG_backup, $CONFIG_FILE, $CONFIG_FILE_backup, $VALID_CONFIG_FILE, 
 	$DOC_ROOT, $WEB_ROOT, $WEBSITE, $PRE_ITERATIONS, $EX, $message, $ENC_OS;
+
+//Requires PHP 5.1 or newer, due to changes in explode() (and maybe others).
+define('PHP_VERSION_ID_REQUIRED',50100);   //Ex: 5.1.23 is 50123
+define('PHP_VERSION_REQUIRED'  ,'5.1 + '); //Used in exit() message.
+//The predefined constant PHP_VERSION_ID has only been available since 5.2.7.
+//So, if needed, convert PHP_VERSION (a string) to PHP_VERSION_ID (an integer).
+//Ex: 5.1.23 converts to 50123.
+if (!defined('PHP_VERSION_ID')) {
+	$phpversion = explode('.', PHP_VERSION);
+	define('PHP_VERSION_ID', ($phpversion[0] * 10000 + $phpversion[1] * 100 + $phpversion[2]));
+}
+if( PHP_VERSION_ID < PHP_VERSION_ID_REQUIRED ) {exit( 'PHP '.PHP_VERSION.'<br>'.hsc($_['OFCMS_requires']).' '.PHP_VERSION_REQUIRED );
+}
+
 
 mb_detect_order("UTF-8, ASCII, Windows-1252, ISO-8859-1"); 
 
@@ -243,20 +257,6 @@ $ACCESS_ROOT_len = mb_strlen($ACCESS_ROOT, $ACCESS_ROOT_enc);
 $MAIN_WIDTH      = validate_units($MAIN_WIDTH);
 $WIDE_VIEW_WIDTH = validate_units($WIDE_VIEW_WIDTH);
 
-
-//Requires PHP 5.1 or newer, due to changes in some functions.
-define('PHP_VERSION_ID_REQUIRED',50100);   //Ex: 5.1.23 is 50123
-define('PHP_VERSION_REQUIRED'  ,'5.1 + '); //Used in exit() message.
-
-//The predefined constant PHP_VERSION_ID has only been available since 5.2.7.
-//So, if needed, convert PHP_VERSION (a string) to PHP_VERSION_ID (an integer).
-//Ex: 5.1.23 converts to 50123.
-if (!defined('PHP_VERSION_ID')) {
-	$phpversion = explode('.', PHP_VERSION);
-	define('PHP_VERSION_ID', ($phpversion[0] * 10000 + $phpversion[1] * 100 + $phpversion[2]));
-}
-
-
 ini_set('session.gc_maxlifetime', $MAX_IDLE_TIME + 100); //in case the default is less.
 
 $TO_WARNING = 120; //seconds. When idle time remaining is less than this value, $timeout_warning is displayed
@@ -280,37 +280,6 @@ $excluded_list = explode(',', str_replace(' ', '', $config_excluded));
 //Then, manually update your password as instructed on the Admin/Generate Hash page.
 $PRE_ITERATIONS = 1000;
 }//end  System_Setup() //*******************************************************
-
-
-
-
-function validate_units($cssvalue) { //*****************************************
-	//Determine if valid units are set for $cssvalue:  px, pt, em, or %.
-	$main_units   = mb_substr($cssvalue, -2); 
-	if ( ($main_units != "px") && ($main_units != "pt") && ($main_units != "em") && (mb_substr($cssvalue, -1) != '%')) {
-		$cssvalue = ($cssvalue * 1).'px';   //If not, assume px.
-	}
-	return $cssvalue;
-}//end valid_units() //*********************************************************
-
-
-
-
-function hsc($input) { //*******************************************************
-	$enc = mb_detect_encoding($input); //It should always be UTF-8 (or ASCII), but, just in case...
-	if ($enc == 'ASCII') {$enc = 'UTF-8';} //htmlspecialchars() doesn't recognize "ASCII"
-	return htmlspecialchars($input, ENT_QUOTES, $enc);
-}//end hsc() //*****************************************************************
-
-
-
-
-function Convert_encoding($string, $to_enc = "") { //***************************
-	global $ENC_OS;
-								  //mb_convert_encoding($string, $to_enc, $from_enc)
-	if ($to_enc == 'UTF-8') {return mb_convert_encoding($string, 'UTF-8', $ENC_OS);} // Convert to UTF-8
-	else  /* default */		{return mb_convert_encoding($string, $ENC_OS, 'UTF-8');} // Convert to server's/OS's filesystem enc
-}//end Convert_encoding() //****************************************************
 
 
 
@@ -548,6 +517,37 @@ $_['mcd_msg_01'] = 'file(s) and/or folder(s) moved.';  //#####
 $_['mcd_msg_02'] = 'file(s) and/or folder(s) copied.'; //#####
 $_['mcd_msg_03'] = 'file(s) and/or folder(s) deleted.'; //#####
 }//end Default_Language() //****************************************************
+
+
+
+
+function validate_units($cssvalue) { //*****************************************
+	//Determine if valid units are set for $cssvalue:  px, pt, em, or %.
+	$main_units   = mb_substr($cssvalue, -2); 
+	if ( ($main_units != "px") && ($main_units != "pt") && ($main_units != "em") && (mb_substr($cssvalue, -1) != '%')) {
+		$cssvalue = ($cssvalue * 1).'px';   //If not, assume px.
+	}
+	return $cssvalue;
+}//end valid_units() //*********************************************************
+
+
+
+
+function hsc($input) { //*******************************************************
+	$enc = mb_detect_encoding($input); //It should always be UTF-8 (or ASCII), but, just in case...
+	if ($enc == 'ASCII') {$enc = 'UTF-8';} //htmlspecialchars() doesn't recognize "ASCII"
+	return htmlspecialchars($input, ENT_QUOTES, $enc);
+}//end hsc() //*****************************************************************
+
+
+
+
+function Convert_encoding($string, $to_enc = "") { //***************************
+	global $ENC_OS;
+								  //mb_convert_encoding($string, $to_enc, $from_enc)
+	if ($to_enc == 'UTF-8') {return mb_convert_encoding($string, 'UTF-8', $ENC_OS);} // Convert to UTF-8
+	else  /* default */		{return mb_convert_encoding($string, $ENC_OS, 'UTF-8');} // Convert to server's/OS's filesystem enc
+}//end Convert_encoding() //****************************************************
 
 
 
@@ -1131,13 +1131,13 @@ function Current_Path_Header(){ //**********************************************
 		
 		if ($unaccessable == '.') { $unaccessable = $WEB_ROOT; }
 		else { $unaccessable = $WEB_ROOT.dirname($ACCESS_ROOT).'/'; }
-		$unaccessable = trim(str_replace('/', ' / ',$unaccessable));
+		$unaccessable = '&nbsp;'.hsc(trim(str_replace('/', ' / ',$unaccessable)));
 	}
 
 	echo '<h2 id="path_header">';
 		//Root (or $ACCESS_ROOT) folder of web site.
 		$p1 = '?i='.URLencode_path($ACCESS_ROOT);
-		echo hsc($unaccessable).'<a id="path_0" href="'.$ONESCRIPT.$p1.'" class="path">'.hsc($_1st_accessable).'</a>/';
+		echo $unaccessable.'<a id="path_0" href="'.$ONESCRIPT.$p1.'" class="path">'.hsc($_1st_accessable).'</a>/';
 		$x=0; //need here for focus() in case at webroot.
 		
 		if ($remaining_path != "" ) { //if not at root, show the rest
@@ -1153,7 +1153,7 @@ function Current_Path_Header(){ //**********************************************
 			}
 		}//end if (not at root)
 	echo '</h2>';
-	echo '<script>document.getElementById("path_'.$x.'").focus();</script>';
+	//echo '<script>document.getElementById("path_'.$x.'").focus();</script>'; //Removed focus as of 3.5.04
 }//end Current_Path_Header() //*************************************************
 
 
@@ -1898,24 +1898,25 @@ function Index_Page_buttons_top($file_count) { //*******************************
 	global $_, $ONESCRIPT, $param1, $ICONS;
 
 	echo '<div id=index_page_buttons>';
+
+	echo '<div id=mcd_submit>';
 	if ($file_count > 0) {
-		echo '<div id="mcd_submit">';
 		$onclick_m = 'onclick="Confirm_Submit( \'move\');   "';
 		$onclick_c = 'onclick="Confirm_Submit( \'copy\');   "';
 		$onclick_d = 'onclick="Confirm_Submit( \'delete\' );"';
 		echo '<button TYPE=button '.$onclick_m.'>'.$ICONS['move'  ].'&nbsp;'.hsc($_['Move']  ).'</button>';
 		echo '<button TYPE=button '.$onclick_c.'>'.$ICONS['copy'  ].'&nbsp;'.hsc($_['Copy']  ).'</button>';
 		echo '<button TYPE=button '.$onclick_d.'>'.$ICONS['delete'].'&nbsp;'.hsc($_['Delete']).'</button>';
-		echo '</div>'; //end mcd_submit
 	}
+	echo '</div>'; //end mcd_submit
 
 	echo '<div class="front_links">';
 		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=newfolder">'.$ICONS['folder_new'].'&nbsp;'.hsc($_['New_Folder']) .'</a>';
 		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=newfile">'  .$ICONS['file_new']  .'&nbsp;'.hsc($_['New_File'])   .'</a>';
 		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=upload">'   .$ICONS['upload']    .'&nbsp;'.hsc($_['Upload_File']).'</a>';
 	echo '</div>'; //end front_links
+	
 	echo '</div>'; //end index_page_buttons
-	echo '<div class=clear></div>';
 
 } //end Index_Page_buttons_top() //*********************************************
 
@@ -2077,9 +2078,8 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 					echo hsc($_['edit_txt_03']).'<br>';
 					echo hsc($_['edit_txt_04']).'<br></pre>';
 				}else{
-					//##### where is this <input> needed???  It's not used in Edit_response()
-					  //Commented out as of 3.5.02
-					  //echo '<input type="hidden" name="filename" value="'.hsc($filename).'">';
+					//<input name=filename> is used only to signal an Edit_response().
+					echo '<input type="hidden" name="filename" value="'.rawurlencode($filename).'">';
 					echo '<textarea id="file_editor" name="contents" cols="70" rows="25" ';
 					echo 'onkeyup="Check_for_changes(event);">'.$filecontents.'</textarea>'.PHP_EOL;
 				}
@@ -2413,7 +2413,6 @@ function CRM_Page($action, $title, $action_id, $old_full_name) { //*************
 		
 		echo '<label>'.hsc($_['New_Location']).':</label>';
 		echo '<span class="web_root">'.hsc($WEB_ROOT.$ACCESS_ROOT).'</span>';
-		echo '<input type=hidden name=base_location value="'.hsc($ACCESS_ROOT).'">';
 		echo '<input type=text   name=new_location  value="'.hsc($ACCESS_PATH).'"><br>';
 		
 		echo '('.hsc($_['CRM_txt_02']).')<p>';
@@ -2570,7 +2569,6 @@ function MCD_Page($action, $page_title, $classes = '') { //*********************
 		if ( ($_POST['mcdaction'] == 'copy') || ($_POST['mcdaction'] == 'move') ) {
 			echo '<label>'.hsc($_['New_Location']).':</label>';
 			echo '<span class="web_root">'.hsc($WEB_ROOT.$ACCESS_ROOT).'</span>';
-			echo '<input type=hidden name=base_location value="'.hsc($ACCESS_ROOT).'">';
 			echo '<input type=text   name=new_location  id=new_location value="'.hsc($ACCESS_PATH).'">';
 			echo '<p>('.hsc($_['CRM_txt_02']).')</p>';
 		}
@@ -2709,7 +2707,7 @@ function Load_Selected_Page(){ //***********************************************
 
 
 function Respond_to_POST() { //*************************************************
-	global $_, $VALID_POST, $ipath, $page, $EX, $message;
+	global $_, $VALID_POST, $ipath, $page, $EX, $ACCESS_ROOT, $message;
 
 	if (!$VALID_POST) { return; }
 	
@@ -2721,7 +2719,7 @@ function Respond_to_POST() { //*************************************************
 		return;
 	}
 	if (isset($_POST["new_location"])) {
-		$_POST["new_location"] = $_POST['base_location'].$_POST["new_location"]; //For CRM_ & MCD_response's
+		$_POST["new_location"] = $ACCESS_ROOT.$_POST["new_location"];
 		if (!Valid_Path($_POST["new_location"], false)) {  
 			$message .= $EX.'<b>'.hsc($_['Invalid_path']).': </b><span class=filename>'.hsc($_POST["new_location"]).'</span>';
 			$VALID_POST = 0;
@@ -2789,18 +2787,18 @@ function pad(num){ if ( num < 10 ){ num = "0" + num; }; return num; }
 
 
 //A basic htmlspecialchars()
-function hsc(text) {
+function hsc(text) { //***********************************************
   return text
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
-}
+}//end hsc() //*******************************************************
 
 
 
-function trim($string) {
+function trim($string) { //*******************************************
 
 	//trim leading whitespace
 	$len = $string.length;
@@ -2820,22 +2818,22 @@ function trim($string) {
 	}
 
 	return $trimmed;
-}//end trim()
+}//end trim() //******************************************************
 
 
 
-function FormatTime(Seconds) {
+function FormatTime(Seconds) {//**************************************
 	var Hours = Math.floor(Seconds / 3600); Seconds = Seconds % 3600;
 	var Minutes = Math.floor(Seconds / 60); Seconds = Seconds % 60;
 	if ((Hours == 0) && (Minutes == 0)) { Minutes = "" } else { Minutes = pad(Minutes) }
 	if (Hours == 0) { Hours = ""} else { Hours = pad(Hours) + ":"}
 
 	return (Hours + Minutes + ":" + pad(Seconds));
-}
+}//end FormatTime() //************************************************
 
 
 
-function format_number(number, sep) {
+function format_number(number, sep) { //******************************
 	sep = typeof sep !== 'undefined' ? sep : ','; //default to a comma
 	var number	= number + "";   // 1234567890     convert number to a string
 	var result  = "";            // 1,234,567,890  sample result
@@ -2847,10 +2845,11 @@ function format_number(number, sep) {
 		if (a > 0) {result = sep + result} //add sep if still have more digits
 	}
 	return result;
-}//end format_number()
+}//end format_number() //*********************************************
 
 
 
+//********************************************************************
 function Countdown(count, End_Time, Timer_ID, Timer_CLASS, Action){
 	var Timer        = document.getElementById(Timer_ID);
 	var Current_Time = Math.round(new Date().getTime()/1000); //js uses milliseconds
@@ -2860,7 +2859,7 @@ function Countdown(count, End_Time, Timer_ID, Timer_CLASS, Action){
 	Timer.innerHTML = FormatTime(count);
 
 	if ( (count < <?php echo $TO_WARNING ?>) && (Action != "") ) { //Two minute warning...
-		document.getElementById('message_box').innerHTML = "<?php echo addslashes($timeout_warning) ?>";
+		document.getElementById('message_box').innerHTML = "<?php echo hsc($timeout_warning) ?>";
 		Timer.style.backgroundColor = "white";
 		Timer.style.color = "red";
 		Timer.style.fontWeight = "900";
@@ -2875,21 +2874,22 @@ function Countdown(count, End_Time, Timer_ID, Timer_CLASS, Action){
 		return;
 	}
 	setTimeout('Countdown(' + params + ')',1000);
-}
+}//end Countdown() //*************************************************
 
 
 
-function Start_Countdown(count, ID, CLASS, Action){
+function Start_Countdown(count, ID, CLASS, Action){ //****************
 	document.write('<span id="' + ID + '"  class="' + CLASS + '"></span>');
 
 	var Time_Start  = Math.round(new Date().getTime()/1000);
 	var Time_End    = Time_Start + count;
 
 	Countdown(count, Time_End, ID, CLASS, Action); //(seconds to count, id of element)
-}
+}//end Start_Countdown() //*******************************************
 
 
 
+//********************************************************************
 function FileTimeStamp(php_filemtime, show_date, show_offset, write_return){
 
 	//php's filemtime returns seconds, javascript's date() uses milliseconds.
@@ -2924,51 +2924,8 @@ function FileTimeStamp(php_filemtime, show_date, show_offset, write_return){
 		
 	if (write_return) { document.write(DATETIME); }
 	else 			  { return DATETIME; }
-}
+}//end FileTimeStamp() //*********************************************
 
-
-
-function Select_All() {
-
-	//Does not work in IE with the variable name spelled the same as the Element Id
-	//The dollar sign is a valid character in JS for variable names, and therefore changes the spelling.
-	$select_all_label = document.getElementById('select_all_label');
-
-	var files = document.mcdselect.elements['files[]'];
-	var last  = files.length; //number of files
-	var select_all = document.mcdselect.select_all;
-	
-	if (select_all.checked) {
-		$select_all_label.innerHTML = '<?php echo hsc($_['Clear_All']) ?>';
-	}else{
-		$select_all_label.innerHTML = '<?php echo hsc($_['Select_All']) ?>';
-	}
-
-	//Start x at 1 as files[0] is a dummy <input> used to force an array even if only one file is in a folder.
-	for (var x = 1; x < last ; x++) { files[x].checked = select_all.checked; }
-}
-
-
-
-function Confirm_Submit(action){
-	
-	var files = document.mcdselect.elements['files[]'];
-	var last  = files.length;   //number of files
-	var no_files = true;
-	var f_msg    = "<?php echo addslashes($_['No_files']) ?>";	
-
-	document.mcdselect.mcdaction.value = action; 
-
-	//Confirm at least one file is checked
-	for (var x = 0; x < last ; x++) {
-		if (files[x].checked) { no_files = false ; break; }
-	}
-
-	//Don't submit form if no files are checked.
-	if ( no_files ) { alert(f_msg); return false; }
-
-	document.mcdselect.submit(); //submit form.
-}
 </script>
 <?php
 }//end common_scripts() //******************************************************
@@ -3163,7 +3120,7 @@ function Build_Directory() { //***************************************
 			file_size = format_number(filesize) + ' B';
 		}
 		
-		file_name  = '<a href="' + HREF_params + '"  title="<?php echo hsc($_['Edit_View']) ?>" >';
+		file_name  = '<a href="' + HREF_params + '"  title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
 		file_name += ICONS[filetype] + '&nbsp;' + hsc(filename) + DS + '</a>';
 		time_stamp = FileTimeStamp(DIRECTORY_DATA[x][3], 1, 0, 0);
 		
@@ -3186,6 +3143,50 @@ function Sort_and_Show(col, direction) { //***************************
 	document.getElementById('DIRECTORY_FOOTER').innerHTML = Directory_Summary();
 
 }//end Sort_and_Show() { //*******************************************
+
+
+
+function Select_All() { //*******************************************
+
+	//Does not work in IE if the variable name is spelled the same as the Element Id
+	//So, prefix with a dollar sign (a valid character in JS for variable names).
+	$select_all_label = document.getElementById('select_all_label');
+
+	var files = document.mcdselect.elements['files[]'];
+	var last  = files.length; //number of files
+	var select_all = document.mcdselect.select_all;
+	
+	if (select_all.checked) {
+		$select_all_label.innerHTML = '<?php echo hsc($_['Clear_All']) ?>';
+	}else{
+		$select_all_label.innerHTML = '<?php echo hsc($_['Select_All']) ?>';
+	}
+
+	//Start x at 1 as files[0] is a dummy <input> used to force an array even if only one file is in a folder.
+	for (var x = 1; x < last ; x++) { files[x].checked = select_all.checked; }
+}//end Select_All() //************************************************
+
+
+
+function Confirm_Submit(action){ //***********************************
+	
+	var files = document.mcdselect.elements['files[]'];
+	var last  = files.length;   //number of files
+	var no_files = true;
+	var f_msg    = "<?php echo addslashes($_['No_files']) ?>";	
+
+	document.mcdselect.mcdaction.value = action; 
+
+	//Confirm at least one file is checked
+	for (var x = 0; x < last ; x++) {
+		if (files[x].checked) { no_files = false ; break; }
+	}
+
+	//Don't submit form if no files are checked.
+	if ( no_files ) { alert(f_msg); return false; }
+
+	document.mcdselect.submit(); //submit form.
+}//end Confirm_Submit() //********************************************
 
 </script>
 <?php
@@ -3465,7 +3466,7 @@ function hash($element_id) {
 	if ($hash.length < 1) {$input.value = $hash; return;} //Don't hash nothing.
 	for ( $x=0; $x < $PRE_ITERATIONS; $x++ ) { $hash = hex_sha256($hash + $SALT); } ;
 	$input.value = $hash;
-}//end hash_256()
+}//end hash()
 </script>
 <?php
 }//end js_hash_scripts() //*****************************************************
@@ -3484,7 +3485,9 @@ function style_sheet(){ //******************************************************
 
 /* --- general formatting --- */
 
-body { font-size: 1em; background: #E8E8E8; font-family: sans-serif; }
+html { background: linear-gradient(170deg, white, rgb(50, 120,190)); background-attachment: fixed;}
+
+body { height: 100%; font-size: 1em; font-family: sans-serif; } 
 
 p, table, ol { margin-bottom: .6em;}
 
@@ -3503,16 +3506,11 @@ th,td { text-align:left; font-weight:400; }
 
 label { font-size : 1em; font-weight: bold; }
 
-pre {
-	background: white;
-	border    : 1px solid #807568;
-	padding   : .2em;
-	margin    : 0;
-	}
+pre { background: white; border: 1px solid #777; padding: .2em; margin: 0; }
 
-input[type="text"]     { width: 100%; border: 1px solid #807568; padding: 1px 1px 1px 0; font : 1em Courier; }
-input[type="password"] { width: 100%; border: 1px solid #807568; padding: 0   1px 0   0; }
-input[type="file"]     { width: 100%; border: 1px solid #807568; background-color: white; }
+input[type="text"]     { width: 100%; border: 1px solid #777; padding: 1px 1px 1px 0; font : 1em Courier; }
+input[type="password"] { width: 100%; border: 1px solid #777; padding: 0   1px 0   0; }
+input[type="file"]     { width: 100%; border: 1px solid #777; background-color: white; }
 
 input[readonly]        { color: #333; background-color: #EEE; }
 input[disabled]        { color: #555; background-color: #EEE; }
@@ -3527,16 +3525,16 @@ button:active { background-color: rgb(245,245,50);  }
 /* --- layout --- */
 
 .container {
-	border : 0px solid #807568;
+	border : 0px solid #777;
 	width  : 810px;     /*Adjusted by $MAIN_WIDTH config variable*/
 	margin : 0 auto 2em auto;
 	}
 
 
 #header {
-	border-bottom : 1px solid #807568;
+	border-bottom : 1px solid #777;
 	padding: 04px 0px 01px 0px;
-	margin : 0 0 .5em 0;
+	margin : 0 0 0 0;
 	}
 
 
@@ -3550,7 +3548,7 @@ button:active { background-color: rgb(245,245,50);  }
 
 
 .h2_filename {
-	border: 1px solid #807568;
+	border: 1px solid #777;
 	padding: .1em .2em .1em .2em;
 	font-weight: 700;
 	font-family: courier;
@@ -3558,7 +3556,7 @@ button:active { background-color: rgb(245,245,50);  }
 	}
 
 
-#message_box { border: none; margin: 0 0 .4em 0; padding: 0; }
+#message_box { border: none; margin: .5em 0 0 0; padding: 0; }
 
 #message_box_contents { border: 1px solid gray; padding: 4px; background: #FFF000; }
 
@@ -3587,57 +3585,85 @@ button:active { background-color: rgb(245,245,50);  }
 
 .filename { font-family: courier; }
 
-/* --- INDEX directory listing, table format --- */
+
+/* ------ INDEX Page ------ */
+
+#index_page_buttons     { margin: 0 0 0 0; }
+#index_page_buttons div { display: inline-block; vertical-align: bottom; }
+
+
+/*** Select All [x] ***/
+#select_all_th { min-width: 60px ; max-width: 70px; text-align: right; padding:  0 0 0 0; } /*TRBL*/
+#select_all {margin: 3px 0 0 0;}  /*checkbox*/
+#select_all_label { 
+	font   : 400 .84em arial;
+	color  : #333;
+	cursor : pointer;
+	border-right: solid transparent 1px;
+	Xdisplay: inline-block;     /* //#### when select all was above table, not in it*/
+	Xwidth  : 72px;			    /* //#### when select all was above table, not in it*/
+	padding: 3px 2px 2px 2px;
+	}
+
+#select_all_label:hover  { border-left: 1px solid #777; background-color: rgb(255,250,150); }
+#select_all_label:hover  { border-top-width: 0; border-bottom-width: 0; }
+
+
+/*** Directory list file select boxes ***/
+.ckbox {padding: 2px 4px 0 4px}
+.ckbox:focus { background-color: rgb(255,250,150); }
+.ckbox:hover { background-color: rgb(255,250,150); }
+
+
+/*** [x] Folders First ***/
+#folders_first_ckbox {margin: 3px 0 0px 4px;}
+#folders_first_label {
+	border: solid 1px transparent;
+	font-size: .9em;
+	font-weight: normal;
+	color: #333; margin: 0;
+	padding: 3px 0 2px 0;
+}
+
+#folders_first_label:hover {border: solid 1px #777; background-color: rgb(255,250,150); cursor:pointer;}
+#folders_first_label:focus {border: solid 1px #777; background-color: rgb(255,250,150);}
+
+
+/* --- Directory Listing --- */
+
 table.index_T {
 	min-width: 30em;
 	font-size: .95em;
-	border         : 1px solid #807568;
+	border         : 1px solid #777;
 	border-collapse: collapse;
-	margin-bottom: .7em;
+	margin: .5em 0 0 0;
 	background-color: #FFF;
 	}
 
 table.index_T tr:hover {border: 1px solid #777; background-color: #EEE}
-
-table.index_T th { border: 1px inset silver; vertical-align: middle; padding: 0px ; text-align: center;}
-
+table.index_T th { border: 1px inset silver; vertical-align: middle; text-align: center; padding: 0 ;}
 table.index_T td { border: 1px inset silver; vertical-align: middle;}
-
-.index_T td a {	display: block; border: none; padding: 2px 4px 2px 4px; overflow : hidden; }
-
 table.index_T th:hover { background-color: white;}
 
+.index_T td a {	display: block; border: none; padding: 2px 4px 2px 4px; overflow : hidden; }
 .index_T th a { padding: 1px 0 1px 0; border-width: 0px;}
 
 .index_T th.file_name   { text-align: left; }
-.index_T th.file_name a { display: inline-block; padding: 1px 3em 1px 2em; border-top-width: 0px; border-bottom-width: 0px;}
+.index_T th.file_name a { display: inline-block; padding: 2px 3em 2px 2em; border-top-width: 0px; border-bottom-width: 0px;}
 #name_header {border-width: 0 1px 0 1px;}
-.index_T th.file_size a { display  : block; }
-.index_T th.file_time a { display  : block; }
-#sort_type {float: right; padding: 1px 5px 1px 4px; border-width: 0px 0 0 1px;}
+.index_T th.file_size a { display  : block; padding: 2px 0 2px 0; }
+.index_T th.file_time a { display  : block; padding: 2px 0 2px 0; }
+#sort_type {float: right; padding: 1px 5px 3px 4px; border-width: 0px 0 0 1px;}
 
 
 .file_name { min-width: 10em; max-width: 26em; }
 .file_size { min-width:  6em; padding-left: 10px; }
 .file_time { min-width: 10em; padding-left: 10px; }
 
-.meta_T {
-	padding-right : 4px;
-	text-align    : right;
-	font-family   : courier;
-    font-size     : .9em;
-	color         : #222;
-	}
+.meta_T { padding-right: 4px; text-align: right; font-family: courier; font-size: .9em; color: #222; }
 
+#DIRECTORY_FOOTER td {text-align: center; font-size: .9em; color: #333; padding: 3px 0 0 0; }
 
-/*Index table file select boxes*/
-.ckbox {padding: 2px 4px 0 4px}
-.ckbox:focus { background-color: rgb(255,250,150); }
-.ckbox:hover { background-color: rgb(255,250,150); }
-
-
-#index_page_buttons     { margin: 0 0 .5em 0; }
-#index_page_buttons div { display: inline-block; vertical-align: bottom; }
 
 
 /*** front_links:  [New File] [New Folder] [Upload File] ***/
@@ -3646,7 +3672,7 @@ table.index_T th:hover { background-color: white;}
 .front_links a {
 	display: inline-block;
 	margin-top  : .2em;
-	border      : 1px solid #807568;
+	border      : 1px solid #777;
 	font-size   : 1em;  /*Adjusted by langauge files*/
 	margin-left : 1em;  /*Adjusted by langauge files*/
 	padding     : 3px 5px 2px 4px; /*TRBL*/
@@ -3656,35 +3682,20 @@ table.index_T th:hover { background-color: white;}
 
 /*These must go after .front_links and other style that affect <a> tags*/
 a { border: 1px solid transparent; text-decoration: none; }  /*color: rgb(100,45,0);*/
-a:focus  { border: 1px solid #807568; background-color: rgb(255,250,150); }
-a:hover  { border: 1px solid #807568; background-color: rgb(255,250,150); }
-a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
+a:focus  { border: 1px solid #777; background-color: rgb(255,250,150); }
+a:hover  { border: 1px solid #777; background-color: rgb(255,250,150); }
+a:active { border: 1px solid #777; background-color: rgb(245,245,50);  }
 
 
-/*** Select All [x]  [Move] [Copy] [Delete] ***/
 
-#select_all_th { min-width: 60px ; max-width: 70px; text-align: right; padding:  0 0px 0 0px; } /*TRBL*/
+/*** [Move] [Copy] [Delete] ***/
 
-#select_all {margin: 3px 0 0 0;}  /*checkbox*/
-#folders_first_ckbox {margin: 2px 0 0px 4px;}  /*checkbox*/
-
-#select_all_label { 
-	font   : 400 .84em arial;
-	color  : #333;
-	cursor : pointer;
-	border-right: solid transparent 1px;
-	Xdisplay: inline-block;     /* //#### when select all was above table, not in it*/
-	Xwidth  : 72px;			    /* //#### when select all was above table, not in it*/
-	padding: 2px 2px 1px 2px;
-	}
-
-#select_all_label:hover  { border: 1px solid #807568; background-color: rgb(255,250,150); }
-#select_all_label:hover  { border-top-width: 0; border-bottom-width: 0; }
+#mcd_submit { margin: 0; height: 1.8em; }
 
 #mcd_submit button {
 	height   : 1.55em;
 	cursor   : pointer;
-	border   : 1px solid #807568;
+	border   : 1px solid #777;
 	padding  : 0px 4px 0px 3px; /*TRBL*/
 	margin-top  :  .5em;  /* Helps align bottoms with New & Upload buttons */
 	margin-left : 0.0em;  /* no longer needs adjusted by langauge files */
@@ -3703,7 +3714,7 @@ a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
 
 .button {
 	cursor : pointer;
-	border : 1px solid #807568;
+	border : 1px solid #777;
 	color  : black;
 	padding    : 4px 10px; /*Adjusted by langauge files*/
 	font-size  : .9em;     /*Adjusted by langauge files*/
@@ -3719,19 +3730,19 @@ a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
 
 .nav   { float: right; display: inline-block; margin-top: 1.35em; font-size : 1em; }
 .nav a { border: 1px solid transparent; font-weight: bold; padding: .2em .6em .1em .6em; }
-.nav a:hover  { border: 1px solid #807568; }
-.nav a:focus  { border: 1px solid #807568; }
-.nav a:active { border: 1px solid #807568; }
+.nav a:hover  { border: 1px solid #777; }
+.nav a:focus  { border: 1px solid #777; }
+.nav a:active { border: 1px solid #777; }
 
 
 /* --- edit --- */
 
-#edit_header  {margin: 0;}
+#edit_header  {margin: .5em 0 0 0;}
 
 #edit_form    {margin: 0;}
 
 .edit_disabled {
-	border : 1px solid #807568;
+	border : 1px solid #777;
 	width  : 99%;
 	padding: .2em;
 	margin : .5em 0 .6em 0;
@@ -3754,7 +3765,7 @@ a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
 
 .file_meta	{ float: left; margin-top: .6em; font-size: .95em; color: #222; }
 
-#edit_notes { font-size: .8em; color: #333 ;margin-top: 1em; clear:both; }
+#edit_notes { font-size: .8em; color: #222 ;margin-top: 1em; clear:both; }
 
 .notes      { margin-bottom: .4em; }
 
@@ -3762,7 +3773,7 @@ a:active { border: 1px solid #807568; background-color: rgb(245,245,50);  }
 /* --- log in --- */
 
 .login_page {
-	border  : 1px solid #807568;
+	border  : 1px solid #777;
 	width   : 370px;
 	margin  : 5em auto;
 	padding : .5em 1.2em .1em 1em;
@@ -3783,7 +3794,7 @@ hr { /*-- -- -- -- -- -- --*/
 	width   : 100%;
 	clear   : both;
 	border  : none;
-	border-top   : 1px solid #807568;
+	border-top   : 1px solid #777;
 	Xborder-bottom: 1px solid #eee;
 	overflow: visible;
 	}
@@ -3823,13 +3834,13 @@ hr { /*-- -- -- -- -- -- --*/
 .verify_del td { border: 1px solid #F44; }
 
 
-#admin {padding: .3em;}
+#admin {padding: 3px 5px;}
 
 .admin_buttons .button {margin-right: .5em;}
 
 .clear {clear:both; padding: 0; margin: 0; border: none}
 
-.web_root { border: 0px solid  #807568; border-right: none; font: 1em Courier; padding: 1px; }
+.web_root { border: 0px solid  #777; border-right: none; font: 1em Courier; padding: 1px; }
 
 .icon {float: left;}
 
@@ -3839,9 +3850,9 @@ hr { /*-- -- -- -- -- -- --*/
 
 .path {padding: 1px 5px 1px 5px} /*TRBL*/
 
-.timer {border: 1px solid gray; padding: 3px .5em 4px .5em;}
+.timer {border: 1px solid #eee; padding: 3px .5em 4px .5em;}
 
-.timeout {float:right; font-size: .95em; color: #333;}
+.timeout {float:right; font-size: .95em; color: #111;}
 
 .edit_btns_top {margin: .2em 0 .5em 0;}
 
@@ -3873,20 +3884,14 @@ input[type="text"].new_name {width  : 50%; margin-bottom: .2em;}
 .ren_over input {margin: 0 0 0 2em}
 .ren_over label {font-weight: normal}
 
-#DIRECTORY_FOOTER td {text-align: center; font-size: .9em; color: #333; }
-
-#folders_first_label {
-	border: solid 1px transparent;
-	font-size: .9em;
+#path_header{
+	display: inline-block;
+	background-color:white;
+	border: solid 1px #777;
 	font-weight: normal;
-	color: #333; margin: 0;
-	padding: 2px 0 1px 0;
+	padding: 0 .5em 0 0;
+	margin: .5em 0 0 0;
 }
-
-#folders_first_label:hover {border: solid 1px #807568; background-color: rgb(255,250,150); cursor:pointer;}
-#folders_first_label:focus {border: solid 1px #807568; background-color: rgb(255,250,150);}
-
-#path_header { background-color:white; border: solid 1px #807568; padding: 0; font-weight: normal; }
 
 #path_header a {
 	outline: none;
@@ -3897,8 +3902,9 @@ input[type="text"].new_name {width  : 50%; margin-bottom: .2em;}
 	padding: 1px 5px 0 5px;
 }
 
-#path_header a:hover{ border-left : solid 1px #807568; border-right: solid 1px #807568; background-color: rgb(255,250,150); }
-#path_header a:focus{ border-left : solid 1px #807568; border-right: solid 1px #807568; background-color: rgb(255,250,150); }
+#path_header a:hover  { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
+#path_header a:focus  { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
+#path_header a:active { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
 
 </style>
 <?php
@@ -3960,13 +3966,9 @@ function Load_style_sheet(){ //*************************************************
 //Main logic to determine page action
 //******************************************************************************
 
-Default_Language(); // Load Default Language settings
+Default_Language();
 
 System_Setup();
-
-if( PHP_VERSION_ID < PHP_VERSION_ID_REQUIRED ) {
-	exit( 'PHP '.PHP_VERSION.'<br>'.hsc($_['OFCMS_requires']).' '.PHP_VERSION_REQUIRED );
-}
 
 Session_Startup();
 
@@ -3977,14 +3979,14 @@ if (!isset($_SESSION['admin_page'])) {
 
 if ($_SESSION['valid']) {
 
+	undo_magic_quotes();
+
 	//Set current $EDIT_MODE & text for Edit page [Edit WYSIWIG/Source] button
 	if ( $WYSIWYG_VALID && isset($_COOKIE['edit_mode']) && ($_COOKIE['edit_mode'] == '1')) {
 		   $EDIT_MODE = '1'; $ON_OFF_label = $_['Source']; }
 	else { $EDIT_MODE = '0'; $ON_OFF_label = $_['WYSIWYG']; }
 
 	Init_ICONS();
-
-	undo_magic_quotes();
 
 	Get_GET();
 
@@ -4057,7 +4059,7 @@ Load_Selected_Page();
 //footer...
 if ($_SESSION['valid']) {
 	//Countdown timer
-	echo '<hr>';
+	echo '<hr style="border-color: white;">';
 	echo Timeout_Timer($MAX_IDLE_TIME, 'timer0', 'timer timeout', 'LOGOUT');
 	echo '<span class="timeout">'.hsc($_['time_out_txt']).'&nbsp; </span>';
 

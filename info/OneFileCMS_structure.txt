@@ -1,4 +1,4 @@
-OneFileCMS Version 3.5.02 structure/layout
+﻿OneFileCMS Version 3.5.04 structure/layout
 
 LICENSE
 
@@ -8,10 +8,10 @@ CONFIGURATION SECTION
 
 MISC FUNCTIONS:
 	System_setup()
+	Default_Language()
 	validate_units()
 	hsc()
 	Convert_encoding()
-	Default_Language()
 	Session_Startup()
 	Verify_IDLE_POST_etc()
 	hashit()
@@ -28,7 +28,7 @@ MISC FUNCTIONS:
 	dir_name()
 	Check_path()
 	Sort_Seperate()
-	ordinalize()
+	add_serial_num()
 	supports_svg()
 	rCopy()
 	rDel()
@@ -95,8 +95,6 @@ JAVASCRIPT FUNCTIONS:
 		Countdown()
 		Start_Countdown()
 		FileTimeStamp()
-		Select_All()
-		Confirm_Submit()
 	Index_Page_scripts()
 		Sort_FOlder_First()
 		sort_DIRECTORY()
@@ -104,6 +102,8 @@ JAVASCRIPT FUNCTIONS:
 		Directory_Summary()
 		Build_Directory
 		Sort_and_Show()
+		Select_All()
+		Confirm_Submit()
 	Edit_Page_scripts()
 		Wide_View()
 		Reset_file_status_indicators()
@@ -126,12 +126,11 @@ STYLESHEET FUNCTIONS:
 LOGIC TO DETERMINE PAGE ACTION
 	Load Default_Language()
 	System_setup()
-	Verify PHP version
 	Session_Startup()
 	Init_Icons()
 	Get_GET()
-	Validate_params()
 	Valid_Path()
+	Validate_params()
 	Init_Macros()
 	Respond_to_POST()
 	Verify_page_conditions()
