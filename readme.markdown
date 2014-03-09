@@ -98,12 +98,10 @@ OneFileCMS can be configured to work with [TinyMCE](http://tinymce.moxiecode.com
   (Only tested on versions 5.2.8, 5.2.17, 5.3.3, and 5.4 + )
 - File permission privileges on your host.
 - A Javascript enabled browswer.
-- Most modern browsers probably work, but I only test on Firefox and Chrome. IE8 is currently a no go, as of v3.4.23. Maybe IE10 also, I don't know...
-(But, a fix is in the works - it just may be a short while...)
+- Most modern browsers probably work, but I only test on Firefox and Chrome.  
+  IE is currently a no go, as of v3.4.23. [v3.4.22 is available here](http://self-evident.github.com/OneFileCMS/onefilecms_3.4.22.zip)
 - And- but only if you wish to see the icons- a browser that supports inline SVG.  
   (If your browser doesn't support inline SVG, OneFileCMS will still work, just without any icons.)
-- And currently, as of version 3.4.23, OneFileCMS does not work in IE8 or earlier. I have not yet tried IE9 or later (as of 2014-02-22).  
-  [v3.4.22 is available here](http://self-evident.github.com/OneFileCMS/onefilecms_3.4.22.zip)
 
 ## License, Credit, Et Cetera  
 
