@@ -1,7 +1,7 @@
 <?php mb_internal_encoding('utf-8');
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.04';
+$OFCMS_version = '3.5.05';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -87,6 +87,7 @@ $SALT     = 'somerandomsalt';
 $MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;  //In seconds.
 $MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings (like gc) may limit its max effective value.
+$TO_WARNING    = 120; //In seconds. When idle time remaining is less than this value, a timeout warning is displayed.
 
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.          Can be px, pt, em, or %.  Assumes px otherwise.
 $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked.  Can be px, pt, em, or %.  Assumes px otherwise.
@@ -160,7 +161,7 @@ global $config_title, $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS,
 	$config_etypes, $config_stypes,$config_itypes, $config_ftypes, $config_fclass, 
 	$SHOWALLFILES, $etypes, $itypes, $ftypes, $fclasses, $excluded_list, 
 	$LANGUAGE_FILE, $ACCESS_ROOT, $ACCESS_ROOT_len, $WYSIWYG_PLUGIN, $WYSIWYG_VALID, 
-	$TO_WARNING, $INVALID_CHARS, $WHSPC_SLASH, $VALID_PAGES, 
+	$INVALID_CHARS, $WHSPC_SLASH, $VALID_PAGES, 
 	$ONESCRIPT,  $ONESCRIPT_file, $ONESCRIPT_backup, $ONESCRIPT_file_backup, 
 	$CONFIG_backup, $CONFIG_FILE, $CONFIG_FILE_backup, $VALID_CONFIG_FILE, 
 	$DOC_ROOT, $WEB_ROOT, $WEBSITE, $PRE_ITERATIONS, $EX, $message, $ENC_OS;
@@ -258,8 +259,6 @@ $MAIN_WIDTH      = validate_units($MAIN_WIDTH);
 $WIDE_VIEW_WIDTH = validate_units($WIDE_VIEW_WIDTH);
 
 ini_set('session.gc_maxlifetime', $MAX_IDLE_TIME + 100); //in case the default is less.
-
-$TO_WARNING = 120; //seconds. When idle time remaining is less than this value, $timeout_warning is displayed
 
 $VALID_PAGES = array("login","logout","admin","hash","changepw","changeun","index","edit","upload","uploaded","newfile","renamefile","copyfile","deletefile","deletefolder","newfolder","renamefolder","copyfolder","mcdaction", "phpinfo");
 
@@ -1220,8 +1219,8 @@ function Cancel_Submit_Buttons($submit_label) { //******************************
 	<button type="button" class="button" id="cancel" onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
 		<?php echo hsc($_['Cancel']) ?></button>
 	<button type="submit" class="button" id="submitty" style="margin-left: 1em;"><?php echo hsc($submit_label);?></button>
+	<script>document.getElementById("cancel").focus();</script>
 <?php
-	//Do not close the <p> tag yet/here. Leave it open for potential content on individual pages.
 }//end Cancel_Submit_Buttons() //***********************************************
 
 
@@ -1480,16 +1479,15 @@ function Hash_Page() { //*******************************************************
 	</form>
 
 	<div class="info">
- 	<p><?php echo hsc($_['hash_txt_01']) ?><br>
-	<ol><li><?php echo hsc($_['hash_txt_06']) ?><br>
-			<?php echo hsc($_['hash_txt_07']) ?>
-		<li><?php echo hsc($_['hash_txt_08']) ?><br>
-			<?php echo hsc($_['hash_txt_09']) ?><br>
-			<?php echo hsc($_['hash_txt_10']) ?><br>
-		<li><?php echo hsc($_['hash_txt_12']) ?>
-	</ol>
-	
-	<?php echo $PWUN_RULES ?>
+		<p><?php echo hsc($_['hash_txt_01']) ?><br>
+		<ol><li><?php echo hsc($_['hash_txt_06']) ?><br>
+				<?php echo hsc($_['hash_txt_07']) ?>
+			<li><?php echo hsc($_['hash_txt_08']) ?><br>
+				<?php echo hsc($_['hash_txt_09']) ?><br>
+				<?php echo hsc($_['hash_txt_10']) ?><br>
+			<li><?php echo hsc($_['hash_txt_12']) ?>
+		</ol>
+		<?php echo $PWUN_RULES ?>
 	</div>
 <?php
 }//end Hash_Page() //***********************************************************
@@ -2238,7 +2236,7 @@ function Upload_Page() { //*****************************************************
 			//In FF, width of <input type="file" size=1> is 121px. If size=2, width = 128, etc. The base value is 114px.
 			echo '<input type="file" name="upload_file[]" size="'.floor(($main_width - 114) / 7).'"><br>'."\n";
 		}
-		
+		echo '<p>';
 		Cancel_Submit_Buttons($_['Upload']);
 	echo '</form>';
 }//end Upload_Page() //*********************************************************
@@ -2409,7 +2407,7 @@ function CRM_Page($action, $title, $action_id, $old_full_name) { //*************
 		echo '<input type="hidden" name=old_full_name     value="'.hsc($old_full_name).'">';
 		
 		echo '<label>'.hsc($_['CRM_txt_04']).':</label>';
-		echo '<input type=text name=new_name class=new_name value="'.hsc(basename($new_full_name)).'"><br>';
+		echo '<input type=text name=new_name class=new_name id=new_name value="'.hsc(basename($new_full_name)).'"><br>'; //##### added id
 		
 		echo '<label>'.hsc($_['New_Location']).':</label>';
 		echo '<span class="web_root">'.hsc($WEB_ROOT.$ACCESS_ROOT).'</span>';
@@ -2419,6 +2417,12 @@ function CRM_Page($action, $title, $action_id, $old_full_name) { //*************
 		Cancel_Submit_Buttons($action);
 	echo '</form>';
 
+//##### 
+?>
+<script>
+var $new_name = document.getElementById('new_name');
+</script>
+<?php
 }//end CRM_Page() //************************************************************
 
 
@@ -2427,7 +2431,8 @@ function CRM_Page($action, $title, $action_id, $old_full_name) { //*************
 function CRM_response($action, $msg1, $show_message = 3){ //********************
 	//$action = 'rCopy' or 'rename'.  Returns 0 if successful, 1 on error.
 	//$show_message: 0 = none; 1 = errors only; 2 = successes only; 3 = all messages (default).
-	global $_, $ipath, $ipath_OS, $filename, $page, $param1, $param2, $message, $EX, $INVALID_CHARS, $WHSPC_SLASH;
+	global $_, $ONESCRIPT, $ipath, $ipath_OS, $filename, $page, $param1, $param2, $param3, 
+			$message, $EX, $INVALID_CHARS, $WHSPC_SLASH;
 
 	$old_full_name = trim($_POST['old_full_name'], $WHSPC_SLASH);     //Trim whitespace & slashes.
 	$new_name_only = trim($_POST['new_name'], $WHSPC_SLASH);
@@ -2461,6 +2466,11 @@ function CRM_response($action, $msg1, $show_message = 3){ //********************
 	}elseif ( !file_exists($old_full_name_OS) ) {
 		$err_msg .= $EX.'<b>'.hsc($msg1.' '.hsc($_['CRM_msg_02'])).'</b><br>';
 		$bad_name = $old_full_name;
+	//Ignore if new name is blank.
+	}elseif ( mb_strlen($new_name_only) == 0 ) {
+		$page = 'copyfile';
+		$param3 = '&amp;p=copyfile';
+		return 0;
 	//Check new name for invalid chars, including slashes.
 	}elseif ( has_invalid_char($new_name_only) ) {
 		$err_msg .= $EX.'<b>'.hsc($_['new_file_msg_02']).'<span class="filename"> '.hsc($INVALID_CHARS).'</span></b><br>';
@@ -2778,10 +2788,9 @@ ICONS['delete']  = '<?php echo $ICONS["delete"] ?>';
 
 function common_scripts() { //**************************************************
 	global $_, $TO_WARNING;
-	
-	$timeout_warning = '<div id="message_box_contents"><b>'.hsc($_['session_warning']).'</b>';
 ?>
 <script>
+
 function pad(num){ if ( num < 10 ){ num = "0" + num; }; return num; }
 
 
@@ -2856,10 +2865,12 @@ function Countdown(count, End_Time, Timer_ID, Timer_CLASS, Action){
 	    count        = End_Time - Current_Time;
 	var params = count + ', "' + End_Time + '", "' + Timer_ID + '", "' + Timer_CLASS + '", "' + Action + '"';
 
+	$message_box = document.getElementById('message_box');
+
 	Timer.innerHTML = FormatTime(count);
 
-	if ( (count < <?php echo $TO_WARNING ?>) && (Action != "") ) { //Two minute warning...
-		document.getElementById('message_box').innerHTML = "<?php echo hsc($timeout_warning) ?>";
+	if ( (count == <?php echo $TO_WARNING ?>) && (Action != "") ) { //Two minute warning...
+		$message_box.innerHTML = '<div id="message_box_contents"><b><?php echo hsc($_['session_warning']) ?></b>';
 		Timer.style.backgroundColor = "white";
 		Timer.style.color = "red";
 		Timer.style.fontWeight = "900";
@@ -2867,9 +2878,10 @@ function Countdown(count, End_Time, Timer_ID, Timer_CLASS, Action){
 
 	if ( count < 1 ) {
 		if ( Action == 'LOGOUT') {
-			Timer.innerHTML = '<?php echo hsc($_['session_expired']) ?>';
+			Timer.innerHTML        = '<?php echo hsc($_['session_expired']) ?>';
+			$message_box.innerHTML = '<div id=message_box_contents><b><?php echo hsc($_['session_expired']) ?></b></div>';
 			//Load login screen, but delay first to make sure really expired:
-			setTimeout('window.location = window.location.pathname',3000); //1000 = 1 second
+			setTimeout('window.location = window.location.pathname',10000); //1000 = 1 second
 		}
 		return;
 	}
@@ -3116,11 +3128,11 @@ function Build_Directory() { //***************************************
 		} else {
 			DS = '';
 			f_or_f = 'file';
-			HREF_params = ONESCRIPT + PARAM1 + '&amp;f=' + encodeURIComponent(filename) + '&amp;p=edit';
+			HREF_params = ONESCRIPT + PARAM1 + '&amp;f=' + encodeURIComponent(filename);
 			file_size = format_number(filesize) + ' B';
 		}
 		
-		file_name  = '<a href="' + HREF_params + '"  title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
+		file_name  = '<a href="' + HREF_params  + '&amp;p=edit' + '"  title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
 		file_name += ICONS[filetype] + '&nbsp;' + hsc(filename) + DS + '</a>';
 		time_stamp = FileTimeStamp(DIRECTORY_DATA[x][3], 1, 0, 0);
 		
@@ -3379,10 +3391,11 @@ function events_down(event, capture_key) {if (!event) {var event = window.event;
 }
 
 
-function events_up(event, capture_key) {if (!event) {var event = window.event;} //if IE
+function events_up(event, capture_key) {
+	if (!event) {var event = window.event;} //if IE
 	if (!$thispage) {return false;} //Ignore keyup if there was no keydown on this page.
 	if ((event.type.substr(0,3) == 'key') && (event.keyCode != capture_key)) {return true;}
-	if (!pre_validate()) {return false};
+	if (!pre_validate_pwun()) {return false};
 	$submit_button.disabled = "disabled";  //Prevent extra clicks
 	hash('password');
 	<?php echo $hash_new_new ?>
@@ -3399,7 +3412,7 @@ document.onmouseup = function(event) {if (!event) {var event = window.event;} //
 }
 
 
-function pre_validate() {
+function pre_validate_pwun() {
 	var $pw = document.getElementById('password');
 
 	//These must exist for checks below.
@@ -3425,7 +3438,7 @@ function pre_validate() {
 		return false;
 	}
 	return true;
-}//end pre_validate()
+}//end pre_validate_pwun()
 </script>
 <?php
 }//end event_scripts() //*******************************************************
@@ -3457,7 +3470,7 @@ var hexcase=0;function hex_sha256(a){return rstr2hex(rstr_sha256(str2rstr_utf8(a
 
 
 <script>
-//OneFileCMS wrapper function for using hash functions
+//OneFileCMS wrapper function for using hex_sha256() functions
 function hash($element_id) {
 	var $input = document.getElementById($element_id);
 	var $hash = trim($input.value); //trim() defined in common_scripts()
@@ -3510,7 +3523,7 @@ pre { background: white; border: 1px solid #777; padding: .2em; margin: 0; }
 
 input[type="text"]     { width: 100%; border: 1px solid #777; padding: 1px 1px 1px 0; font : 1em Courier; }
 input[type="password"] { width: 100%; border: 1px solid #777; padding: 0   1px 0   0; }
-input[type="file"]     { width: 100%; border: 1px solid #777; background-color: white; }
+input[type="file"]     { width: 100%; border: 1px solid #777; background-color: white; margin: 0; }
 
 input[readonly]        { color: #333; background-color: #EEE; }
 input[disabled]        { color: #555; background-color: #EEE; }
@@ -3558,7 +3571,7 @@ button:active { background-color: rgb(245,245,50);  }
 
 #message_box { border: none; margin: .5em 0 0 0; padding: 0; }
 
-#message_box_contents { border: 1px solid gray; padding: 4px; background: #FFF000; }
+#message_box_contents { border: 1px solid gray; padding: 3px 2px 2px 4px; background: #FFF000; }
 
 #message_box #message_left {
 	float  : left;

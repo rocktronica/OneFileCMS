@@ -1,5 +1,10 @@
 # OneFileCMS Change Log
 
+### v3.5.05 (2014-03-09)
+
+- Copy & Rename pages ignore blank "New Name" fields.
+- Some minor improvemnts & css tweaks.
+
 ### v3.5.04 (2014-03-08)
 
 - Fixed "minor" bug - editor not saving changes (introduced in 3.5.02, but just noticed)
