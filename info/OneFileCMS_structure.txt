@@ -1,4 +1,4 @@
-﻿OneFileCMS Version 3.5.05 structure/layout
+﻿OneFileCMS Version 3.5.06 structure/layout
 
 LICENSE
 
@@ -49,7 +49,8 @@ SVG ICONS
 		svg_icon_folder()
 
 PAGE & RESPONSE FUNCTIONS:
-	List_Backup()
+	List_File()
+	List_Backups_and_Logs()
 	Admin_Page()
 	Hash_Page()
 	Hash_response()

@@ -1,6 +1,6 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
-// v3.5.05
+// v3.5.06
 // Sample external config file - this file is OPTIONAL.
 //
 // Basically, what follows is just a copy & paste of the OneFileCMS CONFIGURABLE INFO section.
@@ -14,10 +14,11 @@ $HASHWORD = "18350bc2181858e679605434735b1c2db6e7e4bb72b50a6d93d9ad1362f3e1c2";
 //$HASHWORD = "18350bc2181858e679605434735b1c2db6e7e4bb72b50a6d93d9ad1362f3e1c2"; //"password" with $PRE_ITERATIONS = 1000
 $SALT     = 'somerandomsalt';
 
-$MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
-$LOGIN_DELAY   = 10;  //In seconds.
-$MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings (like gc) may limit its max effective value.
-$TO_WARNING    = 120; //In seconds. When idle time remaining is less than this value, a timeout warning is displayed.
+$MAX_ATTEMPTS  = 3;    //Max failed login attempts before LOGIN_DELAY starts.
+$LOGIN_DELAY   = 10;   //In seconds.
+$MAX_IDLE_TIME = 600;  //In seconds. 600 = 10 minutes.  Other PHP settings (like gc) may limit its max effective value.
+$TO_WARNING    = 120;  //In seconds. When idle time remaining is less than this value, a timeout warning is displayed.
+$LOG_LOGINS    = true; //Keep log of login attempts.
 
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.          Can be px, pt, em, or %.  Assumes px otherwise.
 $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked.  Can be px, pt, em, or %.  Assumes px otherwise.

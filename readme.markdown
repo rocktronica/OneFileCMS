@@ -1,5 +1,3 @@
-(updated: 2014-03-09)
-
 # OneFileCMS
 
 ## Yes, that's exactly what it is!
@@ -13,7 +11,7 @@ Edit screen:
 
 OneFileCMS is just that: It's a flat, light, one file CMS (Content Management System) contained entirely in an easy-to-implement database-less PHP script.
 
-Coupling a utilitarian code editor with basic upload and file managing functions, OneFileCMS can maintain an entire website completely in-browser without any external programs.
+Coupling basic editing, upload, and file managing functions, OneFileCMS can maintain an entire website completely in-browser without any external programs.
 
 ## Demo
 
@@ -61,6 +59,7 @@ I may not have the time/bandwidth/inclination to implement every feature, but I 
 
 Yes!  Currently, English (EN), German (DE), Spanish (ES), Dutch (NL), and Russian (RU) are available.
 
+- English courtesy of me.
 - German (Deutsch) courtesy of [codeless](http://github.com/codeless).
 - Spanish (Espanõla) courtesy of [fermuch](http://github.com/fermuch).
 - Dutch (Nederlands) courtesy of [symsec](http://github.com/symsec).  
@@ -70,9 +69,9 @@ If you speak another language and would like to contribute, translations are wel
 
 ### Can I have more than one username/password?
 
-Yes!  Well, sort of - indirectly.  Upload or create addional copies of OneFileCMS, but give them different file names.(ex: OneFile1.php and OneFile2.php etc...)  Then, in each copy, maintain different usernames, passwords, and $session_name config values.  
+Yes!  Well, sort of... indirectly.  Upload or create addional copies of OneFileCMS, but give them different file names.(ex: OneFile1.php and OneFile2.php etc...)  Then, in each copy, maintain different usernames, passwords, and $session_name config values.  
   
-Now, since there is no database or other means of granular control or access logging, multiple usernames may be kind of superfluous.  However, having at least one working backup copy of OneFileCMS available is recommended in case the primary copy gets corrupted.
+Now, since there is no database or other means of granular control or access logging, multiple usernames provides limited utility.  However, having at least one working backup copy of OneFileCMS available is recommended in case the primary copy gets corrupted.
 
 ### This is basically just a file manager with a text editor- why is it being called a CMS?
 
@@ -86,9 +85,12 @@ OneFileCMS can be configured to work with [TinyMCE](http://tinymce.moxiecode.com
 
 ### What it is not?
 
-- OneFileCMS would not be the best option for a site that requires different levels of privileges, unless all of the users are trusted to stay within their designated areas of responsibility. Since OneFileCMS allows file uploads and editing files directly on the web server, there is simply no way to secure against any particular action.
+- OneFileCMS would not be the best option for a site that requires different levels of privileges, unless all of the users are trusted to stay within their designated areas of responsibility. Since OneFileCMS allows file uploads and editing files directly on the web server, there is simply no way to secure against any particular action.  
 
-	These issues, of course, are not unique to OneFileCMS - as they will exist in any CMS that permits unrestricted file editing & uploads.
+  These issues, of course, are not unique to OneFileCMS - as they will exist in any CMS that permits unrestricted file editing & uploads.
+
+- If you need to upload a lots of files, an FTP program may be a bit more flexible & practicle.
+
 
 --------------------------------------------------------------------------------
 

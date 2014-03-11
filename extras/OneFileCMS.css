@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.05
+Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.06
 *******************************************************************************/
 
 /* --- reset --- */
@@ -35,7 +35,7 @@ pre { background: white; border: 1px solid #777; padding: .2em; margin: 0; }
 
 input[type="text"]     { width: 100%; border: 1px solid #777; padding: 1px 1px 1px 0; font : 1em Courier; }
 input[type="password"] { width: 100%; border: 1px solid #777; padding: 0   1px 0   0; }
-input[type="file"]     { width: 100%; border: 1px solid #777; background-color: white; }
+input[type="file"]     { width: 100%; border: 1px solid #777; background-color: white; margin: 0; }
 
 input[readonly]        { color: #333; background-color: #EEE; }
 input[disabled]        { color: #555; background-color: #EEE; }
@@ -83,7 +83,7 @@ button:active { background-color: rgb(245,245,50);  }
 
 #message_box { border: none; margin: .5em 0 0 0; padding: 0; }
 
-#message_box_contents { border: 1px solid gray; padding: 4px; background: #FFF000; }
+#message_box_contents { border: 1px solid gray; padding: 3px 2px 2px 4px; background: #FFF000; }
 
 #message_box #message_left {
 	float  : left;
@@ -394,9 +394,7 @@ hr { /*-- -- -- -- -- -- --*/
 
 input[type="text"].new_name {width  : 50%; margin-bottom: .2em;}
 
-.old_backup_T {float: left; margin-bottom: .3em;}
-
-#del_backup   {float: left; margin-left  :  1em; padding: 2px 5px}
+#del_backup   { margin: 0; padding: 2px 5px}
 
 /*** For old IE only: text "icons" for Rename, Copy, and Delete ***/
 .RCD1  {font: 900 7pt arial; padding: 0px 3px 0px 3px; margin: 0px; float: left}

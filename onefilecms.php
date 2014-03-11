@@ -1,7 +1,7 @@
 <?php mb_internal_encoding('utf-8');
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.05';
+$OFCMS_version = '3.5.06';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -84,10 +84,11 @@ $HASHWORD = "18350bc2181858e679605434735b1c2db6e7e4bb72b50a6d93d9ad1362f3e1c2";
 //$HASHWORD = "18350bc2181858e679605434735b1c2db6e7e4bb72b50a6d93d9ad1362f3e1c2"; //"password" with $PRE_ITERATIONS = 1000
 $SALT     = 'somerandomsalt';
 
-$MAX_ATTEMPTS  = 3;   //Max failed login attempts before LOGIN_DELAY starts.
-$LOGIN_DELAY   = 10;  //In seconds.
-$MAX_IDLE_TIME = 600; //In seconds. 600 = 10 minutes.  Other PHP settings (like gc) may limit its max effective value.
-$TO_WARNING    = 120; //In seconds. When idle time remaining is less than this value, a timeout warning is displayed.
+$MAX_ATTEMPTS  = 3;    //Max failed login attempts before LOGIN_DELAY starts.
+$LOGIN_DELAY   = 10;   //In seconds.
+$MAX_IDLE_TIME = 600;  //In seconds. 600 = 10 minutes.  Other PHP settings (like gc) may limit its max effective value.
+$TO_WARNING    = 120;  //In seconds. When idle time remaining is less than this value, a timeout warning is displayed.
+$LOG_LOGINS    = true; //Keep log of login attempts.
 
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.          Can be px, pt, em, or %.  Assumes px otherwise.
 $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked.  Can be px, pt, em, or %.  Assumes px otherwise.
@@ -161,7 +162,7 @@ global $config_title, $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS,
 	$config_etypes, $config_stypes,$config_itypes, $config_ftypes, $config_fclass, 
 	$SHOWALLFILES, $etypes, $itypes, $ftypes, $fclasses, $excluded_list, 
 	$LANGUAGE_FILE, $ACCESS_ROOT, $ACCESS_ROOT_len, $WYSIWYG_PLUGIN, $WYSIWYG_VALID, 
-	$INVALID_CHARS, $WHSPC_SLASH, $VALID_PAGES, 
+	$INVALID_CHARS, $WHSPC_SLASH, $VALID_PAGES, $LOGIN_LOG_url, $LOGIN_LOG_file,
 	$ONESCRIPT,  $ONESCRIPT_file, $ONESCRIPT_backup, $ONESCRIPT_file_backup, 
 	$CONFIG_backup, $CONFIG_FILE, $CONFIG_FILE_backup, $VALID_CONFIG_FILE, 
 	$DOC_ROOT, $WEB_ROOT, $WEBSITE, $PRE_ITERATIONS, $EX, $message, $ENC_OS;
@@ -202,9 +203,11 @@ $WEB_ROOT  = basename($DOC_ROOT).'/'; //Used only for screen output - Non-url us
 $WEBSITE   = $_SERVER['HTTP_HOST'].'/';
 
 $ONESCRIPT_file        = $_SERVER['SCRIPT_FILENAME'];  //Non-url file system use.
-$ONESCRIPT_backup      = $ONESCRIPT.'.BACKUP.php';       //used for p/w & u/n updates.
-$ONESCRIPT_file_backup = $ONESCRIPT_file.'.BACKUP.php';  //used for p/w & u/n updates.
+$ONESCRIPT_backup      = $ONESCRIPT.'-BACKUP.txt';       //used for p/w & u/n updates.
+$ONESCRIPT_file_backup = $ONESCRIPT_file.'-BACKUP.txt';  //used for p/w & u/n updates.
 $LOGIN_ATTEMPTS        = $ONESCRIPT_file.'.invalid_login_attempts'; //Non-url file system use.
+$LOGIN_LOG_url		   = $ONESCRIPT.'-LOGIN.log';
+$LOGIN_LOG_file		   = $ONESCRIPT_file.'-LOGIN.log';
 
 
 //If specified & found, include $CONFIG_FILE.
@@ -214,8 +217,8 @@ if (isset($CONFIG_FILE)) {
 	if (is_file($CONFIG_FILE_OS)) { 
 		$VALID_CONFIG_FILE = 1;
 		include($CONFIG_FILE_OS);
-		$CONFIG_backup      = URLencode_path($CONFIG_FILE).'.BACKUP.php'; //used for p/w & u/n updates.
-		$CONFIG_FILE_backup = $CONFIG_FILE.'.BACKUP.php';                 //used for p/w & u/n updates.
+		$CONFIG_backup      = URLencode_path($CONFIG_FILE).'-BACKUP.txt'; //used for p/w & u/n updates.
+		$CONFIG_FILE_backup = $CONFIG_FILE.'-BACKUP.txt';                 //used for p/w & u/n updates.
 	}
 	else {
 		$message .= $EX.'<b>$CONFIG_FILE '.hsc($_['Not_found']).':</b> '.$CONFIG_FILE.'<br>';
@@ -1378,7 +1381,7 @@ function Init_ICONS() { //******************************************************
 
 
 
-function List_Backup($file, $file_url){ //**************************************
+function List_File($file, $file_url){ //****************************************
 	global $_, $ONESCRIPT, $ICONS;
 
 	$file_OS = Convert_encoding($file);
@@ -1386,76 +1389,88 @@ function List_Backup($file, $file_url){ //**************************************
 	$href = $ONESCRIPT.'?i='.dir_name(trim($file_url,'/')).'&amp;f='.basename($file_url);
 	$edit_link = '<a href="'.$href.'&amp;p=edit'.'" id="old_backup">'.hsc(basename($file)).'</a>';
 ?>
-	<table class="index_T old_backup_T"><tr>
+	<tr>
+	<td><a href="<?php echo $href.'&amp;p=deletefile' ?>" class="button" id="del_backup">
+	<?php echo $ICONS['delete'].'&nbsp;'.hsc($_['Delete']) ?></a></td>
 	<td class="file_name"><?php echo $edit_link; ?></td>
 	<td class="meta_T file_size">&nbsp;	<?php echo number_format(filesize($file_OS)); ?> B	</td>  
 	<td class="meta_T file_time"> &nbsp;<script>FileTimeStamp(<?php echo filemtime($file_OS); ?>, 1, 0, 1);</script></td>
-	</tr></table>
-
-	<a href="<?php echo $href.'&amp;p=deletefile' ?>" class="button" id="del_backup">
-	<?php echo $ICONS['delete'].'&nbsp;'.hsc($_['Delete']) ?></a>
-	<div class=clear></div>
+	</tr>
 <?php
-}//end List_Backup() //*********************************************************
+}//end List_File() //***********************************************************
+
+
+
+
+function List_Backups_and_Logs(){ //********************************************
+	global $_, $ONESCRIPT_backup, $ONESCRIPT_file, $ONESCRIPT_file_backup, 
+		   $CONFIG_backup, $CONFIG_FILE_backup, $LOGIN_LOG_url, $LOGIN_LOG_file;
+
+	//Indicate if a login log or backups (from a prior p/w or u/n change) exist.
+
+	$CONFIG_FILE_backup_OS    = Convert_encoding($CONFIG_FILE_backup);
+	$ONESCRIPT_file_backup_OS = Convert_encoding($ONESCRIPT_file_backup);
+	$LOGIN_LOG_file_OS		  = Convert_encoding($LOGIN_LOG_file);
+
+	clearstatcache ();
+	$backup_found = $log_found = false;
+	if (is_file($ONESCRIPT_file_backup_OS) || is_file($CONFIG_FILE_backup_OS) ) { $backup_found = true; }
+	if (is_file($LOGIN_LOG_file_OS)) { $log_found = true; }
+
+	if ( $backup_found || $log_found ) {
+		echo '<table class="index_T">';
+		if ($log_found)                         { List_File($LOGIN_LOG_file, $LOGIN_LOG_url); }
+		if (is_file($ONESCRIPT_file_backup_OS)) { List_File($ONESCRIPT_file_backup, $ONESCRIPT_backup); }
+		if (is_file($CONFIG_FILE_backup_OS))    { List_File($CONFIG_FILE_backup, $CONFIG_backup); }
+		echo '</table>';
+		
+		if ($backup_found) {
+			echo '<p style="margin-top: .5em"><b>'.hsc($_['admin_txt_00']).'</b></p>';
+			echo '<p>'.hsc($_['admin_txt_01']);
+		}
+		echo '<hr>';
+	}//end of check for backup
+}//end List_Backups_and_Logs() //***********************************************
 
 
 
 
 function Admin_Page() { //******************************************************
-	global $_, $ONESCRIPT, $ONESCRIPT_backup, $ONESCRIPT_file_backup, $CONFIG_backup,
-		   $ipath, $filename, $param1, $param2, $EX, $config_title,  $CONFIG_FILE_backup;
-
-	$CONFIG_FILE_backup_OS    = Convert_encoding($CONFIG_FILE_backup);
-	$ONESCRIPT_file_backup_OS = Convert_encoding($ONESCRIPT_file_backup);
+	global $_, $ONESCRIPT, $ipath, $filename, $param1, $param2, $config_title;
 
 	// Restore/Preserve $ipath prior to admin page in case OneFileCMS is edited (which would change $ipath).
 	if   ( $_SESSION['admin_page'] ) { $ipath  = $_SESSION['admin_ipath'];
 									   $param1 = '?i='.URLencode_path($ipath); }
 	else { $_SESSION['admin_page']  = true;
 		   $_SESSION['admin_ipath'] = $ipath; }
-	
+
 	// [Close] returns to either the index or edit page.
 	$params = "";
 	if ($filename != "") { $params = $param2.'&amp;p=edit'; }
 
+	$button_attribs = '<button type="button" class="button" onclick="parent.location =\''.$ONESCRIPT;
 	$edit_params = '?i='.dir_name($ONESCRIPT).'&amp;f='.basename($ONESCRIPT).'&amp;p=edit';
-?>
-	<h2><?php echo hsc($_['Admin_Options']) ?></h2>
 
-	<span class="admin_buttons">
-	<button type="button" class="button" id="cancel"    onclick="parent.location =
-		<?php echo "'".$ONESCRIPT.$param1.$params.'\'">'.hsc($_['Close']) ?></button>
-	<button type="button" class="button" id="changepw"  onclick="parent.location =
-		<?php echo "'".$ONESCRIPT.$param1.'&amp;p=changepw\'">'.hsc($_['pw_change']) ?></button>
-	<button type="button" class="button" id="changeun"  onclick="parent.location =
-		<?php echo "'".$ONESCRIPT.$param1.'&amp;p=changeun\'">'.hsc($_['un_change']) ?></button>
-	<button type="button" class="button" id="hash"      onclick="parent.location =
-		<?php echo "'".$ONESCRIPT.$param1.'&amp;p=hash\'">'.hsc($_['Generate_Hash']) ?></button>
-	<button type="button" class="button" id="editOFCMS" onclick="parent.location =
-		<?php echo "'".$ONESCRIPT.$edit_params.'\'">'.hsc($_['Edit'].' '.$config_title) ?></button>
-	</span>
+	echo '<h2>'.hsc($_['Admin_Options']).'</h2>';
 
-	<div class="info">
+	echo '<span class="admin_buttons">';
+	echo $button_attribs.$param1.$params.'\'" id="close">'.hsc($_['Close']).'</button>'; 
+	echo $button_attribs.$param1.'&amp;p=changepw\'">'.hsc($_['pw_change']).'</button>'; 
+	echo $button_attribs.$param1.'&amp;p=changeun\'">'.hsc($_['un_change']).'</button>'; 
+	echo $button_attribs.$param1.'&amp;p=hash\'">'.hsc($_['Generate_Hash']).'</button>'; 
+	echo $button_attribs.$edit_params.'\'">'.hsc($_['Edit'].' '.$config_title).'</button>'; 
+	echo '</span>';
 
-<?php  //Check for & indicate if backups exists from a prior p/w or u/n change.
-	clearstatcache ();
-	if (is_file($ONESCRIPT_file_backup_OS) || is_file($CONFIG_FILE_backup_OS) ) {
-		echo '<p><b>'.hsc($_['admin_txt_00']).'</b></p>';
-		if (is_file($ONESCRIPT_file_backup_OS)) { List_Backup($ONESCRIPT_file_backup, $ONESCRIPT_backup); }
-		if (is_file($CONFIG_FILE_backup_OS))    { List_Backup($CONFIG_FILE_backup, $CONFIG_backup); }
-		echo '<p>'.hsc($_['admin_txt_01']).'<hr>';
-		$focus_on = 'old_backup'; //id of filename listed
-	}else {
-		$focus_on = 'cancel';
-	}//end of check for backup
-	
-	echo '<script>document.getElementById("'.$focus_on.'").focus();</script>';
-?>
-	<p><b><?php echo hsc($_['admin_txt_02']) ?></b>
-	<p><?php echo hsc($_['admin_txt_16']) ?>
-	<p><?php echo hsc($_['admin_txt_14']) ?>
-	</div>
-<?php
+	echo '<div class="info">';
+
+	List_Backups_and_Logs();
+
+	echo '<p><b>'.hsc($_['admin_txt_02']).'</b>';
+	echo '<p>'   .hsc($_['admin_txt_16']);
+	echo '<p>'.hsc($_['admin_txt_14']);
+	echo '</div>'; //end class=info
+
+	echo '<script>document.getElementById("close").focus();</script>';
 }//end Admin_Page() //**********************************************************
 
 
@@ -1550,7 +1565,8 @@ function Change_PWUN_Page($pwun, $type, $page_title, $label_new, $label_confirm)
 	<p><?php echo hsc($_['pw_txt_14']) ?>
 	</div>
 <?php
-	//Note: The button with id="submitty" above must NOT be of type="submit" NOR have an id="submit", or the event_scripts won't work.
+	//Note: The button with id="submitty" above must NOT be of type="submit",
+	//NOR have an id="submit", or the event_scripts won't work.
 	event_scripts('change', 'submitty', $pwun); //Doesn't work if an id="submit"
 	js_hash_scripts();
 }//end Change_PWUN_Page() //****************************************************
@@ -1702,7 +1718,8 @@ function Login_Page() { //******************************************************
 
 
 function Login_response() { //**************************************************
-	global $_, $EX, $message, $page, $LOGIN_ATTEMPTS, $MAX_ATTEMPTS, $LOGIN_DELAY, $USERNAME, $HASHWORD;
+	global $_, $EX, $ONESCRIPT_file, $message, $page, $USERNAME, $HASHWORD,
+				$LOGIN_ATTEMPTS, $MAX_ATTEMPTS, $LOGIN_DELAY, $LOG_LOGINS, $LOGIN_LOG_file;
 
 	$_SESSION = array();    //make sure it's empty
 	$_SESSION['valid'] = 0; //Default to failed login.
@@ -1737,7 +1754,7 @@ function Login_response() { //**************************************************
 		$_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT']; //for user consistancy check.
 		$_SESSION['valid'] = 1;
 		$page = "index";
-		if ( is_file($LOGIN_ATTEMPTS) ) { unlink($LOGIN_ATTEMPTS); } //delete invalid attempts count file
+		if ( is_file($LOGIN_ATTEMPTS) ) { unlink($LOGIN_ATTEMPTS); } //delete count/file of $LOGIN_ATTEMPTS
 		
 	}else{
 		file_put_contents($LOGIN_ATTEMPTS, ++$attempts); //increment attempts
@@ -1748,6 +1765,18 @@ function Login_response() { //**************************************************
 			$message .= ' '.hsc($_['login_msg_02b']);
 		}
 	}
+
+	//Log login attempts
+	if ($LOG_LOGINS) {
+		$log_file    = Convert_encoding($LOGIN_LOG_file);
+		$pass_fail   = $_SESSION['valid'].' ';
+		$timestamp   = date("Y-m-d H:i:s").' ';
+		$client_IP   = $_SERVER['REMOTE_ADDR'].' ';
+		$client_port = $_SERVER['REMOTE_PORT'].' ';
+		$client      = '"'.$_SERVER['HTTP_USER_AGENT'].'"';
+		
+		file_put_contents($log_file, $pass_fail.$timestamp.$client_IP.$client_port.$client."\n",FILE_APPEND);
+	}//
 }//end Login_response() //******************************************************
 
 
@@ -1793,15 +1822,13 @@ function Create_Table_for_Listing() { //****************************************
 
 
 
-function Get_DIRECTORY_DATA() { //**********************************************
+function Get_DIRECTORY_DATA($raw_list) { //*************************************
 	global $_, $ONESCRIPT, $ipath, $ipath_OS, $param1, $ICONS, $message, 
 			$ftypes, $fclasses, $excluded_list, $stypes, $SHOWALLFILES, 
 			$DIRECTORY_COUNT, $DIRECTORY_DATA, $ENC_OS;
 
 	//Doesn't use global $filename or $filename_OS in this function (because they shouldn't exist on the Index page)
 	//$filename below is JUST the file's name.  In some functions, it's the full/path/filename
-
-	$raw_list = scandir('./'.$ipath_OS);  //Get current directory list  (unsorted)
 
 	$DIRECTORY_COUNT = 0; //final count to exclude . & .., and possibly $excluded file names
 	foreach ($raw_list as $raw_filename) { //$raw_list is in server's File System encoding
@@ -1922,12 +1949,13 @@ function Index_Page_buttons_top($file_count) { //*******************************
 
  
 function Index_Page(){ //*******************************************************
-	global  $ONESCRIPT, $param1;
+	global  $ONESCRIPT, $ipath_OS, $param1;
 	
 	init_ICONS_js();
 	Index_Page_scripts();
 
-	$file_count = Get_DIRECTORY_DATA();
+	$raw_list = scandir('./'.$ipath_OS);  //Get current directory list  (unsorted)
+	$file_count = Get_DIRECTORY_DATA($raw_list);
 
 	//<form> to contain directory, including buttons at top.
 	echo '<form method="post" name="mcdselect" action="'.$ONESCRIPT.$param1.'&amp;p=mcdaction">';
@@ -3882,9 +3910,7 @@ hr { /*-- -- -- -- -- -- --*/
 
 input[type="text"].new_name {width  : 50%; margin-bottom: .2em;}
 
-.old_backup_T {float: left; margin-bottom: .3em;}
-
-#del_backup   {float: left; margin-left  :  1em; padding: 2px 5px}
+#del_backup   { margin: 0; padding: 2px 5px}
 
 /*** For old IE only: text "icons" for Rename, Copy, and Delete ***/
 .RCD1  {font: 900 7pt arial; padding: 0px 3px 0px 3px; margin: 0px; float: left}

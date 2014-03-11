@@ -1,5 +1,9 @@
 # OneFileCMS Change Log
 
+### v3.5.06 (2014-03-11)
+
+- Added optional logging of login attempts, both successful & failed.
+
 ### v3.5.05 (2014-03-09)
 
 - Copy & Rename pages ignore blank "New Name" fields.
@@ -27,7 +31,7 @@
 
 - Mostly behind the scenes stuff...
 - Replaced use of htmlentities() with htmlspecialchars().  With UTF-8, htmlentites() is superfluous.
-- Added hsc() to s number of strings where should have already been.
+- Added hsc() to a number of strings where should have already been.
 - Changed directory sort function a bit. Note: when selecting/deselecting the 'folders first' option, the primary sort will be the last sorted column.
 - Split out a new function, Send\_data\_to\_js(), from Index\_Page().
 - Also, in prep for an upcoming update, tagged several places (with //##### ) where file system calls are made. The $filename strings used in the calls may need to be encoded with something other than UTF-8, depending on the underlying OS's filesystem. (such as NTFS, which uses UTF-16)
