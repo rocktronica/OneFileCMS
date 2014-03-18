@@ -1,8 +1,9 @@
-<?php mb_internal_encoding('utf-8');
+<?php mb_internal_encoding('utf-8');  $message = ""; //initialize here so can .= at any point later.
+
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
-
-$OFCMS_version = '3.5.06';
-
+$VERS_ext = explode('_',basename($_SERVER['SCRIPT_NAME']));        //##### 
+$VERS     = substr($VERS_ext[1],0, strrpos($VERS_ext[1], '.php')); //##### $OFCMS_version = '3.5.07';
+$OFCMS_version = '<font color="red"><b>'.$VERS.'</b></font>';      //##### 
 /*******************************************************************************
 Except where noted otherwise:
 
@@ -142,9 +143,9 @@ $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copi
 //$LANGUAGE_FILE = "OneFileCMS.LANG.EN.php";
 
 //Init file for optional external wysiwyg editor.
-//Sample init files are availble in the OneFileCMS repo, but the actual editors are not.
-//$WYSIWYG_PLUGIN = 'plugins/tinymce_init.php';
-//$WYSIWYG_PLUGIN = 'plugins/ckeditor_init.php';
+//Sample init files are availble in the "extras\" folder of the OneFileCMS repo, but the actual editors are not.
+//$WYSIWYG_PLUGIN = 'plugins/plugin-tinymce_init.php';
+//$WYSIWYG_PLUGIN = 'plugins/plugin-ckeditor_init.php';
 
 //Name of optional external config file.  Any settings it contains will supersede those above.
 //See the sample file in the OneFileCMS github repo for format example.
@@ -161,7 +162,7 @@ global $config_title, $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS,
 	$MAIN_WIDTH, $WIDE_VIEW_WIDTH, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $config_excluded, 
 	$config_etypes, $config_stypes,$config_itypes, $config_ftypes, $config_fclass, 
 	$SHOWALLFILES, $etypes, $itypes, $ftypes, $fclasses, $excluded_list, 
-	$LANGUAGE_FILE, $ACCESS_ROOT, $ACCESS_ROOT_len, $WYSIWYG_PLUGIN, $WYSIWYG_VALID, 
+	$LANGUAGE_FILE, $ACCESS_ROOT, $ACCESS_ROOT_len, $WYSIWYG_PLUGIN, $WYSIWYG_VALID, $WYSIWYG_PLUGIN_OS, 
 	$INVALID_CHARS, $WHSPC_SLASH, $VALID_PAGES, $LOGIN_LOG_url, $LOGIN_LOG_file,
 	$ONESCRIPT,  $ONESCRIPT_file, $ONESCRIPT_backup, $ONESCRIPT_file_backup, 
 	$CONFIG_backup, $CONFIG_FILE, $CONFIG_FILE_backup, $VALID_CONFIG_FILE, 
@@ -198,14 +199,14 @@ chdir($DOC_ROOT);
 $INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file & folder names.  Space deliminated.
 $WHSPC_SLASH = "\x00..\x20/";  //Whitespace & forward slash. For trimming file & folder name inputs.
 
-$ONESCRIPT = URLencode_path($_SERVER['SCRIPT_NAME']); //Used for URL's
 $WEB_ROOT  = basename($DOC_ROOT).'/'; //Used only for screen output - Non-url use.
 $WEBSITE   = $_SERVER['HTTP_HOST'].'/';
 
-$ONESCRIPT_file        = $_SERVER['SCRIPT_FILENAME'];  //Non-url file system use.
-$ONESCRIPT_backup      = $ONESCRIPT.'-BACKUP.txt';       //used for p/w & u/n updates.
-$ONESCRIPT_file_backup = $ONESCRIPT_file.'-BACKUP.txt';  //used for p/w & u/n updates.
-$LOGIN_ATTEMPTS        = $ONESCRIPT_file.'.invalid_login_attempts'; //Non-url file system use.
+$ONESCRIPT 			   = URLencode_path($_SERVER['SCRIPT_NAME']);  //Used for URL's in HTML attributes
+$ONESCRIPT_file        = $_SERVER['SCRIPT_FILENAME'];              //Non-url file system use.
+$ONESCRIPT_backup      = $ONESCRIPT.'-BACKUP.txt';                 //used for p/w & u/n updates.
+$ONESCRIPT_file_backup = $ONESCRIPT_file.'-BACKUP.txt';            //used for p/w & u/n updates.
+$LOGIN_ATTEMPTS        = $ONESCRIPT_file.'.invalid_login_attempts';//Non-url file system use.
 $LOGIN_LOG_url		   = $ONESCRIPT.'-LOGIN.log';
 $LOGIN_LOG_file		   = $ONESCRIPT_file.'-LOGIN.log';
 
@@ -263,7 +264,7 @@ $WIDE_VIEW_WIDTH = validate_units($WIDE_VIEW_WIDTH);
 
 ini_set('session.gc_maxlifetime', $MAX_IDLE_TIME + 100); //in case the default is less.
 
-$VALID_PAGES = array("login","logout","admin","hash","changepw","changeun","index","edit","upload","uploaded","newfile","renamefile","copyfile","deletefile","deletefolder","newfolder","renamefolder","copyfolder","mcdaction", "phpinfo");
+$VALID_PAGES = array("login","logout","admin","hash","changepw","changeun","index","edit","upload","uploaded","newfile","renamefile","copyfile","deletefile","deletefolder","newfolder","renamefolder","copyfolder","mcdaction", "phpinfo", "raw_view");
 
 //Make arrays out of a few $config_variables for actual use later.
 //First, remove spaces and make lowercase (for *types).
@@ -288,7 +289,7 @@ $PRE_ITERATIONS = 1000;
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.5.01
+// OneFileCMS Language Settings v3.5.07
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -310,53 +311,62 @@ $_['front_links_margin_L']   = '1.0em';
 $_['MCD_margin_R']           = '1.0em';  //[Move] [Copy] [Delete] buttons
 $_['button_font_size']       = '0.9em';  //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
-$_['button_padding']         = '4px 7px';
+$_['button_padding']         = '4px 7px 4px 7px'; //T R B L
 $_['image_info_font_size']   = '1em';    //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';       //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';  //Font size of $_['Select_All']
-$_['select_all_label_width'] = '72px';   //Width of space for $_['Select_All'] //As of 3.4.23, not currently used.
+$_['select_all_label_width'] = '72px';   //Width of space for $_['Select_All'] //Not used as of 3.4.23
 $_['HTML']    = 'HTML';
 $_['WYSIWYG'] = 'WYSIWYG';
-$_['Admin']   = 'Admin';
-$_['bytes']   = 'bytes';
-$_['Cancel']  = 'Cancel';
-$_['Close']   = 'Close';
-$_['Copy']    = 'Copy';
-$_['Copied']  = 'Copied';
-$_['Create']  = 'Create';
-$_['Date']    = 'Date';
-$_['Delete']  = 'Delete';
-$_['DELETE']  = 'DELETE';
-$_['Deleted'] = 'Deleted';
-$_['Edit']    = 'Edit';
-$_['Enter']   = 'Enter';
-$_['Error']   = 'Error';
-$_['errors']  = 'errors';
-$_['ext']     = '.ext';  // filename[.ext]ension
-$_['File']    = 'File';
-$_['files']   = 'files';
-$_['Folder']  = 'Folder';
-$_['folders'] = 'folders';
-$_['From']    = 'From';
-$_['Hash']    = 'Hash';
-$_['Move']    = 'Move';
-$_['Moved']   = 'Moved';
-$_['Name']    = 'Name';
-$_['on']      = 'on';
-$_['Password']   = 'Password';
-$_['Rename']     = 'Rename';
-$_['Size']       = 'Size';
-$_['Source']     = 'Source'; 
+$_['Admin']    = 'Admin';
+$_['bytes']    = 'bytes';
+$_['Cancel']   = 'Cancel';
+$_['cancelled'] = 'cancelled'; //## NT ## as of 3.5.07
+$_['Close']    = 'Close';
+$_['Copy']     = 'Copy';
+$_['Copied']   = 'Copied';
+$_['Create']   = 'Create';
+$_['Date']     = 'Date';
+$_['Delete']   = 'Delete';
+$_['DELETE']   = 'DELETE';
+$_['Deleted']  = 'Deleted';
+$_['Edit']     = 'Edit';
+$_['Enter']    = 'Enter';
+$_['Error']    = 'Error';
+$_['errors']   = 'errors';
+$_['ext']      = '.ext';  //## NT ## filename[.ext]ension
+$_['File']     = 'File';
+$_['files']    = 'files';
+$_['Folder']   = 'Folder';
+$_['folders']  = 'folders';
+$_['From']     = 'From';
+$_['Hash']     = 'Hash';
+$_['Move']     = 'Move';
+$_['Moved']    = 'Moved';
+$_['Name']     = 'Name';
+$_['on']       = 'on';
+$_['Password'] = 'Password';
+$_['Rename']   = 'Rename';
+$_['reset']    = 'Reset';
+$_['save_1']   = 'Save';
+$_['save_2']   = 'SAVE CHANGES'; //#### removed '!' in 3.5.07
+$_['Size']     = 'Size';
+$_['Source']   = 'Source'; 
 $_['successful'] = 'successful';
-$_['To']         = 'To';
-$_['Upload']     = 'Upload';
-$_['Username']   = 'Username';
-$_['Working']    = 'Working - please wait...';
-$_['Log_In']     = 'Log In';
-$_['Log_Out']    = 'Log Out';
+$_['To']       = 'To';
+$_['Upload']   = 'Upload';
+$_['Username'] = 'Username';
+$_['View']     = 'View';
+$_['Working']  = 'Working - please wait...';
+$_['Log_In']         = 'Log In';
+$_['Log_Out']        = 'Log Out';
 $_['Admin_Options']  = 'Administration Options';
 $_['Are_you_sure']   = 'Are you sure?';
+$_['View_Raw']       = 'View Raw'; //## NT ### as of 3.5.07
+$_['Open_View']      = 'Open/View in browser window';
 $_['Edit_View']      = 'Edit / View';
+$_['Wide_View']      = 'Wide View';
+$_['Normal_View']    = 'Normal View';
 $_['Upload_File']    = 'Upload File';
 $_['New_File']       = 'New File';
 $_['Ren_Move']       = 'Rename / Move';
@@ -376,14 +386,6 @@ $_['New_Location']   = 'New Location';
 $_['No_files']       = 'No files selected.';
 $_['Not_found']      = 'Not found';
 $_['Invalid_path']   = 'Invalid path';
-$_['pass_to_hash']   = 'Password to hash:';
-$_['Generate_Hash']  = 'Generate Hash';
-$_['save_1']      = 'Save';
-$_['save_2']      = 'SAVE CHANGES!';
-$_['reset']       = 'Reset';
-$_['Wide_View']   = 'Wide View';
-$_['Normal_View'] = 'Normal View';
-$_['Open_View']   = 'Open/View in browser window';
 $_['verify_msg_01']     = 'Session expired.';
 $_['verify_msg_02']     = 'INVALID POST';
 $_['get_get_msg_01']    = 'File does not exist:';
@@ -402,6 +404,8 @@ $_['hash_txt_08'] = 'Copy and paste the new hash to the $HASHWORD variable in th
 $_['hash_txt_09'] = 'Make sure to copy ALL of, and ONLY, the hash (no leading or trailing spaces etc).';
 $_['hash_txt_10'] = 'A double-click should select it...';
 $_['hash_txt_12'] = 'When ready, logout and login.';
+$_['pass_to_hash']   = 'Password to hash:';
+$_['Generate_Hash']  = 'Generate Hash';
 $_['login_txt_01']  = 'Username:';
 $_['login_txt_02']  = 'Password:';
 $_['login_msg_01a'] = 'There have been';
@@ -414,9 +418,9 @@ $_['edit_note_01a'] = 'Remember- ';
 $_['edit_note_01b'] = 'is';
 $_['edit_note_02']  = 'So save changes before the clock runs out, or the changes will be lost!';
 $_['edit_note_03']  = 'With some browsers, such as Chrome, if you click the browser [Back] then browser [Forward], the file state may not be accurate. To correct, click the browser\'s [Reload].';
-$_['edit_note_04']  = 'Chrome may disable some javascript in a page if the page even appears to contain inline javascript in certain contexts. This can affect some features of the OneFileCMS edit page when editing files that legitimately contain such code, such as OneFileCMS itself. However, such files can still be edited and saved with OneFileCMS. The primary function lost is the incidental change of background colors (red/green) indicating whether or not the file has unsaved changes. The issue will be noticed after the first save of such a file.';
 $_['edit_h2_1']   = 'Viewing:';
 $_['edit_h2_2']   = 'Editing:';
+$_['edit_txt_00'] = 'Edit disabled.'; //## NT ## as of 3.5.07
 $_['edit_txt_01'] = 'Non-text or unkown file type. Edit disabled.';
 $_['edit_txt_02'] = 'File possibly contains an invalid character. Edit and view disabled.';
 $_['edit_txt_03'] = 'htmlspecialchars() returned an empty string from what may be an otherwise valid file.';
@@ -426,7 +430,7 @@ $_['too_large_to_edit_02'] = 'Some browsers (ie: IE) bog down or become unstable
 $_['too_large_to_edit_03'] = 'Adjust $MAX_EDIT_SIZE in the configuration section of OneFileCMS as needed.';
 $_['too_large_to_edit_04'] = 'A simple trial and error test can determine a practical limit for a given browser/computer.';
 $_['too_large_to_view_01'] = 'View disabled. Filesize >';
-$_['too_large_to_view_02'] = 'Click the file name above to view as normally rendered in a browser window.';
+$_['too_large_to_view_02'] = 'Click [View Raw] to view the raw/"plain text" file contents in a seperate browser window.'; //** NT ** changed wording as of 3.5.07
 $_['too_large_to_view_03'] = 'Adjust $MAX_VIEW_SIZE in the configuration section of OneFileCMS as needed.';
 $_['too_large_to_view_04'] = '(The default value for $MAX_VIEW_SIZE is completely arbitrary, and may be adjusted as desired.)';
 $_['meta_txt_01'] = 'Filesize:';
@@ -477,8 +481,8 @@ $_['unload_unsaved']  = ' Unsaved changes will be lost!';
 $_['confirm_reset']   = 'Reset file and loose unsaved changes?';
 $_['OFCMS_requires']  = 'OneFileCMS requires PHP';
 $_['logout_msg']      = 'You have successfully logged out.';
-$_['edit_caution_01'] = 'CAUTION';
-$_['edit_caution_02'] = 'You are editing the active copy of OneFileCMS - BACK IT UP & BE CAREFUL !!';
+$_['edit_caution_01'] = 'CAUTION'; //##### No longer used as of 3.5.07
+$_['edit_caution_02'] = 'You are viewing the active copy of OneFileCM.'; //## NT ## changed wording 3.5.07
 $_['time_out_txt']    = 'Session time out in:';
 $_['error_reporting_01'] = 'Display errors is';
 $_['error_reporting_02'] = 'Log errors is';
@@ -490,7 +494,7 @@ $_['admin_txt_00'] = 'Old Backup Found';
 $_['admin_txt_01'] = 'A backup file was created in case of an error during a username or password change. Therefore, it may contain old information and should be deleted if not needed. In any case, it will be automatically overwritten on the next password or username change.';
 $_['admin_txt_02'] = 'General Information';
 $_['admin_txt_14'] = 'For a small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep them secret, of course). Every little bit helps...';
-$_['admin_txt_16'] = 'OneFileCMS can be used to edit itself.  However, be sure to have a backup ready for the inevitable ytpo...';
+$_['admin_txt_16'] = 'OneFileCMS can not be used to edit itself directly.  However, you can make a copy & edit it.  Then simply run the copy.'; //## NT ## Changed wording in 3.5.07
 $_['pw_current'] = 'Current Password';
 $_['pw_change']  = 'Change Password';
 $_['pw_new']     = 'New Password';
@@ -515,8 +519,8 @@ $_['change_pw_07'] = 'All fields are required.';
 $_['change_un_01'] = 'Username changed!';
 $_['change_un_02'] = 'Username NOT changed.';
 $_['update_failed'] = 'Update failed - could not save file.';
-$_['mcd_msg_01'] = 'file(s) and/or folder(s) moved.';  //#####
-$_['mcd_msg_02'] = 'file(s) and/or folder(s) copied.'; //#####
+$_['mcd_msg_01'] = 'file(s) and/or folder(s) moved.';   //#####
+$_['mcd_msg_02'] = 'file(s) and/or folder(s) copied.';  //#####
 $_['mcd_msg_03'] = 'file(s) and/or folder(s) deleted.'; //#####
 }//end Default_Language() //****************************************************
 
@@ -734,7 +738,7 @@ function undo_magic_quotes(){ //************************************************
 
 
 function Validate_params() { //*************************************************
-	global $_, $ipath, $filename, $page, $param1, $param2, $param3, $Editing_OFCMS, $EX, $message;
+	global $_, $ipath, $filename, $page, $param1, $param2, $param3, $IS_OFCMS, $EX, $message;
 
 	//Pages that require a valid $filename
 	$file_pages = array("edit", "renamefile", "copyfile", "deletefile");
@@ -748,14 +752,10 @@ function Validate_params() { //*************************************************
 	if ($filename == "") { $param2 = ""; } else { $param2 = '&amp;f='.rawurlencode(basename($filename)); }
 	if ($page == ""    ) { $param3 = ""; } else { $param3 = '&amp;p='.$page; }
 
-	$Editing_OFCMS = false;
-	//If editing OneFileCMS itself, show caution message.
-	if ($filename == trim($_SERVER['SCRIPT_NAME'], '/')) {
-		$Editing_OFCMS = true;
-		$message .= '<style>#message_box_contents {background: red;}</style>';
-		$message .= '<style>#message_box          {color: white;}   </style>';
-		$message .= $EX.'<b>'.hsc($_['edit_caution_01']).' '.$EX.hsc($_['edit_caution_02']).'</b><br>';
-	}
+	//Used to restrict edit/del/etc. on active copy of OneFileCMS.
+	$IS_OFCMS = 0;
+	if ($filename == trim($_SERVER['SCRIPT_NAME'], '/')) { $IS_OFCMS = true; }
+
 }//end Validate_params() //*****************************************************
 
 
@@ -803,10 +803,10 @@ function Valid_Path($path, $gotoroot=true) { //*********************************
 
 
 
-function Get_GET() { //*** Get main parameters *********************************
+function Get_GET() { //*** Get URL passed parameters ***************************
 	global $_, $ipath, $ipath_OS, $filename, $filename_OS, $page, $VALID_PAGES, $EX, $message;
-	// i=some/path/,  f=somefile.xyz,          p=somepage
-	// $ipath = i  ,  $filename = $ipath.f  ,  $page = p
+	// i=some/path/,  f=somefile.xyz,          p=somepage,  m=somemessage
+	// $ipath = i  ,  $filename = $ipath.f  ,  $page = p ,  $message
 	//   (NOTE: in some functions $filename = just the file's name, ie: $_GET['f'], with no path/)
 	//#####  (Normalize $filename program-wide??)
 	// Perform initial, basic, validation.
@@ -836,13 +836,17 @@ function Get_GET() { //*** Get main parameters *********************************
 		$message .= $EX.hsc($_['get_get_msg_02']).' <b>'.hsc($page).'</b><br>';
 		$page = "index";  //If invalid $_GET["p"]
 	}
+	
+	//Sanitize any message. Initialized on line 1 / top of this file.
+	if (isset($_GET["m"])) { $message .= hsc($_GET["m"]); }
 }//end Get_GET() //*************************************************************
 
 
 
 
 function Verify_Page_Conditions() { //******************************************
-	global $_, $ONESCRIPT_file, $ipath, $ipath_OS, $param1, $filename, $page, $EX, $message, $VALID_POST;
+	global $_, $ONESCRIPT_file, $ipath, $ipath_OS, $param1, $filename, $filename_OS, $page, $EX, $message, 
+			$VALID_POST, $IS_OFCMS;
 
 	//If exited admin pages, restore $ipath 
 	if    ( ($page == "index") && $_SESSION['admin_page'] ) {
@@ -885,6 +889,15 @@ function Verify_Page_Conditions() { //******************************************
 	elseif ( ($page == "uploaded") && !$VALID_POST ) {
 		$message .= $EX.'<b> '.hsc($_['upload_error_01a']).' '.ini_get('post_max_size').'</b> '.hsc($_['upload_error_01b']).'<br>';
 		$page = "index";
+	}
+	
+	//[View Raw] file contents in a browser window (in plain text, NOT HTML).
+	if ($page == "raw_view"){
+		$raw_contents = file_get_contents($filename_OS);
+		$file_ENC = mb_detect_encoding($raw_contents); //ASCII, UTF-8, etc...
+		header("Content-Type: text/plain charset=UTF-8");
+		echo mb_convert_encoding($raw_contents, 'UTF-8', $file_ENC);
+		die;
 	}
 }//end Verify_Page_Conditions() //**********************************************
 
@@ -1153,9 +1166,8 @@ function Current_Path_Header(){ //**********************************************
 				echo '<a id="path_'.($x+1).'" href="'.$ONESCRIPT.$p1.'" class="path">';
 				echo hsc($path_levels[$x]).'</a>/';
 			}
-		}//end if (not at root)
+		}//end if(not at root)
 	echo '</h2>';
-	//echo '<script>document.getElementById("path_'.$x.'").focus();</script>'; //Removed focus as of 3.5.04
 }//end Current_Path_Header() //*************************************************
 
 
@@ -1187,31 +1199,6 @@ function Page_Header(){ //******************************************************
 
 
 
-function message_box() { //*****************************************************
-	global $ONESCRIPT, $param1, $param2, $param3, $message, $page;
-
-	$href    = $ONESCRIPT.$param1.$param2.$param3;
-	$onclick = 'document.getElementById("message_box").innerHTML = " ";return false;';
-	$X_box   =  '<a id="X_box" href="'.$href.'" onclick=\''.$onclick.'\'>x</a>';
-	
-	if (isset($message) && (mb_strlen($message) > 0)) {
-?>
-		<div id="message_box">
-			<?php echo $X_box ?>
-			<div id="message_box_contents"><?php echo $message ?></div>
-		</div><!--End message_box-->
-
-		<script>document.getElementById("X_box").focus();</script>
-<?php
-	}else { // Needed on some pages to keep js feedback from failing
-		echo '<div id="message_box"></div>';
-	}//end isset($message)
-
-}//end message_box() //*********************************************************
-
-
-
-
 function Cancel_Submit_Buttons($submit_label) { //******************************
 	//$submit_label = Rename, Copy, Delete, etc...
 	global $_, $ONESCRIPT, $ipath, $param1, $param2, $page;
@@ -1219,7 +1206,7 @@ function Cancel_Submit_Buttons($submit_label) { //******************************
 	$params = $param1.$param2.'&amp;p='. $_SESSION['recent_pages'][1];
 ?>
 	<p>
-	<button type="button" class="button" id="cancel" onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
+	<button type="button" class="button" id="cancel" onclick="parent.location = '<?php echo $ONESCRIPT.$params.'&amp;m='.$page ?>%20<?php echo hsc($_['cancelled']) ?>'">
 		<?php echo hsc($_['Cancel']) ?></button>
 	<button type="submit" class="button" id="submitty" style="margin-left: 1em;"><?php echo hsc($submit_label);?></button>
 	<script>document.getElementById("cancel").focus();</script>
@@ -1245,14 +1232,14 @@ function show_image(){ //*******************************************************
 	else                         { $SCALE = $SCALE_W; } //If _H >= _W, or both are 1
 
 	//For languages with longer words that don't fit next to [Wide] & [Close] buttons.
-	if ($_['image_info_pos']){ echo '<div class=clear></div>'.PHP_EOL; }
+	if ($_['image_info_pos']){ echo '<div class=clear></div>'."\n"; }
 
 	echo '<p class="image_info">';
 	echo hsc($_['show_img_msg_01']).round($SCALE*100).
 		 hsc($_['show_img_msg_02']).' '.$img_info[0].' x '.$img_info[1].').</p>';
-	echo '<div class=clear></div>'.PHP_EOL;
-	echo '<a  href="/'.URLencode_path($IMG).'" target="_blank">'.PHP_EOL;
-	echo '<img src="/'.URLencode_path($IMG).'" width="'.($img_info[$W] * $SCALE).'"></a>'.PHP_EOL;
+	echo '<div class=clear></div>'."\n";
+	echo '<a  href="/'.URLencode_path($IMG).'" target="_blank">'."\n";
+	echo '<img src="/'.URLencode_path($IMG).'" width="'.($img_info[$W] * $SCALE).'"></a>'."\n";
 }//end show_image() //**********************************************************
 
 
@@ -1285,7 +1272,7 @@ function Init_ICONS() { //******************************************************
 
 	//*********************************************************************
 	function icon_txt($border='#333', $lines='#000', $fill='#FFF', $extra1="", $extra2=""){
-		return '<svg class="icon" version="1.1" width="14" height="16">'.
+		return '<svg version="1.1" width="14" height="16">'.
 		'<rect x = "0" y = "0" width = "14" height = "16" fill="'.$fill.'" stroke="'.$border.'" stroke-width="2" />'.$extra2.
 		'<line x1="3" y1="3.5"  x2="11" y2="3.5"  stroke="'.$lines.'" stroke-width=".6"/>'.
 		'<line x1="3" y1="6.5"  x2="11" y2="6.5"  stroke="'.$lines.'" stroke-width=".6"/>'.
@@ -1295,7 +1282,7 @@ function Init_ICONS() { //******************************************************
 
 
 	function icon_folder($extra = ""){ //**********************************
-		return '<svg class="icon" version="1.1" width="18" height="16"><g transform="translate(0,1)">'.
+		return '<svg version="1.1" width="18" height="16"><g transform="translate(0,2)">'.
 			'<path  d="M0.5, 1  L8,1  L9,2  L9,3  L16.5,3  L17,3.5  L17,13.5  L.5,13.5  L.5,.5" '.
 				'fill="#F0CD28" stroke="rgb(200,170,15)" stroke-width="1" />'.
 			'<path  d="M1.5, 8  L7, 8  L8.5,6.3  L16,6.3  L7.5, 6.3   L6.5,7.5  L1.5,7.5" '.
@@ -1343,14 +1330,14 @@ function Init_ICONS() { //******************************************************
 	$extra_z   = '<text x="4" y="12" style="font-size:8pt;font-weight:900;fill:blue ;font-family:Arial;">z</text>';
 
 	//The icons
-	$ICONS['bin'] =  '<svg class="icon" version="1.1" width="14" height="16">'.
+	$ICONS['bin'] =  '<svg version="1.1" width="14" height="16">'.
 		  '<g transform="translate( 0.5,0.5)">'.$one .'</g>'.
 		  '<g transform="translate( 3.5,0.5)">'.$zero.'</g>'.'<g transform="translate( 9.5,0.5)">'.$one .'</g>'.
 		  '<g transform="translate(12.5,0.5)">'.$one .'</g>'.'<g transform="translate( 0.5,9.5)">'.$zero.'</g>'.
 		  '<g transform="translate( 6.5,9.5)">'.$one .'</g>'.'<g transform="translate( 9.5,9.5)">'.$zero.'</g>'.
 		  '</svg>';
 	$ICONS['z'] = icon_txt('#333','#FFF','#FFF',$extra_z);
-	$ICONS['img'] = '<svg class="icon" version="1.1" width="14" height="16">'.$img_0.'</svg>';
+	$ICONS['img'] = '<svg version="1.1" width="14" height="16">'.$img_0.'</svg>';
 	$ICONS['svg'] = icon_txt('#333', '#444', '#FFF', "", $img_0);
 	$ICONS['txt'] = icon_txt('#333', '#000', '#FFF');
 	$ICONS['htm'] = icon_txt('#444', '#222', '#FABEAA'); //rgb(250,190,170)
@@ -1458,7 +1445,7 @@ function Admin_Page() { //******************************************************
 	echo $button_attribs.$param1.'&amp;p=changepw\'">'.hsc($_['pw_change']).'</button>'; 
 	echo $button_attribs.$param1.'&amp;p=changeun\'">'.hsc($_['un_change']).'</button>'; 
 	echo $button_attribs.$param1.'&amp;p=hash\'">'.hsc($_['Generate_Hash']).'</button>'; 
-	echo $button_attribs.$edit_params.'\'">'.hsc($_['Edit'].' '.$config_title).'</button>'; 
+	echo $button_attribs.$edit_params.'\'">'.hsc($_['View'].' '.$config_title).'</button>';
 	echo '</span>';
 
 	echo '<div class="info">';
@@ -1567,7 +1554,7 @@ function Change_PWUN_Page($pwun, $type, $page_title, $label_new, $label_confirm)
 <?php
 	//Note: The button with id="submitty" above must NOT be of type="submit",
 	//NOR have an id="submit", or the event_scripts won't work.
-	event_scripts('change', 'submitty', $pwun); //Doesn't work if an id="submit"
+	pwun_event_scripts('change', 'submitty', $pwun); //Doesn't work if an id="submit"
 	js_hash_scripts();
 }//end Change_PWUN_Page() //****************************************************
 
@@ -1710,7 +1697,7 @@ function Login_Page() { //******************************************************
 	<script>document.getElementById('username').focus();</script>
 <?php
 	//Note: The "login" button above must NOT be of type="submit", NOR have an id="submit", or the event_scripts won't work.
-	event_scripts('login_form', 'login');
+	pwun_event_scripts('login_form', 'login');
 	js_hash_scripts();
 }//end Login_Page() //**********************************************************
 
@@ -1846,7 +1833,7 @@ function Get_DIRECTORY_DATA($raw_list) { //*************************************
 		
 		//First check for no $ext:  "filename"  or ".filename"
 		$segments = count($filename_parts);
-		if( $segments === 1 || ( ($segments === 2) && ($filename_parts[0] === ""))) {
+		if( $segments === 1 || (($segments === 2) && ($filename_parts[0] === "")) ) {
 				 $ext =  '';
 		} else { $ext = end($filename_parts); }
 		
@@ -1929,9 +1916,9 @@ function Index_Page_buttons_top($file_count) { //*******************************
 		$onclick_m = 'onclick="Confirm_Submit( \'move\');   "';
 		$onclick_c = 'onclick="Confirm_Submit( \'copy\');   "';
 		$onclick_d = 'onclick="Confirm_Submit( \'delete\' );"';
-		echo '<button TYPE=button '.$onclick_m.'>'.$ICONS['move'  ].'&nbsp;'.hsc($_['Move']  ).'</button>';
-		echo '<button TYPE=button '.$onclick_c.'>'.$ICONS['copy'  ].'&nbsp;'.hsc($_['Copy']  ).'</button>';
-		echo '<button TYPE=button '.$onclick_d.'>'.$ICONS['delete'].'&nbsp;'.hsc($_['Delete']).'</button>';
+		echo '<button type=button '.$onclick_m.'>'.$ICONS['move'  ].'&nbsp;'.hsc($_['Move']  ).'</button>';
+		echo '<button type=button '.$onclick_c.'>'.$ICONS['copy'  ].'&nbsp;'.hsc($_['Copy']  ).'</button>';
+		echo '<button type=button '.$onclick_d.'>'.$ICONS['delete'].'&nbsp;'.hsc($_['Delete']).'</button>';
 	}
 	echo '</div>'; //end mcd_submit
 
@@ -1974,30 +1961,31 @@ function Index_Page(){ //*******************************************************
 
 
 function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
-	global $_, $ONESCRIPT, $param1, $param2, $filename, $filename_OS, $WYSIWYG_VALID, $EDIT_MODE, $ON_OFF_label;
+	global $_, $ONESCRIPT, $param1, $param2, $filename, $filename_OS, $IS_OFCMS, 
+				$WYSIWYG_VALID, $EDIT_WYSIWYG, $WYSIWYG_label, $message;
 
-	//[Edit WYSIWYG] / [Edit HTML] button.
-	$ON_OFF_button  = '';
-	if ($text_editable && $WYSIWYG_VALID) {
-		$set_cookie = "document.cookie='edit_mode=".(!$EDIT_MODE*1)."'; ";
-		$edit_page  = "parent.location='".$ONESCRIPT.$param1.$param2."&p=edit';";
-		$attribs    = 'type=button class=button id=on_off onclick="'.$set_cookie.$edit_page.'"';
-		$ON_OFF_button = '<button '.$attribs.'>'.hsc($_['Edit']).' '.hsc($ON_OFF_label).'</button>';
-	}
+	clearstatcache ();
+
+	//[View Raw] button.
+	$view_raw_button = '<button type=button id=view_raw class=button>'.hsc('View Raw').'</button>';
 
 	//[Wide View] / [Normal View] button.
-	$wide_view_button = '';  //Doesn't work with wysiwyg loaded (onclick conflict?).
-	if ($text_editable && !$EDIT_MODE) { 
-		$attribs = 'type="button" id="wide_view" class="button" onclick="Wide_View();"';
-		$wide_view_button = '<button '.$attribs.'>'.hsc($_['Wide_View']).'</button>';
+	$wide_view_button = '<button type=button id=wide_view class=button>'.hsc($_['Wide_View']).'</button>';
+
+	//[Edit WYSIWYG] / [Edit Source] button.
+	$WYSIWYG_button  = '';
+	if ($text_editable && $WYSIWYG_VALID && !$IS_OFCMS) { //Only show when needed/applicable
+		//Set current mode for Edit page, and label for [Edit WYSIWIG/Source] button
+		if ( isset($_COOKIE['edit_wysiwyg']) && ($_COOKIE['edit_wysiwyg'] == '1')) {
+			   $EDIT_WYSIWYG = '1'; $WYSIWYG_label = $_['Source']; }  //wysiwyg mode
+		else { $EDIT_WYSIWYG = '0'; $WYSIWYG_label = $_['WYSIWYG']; } //plain text mode
+		
+		$WYSIWYG_button  = '<button type=button id=edit_WYSIWYG class=button>'; 
+		$WYSIWYG_button .= hsc($_['Edit']).' '.hsc($WYSIWYG_label).'</button>';
 	}
 
 	//[Close] button
-	$params = $param1; //If came from admin page, return there.
-	if ( $_SESSION['admin_page'] ) { $params .= '&amp;p=admin'; }
-	$onclick = 'onclick="parent.location = \''.$ONESCRIPT.$params.'\'"';
-	$attribs = 'type="button" id="close1" class="button" '.$onclick;
-	$close_button = '<button '.$attribs.'>'.hsc($_['Close']).'</button>';
+	$close_button = '<button type=button id=close1 class=button>'.hsc($_['Close']).'</button>';
 ?>
 	<div class="edit_btns_top">
 		<div class="file_meta">
@@ -2011,13 +1999,19 @@ function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
 		</div>
 		
 		<div class="buttons_right">
-			<?php echo $wide_view_button; ?>
-			<?php echo $ON_OFF_button; ?>
-			<?php echo $close_button; ?>			
-			<script>document.getElementById('close1').focus();</script>
+			<?php echo $view_raw_button  ?>
+			<?php echo $wide_view_button ?>
+			<?php echo $WYSIWYG_button    ?>
+			<?php echo $close_button     ?>
 		</div>
 		<div class=clear></div>
 	</div>
+
+	<script>
+	var Close_button_TEST     = document.getElementById('close_TEST');
+	Close_button_TEST.onclick = function () { parent.location = '<?php echo $close_params ?>'; }
+	</script>
+
 <?php
 }//end Edit_Page_buttons_top() //***********************************************
 
@@ -2025,99 +2019,88 @@ function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
 
 
 function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
-	global $_, $ICONS, $ONESCRIPT, $param1, $param2, $MAX_IDLE_TIME, $Editing_OFCMS, $WYSIWYG_VALID,  $EDIT_MODE;
+	global $_, $message, $ICONS, $ONESCRIPT, $param1, $param2, $MAX_IDLE_TIME, $IS_OFCMS, $WYSIWYG_VALID, $EDIT_WYSIWYG;
 
-	$disabled = 'disabled';
-	$reset_onlick = 'Reset_File()'; //Reset_File() is in Edit_Page_scripts();
+	//Using ckeditor WYSIWYG editor, <input type=reset> button doesn't work. (I don't know why.)
+	$reset_button = '<input type=reset class=button value="'.hsc($_['reset']).'" onclick="return Reset_File();" id="reset">';
+	if ($WYSIWYG_VALID && $EDIT_WYSIWYG) {$reset_button = '';}
 
-	//If using a WYSIWYG editor, Edit_Page_scripts() aren't loaded.
-	//When so, make sure [Save] & [Reset] are enabled, and [Reset] works.
-	if ($WYSIWYG_VALID && $EDIT_MODE) {
-		$disabled = ''; 
-		$reset_onlick = "confirm('".addslashes($_['confirm_reset'])."')"; 
-	}
-
-	$reset_button = '<input type="reset" class="button" value="'.hsc($_['reset']).'" onclick="return '.$reset_onlick.'" id="reset">';
-?>
-	<div class="edit_btns_bottom">
-		<?php
-		if ($text_editable && !$too_large_to_edit) { //Show save & reset only if editable file
+	echo '<div class="edit_btns_bottom">';
+		
+		if ($text_editable && !$too_large_to_edit && !$IS_OFCMS) { //Show save & reset only if editable file
 			echo Timeout_Timer($MAX_IDLE_TIME, 'timer1','timer', 'LOGOUT');
-			echo '<button type="submit" class="button" onclick="submitted = true;" id="save_file">'.hsc($_['save_1']).'</button>';
+			echo '<button type="submit" class="button" id="save_file">'.hsc($_['save_1']).'</button>'; //Submit Button
 			echo $reset_button;
-			?><script>
-				document.getElementById("save_file").disabled = "<?php echo $disabled ?>";
-				document.getElementById('reset').disabled     = "<?php echo $disabled ?>";
-			</script><?php
 		}//end if editable
 		
-		//Don't show [Rename] or [Delete] if editing OneFileCMS itself.
-		$Button = '<button type=button class="button RCD" onclick="parent.location=\''.$ONESCRIPT.$param1.$param2;	
-		if (!$Editing_OFCMS) { echo $Button.'&amp;p=renamefile\'">'.$ICONS['ren_mov'].'&nbsp;'.hsc($_['Ren_Move']).'</button>'; }
-		/*Always show Copy*/   echo $Button.'&amp;p=copyfile\'">'  .$ICONS['copy']   .'&nbsp;'.hsc($_['Copy'])    .'</button>';
-		if (!$Editing_OFCMS) { echo $Button.'&amp;p=deletefile\'">'.$ICONS['delete'] .'&nbsp;'.hsc($_['Delete'])  .'</button>'; }
-?>
-	</div>
-<?php
+		function RCD_button($action, $icon, $label){ //***************
+			global $ONESCRIPT, $param1, $param2, $ICONS;
+			echo '<button type=button id="'.$action.'_btn" class="button RCD">'.$ICONS[$icon].'&nbsp;'.hsc($label).'</button>';
+		}//end RCD_button() //****************************************
+		
+		//Don't show [Rename] or [Delete] if viewing OneFileCMS itself.
+		if (!$IS_OFCMS)      { RCD_button('renamefile', 'ren_mov', $_['Ren_Move']); }
+		/*Always show Copy*/ { RCD_button('copyfile'  , 'copy'   , $_['Copy']); }
+		if (!$IS_OFCMS)      { RCD_button('deletefile', 'delete' , $_['Delete']); }
+		
+	echo '</div>';
+
 }//end Edit_Page_buttons() //***************************************************
 
 
 
 
 //******************************************************************************
-function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message, $file_ENC){
-	global $_, $ONESCRIPT, $param1, $param2, $param3, $filename, $filename_OS, $itypes, $INPUT_NUONCE, $EX, 
-		   $raw_contents, $WYSIWYG_VALID, $EDIT_MODE;
+function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_view, $file_ENC){
+	global $_, $ONESCRIPT, $param1, $param2, $param3, $filename, $filename_OS, $itypes, $INPUT_NUONCE, $EX, $message, 
+		   $FILECONTENTS, $WYSIWYG_VALID, $EDIT_WYSIWYG, $IS_OFCMS, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE;
 
-	$load_Edit_Page_scripts = false; //Don't load if not needed.
-?>
-	<form id="edit_form" name="edit_form" method="post" action="<?php echo $ONESCRIPT.$param1.$param2.$param3 ?>">
-<?php
+	$too_large_to_edit_message =
+		'<b>'.hsc($_['too_large_to_edit_01']).' '.number_format($MAX_EDIT_SIZE).' '.hsc($_['bytes']).'</b><br>'.
+		hsc($_['too_large_to_edit_02']).'<br>'.hsc($_['too_large_to_edit_03']).'<br>'.hsc($_['too_large_to_edit_04']);
+
+	$too_large_to_view_message =
+		'<b>'.hsc($_['too_large_to_view_01']).' '.number_format($MAX_VIEW_SIZE).' '.hsc($_['bytes']).'</b><br>'.
+		hsc($_['too_large_to_view_02']).'<br>'.hsc($_['too_large_to_view_03']).'<br>';
+
+	echo '<form id="edit_form" name="edit_form" method="post" action="'.$ONESCRIPT.$param1.$param2.$param3.'">';
+		
 		echo $INPUT_NUONCE;
-
+		
 		Edit_Page_buttons_top($text_editable, $file_ENC);
 		
 		if ( !in_array( mb_strtolower($ext), $itypes) ) { //If non-image...
 				
-			if (!$text_editable) { // If non-text file...
-				echo '<p class="edit_disabled">'.hsc($_['edit_txt_01']).'<br><br></p>';
-				
-			}elseif ( $too_large_to_edit ) {
- 				echo '<p class="edit_disabled">'.$too_large_to_edit_message.'</p>';
-				
-			}else{
-				//Load Edit_Page_scripts() only if not in wysiwyg mode and an editable file.
-				//They don't work when a wysiwyg editor is loaded. (loaded after </form>)
-				$load_Edit_Page_scripts = ( !$WYSIWYG_VALID || !$EDIT_MODE );
-				
-				if (PHP_VERSION_ID < 50400) { // 5.4.0
-					$filecontents = hsc($raw_contents);
-				}else{
-					$filecontents = htmlspecialchars($raw_contents,ENT_SUBSTITUTE | ENT_QUOTES, 'UTF-8');
-				}
-				
+			if     (!$text_editable)      { $message .= hsc($_['edit_txt_01']).'<br><br>'; }
+			elseif ( $too_large_to_edit ) { $message .= $too_large_to_edit_message; }
+			elseif (!$IS_OFCMS) {
 				//Did htmlspecialchars return an empty string from a non-empty file?
-				$bad_chars = ( ($filecontents == "") && (filesize($filename_OS) > 0) );
+				$bad_chars = ( ($FILECONTENTS == "") && (filesize($filename_OS) > 0) );
 				
-				if ($bad_chars){
+				if ($bad_chars){ //Show message: may be a bad character in file
 					echo '<pre class="edit_disabled">'.$EX.hsc($_['edit_txt_02']).'<br>';
 					echo hsc($_['edit_txt_03']).'<br>';
-					echo hsc($_['edit_txt_04']).'<br></pre>';
-				}else{
+					echo hsc($_['edit_txt_04']).'<br></pre>'."\n";
+				}else{          //show editable <textarea>
 					//<input name=filename> is used only to signal an Edit_response().
 					echo '<input type="hidden" name="filename" value="'.rawurlencode($filename).'">';
-					echo '<textarea id="file_editor" name="contents" cols="70" rows="25" ';
-					echo 'onkeyup="Check_for_changes(event);">'.$filecontents.'</textarea>'.PHP_EOL;
+					echo '<textarea id="file_editor" name="contents" cols="70" rows="25">';
+					echo $FILECONTENTS.'</textarea>'."\n";
 				}
-			}//end if/else non-text file...
+			}//end if/elseif...
+			
+			if     ( $text_editable && $too_large_to_view ) //This condition must come first.
+				{ echo '<p class="message_box_contents">'.$too_large_to_view_message.'</p>'; }
+			elseif ($IS_OFCMS || $too_large_to_edit)
+				{ echo '<pre class="edit_disabled view_file">'.$FILECONTENTS.'</pre>'."\n"; }
 		}//end if non-image
 		
 		Edit_Page_buttons($text_editable, $too_large_to_edit);
 	echo '</form>';
 
-	if ( $load_Edit_Page_scripts ) { Edit_Page_scripts(); }
+	Edit_Page_scripts();
 
-	if ($text_editable && !$too_large_to_edit && !$bad_chars) { Edit_Page_Notes(); }
+	if ( !$IS_OFCMS && $text_editable && !$too_large_to_edit && !$bad_chars ) {Edit_Page_Notes();}
 }//end Edit_Page_form() //******************************************************
 
 
@@ -2139,7 +2122,6 @@ function Edit_Page_Notes() { //*************************************************
 					<?php echo ' '.$HRS_MIN_SEC.'. '.hsc($_['edit_note_02']) ?></b>
 				</div>
 				<div class="notes"><b>2) </b> <?php echo hsc($_['edit_note_03']) ?></div>
-				<div class="notes"><b>3) </b> <?php echo hsc($_['edit_note_04']) ?></div>
 			</div>
 <?php
 }//end Edit_Page_Notes() //*****************************************************
@@ -2148,41 +2130,38 @@ function Edit_Page_Notes() { //*************************************************
 
 
 function Edit_Page() { //*******************************************************
-	global $_, $filename, $filename_OS, $filecontents, $raw_contents, $etypes, $itypes,
-			$MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $WYSIWYG_VALID;
+	global $_, $filename, $filename_OS, $FILECONTENTS, $etypes, $itypes, $EX, $message, $page,
+			$MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $WYSIWYG_VALID, $IS_OFCMS;
 
-	clearstatcache ();
-
-	//Determine if a text editable file type
 	$filename_parts = explode(".", mb_strtolower($filename));
 	$ext = end($filename_parts);
+
+	//Determine if a text editable file type
 	if ( in_array($ext, $etypes) ) { $text_editable = TRUE;  }
 	else                           { $text_editable = FALSE; }
-	
+
 	$too_large_to_edit = (filesize($filename_OS) > $MAX_EDIT_SIZE);
 	$too_large_to_view = (filesize($filename_OS) > $MAX_VIEW_SIZE);
-	
+
 	//Don't load $WYSIWYG_PLUGIN if not needed
 	if (!$text_editable || $too_large_to_edit) {$WYSIWYG_VALID = 0;}
 
-	if ($text_editable && !$too_large_to_view) {
+	//Get file contents
+	if (($text_editable && !$too_large_to_view) || $IS_OFCMS) {
 		$raw_contents = file_get_contents($filename_OS);
-		$file_ENC = mb_detect_encoding($raw_contents); //ASCII, UTF-8, etc...
+		$file_ENC = mb_detect_encoding($raw_contents); //ASCII, UTF-8, ISO-8859-1, etc...
+		if ($file_ENC != 'UTF-8') { $raw_contents = mb_convert_encoding($raw_contents, 'UTF-8', $file_ENC); }
 	}else{
 		$file_ENC     = "";
 		$raw_contents = "";
 	}
 
-	if ( $too_large_to_edit ) { $header2 = hsc($_['edit_h2_1']); }
-	else                      { $header2 = hsc($_['edit_h2_2']); }
+	if (PHP_VERSION_ID < 50400) { $FILECONTENTS = hsc($raw_contents); }
+	else						{ $FILECONTENTS = htmlspecialchars($raw_contents,ENT_SUBSTITUTE | ENT_QUOTES, 'UTF-8');	}
 
-	$too_large_to_edit_message =
-		'<b>'.hsc($_['too_large_to_edit_01']).' '.number_format($MAX_EDIT_SIZE).' '.hsc($_['bytes']).'</b><br>'.
-		hsc($_['too_large_to_edit_02']).'<br>'.hsc($_['too_large_to_edit_03']).'<br>'.hsc($_['too_large_to_edit_04']);
-
-	$too_large_to_view_message =
-		'<b>'.hsc($_['too_large_to_view_01']).' '.number_format($MAX_VIEW_SIZE).' '.hsc($_['bytes']).'</b><br>'.
-		hsc($_['too_large_to_view_02']).'<br>'.hsc($_['too_large_to_view_03']).'<br>';//.hsc($_['too_large_to_view_04']);
+	if     ($too_large_to_view || !$text_editable)				 { $header2 = "";}
+	elseif ($text_editable && !$too_large_to_edit && !$IS_OFCMS) { $header2 = hsc($_['edit_h2_2']); }
+	else									  					 { $header2 = hsc($_['edit_h2_1']); }
 
 	//Preserves vertical spacing when message is closed, so edit area doesn't jump as much.
 	echo '<style>#message_box { min-height: 1.88em; }</style>';
@@ -2190,20 +2169,19 @@ function Edit_Page() { //*******************************************************
 	echo '<h2 id="edit_header">'.$header2.' ';
 	echo '<a class="h2_filename" href="/'.URLencode_path($filename).'" target="_blank" title="'.hsc($_['Open_View']).'">';
 	echo hsc(basename($filename)).'</a>';
-	echo '</h2>'.PHP_EOL;
+	echo '</h2>'."\n";
 
-	Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_edit_message, $file_ENC);
+	Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_view, $file_ENC);
 	
-	if ( in_array( $ext, $itypes) ) { show_image(); }
+	if ( in_array( $ext, $itypes) ) { show_image(); } //If image, show below the [Rename/Move] [Copy] [Delete] buttons
 
 	echo '<div class=clear></div>';
 
-	if     ( $text_editable && $too_large_to_view ) {
-		echo '<p class="edit_disabled">'.$too_large_to_view_message.'</p>';
-	}
-	elseif ( $text_editable && $too_large_to_edit ){
-		$filecontents = hsc(file_get_contents($filename_OS), ENT_COMPAT,'UTF-8');
-		echo '<pre class="edit_disabled view_file">'.$filecontents.'</pre>';
+	//If viewing OneFileCMS itself, show Edit Disabled message.
+	if ($IS_OFCMS && $page == "edit") {
+		$message .= '<style>.message_box_contents {background: red;}</style>';
+		$message .= '<style>#message_box          {color: white;}   </style>';
+		$message .= '<b>'.$EX.hsc($_['edit_caution_02']).' &nbsp; '.$_['edit_txt_00'].'</b><br>';
 	}
 }//end Edit_Page() //***********************************************************
 
@@ -2435,22 +2413,15 @@ function CRM_Page($action, $title, $action_id, $old_full_name) { //*************
 		echo '<input type="hidden" name=old_full_name     value="'.hsc($old_full_name).'">';
 		
 		echo '<label>'.hsc($_['CRM_txt_04']).':</label>';
-		echo '<input type=text name=new_name class=new_name id=new_name value="'.hsc(basename($new_full_name)).'"><br>'; //##### added id
+		echo '<input type=text name=new_name id=new_name value="'.hsc(basename($new_full_name)).'"><br>';
 		
 		echo '<label>'.hsc($_['New_Location']).':</label>';
 		echo '<span class="web_root">'.hsc($WEB_ROOT.$ACCESS_ROOT).'</span>';
-		echo '<input type=text   name=new_location  value="'.hsc($ACCESS_PATH).'"><br>';
+		echo '<input type=text name=new_location id=new_location value="'.hsc($ACCESS_PATH).'"><br>';
 		
 		echo '('.hsc($_['CRM_txt_02']).')<p>';
 		Cancel_Submit_Buttons($action);
 	echo '</form>';
-
-//##### 
-?>
-<script>
-var $new_name = document.getElementById('new_name');
-</script>
-<?php
 }//end CRM_Page() //************************************************************
 
 
@@ -2602,7 +2573,7 @@ function MCD_Page($action, $page_title, $classes = '') { //*********************
 	echo '<h2>'.hsc($page_title).'</h2>';
 
 	echo '<form method="post" action="'.$ONESCRIPT.$param1.'">'.$INPUT_NUONCE;
-		echo '<input type="hidden" name="'.hsc($action).'" value="'.hsc($action).'">'.PHP_EOL;
+		echo '<input type="hidden" name="'.hsc($action).'" value="'.hsc($action).'">'."\n";
 		
 		if ( ($_POST['mcdaction'] == 'copy') || ($_POST['mcdaction'] == 'move') ) {
 			echo '<label>'.hsc($_['New_Location']).':</label>';
@@ -2801,12 +2772,12 @@ ICONS['htm'] = '<?php echo $ICONS["htm"] ?>';
 ICONS['php'] = '<?php echo $ICONS["php"] ?>';
 ICONS['css'] = '<?php echo $ICONS["css"] ?>';
 ICONS['cfg'] = '<?php echo $ICONS["cfg"] ?>';
-ICONS['dir']     = '<?php echo $ICONS["dir"] ?>';
-ICONS['folder']  = '<?php echo $ICONS["folder"] ?>';
+ICONS['dir']     = '<?php echo $ICONS["dir"]     ?>';
+ICONS['folder']  = '<?php echo $ICONS["folder"]  ?>';
 ICONS['ren_mov'] = '<?php echo $ICONS["ren_mov"] ?>';
-ICONS['move']    = '<?php echo $ICONS["move"] ?>';
-ICONS['copy']    = '<?php echo $ICONS["copy"] ?>';
-ICONS['delete']  = '<?php echo $ICONS["delete"] ?>';
+ICONS['move']    = '<?php echo $ICONS["move"]    ?>';
+ICONS['copy']    = '<?php echo $ICONS["copy"]    ?>';
+ICONS['delete']  = '<?php echo $ICONS["delete"]  ?>';
 </script>
 <?php
 }//end init_ICONS_js() //*******************************************************
@@ -2815,7 +2786,7 @@ ICONS['delete']  = '<?php echo $ICONS["delete"] ?>';
 
 
 function common_scripts() { //**************************************************
-	global $_, $TO_WARNING;
+	global $_, $TO_WARNING, $message, $page;
 ?>
 <script>
 
@@ -2898,7 +2869,7 @@ function Countdown(count, End_Time, Timer_ID, Timer_CLASS, Action){
 	Timer.innerHTML = FormatTime(count);
 
 	if ( (count == <?php echo $TO_WARNING ?>) && (Action != "") ) { //Two minute warning...
-		$message_box.innerHTML = '<div id="message_box_contents"><b><?php echo hsc($_['session_warning']) ?></b>';
+		$message_box.innerHTML = '<div class="message_box_contents"><b><?php echo hsc($_['session_warning']) ?></b>';
 		Timer.style.backgroundColor = "white";
 		Timer.style.color = "red";
 		Timer.style.fontWeight = "900";
@@ -2907,7 +2878,7 @@ function Countdown(count, End_Time, Timer_ID, Timer_CLASS, Action){
 	if ( count < 1 ) {
 		if ( Action == 'LOGOUT') {
 			Timer.innerHTML        = '<?php echo hsc($_['session_expired']) ?>';
-			$message_box.innerHTML = '<div id=message_box_contents><b><?php echo hsc($_['session_expired']) ?></b></div>';
+			$message_box.innerHTML = '<div class=message_box_contents><b><?php echo hsc($_['session_expired']) ?></b></div>';
 			//Load login screen, but delay first to make sure really expired:
 			setTimeout('window.location = window.location.pathname',10000); //1000 = 1 second
 		}
@@ -2965,6 +2936,18 @@ function FileTimeStamp(php_filemtime, show_date, show_offset, write_return){
 	if (write_return) { document.write(DATETIME); }
 	else 			  { return DATETIME; }
 }//end FileTimeStamp() //*********************************************
+
+
+
+function Display_Messages($message) { //******************************
+	var $page = '<?php echo $page ?>';
+	var $onclick = 'document.getElementById("message_box").innerHTML = " ";return false;';
+	var $X_box   =  '<a id="X_box" href="" onclick=\'' + $onclick + '\'>x</a>';
+	var $MESSAGE = '<div class=message_box_contents>' + $message + '</div>';
+	document.getElementById("message_box").innerHTML = $X_box + $MESSAGE;
+
+	if ($page == 'index') { document.getElementById("X_box").focus(); }
+}//end Display_Messages() //******************************************
 
 </script>
 <?php
@@ -3073,17 +3056,18 @@ function sort_DIRECTORY(col, direction) { //**************************
 
 
 //********************************************************************
-function Assemble_row(HREF_params, f_or_f, filetype, filename, file_name){
+function Assemble_row(x, HREF_params, f_or_f, filename, file_name, time_stamp, file_size){
 	var TABLE_ROW = '';
 		
 	//Assemble cell contents: [move] [copy] [delete] [x] <a>file name</a> etc...
-	ren_mov = '<a href="' + HREF_params + '&amp;p=rename' + f_or_f + '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
-	copy    = '<a href="' + HREF_params + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
-	del     = '<a href="' + HREF_params + '&amp;p=delete' + f_or_f + '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
-	checkbox = '<div class="ckbox"><INPUT TYPE=checkbox NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
+	var ren_mov = '<a href="' + HREF_params + '&amp;p=rename' + f_or_f + '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
+	var copy    = '<a href="' + HREF_params + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
+	var del     = '<a href="' + HREF_params + '&amp;p=delete' + f_or_f + '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
+	var checkbox = '<div class="ckbox"><INPUT TYPE=checkbox NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
 		
 	//Don't show remove, delete, or checkbox options for active copy of OneFileCMS.
-	if (DIRECTORY_DATA[x][4]) { ren_mov = del = checkbox = ''; }
+	var IS_OFCMS = DIRECTORY_DATA[x][4];
+	if (IS_OFCMS) { ren_mov = del = checkbox = ''; }
 		
 	TABLE_ROW += "<tr>";
 	TABLE_ROW += '<td class="RCD">' + ren_mov  + '</td>';
@@ -3133,15 +3117,11 @@ function Build_Directory() { //***************************************
 	//Build data from DIRECTORY_DATA into a set of <tr>'s
 
 	var DIRECTORY_LIST	= "";
-	var DS              = '';  // ' /' for folders, blank otherwise.
-	var f_or_f          = '';  // 'file' or 'folder'
-
-	var HREF_params = '';
 	var filetype    = '';
-	var filename    = '';
+	var filename = file_name = time_stamp = '';
 	var filesize    =  0;
 
-	for (x=0; x < DIRECTORY_DATA.length; x++) {
+	for (var x=0; x < DIRECTORY_DATA.length; x++) {
 		
 		filetype = DIRECTORY_DATA[x][0];
 		filename = DIRECTORY_DATA[x][1];
@@ -3149,22 +3129,23 @@ function Build_Directory() { //***************************************
 		
 		//folder or file?  And file_size
 		if (filetype == "dir"){
-			DS = ' /';
-			f_or_f = 'folder';
-			HREF_params = ONESCRIPT + PARAM1 + encodeURIComponent(filename);
-			file_size = '';
+			var DS = ' /';         // ' /' for folders, blank otherwise.
+			var f_or_f = 'folder'; // 'file' or 'folder'
+			var HREF_params = ONESCRIPT + PARAM1 + encodeURIComponent(filename);
+			var file_size = '';
 		} else {
-			DS = '';
-			f_or_f = 'file';
-			HREF_params = ONESCRIPT + PARAM1 + '&amp;f=' + encodeURIComponent(filename);
-			file_size = format_number(filesize) + ' B';
+			var DS = '';
+			var f_or_f = 'file';
+			var HREF_params = ONESCRIPT + PARAM1 + '&amp;f=' + encodeURIComponent(filename);
+			var file_size = format_number(filesize) + ' B';
 		}
 		
-		file_name  = '<a href="' + HREF_params  + '&amp;p=edit' + '"  title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
+		file_name  = '<a href="' + HREF_params  + '&amp;p=edit"';
+		file_name += ' title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
 		file_name += ICONS[filetype] + '&nbsp;' + hsc(filename) + DS + '</a>';
 		time_stamp = FileTimeStamp(DIRECTORY_DATA[x][3], 1, 0, 0);
 		
-		DIRECTORY_LIST += Assemble_row(HREF_params, f_or_f, filetype, filename, file_name)
+		DIRECTORY_LIST += Assemble_row(x, HREF_params, f_or_f, filename, file_name, time_stamp, file_size)
 		
 	}//end for x
 
@@ -3236,7 +3217,8 @@ function Confirm_Submit(action){ //***********************************
 
 
 function Edit_Page_scripts() { //***********************************************
-	global $_, $MAIN_WIDTH, $WIDE_VIEW_WIDTH, $current_view;
+	global $_, $ONESCRIPT, $ONESCRIPT_file, $ipath, $param1, $param2, $filename,
+			$MAIN_WIDTH, $WIDE_VIEW_WIDTH, $current_view, $WYSIWYG_VALID, $EDIT_WYSIWYG;
 
 	//Determine edit_view width.
 	$current_view = $MAIN_WIDTH;
@@ -3245,38 +3227,41 @@ function Edit_Page_scripts() { //***********************************************
 			$current_view = $_COOKIE['edit_view'];
 		}
 	}
+
+	//For [Edit WYSIWYG/Source] button
+	$set_cookie = "document.cookie='edit_wysiwyg=".(!$EDIT_WYSIWYG*1)."';";
+	$WYSIWYG_onclick = "parent.location = onclick_params + 'edit'; ".$set_cookie;
+
+	//For [Close] button
+	$close_params = $ONESCRIPT.$param1;                             //If came from admin page, return there.
+	if ( $_SESSION['admin_page'] ) { $close_params .= '&p=admin'; } //##### But, as of 3.5.07, does this occur?
 ?>
 <!--======== Provide feedback re: unsaved changes ========-->
 <script>
+var onclick_params = '<?php echo $ONESCRIPT.$param1.'&f='.basename($filename).'&p=' ?>'; //#####
 
-var File_textarea    = document.getElementById('file_editor');
-var Save_File_button = document.getElementById('save_file');
-var Reset_button     = document.getElementById('reset');
-var focus            = ''; //used by Save_File_button events
+var Main_div		   = document.getElementById('main');
+var File_textarea      = document.getElementById('file_editor');
+var View_Raw_button    = document.getElementById('view_raw');
+var Wide_View_button   = document.getElementById('wide_view');
+var WYSIWYG_button	   = document.getElementById('edit_WYSIWYG');
+var Close_button       = document.getElementById('close1');
+var Save_File_button   = document.getElementById('save_file');
+var Reset_button       = document.getElementById('reset');
+var Rename_File_button = document.getElementById('renamefile_btn');
+var Copy_File_button   = document.getElementById('copyfile_btn');
+var Delete_File_button = document.getElementById('deletefile_btn');
 
 if (File_textarea) { var start_value = File_textarea.value; }
 
 var submitted  = false;
 var changed    = false;
 
-// a few var's for Wide_View()
-var Main_div		 = document.getElementById('main');
-var Wide_View_button = document.getElementById('wide_view');
-var main_width_default = '<?php echo $MAIN_WIDTH ?>';
-
-
-// The following events only apply when the element is active.
-// [Save] is disabled unless there are changes to the open file.
-Save_File_button.onfocus = function()     { Save_File_button.style.backgroundColor = "rgb(255,250,150)";
-										    Save_File_button.style.borderColor = "#F00"; focus='save'; }
-Save_File_button.onblur  = function()     { Save_File_button.style.backgroundColor ="#Fee";
-										    Save_File_button.style.borderColor = "#Faa"; focus=''; }
-Save_File_button.onmouseover = function() { Save_File_button.style.backgroundColor = "rgb(255,250,150)";
-										    Save_File_button.style.borderColor = "#F00"; }
-Save_File_button.onmouseout  = function() { if (focus!='save') {
-												Save_File_button.style.backgroundColor = "#Fee";
-												Save_File_button.style.borderColor = "#Faa";
-											} }
+//[View Raw], [Close], and [Copy], should always be present on Edit Page.
+View_Raw_button.onclick  = function () { window.open(onclick_params + 'raw_view'); }
+Close_button.onclick     = function () { parent.location = '<?php echo $close_params ?>'; }
+Close_button.focus();
+Copy_File_button.onclick = function () { parent.location = onclick_params + 'copyfile';   }
 
 Main_div.style.width = "<?php echo $current_view ?>"; //Set current width
 
@@ -3284,37 +3269,39 @@ if ( Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>' ) {
 	Wide_View_button.innerHTML = '<?php echo hsc($_['Normal_View']) ?>';
 }
 
+//These elements do not exist if file is not editable.
+if (Wide_View_button)   { Wide_View_button.onclick = function ()   {Wide_View();}    }
+if (Save_File_button)   { Save_File_button.onclick = function ()   {submitted=true;} }
+if (WYSIWYG_button  )   { WYSIWYG_button.onclick = function ()     {<?php echo $WYSIWYG_onclick ?>} }
+if (Rename_File_button) { Rename_File_button.onclick = function () {parent.location = onclick_params + 'renamefile';} }
+if (Delete_File_button) { Delete_File_button.onclick = function () {parent.location = onclick_params + 'deletefile';} }
+if (File_textarea)      { File_textarea.onkeyup = function(event)  {Check_for_changes(event);} }
+
+
 
 function Wide_View() {
+
+	var main_width_default = '<?php echo $MAIN_WIDTH ?>';
+
 	if ( File_textarea ) { File_textarea.style.width = '99.8%'; }
 	
 	if (Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>') {
-		Main_div.style.width = main_width_default;
+		Main_div.style.width       = main_width_default;
 		Wide_View_button.innerHTML = "<?php echo hsc($_['Wide_View'])?>";
-		document.cookie = 'edit_view=' + main_width_default;
+		document.cookie            = 'edit_view=' + main_width_default;
 	}else{
-		Main_div.style.width = '<?php echo $WIDE_VIEW_WIDTH ?>';
+		Main_div.style.width       = '<?php echo $WIDE_VIEW_WIDTH ?>';
 		Wide_View_button.innerHTML = '<?php echo hsc($_['Normal_View']) ?>';
-		document.cookie = 'edit_view=<?php echo $WIDE_VIEW_WIDTH ?>';
+		document.cookie            = 'edit_view=<?php echo $WIDE_VIEW_WIDTH ?>';
 	}
 }
 
-
-function Reset_file_status_indicators() {
-	changed = false;
-	File_textarea.style.backgroundColor = "#F9FFF9";  //light green
-	Save_File_button.style.backgroundColor = "";
-	Save_File_button.style.borderColor = "";
-	Save_File_button.style.borderWidth = "1px";
-	Save_File_button.disabled = "disabled";
-	Save_File_button.innerHTML = "<?php echo hsc($_['save_1'])?>";
-	Reset_button.disabled = "disabled";
-}
 
 
 window.onbeforeunload = function() {
 	if ( changed && !submitted ) {
 		//FF4+ Ingores the supplied msg below & only uses a system msg for the prompt.
+		<?php //use addslashes() because this is for a js alert() or confirm(), not HTML ?>
 		return "<?php echo addslashes($_['unload_unsaved']) ?>";
 	}
 }
@@ -3322,12 +3309,23 @@ window.onbeforeunload = function() {
 
 window.onunload = function() {
 	//without this, a browser back then forward would reload file with local/
-	// unsaved changes, but with a green b/g as tho that's the file's contents.
+	// unsaved changes, but with a green b/g as tho that's the file's saved contents.
 	if (!submitted) {
 		File_textarea.value = start_value;
 		Reset_file_status_indicators();
 	}
 }
+
+
+function Reset_file_status_indicators() {
+	changed = false;
+	File_textarea.style.backgroundColor = "#F5FFF5";  //light green
+	File_textarea.style.borderColor     = "";
+	Save_File_button.style.borderColor  = "";
+	Save_File_button.innerHTML          = "<?php echo hsc($_['save_1'])?>";
+	Reset_button.disabled               = "disabled";
+}
+
 
 
 //With selStart & selEnd == 0, moves cursor to start of text field.
@@ -3345,18 +3343,17 @@ function setSelRange(inputEl, selStart, selEnd) {
 }
 
 
+
 function Check_for_changes(event){
 	var keycode=event.keyCode? event.keyCode : event.charCode;
 	changed = (File_textarea.value != start_value);
 	if (changed){
 		document.getElementById('message_box').innerHTML = " "; //Must have a space, or it won't clear the msg.
-		File_textarea.style.backgroundColor    = "#Fee";//light red
-		Save_File_button.style.backgroundColor ="#Fee";
-		Save_File_button.style.borderColor = "#Faa";  //less light red
-		Save_File_button.style.borderWidth = "1px";
-		Save_File_button.disabled = "";
-		Reset_button.disabled = "";
-		Save_File_button.innerHTML = "<?php echo hsc($_['save_2'])?>";
+		File_textarea.style.backgroundColor    = "#FFF"; //white
+		File_textarea.style.borderColor        = "#F33"; //mild red
+		Save_File_button.style.borderColor	   = "#F33";
+		Save_File_button.innerHTML			   = "<?php echo hsc($_['save_2'])?>";
+		Reset_button.disabled				   = "";
 	}else{
 		Reset_file_status_indicators()
 	}
@@ -3368,9 +3365,8 @@ function Check_for_changes(event){
 //Needed becuase if the page is reloaded (ctl-r, or browser back/forward, etc.),
 //the text stays changed, but "changed" gets set to false, which looses warning.
 function Reset_File() {
-	if (changed) {
-		if ( !(confirm("<?php echo addslashes($_['confirm_reset']) ?>")) ) { return false; }
-	}
+    <?php //use addslashes() because this is for a js alert() or confirm(), not HTML ?>
+	if (changed) { if ( !(confirm("<?php echo addslashes($_['confirm_reset']) ?>")) ) { return false; } }
 	File_textarea.value = start_value;
 	Reset_file_status_indicators();
 	setSelRange(File_textarea, 0, 0) //Move cursor to start of textarea.
@@ -3384,7 +3380,7 @@ Reset_file_status_indicators();
 
 
 
-function event_scripts($form_id, $button_id, $pwun=''){ //**********************
+function pwun_event_scripts($form_id, $button_id, $pwun=''){ //*****************
 	global $_;
 
 	//pre-hash "new1" & "new2" only if changing p/w (not if changing u/n).
@@ -3415,7 +3411,7 @@ $submit_button.onmouseup   = function(event) {events_up(event,  0);} //For mouse
 function events_down(event, capture_key) {if (!event) {var event = window.event;} //if IE
 	$thispage = true; //Make sure keydown was on this page.
 	if ((event.type.substr(0,3) == 'key') && (event.keyCode != capture_key)) {return true;}
-	$message_box.innerHTML = '<div id="message_box_contents"><b><?php echo hsc($_['Working']) ?></b>';
+	$message_box.innerHTML = '<div class="message_box_contents"><b><?php echo hsc($_['Working']) ?></b>';
 }
 
 
@@ -3457,19 +3453,19 @@ function pre_validate_pwun() {
 
 	//If any field is blank..
 	if (($username.value == '') || ($pw.value == '') || ($new1.value == '') || ($new2.value == '')) {
-		$message_box.innerHTML = '<div id="message_box_contents"><b><?php echo hsc($_['change_pw_07']) ?></b>';
+		$message_box.innerHTML = '<div class="message_box_contents"><b><?php echo hsc($_['change_pw_07']) ?></b>';
 		return false;
 	}
 	//If new & confirm new values do not match...
 	if (trim($new1.value) != trim($new2.value)) {
-		$message_box.innerHTML = '<div id="message_box_contents"><b><?php echo hsc($_['change_pw_04']) ?></b>';
+		$message_box.innerHTML = '<div class="message_box_contents"><b><?php echo hsc($_['change_pw_04']) ?></b>';
 		return false;
 	}
 	return true;
 }//end pre_validate_pwun()
 </script>
 <?php
-}//end event_scripts() //*******************************************************
+}//end pwun_event_scripts() //**************************************************
 
 
 
@@ -3559,9 +3555,9 @@ input[disabled]        { color: #555; background-color: #EEE; }
 input:focus  { background-color: rgb(255,250,150); }
 input:hover  { background-color: rgb(255,250,150); }
 
-button:focus  { background-color: rgb(255,250,150); }
-button:hover  { background-color: rgb(255,250,150); }
-button:active { background-color: rgb(245,245,50);  }
+button:focus  { background-color: rgb(255,250,150); border-color: #333;}
+button:hover  { background-color: rgb(255,250,150); border-color: #333;}
+button:active { background-color: rgb(245,245,50);  border-color: #333;}
 
 /* --- layout --- */
 
@@ -3574,7 +3570,7 @@ button:active { background-color: rgb(245,245,50);  }
 
 #header {
 	border-bottom : 1px solid #777;
-	padding: 04px 0px 01px 0px;
+	padding: 4px 0px 1px 0px;
 	margin : 0 0 0 0;
 	}
 
@@ -3599,7 +3595,7 @@ button:active { background-color: rgb(245,245,50);  }
 
 #message_box { border: none; margin: .5em 0 0 0; padding: 0; }
 
-#message_box_contents { border: 1px solid gray; padding: 3px 2px 2px 4px; background: #FFF000; }
+.message_box_contents { border: 1px solid gray; padding: 3px 2px 2px 4px; background: #FFF000; }
 
 #message_box #message_left {
 	float  : left;
@@ -3620,8 +3616,8 @@ button:active { background-color: rgb(245,245,50);  }
 	background : #EEE;
 	}
 
-#message_box  #X_box:hover  {background-color: rgb(255,250,150);}
-#message_box  #X_box:focus  {background-color: rgb(255,250,150);}
+#message_box  #X_box:hover  {background-color: rgb(255,250,150); border-color: #333}
+#message_box  #X_box:focus  {background-color: rgb(255,250,150); border-color: #333}
 #message_box  #X_box:active {background-color: rgb(245,245,50); }
 
 .filename { font-family: courier; }
@@ -3706,7 +3702,6 @@ table.index_T th:hover { background-color: white;}
 #DIRECTORY_FOOTER td {text-align: center; font-size: .9em; color: #333; padding: 3px 0 0 0; }
 
 
-
 /*** front_links:  [New File] [New Folder] [Upload File] ***/
 .front_links { float: right; }
  
@@ -3726,7 +3721,6 @@ a { border: 1px solid transparent; text-decoration: none; }  /*color: rgb(100,45
 a:focus  { border: 1px solid #777; background-color: rgb(255,250,150); }
 a:hover  { border: 1px solid #777; background-color: rgb(255,250,150); }
 a:active { border: 1px solid #777; background-color: rgb(245,245,50);  }
-
 
 
 /*** [Move] [Copy] [Delete] ***/
@@ -3757,14 +3751,16 @@ a:active { border: 1px solid #777; background-color: rgb(245,245,50);  }
 	cursor : pointer;
 	border : 1px solid #777;
 	color  : black;
-	padding    : 4px 10px; /*Adjusted by langauge files*/
-	font-size  : .9em;     /*Adjusted by langauge files*/
+	padding    : 4px 7px 4px 7px; /*Adjusted by langauge files*/
+	font-size  : .9em;            /*Adjusted by langauge files*/
 	font-family: sans-serif;
-	background-color: #EEE;  /*#d4d4d4*/
+	background-color: #EEE;
 	}
 
 .button:active    { background-color: rgb(245,245,50); }                  /*first                 */
 .button[disabled] { color: #777; background-color: #EEE; cursor: default} /*second - order matters*/
+
+#renamefile_btn {padding: 2px 7px 4px 7px;}
 
 
 /* --- header --- */
@@ -3785,14 +3781,18 @@ a:active { border: 1px solid #777; background-color: rgb(245,245,50);  }
 .edit_disabled {
 	border : 1px solid #777;
 	width  : 99%;
+	height : 35em;
 	padding: .2em;
 	margin : .5em 0 .6em 0;
-	color  : #333;
+	color  : #222;
 	background-color: #FFF000;
 	line-height: 1.4em;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	overflow: auto;
 	}
 
-.view_file { font: .9em Courier; background-color: #F8F8F8; overflow:hidden}
+.view_file { font: .9em Courier; background-color: #F8F8F8; }
 
 #file_editor {
 	border: 1px solid #999;
@@ -3802,7 +3802,7 @@ a:active { border: 1px solid #777; background-color: rgb(245,245,50);  }
 	height: 32em;
 	}
 
-#file_editor:focus { border: 1px solid #Fdd; }
+#file_editor:focus { border: 1px solid #000; }
 
 .file_meta	{ float: left; margin-top: .6em; font-size: .95em; color: #222; }
 
@@ -3881,9 +3881,7 @@ hr { /*-- -- -- -- -- -- --*/
 
 .clear {clear:both; padding: 0; margin: 0; border: none}
 
-.web_root { border: 0px solid  #777; border-right: none; font: 1em Courier; padding: 1px; }
-
-.icon {float: left;}
+.web_root { border: 1px solid  #777; border-right: none; font: 1em Courier; padding: 1px; background-color: #EEE;}
 
 .mono {font-family: courier;}
 
@@ -3908,7 +3906,8 @@ hr { /*-- -- -- -- -- -- --*/
 .edit_btns_bottom .RCD { padding-left: 5px; padding-right: 6px; }
 .edit_btns_bottom svg  { padding : 0 4px 0 0; }
 
-input[type="text"].new_name {width  : 50%; margin-bottom: .2em;}
+input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
+#new_location {border-left: none;}
 
 #del_backup   { margin: 0; padding: 2px 5px}
 
@@ -3959,8 +3958,8 @@ function Language_and_config_adjusted_styles() { //*****************************
 .container { width: <?php echo $MAIN_WIDTH ?>; } /*Default 810px*/
 
 .button {
-	padding  : <?php echo $_['button_padding']   ?>; /*Default 4px 10px */
-	font-size: <?php echo $_['button_font_size'] ?>; /*Default .9em     */
+	padding  : <?php echo $_['button_padding']   ?>; /*Default 4px 7px 4px 7px */
+	font-size: <?php echo $_['button_font_size'] ?>; /*Default .9em */
 	}
 
 .front_links a {
@@ -4020,11 +4019,6 @@ if ($_SESSION['valid']) {
 
 	undo_magic_quotes();
 
-	//Set current $EDIT_MODE & text for Edit page [Edit WYSIWIG/Source] button
-	if ( $WYSIWYG_VALID && isset($_COOKIE['edit_mode']) && ($_COOKIE['edit_mode'] == '1')) {
-		   $EDIT_MODE = '1'; $ON_OFF_label = $_['Source']; }
-	else { $EDIT_MODE = '0'; $ON_OFF_label = $_['WYSIWYG']; }
-
 	Init_ICONS();
 
 	Get_GET();
@@ -4033,16 +4027,16 @@ if ($_SESSION['valid']) {
 
 	Valid_Path($ipath, true);
 
+	Validate_params();
+
+	Init_Macros(); //Needs to be after Get_Get()/Validate_params()/Valid_Path()
+
 	//$ACCESS_ROOT.$ACCESS_PATH == $ipath
 	$ipath_len = mb_strlen($ipath);
 	$ACCESS_PATH = '';
 	if (($ACCESS_ROOT_len < $ipath_len)) {
 		$ACCESS_PATH = trim(mb_substr($ipath, $ACCESS_ROOT_len), ' /').'/';
 	}
-
-	Validate_params();
-
-	Init_Macros(); //Needs to be after Get_Get()/Validate_params()/Valid_Path()
 
 	Respond_to_POST();
 
@@ -4091,7 +4085,7 @@ Page_Header();
 
 if ($_SESSION['valid'] && $Show_Path) { Current_Path_Header(); }
 
-message_box();
+echo '<div id="message_box"></div>';
 
 Load_Selected_Page();
 
@@ -4111,6 +4105,8 @@ if ($_SESSION['valid']) {
 echo '</div>'; //end container/login_page
 echo '</body></html>';
 
-if ( ($page == "edit") && $WYSIWYG_VALID && ($EDIT_MODE == 1) ) { include($WYSIWYG_PLUGIN_OS); }
+if ( ($page == "edit") && $WYSIWYG_VALID && $EDIT_WYSIWYG ) { include($WYSIWYG_PLUGIN_OS); }
 
+//Display any $message's
+if ($message != '') {echo '<script>Display_Messages(\''.addslashes($message).'\');</script>';}
 //END OF FILE ##################################################################

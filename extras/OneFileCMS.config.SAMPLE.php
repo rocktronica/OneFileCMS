@@ -1,6 +1,6 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
-// v3.5.06
+// v3.5.07
 // Sample external config file - this file is OPTIONAL.
 //
 // Basically, what follows is just a copy & paste of the OneFileCMS CONFIGURABLE INFO section.
@@ -72,9 +72,9 @@ $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copi
 //$LANGUAGE_FILE = "OneFileCMS.LANG.EN.php";
 
 //Init file for optional external wysiwyg editor.
-//Sample init files are availble in the OneFileCMS repo, but the actual editors are not.
-//$WYSIWYG_PLUGIN = 'plugins/tinymce_init.php';
-//$WYSIWYG_PLUGIN = 'plugins/ckeditor_init.php';
+//Sample init files are availble in the "extras\" folder of the OneFileCMS repo, but the actual editors are not.
+//$WYSIWYG_PLUGIN = 'plugins/plugin-tinymce_init.php';
+//$WYSIWYG_PLUGIN = 'plugins/plugin-ckeditor_init.php';
 
 //Name of optional external config file.  Any settings it contains will supersede those above.
 //See the sample file in the OneFileCMS github repo for format example.

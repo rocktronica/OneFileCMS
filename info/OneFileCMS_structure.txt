@@ -1,4 +1,4 @@
-﻿OneFileCMS Version 3.5.06 structure/layout
+﻿OneFileCMS Version 3.5.07 structure/layout
 
 LICENSE
 
@@ -36,7 +36,6 @@ MISC FUNCTIONS:
 MISC PAGE SECTIONS/FUNCTIONS
 	Current_Path_Header()
 	Page_Header()
-	message_box()
 	Cancel_Submit_Buttons()
 	show_image()
 	Timeout_Timer()
@@ -67,6 +66,7 @@ PAGE & RESPONSE FUNCTIONS:
 	Index_Page()
 	Edit_Page_buttons_top()
 	Edit_Page_buttons()
+		RCD_buttons()
 	Edit_Page_form()
 	Edit_Page_Notes()
 	Edit_Page()
@@ -96,6 +96,7 @@ JAVASCRIPT FUNCTIONS:
 		Countdown()
 		Start_Countdown()
 		FileTimeStamp()
+		Display_Messages()
 	Index_Page_scripts()
 		Sort_FOlder_First()
 		sort_DIRECTORY()

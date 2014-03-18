@@ -4,27 +4,26 @@ Sample code to use the TinyMCE editor with OneFileCMS (as of v3.4.19).
 For information on TinyMCE, visit tinymce.moxiecode.com.
 
 Here is a brief how-to:
-(The "plugin" folder used below is not required, or may be named anything you like.)
+(The "plugins" folder used below is not required, or may be named anything you like.)
 
  1) Obtain TinyMCE.
 
  2) Install TinyMCE into a folder on your web site. For example: "plugins/".
 
  3) From the github.com/Self-Evident/OneFileCMS repo, copy the file 
-    "tinymce_init.php" into the "plugins/" folder.
+    "extras/plugin-tinymce_init.php" into the "plugins/" folder.
 
  4) In the configuration section of OneFileCMS, uncomment or add the following variable:
-    $WYSIWYG_PLUGIN = 'plugins/tinymce_init.php'; // Init settings for TinyMCE (this file).
+    $WYSIWYG_PLUGIN = 'plugins/tinymce_init.php';   //Init settings for TinyMCE (this file).
 
 	Path can be absolute to the filesystem, or relative to root of website.
 
- 5) In the "init" file specified by $WYSIWYG_PLUGIN (this file): 
+ 5) In the "init" file specified by $WYSIWYG_PLUGIN (ie: this file): 
     - specify the source file of the actual plugin via a <script src= ...> tag.*
 
 
-	*Note: In the src attribute of the <script> tag, the plugin path is absolute,
-	       but relative to the root of the website, and the leading forward slash 
-		   is generally required. 
+	*Note: In the <script> tag, the src path is absolute from the root of the website,
+		   and the leading forward slash is generally required. 
 	(This is in contrast to configuration values such as $WYSIWYG_PLUGIN.)
 
  6) Reload OneFileCMS, open a file for editing, and click [Edit WYSIWIG].

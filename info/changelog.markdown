@@ -1,5 +1,15 @@
 # OneFileCMS Change Log
 
+### v3.5.07 (2014-03-15)
+
+- Removed ability for OneFileCMS to edit itself - it is too risky an option.  If needed, make a copy & edit it.
+- Added a [View Raw] button on the Edit/View page.  It displays the raw/plain text of the current file.
+- Fixed issue using Chrome & editing some files containing javascript.
+- Some changes to "file changed" visual feedback (textarea & [Save] button styles).
+- Some general code improvements to Edit\_Page\_...  functions.
+- Some other general code improvements.
+- And, a bit of css tweakin...
+
 ### v3.5.06 (2014-03-11)
 
 - Added optional logging of login attempts, both successful & failed.

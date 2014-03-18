@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.06
+Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.07
 *******************************************************************************/
 
 /* --- reset --- */
@@ -43,9 +43,9 @@ input[disabled]        { color: #555; background-color: #EEE; }
 input:focus  { background-color: rgb(255,250,150); }
 input:hover  { background-color: rgb(255,250,150); }
 
-button:focus  { background-color: rgb(255,250,150); }
-button:hover  { background-color: rgb(255,250,150); }
-button:active { background-color: rgb(245,245,50);  }
+button:focus  { background-color: rgb(255,250,150); border-color: #333;}
+button:hover  { background-color: rgb(255,250,150); border-color: #333;}
+button:active { background-color: rgb(245,245,50);  border-color: #333;}
 
 /* --- layout --- */
 
@@ -58,7 +58,7 @@ button:active { background-color: rgb(245,245,50);  }
 
 #header {
 	border-bottom : 1px solid #777;
-	padding: 04px 0px 01px 0px;
+	padding: 4px 0px 1px 0px;
 	margin : 0 0 0 0;
 	}
 
@@ -83,7 +83,7 @@ button:active { background-color: rgb(245,245,50);  }
 
 #message_box { border: none; margin: .5em 0 0 0; padding: 0; }
 
-#message_box_contents { border: 1px solid gray; padding: 3px 2px 2px 4px; background: #FFF000; }
+.message_box_contents { border: 1px solid gray; padding: 3px 2px 2px 4px; background: #FFF000; }
 
 #message_box #message_left {
 	float  : left;
@@ -104,8 +104,8 @@ button:active { background-color: rgb(245,245,50);  }
 	background : #EEE;
 	}
 
-#message_box  #X_box:hover  {background-color: rgb(255,250,150);}
-#message_box  #X_box:focus  {background-color: rgb(255,250,150);}
+#message_box  #X_box:hover  {background-color: rgb(255,250,150); border-color: #333}
+#message_box  #X_box:focus  {background-color: rgb(255,250,150); border-color: #333}
 #message_box  #X_box:active {background-color: rgb(245,245,50); }
 
 .filename { font-family: courier; }
@@ -190,7 +190,6 @@ table.index_T th:hover { background-color: white;}
 #DIRECTORY_FOOTER td {text-align: center; font-size: .9em; color: #333; padding: 3px 0 0 0; }
 
 
-
 /*** front_links:  [New File] [New Folder] [Upload File] ***/
 .front_links { float: right; }
  
@@ -210,7 +209,6 @@ a { border: 1px solid transparent; text-decoration: none; }  /*color: rgb(100,45
 a:focus  { border: 1px solid #777; background-color: rgb(255,250,150); }
 a:hover  { border: 1px solid #777; background-color: rgb(255,250,150); }
 a:active { border: 1px solid #777; background-color: rgb(245,245,50);  }
-
 
 
 /*** [Move] [Copy] [Delete] ***/
@@ -241,14 +239,16 @@ a:active { border: 1px solid #777; background-color: rgb(245,245,50);  }
 	cursor : pointer;
 	border : 1px solid #777;
 	color  : black;
-	padding    : 4px 10px; /*Adjusted by langauge files*/
-	font-size  : .9em;     /*Adjusted by langauge files*/
+	padding    : 4px 7px 4px 7px; /*Adjusted by langauge files*/
+	font-size  : .9em;            /*Adjusted by langauge files*/
 	font-family: sans-serif;
-	background-color: #EEE;  /*#d4d4d4*/
+	background-color: #EEE;
 	}
 
 .button:active    { background-color: rgb(245,245,50); }                  /*first                 */
 .button[disabled] { color: #777; background-color: #EEE; cursor: default} /*second - order matters*/
+
+#renamefile_btn {padding: 2px 7px 4px 7px;}
 
 
 /* --- header --- */
@@ -269,14 +269,18 @@ a:active { border: 1px solid #777; background-color: rgb(245,245,50);  }
 .edit_disabled {
 	border : 1px solid #777;
 	width  : 99%;
+	height : 35em;
 	padding: .2em;
 	margin : .5em 0 .6em 0;
-	color  : #333;
+	color  : #222;
 	background-color: #FFF000;
 	line-height: 1.4em;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	overflow: auto;
 	}
 
-.view_file { font: .9em Courier; background-color: #F8F8F8; overflow:hidden}
+.view_file { font: .9em Courier; background-color: #F8F8F8; }
 
 #file_editor {
 	border: 1px solid #999;
@@ -286,7 +290,7 @@ a:active { border: 1px solid #777; background-color: rgb(245,245,50);  }
 	height: 32em;
 	}
 
-#file_editor:focus { border: 1px solid #Fdd; }
+#file_editor:focus { border: 1px solid #000; }
 
 .file_meta	{ float: left; margin-top: .6em; font-size: .95em; color: #222; }
 
@@ -365,9 +369,7 @@ hr { /*-- -- -- -- -- -- --*/
 
 .clear {clear:both; padding: 0; margin: 0; border: none}
 
-.web_root { border: 0px solid  #777; border-right: none; font: 1em Courier; padding: 1px; }
-
-.icon {float: left;}
+.web_root { border: 1px solid  #777; border-right: none; font: 1em Courier; padding: 1px; background-color: #EEE;}
 
 .mono {font-family: courier;}
 
@@ -392,7 +394,8 @@ hr { /*-- -- -- -- -- -- --*/
 .edit_btns_bottom .RCD { padding-left: 5px; padding-right: 6px; }
 .edit_btns_bottom svg  { padding : 0 4px 0 0; }
 
-input[type="text"].new_name {width  : 50%; margin-bottom: .2em;}
+input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
+#new_location {border-left: none;}
 
 #del_backup   { margin: 0; padding: 2px 5px}
 
@@ -428,4 +431,3 @@ input[type="text"].new_name {width  : 50%; margin-bottom: .2em;}
 #path_header a:hover  { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
 #path_header a:focus  { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
 #path_header a:active { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
-

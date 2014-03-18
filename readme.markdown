@@ -57,9 +57,9 @@ I may not have the time/bandwidth/inclination to implement every feature, but I 
 
 ### Multi-Language Support?
 
-Yes!  Currently, English (EN), German (DE), Spanish (ES), Dutch (NL), and Russian (RU) are available.
+Yes!  While English (EN) is the default - German (DE), Spanish (ES), Dutch (NL), and Russian (RU) are also available.
 
-- English courtesy of me.
+
 - German (Deutsch) courtesy of [codeless](http://github.com/codeless).
 - Spanish (Espanõla) courtesy of [fermuch](http://github.com/fermuch).
 - Dutch (Nederlands) courtesy of [symsec](http://github.com/symsec).  
@@ -120,7 +120,6 @@ OneFileCMS can be configured to work with [TinyMCE](http://tinymce.moxiecode.com
 
 - As of v3.4.23, doesn't work in IE.  It seems IE doesn't support changing the innerHTML of some tags.  OneFile builds the directory in javascript, then displays it by changing the innerHTML of a &lt;tbody> tag of an existing &lt;table>.  And, since the alternative/fix/workaround would be a whole bunch more work, IE is currently not supported.  
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
-- Issue with Chrome's XSS filter: Editing some legitimate files with OneFileCMS will trigger the filter and disable much of the javascript provided functionallity, but only while on the edit page with such a file, and only after a [Save].
 - The connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text* during login.  However, this is true of most online login systems, unless SSL or the like is employed.  
   *As of version 3.4.15, a client-side hash of the user's "plain-text" password is sent to the server.  So, while this client-side hash is still a "plain-text" password as far as the server is concerned, the user's raw password is protected from immediate exposure.
 - Be aware that only some very basic data & error checking is performed.  (But, it's getting better...)  
