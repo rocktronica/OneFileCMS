@@ -1,9 +1,9 @@
 <?php mb_internal_encoding('utf-8');  $message = ""; //initialize here so can .= at any point later.
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
-$VERS_ext = explode('_',basename($_SERVER['SCRIPT_NAME']));        //##### 
-$VERS     = substr($VERS_ext[1],0, strrpos($VERS_ext[1], '.php')); //##### $OFCMS_version = '3.5.07';
-$OFCMS_version = '<font color="red"><b>'.$VERS.'</b></font>';      //##### 
+
+$OFCMS_version = '3.5.07';
+
 /*******************************************************************************
 Except where noted otherwise:
 
@@ -3238,7 +3238,7 @@ function Edit_Page_scripts() { //***********************************************
 ?>
 <!--======== Provide feedback re: unsaved changes ========-->
 <script>
-var onclick_params = '<?php echo $ONESCRIPT.$param1.'&f='.basename($filename).'&p=' ?>'; //#####
+var onclick_params = '<?php echo $ONESCRIPT.$param1.'&f='.basename($filename).'&p=' ?>';
 
 var Main_div		   = document.getElementById('main');
 var File_textarea      = document.getElementById('file_editor');
