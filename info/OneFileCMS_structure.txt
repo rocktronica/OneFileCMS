@@ -1,4 +1,4 @@
-﻿OneFileCMS Version 3.5.07 structure/layout
+﻿OneFileCMS Version 3.5.08 structure/layout
 
 LICENSE
 
@@ -97,6 +97,7 @@ JAVASCRIPT FUNCTIONS:
 		Start_Countdown()
 		FileTimeStamp()
 		Display_Messages()
+	Index_Page_onclicks()
 	Index_Page_scripts()
 		Sort_FOlder_First()
 		sort_DIRECTORY()

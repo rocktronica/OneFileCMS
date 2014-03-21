@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.07';
+$OFCMS_version = '3.5.08';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -561,7 +561,7 @@ function Convert_encoding($string, $to_enc = "") { //***************************
 function Session_Startup() { //*************************************************
 	global $SESSION_NAME, $page, $VALID_POST;
 
-	$limit    = 0; //0 = session.
+	$limit    =  0; //0 = session.
 	$path     = '';
 	$domain   = ''; // '' = hostname
 	$https    = false;
@@ -763,7 +763,7 @@ function Validate_params() { //*************************************************
 
 function Valid_Path($path, $gotoroot=true) { //*********************************
 	//$gotoroot: if true, return to index page of $ACCESS_ROOT.
-	global  $ipath, $ipath_OS, $filename, $page, $param1, $param2, $param3, $ACCESS_ROOT, $ACCESS_ROOT_len, $message;
+	global  $ipath, $ipath_OS, $filename, $param1, $param2, $param3, $ACCESS_ROOT, $ACCESS_ROOT_len, $message;
 	
 	//Limit access to the folder $ACCESS_ROOT:
 	//$ACCESS_ROOT = some/root/path/
@@ -778,7 +778,7 @@ function Valid_Path($path, $gotoroot=true) { //*********************************
 	$good_path = false;
 
 	if ($_SESSION['admin_page']) {
-		//Permit Admin actions: changing p/w, u/n, editing OneFile...
+		//Permit Admin actions: changing p/w, u/n, viewing OneFile...
 		$ACCESS_ROOT == '';
 		return true;
 	}
@@ -1203,10 +1203,10 @@ function Cancel_Submit_Buttons($submit_label) { //******************************
 	//$submit_label = Rename, Copy, Delete, etc...
 	global $_, $ONESCRIPT, $ipath, $param1, $param2, $page;
 
-	$params = $param1.$param2.'&amp;p='. $_SESSION['recent_pages'][1];
+	$params = $param1.$param2.'&amp;p='. $_SESSION['recent_pages'][1]; //.'&amp;m='.hsc($_['cancelled']) not sure I like this.
 ?>
 	<p>
-	<button type="button" class="button" id="cancel" onclick="parent.location = '<?php echo $ONESCRIPT.$params.'&amp;m='.$page ?>%20<?php echo hsc($_['cancelled']) ?>'">
+	<button type="button" class="button" id="cancel" onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
 		<?php echo hsc($_['Cancel']) ?></button>
 	<button type="submit" class="button" id="submitty" style="margin-left: 1em;"><?php echo hsc($submit_label);?></button>
 	<script>document.getElementById("cancel").focus();</script>
@@ -1772,7 +1772,7 @@ function Login_response() { //**************************************************
 function Create_Table_for_Listing() { //****************************************
 	global$_;
 
-	//Header row: | Select All|[ ]|[ ](folders first)       Name      [ext]  |   Size   |    Date    |
+	//Header row: | Select All|[ ]|[X](folders first)      Name      (ext) |   Size   |    Date    |
 	
 	//<input hidden> is a dummy input to make sure files[] is always an array for Select_All() & Confirm_Ready().
 ?>
@@ -1784,22 +1784,18 @@ function Create_Table_for_Listing() { //****************************************
 	<th colspan=3 id="select_all_th">
 		<LABEL for=select_all id=select_all_label><?php echo hsc($_['Select_All']) ?></LABEL></th>
 	<th class="ckbox">
-		<INPUT TYPE=checkbox NAME=select_all id=select_all VALUE=select_all onclick="Select_All();"></th>
+		<INPUT TYPE=checkbox id=select_all NAME=select_all VALUE=select_all></th>
 	<th class="file_name ckbox" style="">
-		<a href="#" onclick="Sort_and_Show(5, FLIP_IF);return false" id=sort_type  >(<?php echo hsc($_['ext']) ?>)</a>
-		<?php $ffparams = 'TYPE=checkbox NAME=folder_first id=folders_first_ckbox VALUE=folders_first checked'?>
-		<INPUT <?php echo $ffparams ?> onclick="Sort_and_Show(SORT_by, SORT_order);">
+		<a href="#" id=sort_type>(<?php echo hsc($_['ext']) ?>)</a>
+		<INPUT TYPE=checkbox id=folders_first_ckbox NAME=folder_first VALUE=folders_first checked>
 		<label for=folders_first_ckbox id=folders_first_label title="<?php  echo hsc($_['folders_first_info']) ?>">
 			(<?php echo hsc($_['folders_first']) ?>)
-		</label>
-		<a href="#" onclick="Sort_and_Show(1, FLIP_IF);return false" id=name_header><?php echo hsc($_['Name']) ?></a></th>
-	<th class="file_size">
-		<a href="#" onclick="Sort_and_Show(2, FLIP_IF);return false"><?php echo hsc($_['Size']) ?></a></th>
-	<th class="file_time">
-		<a href="#" onclick="Sort_and_Show(3, FLIP_IF);return false"><?php echo hsc($_['Date']) ?></a></th>
+		</label>		  <a href="#" id=header_filename><?php echo hsc($_['Name']) ?></a></th>
+	<th class="file_size"><a href="#" id=header_filesize><?php echo hsc($_['Size']) ?></a></th>
+	<th class="file_time"><a href="#" id=header_filedate><?php echo hsc($_['Date']) ?></a></th>
 	</tr>
 
-	<?php //For directory content. Will insert the list later. (same for footer...) ?>
+	<?php //Directory & footer content will be inserted later. ?>
 	<tbody id=DIRECTORY_LISTING></tbody>
 	<tr    id=DIRECTORY_FOOTER></tr>
 	</table>
@@ -1955,6 +1951,8 @@ function Index_Page(){ //*******************************************************
 	echo "</form>\n";
 
 	Send_data_to_js_and_display();
+
+	Index_Page_onclicks();
 }//end Index_Page() //**********************************************************
 
 
@@ -2019,7 +2017,7 @@ function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
 
 
 function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
-	global $_, $message, $ICONS, $ONESCRIPT, $param1, $param2, $MAX_IDLE_TIME, $IS_OFCMS, $WYSIWYG_VALID, $EDIT_WYSIWYG;
+	global $_, $message, $ICONS, $MAX_IDLE_TIME, $IS_OFCMS, $WYSIWYG_VALID, $EDIT_WYSIWYG;
 
 	//Using ckeditor WYSIWYG editor, <input type=reset> button doesn't work. (I don't know why.)
 	$reset_button = '<input type=reset class=button value="'.hsc($_['reset']).'" onclick="return Reset_File();" id="reset">';
@@ -2034,7 +2032,7 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
 		}//end if editable
 		
 		function RCD_button($action, $icon, $label){ //***************
-			global $ONESCRIPT, $param1, $param2, $ICONS;
+			global $ICONS;
 			echo '<button type=button id="'.$action.'_btn" class="button RCD">'.$ICONS[$icon].'&nbsp;'.hsc($label).'</button>';
 		}//end RCD_button() //****************************************
 		
@@ -2794,9 +2792,9 @@ function pad(num){ if ( num < 10 ){ num = "0" + num; }; return num; }
 
 
 
-//A basic htmlspecialchars()
 function hsc(text) { //***********************************************
-  return text
+	//A basic htmlspecialchars()
+	return text
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
@@ -2926,8 +2924,8 @@ function FileTimeStamp(php_filemtime, show_date, show_offset, write_return){
 	var offset_MINS  = pad( NEG * (GMT_offset % 60) );
 	var offset_FULL  = "UTC " + SIGN + offset_HOURS + ":" + offset_MINS;
 
-	FULLDATE = YEAR + "-" + MONTH + "-" + DATE;
-	FULLTIME = HOURS + ":" + MINS + ":" + SECS + " " + AMPM;
+	var FULLDATE = YEAR + "-" + MONTH + "-" + DATE;
+	var FULLTIME = HOURS + ":" + MINS + ":" + SECS + " " + AMPM;
 
 	var               DATETIME = FULLTIME;
 	if (show_date)  { DATETIME = FULLDATE + " &nbsp;" + FULLTIME;}
@@ -2952,6 +2950,29 @@ function Display_Messages($message) { //******************************
 </script>
 <?php
 }//end common_scripts() //******************************************************
+
+
+
+
+function Index_Page_onclicks() { //*********************************************
+?>
+<script>
+var Select_All_ckbox	= document.getElementById('select_all');
+var Sort_Type			= document.getElementById('sort_type');
+var Folders_First_Ckbox = document.getElementById('folders_first_ckbox');
+var Header_Filename		= document.getElementById('header_filename');
+var Header_Filesize		= document.getElementById('header_filesize');
+var Header_Filedate		= document.getElementById('header_filedate');
+
+Select_All_ckbox.onclick	 = function () {Select_All();}
+Folders_First_Ckbox.onclick  = function () {Sort_and_Show(SORT_by, SORT_order);}
+Header_Filename.onclick  = function () {Sort_and_Show(1, FLIP_IF); return false;}
+Header_Filesize.onclick  = function () {Sort_and_Show(2, FLIP_IF); return false;}
+Header_Filedate.onclick  = function () {Sort_and_Show(3, FLIP_IF); return false;}
+Sort_Type.onclick		 = function () {Sort_and_Show(5, FLIP_IF); return false;}
+</script>
+<?php
+}//end Index_Page_onclicks() //*************************************************
 
 
 
@@ -3056,29 +3077,29 @@ function sort_DIRECTORY(col, direction) { //**************************
 
 
 //********************************************************************
-function Assemble_row(x, HREF_params, f_or_f, filename, file_name, time_stamp, file_size){
+function Assemble_row(x, HREF_params, f_or_f, filename, file_name, file_time, file_size){
 	var TABLE_ROW = '';
-		
+
 	//Assemble cell contents: [move] [copy] [delete] [x] <a>file name</a> etc...
 	var ren_mov = '<a href="' + HREF_params + '&amp;p=rename' + f_or_f + '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
 	var copy    = '<a href="' + HREF_params + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
 	var del     = '<a href="' + HREF_params + '&amp;p=delete' + f_or_f + '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
-	var checkbox = '<div class="ckbox"><INPUT TYPE=checkbox NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
-		
+	var checkbox = '<div class="ckbox"><INPUT TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
+
 	//Don't show remove, delete, or checkbox options for active copy of OneFileCMS.
 	var IS_OFCMS = DIRECTORY_DATA[x][4];
 	if (IS_OFCMS) { ren_mov = del = checkbox = ''; }
-		
+
 	TABLE_ROW += "<tr>";
-	TABLE_ROW += '<td class="RCD">' + ren_mov  + '</td>';
-	TABLE_ROW += '<td class="RCD">' + copy     + '</td>';
-	TABLE_ROW += '<td class="RCD">' + del      + '</td>';
-	TABLE_ROW += '<td class=""   >' + checkbox + '</td>';
+	TABLE_ROW += '<td>' + ren_mov  + '</td>';
+	TABLE_ROW += '<td>' + copy     + '</td>';
+	TABLE_ROW += '<td>' + del      + '</td>';
+	TABLE_ROW += '<td>' + checkbox + '</td>';
 	TABLE_ROW += '<td class="file_name"       >' + file_name  + '</td>';
 	TABLE_ROW += '<td class="meta_T file_size">' + file_size  + '</td>';
-	TABLE_ROW += '<td class="meta_T file_time">' + time_stamp + '</td>';
+	TABLE_ROW += '<td class="meta_T file_time">' + file_time + '</td>';
 	TABLE_ROW += "</tr>\n";
-		
+
 	return TABLE_ROW;
 }//end Assemble_row() //**********************************************
 
@@ -3116,36 +3137,48 @@ function Directory_Summary() { //*************************************
 function Build_Directory() { //***************************************
 	//Build data from DIRECTORY_DATA into a set of <tr>'s
 
+	//raw directory info
 	var DIRECTORY_LIST	= "";
 	var filetype    = '';
-	var filename = file_name = time_stamp = '';
+	var filename	= '';
 	var filesize    =  0;
+	var filetime	= '';
+
+	//formatted and/or marked up directory info
+	var file_name	= '';
+	var file_size   = '';
+	var file_time	= '';
+	
+	var DS          = ''; // ' /' for folders, blank otherwise.
+	var f_or_f      = ''; // 'file' or 'folder'
+	var HREF_params = ''; // <a href=HREF_params>file_name</a>
 
 	for (var x=0; x < DIRECTORY_DATA.length; x++) {
 		
 		filetype = DIRECTORY_DATA[x][0];
 		filename = DIRECTORY_DATA[x][1];
 		filesize = DIRECTORY_DATA[x][2];
+		filetime = DIRECTORY_DATA[x][3]
 		
 		//folder or file?  And file_size
 		if (filetype == "dir"){
-			var DS = ' /';         // ' /' for folders, blank otherwise.
-			var f_or_f = 'folder'; // 'file' or 'folder'
-			var HREF_params = ONESCRIPT + PARAM1 + encodeURIComponent(filename);
-			var file_size = '';
+			DS           = ' /';
+			f_or_f       = 'folder';
+			HREF_params  = ONESCRIPT + PARAM1 + encodeURIComponent(filename);
+			file_size    = '';
 		} else {
-			var DS = '';
-			var f_or_f = 'file';
-			var HREF_params = ONESCRIPT + PARAM1 + '&amp;f=' + encodeURIComponent(filename);
-			var file_size = format_number(filesize) + ' B';
+			DS           = '';
+			f_or_f       = 'file';
+			HREF_params  = ONESCRIPT + PARAM1 + '&amp;f=' + encodeURIComponent(filename)  + '&amp;p=edit';
+			file_size    = format_number(filesize) + ' B';
 		}
 		
-		file_name  = '<a href="' + HREF_params  + '&amp;p=edit"';
+		file_name  = '<a href="' + HREF_params + '"';
 		file_name += ' title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
 		file_name += ICONS[filetype] + '&nbsp;' + hsc(filename) + DS + '</a>';
-		time_stamp = FileTimeStamp(DIRECTORY_DATA[x][3], 1, 0, 0);
+		file_time  = FileTimeStamp(filetime, 1, 0, 0);
 		
-		DIRECTORY_LIST += Assemble_row(x, HREF_params, f_or_f, filename, file_name, time_stamp, file_size)
+		DIRECTORY_LIST += Assemble_row(x, HREF_params, f_or_f, filename, file_name, file_time, file_size)
 		
 	}//end for x
 
@@ -3233,8 +3266,8 @@ function Edit_Page_scripts() { //***********************************************
 	$WYSIWYG_onclick = "parent.location = onclick_params + 'edit'; ".$set_cookie;
 
 	//For [Close] button
-	$close_params = $ONESCRIPT.$param1;                             //If came from admin page, return there.
-	if ( $_SESSION['admin_page'] ) { $close_params .= '&p=admin'; } //##### But, as of 3.5.07, does this occur?
+	$close_params = $ONESCRIPT.$param1;
+	if ( $_SESSION['admin_page'] ) { $close_params .= '&p=admin'; } //If came from admin page, return there.
 ?>
 <!--======== Provide feedback re: unsaved changes ========-->
 <script>
@@ -3485,7 +3518,7 @@ function js_hash_scripts() { //*************************************************
  * A JavaScript implementation of SHA-256, as defined in FIPS 180-2
  * Version 2.2 Copyright Angel Marin, Paul Johnston 2000 - 2009.
  * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
- * Distributed under the BSD License
+ * Distributed under the BSD License 
  * See http://pajhome.org.uk/crypt/md5 for details.
  * Also http://anmar.eu.org/projects/jssha2/
  */
@@ -3494,7 +3527,7 @@ var hexcase=0;function hex_sha256(a){return rstr2hex(rstr_sha256(str2rstr_utf8(a
 
 
 <script>
-//OneFileCMS wrapper function for using hex_sha256() functions
+//OneFileCMS wrapper function for using the hex_sha256() functions
 function hash($element_id) {
 	var $input = document.getElementById($element_id);
 	var $hash = trim($input.value); //trim() defined in common_scripts()
@@ -3631,15 +3664,13 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 
 /*** Select All [x] ***/
 #select_all_th { min-width: 60px ; max-width: 70px; text-align: right; padding:  0 0 0 0; } /*TRBL*/
-#select_all {margin: 3px 0 0 0;}  /*checkbox*/
+#select_all {margin: 3px 0 0 0; cursor : pointer;}  /*checkbox*/
 #select_all_label { 
 	font   : 400 .84em arial;
 	color  : #333;
-	cursor : pointer;
 	border-right: solid transparent 1px;
-	Xdisplay: inline-block;     /* //#### when select all was above table, not in it*/
-	Xwidth  : 72px;			    /* //#### when select all was above table, not in it*/
 	padding: 3px 2px 2px 2px;
+	cursor : pointer;
 	}
 
 #select_all_label:hover  { border-left: 1px solid #777; background-color: rgb(255,250,150); }
@@ -3650,20 +3681,27 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 .ckbox {padding: 2px 4px 0 4px}
 .ckbox:focus { background-color: rgb(255,250,150); }
 .ckbox:hover { background-color: rgb(255,250,150); }
+.select_file {cursor : pointer;}
 
 
 /*** [x] Folders First ***/
-#folders_first_ckbox {margin: 3px 0 0px 4px;}
+#folders_first_ckbox {margin: 3px 0 0px 4px;cursor : pointer;}
 #folders_first_label {
 	border: solid 1px transparent;
 	font-size: .9em;
 	font-weight: normal;
 	color: #333; margin: 0;
 	padding: 3px 0 2px 0;
+	cursor : pointer;
 }
 
-#folders_first_label:hover {border: solid 1px #777; background-color: rgb(255,250,150); cursor:pointer;}
-#folders_first_label:focus {border: solid 1px #777; background-color: rgb(255,250,150);}
+#folders_first_label:hover {
+	border            : solid 1px #777;
+	background-color  : rgb(255,250,150);
+	cursor            : pointer;
+	border-left-color : silver;
+	border-right-color: silver;
+}
 
 
 /* --- Directory Listing --- */
@@ -3687,11 +3725,17 @@ table.index_T th:hover { background-color: white;}
 
 .index_T th.file_name   { text-align: left; }
 .index_T th.file_name a { display: inline-block; padding: 2px 3em 2px 2em; border-top-width: 0px; border-bottom-width: 0px;}
-#name_header {border-width: 0 1px 0 1px;}
+
+#header_filename       {border-width: 0 1px 0 1px;}
+#header_filename:hover {border-color: silver;}
+#header_filename:focus {border-color: silver;}
+
 .index_T th.file_size a { display  : block; padding: 2px 0 2px 0; }
 .index_T th.file_time a { display  : block; padding: 2px 0 2px 0; }
-#sort_type {float: right; padding: 1px 5px 3px 4px; border-width: 0px 0 0 1px;}
 
+#sort_type       {float: right; padding: 1px 5px 3px 4px; border-width: 0px 0 0 1px;}
+#sort_type:hover {border-color: silver;}
+#sort_type:focus {border-color: silver;}
 
 .file_name { min-width: 10em; max-width: 26em; }
 .file_size { min-width:  6em; padding-left: 10px; }
@@ -3942,7 +3986,7 @@ input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 
 #path_header a:hover  { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
 #path_header a:focus  { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
-#path_header a:active { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
+#path_header a:active { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(245,245,50); }
 
 </style>
 <?php
@@ -4109,4 +4153,4 @@ if ( ($page == "edit") && $WYSIWYG_VALID && $EDIT_WYSIWYG ) { include($WYSIWYG_P
 
 //Display any $message's
 if ($message != '') {echo '<script>Display_Messages(\''.addslashes($message).'\');</script>';}
-//END OF FILE ##################################################################
+//##### END OF FILE ############################################################

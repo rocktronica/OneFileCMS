@@ -1,5 +1,11 @@
 # OneFileCMS Change Log
 
+### v3.5.08 (2014-03-21)
+
+- Mostly just some code improvements/cleanup.
+- ...and css...
+
+
 ### v3.5.07 (2014-03-15)
 
 - Removed ability for OneFileCMS to edit itself - it is too risky an option.  If needed, make a copy & edit it.

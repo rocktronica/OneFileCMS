@@ -100,8 +100,8 @@ OneFileCMS can be configured to work with [TinyMCE](http://tinymce.moxiecode.com
   (Only tested on versions 5.2.8, 5.2.17, 5.3.3, and 5.4 + )
 - File permission privileges on your host.
 - A Javascript enabled browswer.
-- Most modern browsers probably work, but I only test on Firefox and Chrome.  
-  IE is currently a no go, as of v3.4.23. [v3.4.22 is available here](http://self-evident.github.com/OneFileCMS/onefilecms_3.4.22.zip)
+- Most* modern browsers probably work, but I only test on Firefox and Chrome.  
+  *IE, however, is currently a no go, as of OneFileCMS v3.4.23. [v3.4.22 is available here](http://self-evident.github.com/OneFileCMS/onefilecms_3.4.22.zip)
 - And- but only if you wish to see the icons- a browser that supports inline SVG.  
   (If your browser doesn't support inline SVG, OneFileCMS will still work, just without any icons.)
 
@@ -121,7 +121,7 @@ OneFileCMS can be configured to work with [TinyMCE](http://tinymce.moxiecode.com
 - As of v3.4.23, doesn't work in IE.  It seems IE doesn't support changing the innerHTML of some tags.  OneFile builds the directory in javascript, then displays it by changing the innerHTML of a &lt;tbody> tag of an existing &lt;table>.  And, since the alternative/fix/workaround would be a whole bunch more work, IE is currently not supported.  
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
 - The connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text* during login.  However, this is true of most online login systems, unless SSL or the like is employed.  
-  *As of version 3.4.15, a client-side hash of the user's "plain-text" password is sent to the server.  So, while this client-side hash is still a "plain-text" password as far as the server is concerned, the user's raw password is protected from immediate exposure.
+  *As of version 3.4.15, a client-side hash of the user's "plain-text" password is sent to the server.  So, while this client-side hash is still a "plain-text" password as far as the server is concerned, the user's actual raw password is protected from immediate exposure.
 - Be aware that only some very basic data & error checking is performed.  (But, it's getting better...)  
 - Anything else?
 
