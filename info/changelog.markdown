@@ -1,5 +1,10 @@
 # OneFileCMS Change Log
 
+### v3.5.09 (2014-03-22)
+
+- Restored IE 8+ support.
+- And, you know, tweaked some css...
+
 ### v3.5.08 (2014-03-21)
 
 - Mostly just some code improvements/cleanup.

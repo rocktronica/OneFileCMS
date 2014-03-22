@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.08';
+$OFCMS_version = '3.5.09';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -1797,7 +1797,7 @@ function Create_Table_for_Listing() { //****************************************
 
 	<?php //Directory & footer content will be inserted later. ?>
 	<tbody id=DIRECTORY_LISTING></tbody>
-	<tr    id=DIRECTORY_FOOTER></tr>
+	<tr><td id=DIRECTORY_FOOTER colspan=7></td</tr>
 	</table>
 <?php
 }//Create_Table_for_Listing() //************************************************
@@ -1893,6 +1893,7 @@ function Send_data_to_js_and_display() {//**************************************
 	}//end for x
 
 	//Initial sort & display of the directory, by (filename, ascending).
+	$data_for_js .= "var DIRECTORY_ITEMS = DIRECTORY_DATA.length;\n";
 	$data_for_js .= 'Sort_and_Show();'."\n";
 
 	$data_for_js .= "</script>\n";
@@ -1931,7 +1932,7 @@ function Index_Page_buttons_top($file_count) { //*******************************
 
 
  
-function Index_Page(){ //*******************************************************
+function Index_Page() { //******************************************************
 	global  $ONESCRIPT, $ipath_OS, $param1;
 	
 	init_ICONS_js();
@@ -3076,32 +3077,91 @@ function sort_DIRECTORY(col, direction) { //**************************
 
 
 
-//********************************************************************
-function Assemble_row(x, HREF_params, f_or_f, filename, file_name, file_time, file_size){
-	var TABLE_ROW = '';
+function Init_Dir_table_rows(DIR_LIST) { //***************************
 
-	//Assemble cell contents: [move] [copy] [delete] [x] <a>file name</a> etc...
-	var ren_mov = '<a href="' + HREF_params + '&amp;p=rename' + f_or_f + '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
-	var copy    = '<a href="' + HREF_params + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
-	var del     = '<a href="' + HREF_params + '&amp;p=delete' + f_or_f + '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
+	var row, cell, cells, tr, td;
+
+	for (row = 0; row < DIRECTORY_ITEMS; row++){
+		
+		//initialize <tr> with empty <td>'s
+		tr = DIR_LIST.insertRow(row);
+		for (cell = 0; cell < 7; cell++) {td = tr.insertCell(-1);}
+		cells = tr.cells;
+		
+		//assign css classes
+		cells[4].className = 'file_name';
+		cells[5].className = 'file_size meta_T';
+		cells[6].className = 'file_time meta_T';
+	}
+}//end Init_Dir_table_rows() { //*************************************
+
+
+
+
+//********************************************************************
+function Assemble_Insert_row(IS_OFCMS, trow, href, f_or_f, filename, file_name, file_size, file_time){
+
+	//Assemble [move] [copy] [delete] [x] 
+	var ren_mov = '<a href="' + href + '&amp;p=rename' + f_or_f + '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
+	var copy    = '<a href="' + href + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
+	var del     = '<a href="' + href + '&amp;p=delete' + f_or_f + '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
 	var checkbox = '<div class="ckbox"><INPUT TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
 
 	//Don't show remove, delete, or checkbox options for active copy of OneFileCMS.
-	var IS_OFCMS = DIRECTORY_DATA[x][4];
 	if (IS_OFCMS) { ren_mov = del = checkbox = ''; }
 
-	TABLE_ROW += "<tr>";
-	TABLE_ROW += '<td>' + ren_mov  + '</td>';
-	TABLE_ROW += '<td>' + copy     + '</td>';
-	TABLE_ROW += '<td>' + del      + '</td>';
-	TABLE_ROW += '<td>' + checkbox + '</td>';
-	TABLE_ROW += '<td class="file_name"       >' + file_name  + '</td>';
-	TABLE_ROW += '<td class="meta_T file_size">' + file_size  + '</td>';
-	TABLE_ROW += '<td class="meta_T file_time">' + file_time + '</td>';
-	TABLE_ROW += "</tr>\n";
+	//fill the <td>'s
+	cells = trow.cells;
+	cells[0].innerHTML = ren_mov;
+	cells[1].innerHTML = copy;
+	cells[2].innerHTML = del;
+	cells[3].innerHTML = checkbox;
+	cells[4].innerHTML = file_name;
+	cells[5].innerHTML = file_size;
+	cells[6].innerHTML = file_time;
 
-	return TABLE_ROW;
-}//end Assemble_row() //**********************************************
+}//end Assemble_Insert_row() //***************************************
+
+
+
+
+function Build_Directory() { //***************************************
+
+	var DIR_LIST = document.getElementById("DIRECTORY_LISTING");
+
+	if (DIR_LIST.rows.length < 1) {Init_Dir_table_rows(DIR_LIST);}
+
+	for (var row = 0; row < DIRECTORY_ITEMS; row++) {
+		
+		var filetype = DIRECTORY_DATA[row][0];
+		var filename = DIRECTORY_DATA[row][1];
+		var filesize = DIRECTORY_DATA[row][2];
+		var filetime = DIRECTORY_DATA[row][3];
+		
+		//folder or file?
+		if (filetype == "dir"){
+			var DS        = ' /';
+			var f_or_f    = 'folder';
+			var href      = ONESCRIPT + PARAM1 + encodeURIComponent(filename);
+			var file_size = '';
+		} else {
+			var DS        = '';
+			var f_or_f    = 'file';
+			var href      = ONESCRIPT + PARAM1 + '&amp;f=' + encodeURIComponent(filename) + '&amp;p=edit';
+			var file_size = format_number(filesize) + ' B';
+		}
+		
+		var file_name  = '<a href="' + href  + '"';
+			file_name += ' title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
+			file_name += ICONS[filetype] + '&nbsp;' + hsc(filename) + DS + '</a>';
+		var file_time  = FileTimeStamp(filetime, 1, 0, 0);
+		
+		var IS_OFCMS = DIRECTORY_DATA[row][4];
+		var trow = DIR_LIST.rows[row];
+		
+		Assemble_Insert_row(IS_OFCMS, trow, href, f_or_f, filename, file_name, file_size, file_time);
+	}//end for (row...
+}//end Build_Directory() //*******************************************
 
 
 
@@ -3122,10 +3182,9 @@ function Directory_Summary() { //*************************************
 	}
 
 	//Directory Summary
-	SUMMARY += '<td colspan=7>';
 	SUMMARY += folder_count + " <?php echo hsc($_['folders']) ?>, &nbsp; ";
 	SUMMARY += total_items - folder_count + ' <?php echo hsc($_['files']) ?>, ';
-	SUMMARY += '&nbsp; ' + format_number(total_bytes) + " <?php echo hsc($_['bytes']) ?></td>";
+	SUMMARY += '&nbsp; ' + format_number(total_bytes) + " <?php echo hsc($_['bytes']) ?>";
 
 	return SUMMARY;
 
@@ -3134,69 +3193,16 @@ function Directory_Summary() { //*************************************
 
 
 
-function Build_Directory() { //***************************************
-	//Build data from DIRECTORY_DATA into a set of <tr>'s
-
-	//raw directory info
-	var DIRECTORY_LIST	= "";
-	var filetype    = '';
-	var filename	= '';
-	var filesize    =  0;
-	var filetime	= '';
-
-	//formatted and/or marked up directory info
-	var file_name	= '';
-	var file_size   = '';
-	var file_time	= '';
-	
-	var DS          = ''; // ' /' for folders, blank otherwise.
-	var f_or_f      = ''; // 'file' or 'folder'
-	var HREF_params = ''; // <a href=HREF_params>file_name</a>
-
-	for (var x=0; x < DIRECTORY_DATA.length; x++) {
-		
-		filetype = DIRECTORY_DATA[x][0];
-		filename = DIRECTORY_DATA[x][1];
-		filesize = DIRECTORY_DATA[x][2];
-		filetime = DIRECTORY_DATA[x][3]
-		
-		//folder or file?  And file_size
-		if (filetype == "dir"){
-			DS           = ' /';
-			f_or_f       = 'folder';
-			HREF_params  = ONESCRIPT + PARAM1 + encodeURIComponent(filename);
-			file_size    = '';
-		} else {
-			DS           = '';
-			f_or_f       = 'file';
-			HREF_params  = ONESCRIPT + PARAM1 + '&amp;f=' + encodeURIComponent(filename)  + '&amp;p=edit';
-			file_size    = format_number(filesize) + ' B';
-		}
-		
-		file_name  = '<a href="' + HREF_params + '"';
-		file_name += ' title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
-		file_name += ICONS[filetype] + '&nbsp;' + hsc(filename) + DS + '</a>';
-		file_time  = FileTimeStamp(filetime, 1, 0, 0);
-		
-		DIRECTORY_LIST += Assemble_row(x, HREF_params, f_or_f, filename, file_name, file_time, file_size)
-		
-	}//end for x
-
-	return DIRECTORY_LIST;
-
-} //end Build_Directory() //******************************************
-
-
-
 function Sort_and_Show(col, direction) { //***************************
 
 	sort_DIRECTORY(col, direction); //Sort DIRECTORY_DATA
 
-	document.getElementById('DIRECTORY_LISTING').innerHTML = Build_Directory();
+	Build_Directory();
 
 	document.getElementById('DIRECTORY_FOOTER').innerHTML = Directory_Summary();
 
 }//end Sort_and_Show() { //*******************************************
+
 
 
 
@@ -3743,7 +3749,7 @@ table.index_T th:hover { background-color: white;}
 
 .meta_T { padding-right: 4px; text-align: right; font-family: courier; font-size: .9em; color: #222; }
 
-#DIRECTORY_FOOTER td {text-align: center; font-size: .9em; color: #333; padding: 3px 0 0 0; }
+#DIRECTORY_FOOTER {text-align: center; font-size: .9em; color: #333; padding: 3px 0 0 0; }
 
 
 /*** front_links:  [New File] [New Folder] [Upload File] ***/
@@ -3762,9 +3768,9 @@ table.index_T th:hover { background-color: white;}
 
 /*These must go after .front_links and other style that affect <a> tags*/
 a { border: 1px solid transparent; text-decoration: none; }  /*color: rgb(100,45,0);*/
-a:focus  { border: 1px solid #777; background-color: rgb(255,250,150); }
-a:hover  { border: 1px solid #777; background-color: rgb(255,250,150); }
-a:active { border: 1px solid #777; background-color: rgb(245,245,50);  }
+a:focus  { border: 1px solid #333; background-color: rgb(255,250,150); }
+a:hover  { border: 1px solid #333; background-color: rgb(255,250,150); }
+a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
 
 
 /*** [Move] [Copy] [Delete] ***/
@@ -3784,9 +3790,9 @@ a:active { border: 1px solid #777; background-color: rgb(245,245,50);  }
 	background-color: #EEE;
 	}
 
-#mcd_submit button:focus  { background-color: rgb(255,250,150); }
-#mcd_submit button:hover  { background-color: rgb(255,250,150); }
-#mcd_submit button:active { background-color: rgb(245,245,50); }
+#mcd_submit button:focus  { border: 1px solid #333; background-color: rgb(255,250,150); }
+#mcd_submit button:hover  { border: 1px solid #333; background-color: rgb(255,250,150); }
+#mcd_submit button:active { border: 1px solid #333; background-color: rgb(245,245, 50); }
 
 .buttons_right         { float: right; }
 .buttons_right .button { margin-left: .5em; }
@@ -3811,14 +3817,15 @@ a:active { border: 1px solid #777; background-color: rgb(245,245,50);  }
 
 .nav   { float: right; display: inline-block; margin-top: 1.35em; font-size : 1em; }
 .nav a { border: 1px solid transparent; font-weight: bold; padding: .2em .6em .1em .6em; }
-.nav a:hover  { border: 1px solid #777; }
-.nav a:focus  { border: 1px solid #777; }
-.nav a:active { border: 1px solid #777; }
+.nav a:hover  { border: 1px solid #333; }
+.nav a:focus  { border: 1px solid #333; }
+.nav a:active { border: 1px solid #333; }
 
 
 /* --- edit --- */
 
 #edit_header  {margin: .5em 0 0 0;}
+#edit_header a:hover  { border: 1px solid #000; }
 
 #edit_form    {margin: 0;}
 
@@ -3973,7 +3980,7 @@ input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 	font-weight: normal;
 	padding: 0 .5em 0 0;
 	margin: .5em 0 0 0;
-}
+	}
 
 #path_header a {
 	outline: none;
@@ -3982,7 +3989,7 @@ input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 	border-right: solid 1px transparent;
 	display: inline-block;
 	padding: 1px 5px 0 5px;
-}
+	}
 
 #path_header a:hover  { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
 #path_header a:focus  { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
