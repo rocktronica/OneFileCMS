@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.08
+Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.09
 *******************************************************************************/
 
 /* --- reset --- */
@@ -198,7 +198,7 @@ table.index_T th:hover { background-color: white;}
 
 .meta_T { padding-right: 4px; text-align: right; font-family: courier; font-size: .9em; color: #222; }
 
-#DIRECTORY_FOOTER td {text-align: center; font-size: .9em; color: #333; padding: 3px 0 0 0; }
+#DIRECTORY_FOOTER {text-align: center; font-size: .9em; color: #333; padding: 3px 0 0 0; }
 
 
 /*** front_links:  [New File] [New Folder] [Upload File] ***/
@@ -217,9 +217,9 @@ table.index_T th:hover { background-color: white;}
 
 /*These must go after .front_links and other style that affect <a> tags*/
 a { border: 1px solid transparent; text-decoration: none; }  /*color: rgb(100,45,0);*/
-a:focus  { border: 1px solid #777; background-color: rgb(255,250,150); }
-a:hover  { border: 1px solid #777; background-color: rgb(255,250,150); }
-a:active { border: 1px solid #777; background-color: rgb(245,245,50);  }
+a:focus  { border: 1px solid #333; background-color: rgb(255,250,150); }
+a:hover  { border: 1px solid #333; background-color: rgb(255,250,150); }
+a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
 
 
 /*** [Move] [Copy] [Delete] ***/
@@ -239,9 +239,9 @@ a:active { border: 1px solid #777; background-color: rgb(245,245,50);  }
 	background-color: #EEE;
 	}
 
-#mcd_submit button:focus  { background-color: rgb(255,250,150); }
-#mcd_submit button:hover  { background-color: rgb(255,250,150); }
-#mcd_submit button:active { background-color: rgb(245,245,50); }
+#mcd_submit button:focus  { border: 1px solid #333; background-color: rgb(255,250,150); }
+#mcd_submit button:hover  { border: 1px solid #333; background-color: rgb(255,250,150); }
+#mcd_submit button:active { border: 1px solid #333; background-color: rgb(245,245, 50); }
 
 .buttons_right         { float: right; }
 .buttons_right .button { margin-left: .5em; }
@@ -266,14 +266,15 @@ a:active { border: 1px solid #777; background-color: rgb(245,245,50);  }
 
 .nav   { float: right; display: inline-block; margin-top: 1.35em; font-size : 1em; }
 .nav a { border: 1px solid transparent; font-weight: bold; padding: .2em .6em .1em .6em; }
-.nav a:hover  { border: 1px solid #777; }
-.nav a:focus  { border: 1px solid #777; }
-.nav a:active { border: 1px solid #777; }
+.nav a:hover  { border: 1px solid #333; }
+.nav a:focus  { border: 1px solid #333; }
+.nav a:active { border: 1px solid #333; }
 
 
 /* --- edit --- */
 
 #edit_header  {margin: .5em 0 0 0;}
+#edit_header a:hover  { border: 1px solid #000; }
 
 #edit_form    {margin: 0;}
 
@@ -428,7 +429,7 @@ input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 	font-weight: normal;
 	padding: 0 .5em 0 0;
 	margin: .5em 0 0 0;
-}
+	}
 
 #path_header a {
 	outline: none;
@@ -437,7 +438,7 @@ input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 	border-right: solid 1px transparent;
 	display: inline-block;
 	padding: 1px 5px 0 5px;
-}
+	}
 
 #path_header a:hover  { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
 #path_header a:focus  { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
