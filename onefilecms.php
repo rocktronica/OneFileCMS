@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.09';
+$OFCMS_version = '3.5.10';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -66,7 +66,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ob_start(); //Catch any early output. Closed prior to page output.
 ini_set('session.use_trans_sid', 0);    //make sure URL supplied SESSID's are not used
 ini_set('session.use_only_cookies', 1); //make sure URL supplied SESSID's are not used
-error_reporting(E_ALL & ~E_STRICT);  //(E_ALL &~ E_STRICT) for everything, 0 for none.
+error_reporting(E_ALL & ~E_STRICT);     //(E_ALL &~ E_STRICT) for everything, 0 for none.
 ini_set('display_errors', 'on');
 ini_set('log_errors'    , 'off');
 ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
@@ -3277,7 +3277,7 @@ function Edit_Page_scripts() { //***********************************************
 ?>
 <!--======== Provide feedback re: unsaved changes ========-->
 <script>
-var onclick_params = '<?php echo $ONESCRIPT.$param1.'&f='.basename($filename).'&p=' ?>';
+var onclick_params = '<?php echo $ONESCRIPT.$param1.'&f='.rawurlencode(basename($filename)).'&p=' ?>';
 
 var Main_div		   = document.getElementById('main');
 var File_textarea      = document.getElementById('file_editor');

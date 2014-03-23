@@ -91,6 +91,8 @@ OneFileCMS can be configured to work with [TinyMCE](http://tinymce.moxiecode.com
 
 - If you need to upload a lots of files, an FTP program may be a bit more flexible & practicle.
 
+- Directories with many (hundreds) of files, may take a few seconds to display or resort (by size, date, etc).  On my system, a 2.5ghz desktop running XP, it takes 2 to 4 seconds to display or resort a directory with 200 files.
+
 
 --------------------------------------------------------------------------------
 
@@ -118,7 +120,7 @@ OneFileCMS can be configured to work with [TinyMCE](http://tinymce.moxiecode.com
 ##Needed/potential improvements
 
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
-- The connection is not encrypted (doesn't use SSL), so passwords & usernames are sent in clear text* during login.  However, this is true of most online login systems, unless SSL or the like is employed.  
+- If your website's connection is not encrypted (doesn't use SSL/TLS), passwords & usernames will be sent in clear text* during login.  However, this is true of any online login system that's over an unencrypted connection.
   *As of version 3.4.15, a client-side hash of the user's "plain-text" password is sent to the server.  So, while this client-side hash is still a "plain-text" password as far as the server is concerned, the user's actual raw password is protected from immediate exposure.
 - Be aware that only some very basic data & error checking is performed.  (But, it's getting better...)  
 - Anything else?

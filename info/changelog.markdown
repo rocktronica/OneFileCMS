@@ -1,5 +1,10 @@
 # OneFileCMS Change Log
 
+### v3.5.10 (2014-03-23)
+
+- Just a quick fix to a minor issue: needed to urlencode an onclick parameter.
+- Also a few minor updates to the readme.
+
 ### v3.5.09 (2014-03-22)
 
 - Restored IE 8+ support.
