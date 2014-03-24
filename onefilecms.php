@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.10';
+$OFCMS_version = '3.5.11';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -349,7 +349,7 @@ $_['Password'] = 'Password';
 $_['Rename']   = 'Rename';
 $_['reset']    = 'Reset';
 $_['save_1']   = 'Save';
-$_['save_2']   = 'SAVE CHANGES'; //#### removed '!' in 3.5.07
+$_['save_2']   = 'SAVE CHANGES';
 $_['Size']     = 'Size';
 $_['Source']   = 'Source'; 
 $_['successful'] = 'successful';
@@ -2162,9 +2162,6 @@ function Edit_Page() { //*******************************************************
 	elseif ($text_editable && !$too_large_to_edit && !$IS_OFCMS) { $header2 = hsc($_['edit_h2_2']); }
 	else									  					 { $header2 = hsc($_['edit_h2_1']); }
 
-	//Preserves vertical spacing when message is closed, so edit area doesn't jump as much.
-	echo '<style>#message_box { min-height: 1.88em; }</style>';
-
 	echo '<h2 id="edit_header">'.$header2.' ';
 	echo '<a class="h2_filename" href="/'.URLencode_path($filename).'" target="_blank" title="'.hsc($_['Open_View']).'">';
 	echo hsc(basename($filename)).'</a>';
@@ -2938,14 +2935,23 @@ function FileTimeStamp(php_filemtime, show_date, show_offset, write_return){
 
 
 
-function Display_Messages($message) { //******************************
-	var $page = '<?php echo $page ?>';
-	var $onclick = 'document.getElementById("message_box").innerHTML = " ";return false;';
-	var $X_box   =  '<a id="X_box" href="" onclick=\'' + $onclick + '\'>x</a>';
-	var $MESSAGE = '<div class=message_box_contents>' + $message + '</div>';
-	document.getElementById("message_box").innerHTML = $X_box + $MESSAGE;
+function Display_Messages($msg, new_focus) { //*******************
 
-	if ($page == 'index') { document.getElementById("X_box").focus(); }
+	var $X_box		 = '<button type=button id="X_box">x</button>';
+	var $MESSAGE	 = '<div class=message_box_contents>' + $msg + '</div>';
+	var $message_box = document.getElementById("message_box");
+	var $new_focus	 = document.getElementById(new_focus)
+	
+	if ($msg == '') {$message_box.innerHTML = ' ';} //innerHTML must have a space or $message won't clear.
+	else				{
+		$message_box.innerHTML = $X_box + $MESSAGE;
+		document.getElementById("X_box").focus();
+	}
+
+	var $X_box_btn	 = document.getElementById('X_box');
+
+	if ($new_focus) { $X_box_btn.onclick = function () { $message_box.innerHTML = " "; $new_focus.focus();} }
+
 }//end Display_Messages() //******************************************
 
 </script>
@@ -2966,11 +2972,11 @@ var Header_Filesize		= document.getElementById('header_filesize');
 var Header_Filedate		= document.getElementById('header_filedate');
 
 Select_All_ckbox.onclick	 = function () {Select_All();}
-Folders_First_Ckbox.onclick  = function () {Sort_and_Show(SORT_by, SORT_order);}
-Header_Filename.onclick  = function () {Sort_and_Show(1, FLIP_IF); return false;}
-Header_Filesize.onclick  = function () {Sort_and_Show(2, FLIP_IF); return false;}
-Header_Filedate.onclick  = function () {Sort_and_Show(3, FLIP_IF); return false;}
-Sort_Type.onclick		 = function () {Sort_and_Show(5, FLIP_IF); return false;}
+Folders_First_Ckbox.onclick  = function () {Sort_and_Show(SORT_by, SORT_order); this.focus()}
+Header_Filename.onclick  = function () {Sort_and_Show(1, FLIP_IF); this.focus(); return false;}
+Header_Filesize.onclick  = function () {Sort_and_Show(2, FLIP_IF); this.focus(); return false;}
+Header_Filedate.onclick  = function () {Sort_and_Show(3, FLIP_IF); this.focus(); return false;}
+Sort_Type.onclick		 = function () {Sort_and_Show(5, FLIP_IF); this.focus(); return false;}
 </script>
 <?php
 }//end Index_Page_onclicks() //*************************************************
@@ -2979,7 +2985,7 @@ Sort_Type.onclick		 = function () {Sort_and_Show(5, FLIP_IF); return false;}
 
 
 function Index_Page_scripts() { //**********************************************
-	global $_, $ONESCRIPT, $param1, $ipath;
+	global $_, $ONESCRIPT, $param1, $ipath, $message;
 ?>
 <script>
 //  DIRECTORY_DATA[x] = ("type", "file name", filesize, timestamp, is_ofcms, "ext")	
@@ -3195,11 +3201,15 @@ function Directory_Summary() { //*************************************
 
 function Sort_and_Show(col, direction) { //***************************
 
-	sort_DIRECTORY(col, direction); //Sort DIRECTORY_DATA
+	//(Any pre-existing $message will be displayed after directory is displayed.)
+	Display_Messages('<b><?php echo $_['Working'] ?></b>');
 
-	Build_Directory();
-
-	document.getElementById('DIRECTORY_FOOTER').innerHTML = Directory_Summary();
+	setTimeout( function () { //setTimeout() needed so 'Working' message will actually get displayed *before* the sort.
+		sort_DIRECTORY(col, direction); //Sort DIRECTORY_DATA
+		Build_Directory();
+		document.getElementById('DIRECTORY_FOOTER').innerHTML = Directory_Summary();
+		Display_Messages('');
+	}, 20); //20 seems sufficient for the 'Working' message to reliably display in Firefox. (For the most part.)
 
 }//end Sort_and_Show() { //*******************************************
 
@@ -3275,7 +3285,6 @@ function Edit_Page_scripts() { //***********************************************
 	$close_params = $ONESCRIPT.$param1;
 	if ( $_SESSION['admin_page'] ) { $close_params .= '&p=admin'; } //If came from admin page, return there.
 ?>
-<!--======== Provide feedback re: unsaved changes ========-->
 <script>
 var onclick_params = '<?php echo $ONESCRIPT.$param1.'&f='.rawurlencode(basename($filename)).'&p=' ?>';
 
@@ -3600,7 +3609,7 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 
 /* --- layout --- */
 
-.container {
+#main {
 	border : 0px solid #777;
 	width  : 810px;     /*Adjusted by $MAIN_WIDTH config variable*/
 	margin : 0 auto 2em auto;
@@ -3632,7 +3641,7 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 	}
 
 
-#message_box { border: none; margin: .5em 0 0 0; padding: 0; }
+#message_box { border: none; margin: .5em 0 0 0; padding: 0; min-height: 1.88em;}
 
 .message_box_contents { border: 1px solid gray; padding: 3px 2px 2px 4px; background: #FFF000; }
 
@@ -3730,9 +3739,9 @@ table.index_T th:hover { background-color: white;}
 .index_T th a { padding: 1px 0 1px 0; border-width: 0px;}
 
 .index_T th.file_name   { text-align: left; }
-.index_T th.file_name a { display: inline-block; padding: 2px 3em 2px 2em; border-top-width: 0px; border-bottom-width: 0px;}
+.index_T th.file_name a { display: inline-block; padding: 2px 2.5em 2px 1.5em; border-top-width: 0px; border-bottom-width: 0px;}
 
-#header_filename       {border-width: 0 1px 0 1px;}
+#header_filename       {border-width: 0 1px 0 1px; min-width: 2.5em;}
 #header_filename:hover {border-color: silver;}
 #header_filename:focus {border-color: silver;}
 
@@ -3743,7 +3752,7 @@ table.index_T th:hover { background-color: white;}
 #sort_type:hover {border-color: silver;}
 #sort_type:focus {border-color: silver;}
 
-.file_name { min-width: 10em; max-width: 26em; }
+.file_name { max-width: 26em; }
 .file_size { min-width:  6em; padding-left: 10px; }
 .file_time { min-width: 10em; padding-left: 10px; }
 
@@ -3864,16 +3873,16 @@ a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
 
 /* --- log in --- */
 
-.login_page {
+#login_page {
 	border  : 1px solid #777;
 	width   : 370px;
 	margin  : 5em auto;
 	padding : .5em 1.2em .1em 1em;
 	}
 
-.login_page .nav { margin-top: .5em; }
+#login_page .nav { margin-top: .5em; }
 
-.login_page input {margin: 0 0 .7em 0;}
+#login_page input {margin: 0 0 .7em 0;}
 
 
 hr { /*-- -- -- -- -- -- --*/
@@ -4003,10 +4012,10 @@ input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 
 
 function Language_and_config_adjusted_styles() { //*****************************
-	global $_, $MAIN_WIDTH;
+	global $_, $MAIN_WIDTH, $message, $page;
 ?>
 <style>
-.container { width: <?php echo $MAIN_WIDTH ?>; } /*Default 810px*/
+#main { width: <?php echo $MAIN_WIDTH ?>; } /*Default 810px*/
 
 .button {
 	padding  : <?php echo $_['button_padding']   ?>; /*Default 4px 7px 4px 7px */
@@ -4027,7 +4036,7 @@ function Language_and_config_adjusted_styles() { //*****************************
 	}
 	
 #select_all_label { font-size: <?php echo $_['select_all_label_size']?>; } /*Default .84em */
-#select_all_label { width: <?php echo $_['select_all_label_width']?>; }    /*Default 72px  As of 3.4.23 Not currently used.*/
+#select_all_label { width: <?php echo $_['select_all_label_width']?>; }    /*Default 72px  Not used as of 3.4.23 */
 </style>
 <?php
 }//end Language_and_config_adjusted_styles() //*********************************
@@ -4129,8 +4138,8 @@ echo '</head><body>';
 
 Error_reporting_status_and_early_output(0,0); //0,0 will only show early output.
 
-if ($_SESSION['valid']) { echo '<div id="main" class="container" >'; }
-else                    { echo '<div id="main" class="login_page">'; }
+if ($_SESSION['valid']) { echo '<div id="main" >'; }
+else                    { echo '<div id="login_page">'; }
 
 Page_Header();
 
@@ -4153,11 +4162,22 @@ if ($_SESSION['valid']) {
 	}
 }//end footer
 
-echo '</div>'; //end container/login_page
-echo '</body></html>';
+echo '</div>'; //end main/login_page
+echo "</body></html>\n";
 
 if ( ($page == "edit") && $WYSIWYG_VALID && $EDIT_WYSIWYG ) { include($WYSIWYG_PLUGIN_OS); }
 
-//Display any $message's
-if ($message != '') {echo '<script>Display_Messages(\''.addslashes($message).'\');</script>';}
+//Lastly, display any $message's
+?>
+<script>
+	var $page	  = '<?php echo $page ?>';
+	var $message  = '<?php echo addslashes($message) ?>';
+	var new_focus = '';
+	if      ($page == 'index') { new_focus = 'header_filename'; document.getElementById('header_filename').focus(); }
+	else if ($page == 'edit')  { new_focus = 'close1'; }
+
+	//The setTimeout() time should be greater than what is set for the Sort_and_Show() "working..." message.
+	setTimeout('Display_Messages($message, new_focus)',25);
+</script>
+<?php
 //##### END OF FILE ############################################################

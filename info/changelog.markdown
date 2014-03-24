@@ -1,5 +1,11 @@
 # OneFileCMS Change Log
 
+### v3.5.11 (2014-03-24)
+
+- Improved some $message handling & focus() responses.
+- Some minor readme updates.
+- some css...
+
 ### v3.5.10 (2014-03-23)
 
 - Just a quick fix to a minor issue: needed to urlencode an onclick parameter.

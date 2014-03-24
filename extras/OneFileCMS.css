@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.09
+Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.11
 *******************************************************************************/
 
 /* --- reset --- */
@@ -49,7 +49,7 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 
 /* --- layout --- */
 
-.container {
+#main {
 	border : 0px solid #777;
 	width  : 810px;     /*Adjusted by $MAIN_WIDTH config variable*/
 	margin : 0 auto 2em auto;
@@ -81,7 +81,7 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 	}
 
 
-#message_box { border: none; margin: .5em 0 0 0; padding: 0; }
+#message_box { border: none; margin: .5em 0 0 0; padding: 0; min-height: 1.88em;}
 
 .message_box_contents { border: 1px solid gray; padding: 3px 2px 2px 4px; background: #FFF000; }
 
@@ -179,9 +179,9 @@ table.index_T th:hover { background-color: white;}
 .index_T th a { padding: 1px 0 1px 0; border-width: 0px;}
 
 .index_T th.file_name   { text-align: left; }
-.index_T th.file_name a { display: inline-block; padding: 2px 3em 2px 2em; border-top-width: 0px; border-bottom-width: 0px;}
+.index_T th.file_name a { display: inline-block; padding: 2px 2.5em 2px 1.5em; border-top-width: 0px; border-bottom-width: 0px;}
 
-#header_filename       {border-width: 0 1px 0 1px;}
+#header_filename       {border-width: 0 1px 0 1px; min-width: 2.5em;}
 #header_filename:hover {border-color: silver;}
 #header_filename:focus {border-color: silver;}
 
@@ -192,7 +192,7 @@ table.index_T th:hover { background-color: white;}
 #sort_type:hover {border-color: silver;}
 #sort_type:focus {border-color: silver;}
 
-.file_name { min-width: 10em; max-width: 26em; }
+.file_name { max-width: 26em; }
 .file_size { min-width:  6em; padding-left: 10px; }
 .file_time { min-width: 10em; padding-left: 10px; }
 
@@ -313,16 +313,16 @@ a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
 
 /* --- log in --- */
 
-.login_page {
+#login_page {
 	border  : 1px solid #777;
 	width   : 370px;
 	margin  : 5em auto;
 	padding : .5em 1.2em .1em 1em;
 	}
 
-.login_page .nav { margin-top: .5em; }
+#login_page .nav { margin-top: .5em; }
 
-.login_page input {margin: 0 0 .7em 0;}
+#login_page input {margin: 0 0 .7em 0;}
 
 
 hr { /*-- -- -- -- -- -- --*/

@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.5.07
+// OneFileCMS Language Settings v3.5.11
 
 $_['LANGUAGE'] = 'Nederlands (Dutch)';
 $_['LANG'] = 'NL';
@@ -61,7 +61,7 @@ $_['Password'] = 'Wachtwoord';
 $_['Rename']   = 'Hernoemen';
 $_['reset']    = 'Reset';   //## NT ##
 $_['save_1']   = 'Opslaan';
-$_['save_2']   = 'WIJZIGINGEN OPSLAAN!';
+$_['save_2']   = 'WIJZIGINGEN OPSLAAN';
 $_['Size']     = 'Size';    //## NT ##
 $_['Source']   = 'Source';  //## NT ##
 $_['successful'] = 'succesvol';

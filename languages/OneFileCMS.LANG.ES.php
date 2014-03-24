@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.5.07
+// OneFileCMS Language Settings v3.5.11
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -61,7 +61,7 @@ $_['Password'] = 'contraseña';
 $_['Rename']   = 'Renombrar';
 $_['reset']    = 'Reiniciar';
 $_['save_1']   = 'Guardar';
-$_['save_2']   = '¡GUARDAR CAMBIOS!';
+$_['save_2']   = '¡GUARDAR CAMBIOS';
 $_['Size']     = 'Size';    //## NT ##
 $_['Source']   = 'Source';  //## NT ##
 $_['successful'] = 'satisfactoriamente';

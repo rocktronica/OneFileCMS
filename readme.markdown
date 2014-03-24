@@ -83,7 +83,7 @@ OneFileCMS can be configured to work with [TinyMCE](http://tinymce.moxiecode.com
 
 
 
-### What it is not?
+### Limitations
 
 - OneFileCMS would not be the best option for a site that requires different levels of privileges, unless all of the users are trusted to stay within their designated areas of responsibility. Since OneFileCMS allows file uploads and editing files directly on the web server, there is simply no way to secure against any particular action.  
 
@@ -91,7 +91,7 @@ OneFileCMS can be configured to work with [TinyMCE](http://tinymce.moxiecode.com
 
 - If you need to upload a lots of files, an FTP program may be a bit more flexible & practicle.
 
-- Directories with many (hundreds) of files, may take a few seconds to display or resort (by size, date, etc).  On my system, a 2.5ghz desktop running XP, it takes 2 to 4 seconds to display or resort a directory with 200 files.
+- Directories with many (hundreds) of files, may take a few seconds to display.  For instance, on my system- a 2.5gz desktop running XP, it takes 2 to 4 seconds to display a directory with 200 files.
 
 
 --------------------------------------------------------------------------------

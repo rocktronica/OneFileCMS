@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.5.07
+// OneFileCMS Language Settings v3.5.11
 
 $_['LANGUAGE'] = 'Russian';
 $_['LANG'] = 'RU';
@@ -61,7 +61,7 @@ $_['Password'] = 'Пароль';
 $_['Rename']   = 'Rename';  //## NT ##
 $_['reset']    = 'Сбросить';
 $_['save_1']   = 'Сохранить';
-$_['save_2']   = 'СОХРАНИТЬ ИЗМЕНЕНИЯ!';
+$_['save_2']   = 'СОХРАНИТЬ ИЗМЕНЕНИЯ';
 $_['Size']     = 'Size';    //## NT ##
 $_['Source']   = 'Source';  //## NT ##
 $_['successful'] = 'успешно';
