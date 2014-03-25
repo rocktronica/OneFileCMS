@@ -2,23 +2,36 @@
 
 ## Yes, that's *exactly* what it is!
 
-Main screen:
+OneFileCMS is a simple CMS (Content Management System) contained entirely in a single file, database-less PHP script.
+
+With basic editing, upload, and file managing functions, OneFileCMS can maintain an entire website completely in-browser without any external programs.
+
+### Main screen:
 ![OneFileCMS](http://self-evident.github.com/OneFileCMS/images/OneFileCMS_screenshot.png)
 
-Edit screen:
+###Edit screen:
 ![OneFileCMS](http://self-evident.github.com/OneFileCMS/images/OneFileCMS_screenshot_edit.png)
 
+--------------------------------------------------------------------------------
+## Contents:
+- [Demo](#demo)
+- [Features](#features)
+- [Installation](#installation)
+- [FAQ](#faq)
+- [Requirements](#requirements)
+- [Limitations and Considerations](#limitations)
+- [Needed/potential improvements](#potential)
+- [License, Credit, Et Cetera](#license)
+- [General layout/structure of OneFileCMS.php](#layout)
+- [Logs](#logs)
 
-**OneFileCMS** is just that: a simple CMS (Content Management System) contained entirely in a single, easy-to-implement, database-less PHP script.
-
-Coupling basic editing, upload, and file managing functions, OneFileCMS can maintain an entire website completely in-browser without any external programs.
-
-## Demo
+--------------------------------------------------------------------------------
+## <a name=demo></a>Demo
 
 - Just download & try the [current version](https://raw.github.com/Self-Evident/OneFileCMS/master/onefilecms.php) - it's one file!  
   
-
-## Features
+--------------------------------------------------------------------------------
+## <a name=features></a>Features
  
 - All the basic file management features like renaming, moving, copying, deleting, and uploading.
 - Sort directory listings by file name, extension, size, or date.
@@ -30,7 +43,8 @@ Coupling basic editing, upload, and file managing functions, OneFileCMS can main
 - Multi-language support.
 - <del>Possibly</del> The easiest installation process ever!
 
-## Installation
+--------------------------------------------------------------------------------
+## <a name=installation></a>Installation
 
 1) **Download** the [current version](https://raw.github.com/Self-Evident/OneFileCMS/master/onefilecms.php).  
 
@@ -45,20 +59,19 @@ As with any CMS, you may also have to modify the file permissions of your site's
 You can also change the file name from "onefilecms.php" to something else, such as "admin.php". (Be careful about making it a folder's default file: your server may get stuck in redirects.)
 
 --------------------------------------------------------------------------------
+## <a name=faq></a>FAQ
 
-## FAQ
+- [Multi-Language Support?](#language)
+- [I found something that could be better. Can I suggest it to you?](#suggestions)
+- [Can I have more than one username/password?](#multiuser)
+- [This is basically just a file manager with a text editor- why is it being called a CMS?](#handsaw)
+- [Where's the WYSISWYG?](#WYSIWYG)
+- [Why do I get a "Stop running script?" pop-up during login?](#slowlogin)
 
-### I found something that could be better. Can I suggest it to you?
 
-Yes, of course!
-
-I may not have the time/bandwidth/inclination to implement every feature, but I 'll do what I can. If you find a bug, please file a report on the issues page.
-
-
-### Multi-Language Support?
+### <a name=language></a>Multi-Language Support?
 
 Yes!  While English (EN) is the default - German (DE), Spanish (ES), Dutch (NL), and Russian (RU) are also available.
-
 
 - German (Deutsch) courtesy of [codeless](http://github.com/codeless).
 - Spanish (Espanõla) courtesy of [fermuch](http://github.com/fermuch).
@@ -67,22 +80,28 @@ Yes!  While English (EN) is the default - German (DE), Spanish (ES), Dutch (NL),
 
 If you speak another language and would like to contribute, translations are welcomed and appreciated!  Just use the English language file (or any of the others) as a template, and translate each word, phrase, etc., as appropriate.
 
-### Can I have more than one username/password?
+### <a name=suggestions></a>I found something that could be better. Can I suggest it to you?
+
+Yes, of course!
+
+I may not have the time/bandwidth/inclination to implement every feature, but I 'll do what I can. If you find a bug, please file a report on the issues page.
+
+### <a name=multiuser></a>Can I have more than one username/password?
 
 Yes!  Well, sort of... indirectly.  Upload or create addional copies of OneFileCMS, but give them different file names.(ex: OneFile1.php and OneFile2.php etc...)  Then, in each copy, maintain different usernames, passwords, and $session_name config values.  
   
 Now, since there is no database or other means of granular control or access logging, multiple usernames provides limited utility.  However, having at least one working backup copy of OneFileCMS available is recommended in case the primary copy gets corrupted.
 
-### This is basically just a file manager with a text editor- why is it being called a CMS?
+### <a name=handsaw></a>This is basically just a file manager with a text editor- why is it being called a CMS?
 
-Well, because "OneFileCMS" sounds way cooler (relatively speaking) than "OneFileFileManagerwithTextEditor".
+It may be simple, bit it can get the job done.  While you wouldn't want to build an entire house with just a hammer and hand saw, you can "manage" quite a bit with just those two tools (and nails, of course).  Besides, "OneFileCMS" sounds cool. 
 
-### Where's the WYSISWYG?
+### <a name=WYSIWYG></a>Where's the WYSISWYG?
 
 OneFileCMS can be easily configured to work with [TinyMCE](http://tinymce.moxiecode.com) or [CKEditor](http://ckeditor.com) (and possibly others), but the editors themselves must be obtained from their respective sites.  For basic setup instructions, read the appropriate "init" file from the extras/ directory in the OneFileCMS repo.  
 
 
-### Why do I get a "Stop running script?" pop-up during login?
+### <a name=slowlogin></a>Why do I get a "Stop running script?" pop-up during login?
 
 IE, version 8 at least, takes condsiderably longer (about 8 seconds on my test system) to run OneFile's javascript login functions than Chrome or Firefox.  Just click [No] and the login should continue normally after a few more seconds.  
 
@@ -90,22 +109,8 @@ Not counting the time the pop-up is waiting for a response, the 8 seconds previo
 
 See the global variable "$PRE\_ITERATIONS" at the end of System\_Setup().  It can be adjusted, but it's best to do so on a local copy in a development setup, then upload the updated copy.
 
-### Limitations & Considerations
-
-- OneFileCMS would not be the best option for a site that requires different levels of privileges, unless all of the users are trusted to stay within their designated areas of responsibility. Since OneFileCMS allows file uploads and editing files directly on the web server, there is simply no way to secure against any particular action.  
-
-  These issues, of course, are not unique to OneFileCMS - as they will exist in any CMS that permits unrestricted file editing & uploads.
-
-- If you need to upload a lots of files, an FTP program may be a bit more flexible & practicle.
-
-- Directories with many (hundreds) of files, may take a few seconds to display.  For instance, on my system- a 2.5gz desktop running XP, it takes 2 to 4 seconds to display a directory with 200 files.
-
-- If your website's connection is not encrypted (doesn't use SSL/TLS), passwords & usernames will be sent in clear text* during login.  However, this is true of any online login system that's over an unencrypted connection.  
-  *As of version 3.4.15, a client-side hash of the user's "plain-text" password is sent to the server.  So, while this client-side hash is still a "plain-text" password as far as the server is concerned, the user's actual raw password is protected from immediate exposure.
-
 --------------------------------------------------------------------------------
-
-## Requirements
+## <a name=requirements></a>Requirements
 
 - PHP 5.1+
   (Only tested on versions 5.2.8, 5.2.17, 5.3.3, and 5.4 + )
@@ -115,7 +120,22 @@ See the global variable "$PRE\_ITERATIONS" at the end of System\_Setup().  It ca
 - And- but only if you wish to see the icons- a browser that supports inline SVG.  
   (If your browser doesn't support inline SVG, OneFileCMS will still work, just without any icons.)
 
-## License, Credit, Et Cetera  
+--------------------------------------------------------------------------------
+## <a name=limitations></a>Limitations & Considerations
+
+- OneFileCMS would not be the best option for a site that requires different levels of privileges, unless all of the users are trusted to stay within their designated areas of responsibility. Since OneFileCMS allows file uploads and editing files directly on the web server, there is simply no way to secure against any particular action.  
+
+  These issues, of course, are not unique to OneFileCMS - as they will exist in any CMS that permits unrestricted file editing & uploads.
+
+- If you need to upload a lots of files, an FTP program may be a bit more flexible & practicle.
+
+- Directories with hundreds of files can take a several seconds to display.  For instance, on my system- a 2.5gz desktop running XP, it takes 2 to 4 seconds to display a directory with 200 files.
+
+- If your website's connection is not encrypted (doesn't use SSL/TLS), passwords & usernames will be sent in clear text* during login.  However, this is true of any login system that's over an unencrypted connection.  
+  *As of version 3.4.15, a client-side hash of the user's "plain-text" password is sent to the server.  So, while this client-side hash is still a "plain-text" password as far as the server is concerned, the user's actual raw password is protected from immediate exposure.
+
+--------------------------------------------------------------------------------
+## <a name=license></a>License, Credit, Et Cetera  
 
 - Available under the MIT and BSD licenses.
 - Original concept and development by github.com/rocktronica
@@ -126,15 +146,15 @@ See the global variable "$PRE\_ITERATIONS" at the end of System\_Setup().  It ca
 - To report a bug or request a feature, please file an issue via Github.
 - And, of course, please feel free to fork away!
 
-##Needed/potential improvements
+--------------------------------------------------------------------------------
+## <a name=potential></a>Needed/potential improvements
 
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
 - Be aware that only some very basic data & error checking is performed.  (But, it's getting better...)  
 - Anything else?
 
 --------------------------------------------------------------------------------
-
-### General layout/structure of OneFileCMS.php
+### <a name=layout></a>General layout/structure of OneFileCMS.php
   
 CONFIGURATION SECTION  
   
@@ -157,7 +177,6 @@ LOGIC TO DETERMINE PAGE ACTION
 GENERATE/OUTPUT THE PAGE  
 
 --------------------------------------------------------------------------------
-
-## [Change Log](http://self-evident.github.com/OneFileCMS/changelog.html)
+## <a name=logs></a>[Change Log](http://self-evident.github.com/OneFileCMS/changelog.html)
 
 ## [Git Log](https://raw.github.com/Self-Evident/OneFileCMS/gh-pages/master-branch.git.log)
