@@ -1,6 +1,6 @@
 # OneFileCMS
 
-## Yes, that's exactly what it is!
+## Yes, that's *exactly* what it is!
 
 Main screen:
 ![OneFileCMS](http://self-evident.github.com/OneFileCMS/images/OneFileCMS_screenshot.png)
@@ -9,7 +9,7 @@ Edit screen:
 ![OneFileCMS](http://self-evident.github.com/OneFileCMS/images/OneFileCMS_screenshot_edit.png)
 
 
-OneFileCMS is just that: It's a flat, light, one file CMS (Content Management System) contained entirely in an easy-to-implement database-less PHP script.
+**OneFileCMS** is just that: a simple CMS (Content Management System) contained entirely in a single, easy-to-implement, database-less PHP script.
 
 Coupling basic editing, upload, and file managing functions, OneFileCMS can maintain an entire website completely in-browser without any external programs.
 
@@ -79,11 +79,18 @@ Well, because "OneFileCMS" sounds way cooler (relatively speaking) than "OneFile
 
 ### Where's the WYSISWYG?
 
-OneFileCMS can be configured to work with [TinyMCE](http://tinymce.moxiecode.com) or [CKEditor](http://ckeditor.com) (and possibly others), but the editors themselves must be obtained from their respective sites.  For basic setup instructions, read the appropriate "init" file from the extras/ directory in the OneFileCMS repo.  
+OneFileCMS can be easily configured to work with [TinyMCE](http://tinymce.moxiecode.com) or [CKEditor](http://ckeditor.com) (and possibly others), but the editors themselves must be obtained from their respective sites.  For basic setup instructions, read the appropriate "init" file from the extras/ directory in the OneFileCMS repo.  
 
 
+### Why do I get a "Stop running script?" pop-up during login?
 
-### Limitations
+IE, version 8 at least, takes condsiderably longer (about 8 seconds on my test system) to run OneFile's javascript login functions than Chrome or Firefox.  Just click [No] and the login should continue normally after a few more seconds.  
+
+Not counting the time the pop-up is waiting for a response, the 8 seconds previously mentioned is the time to login from a 2.5gz single-core XP system.  This delay is the result of the client-side "pre-hash" OneFileCMS performs on your password before submitting the login to OneFileCMS server-side.  
+
+See the global variable "$PRE\_ITERATIONS" at the end of System\_Setup().  It can be adjusted, but it's best to do so on a local copy in a development setup, then upload the updated copy.
+
+### Limitations & Considerations
 
 - OneFileCMS would not be the best option for a site that requires different levels of privileges, unless all of the users are trusted to stay within their designated areas of responsibility. Since OneFileCMS allows file uploads and editing files directly on the web server, there is simply no way to secure against any particular action.  
 
@@ -93,6 +100,8 @@ OneFileCMS can be configured to work with [TinyMCE](http://tinymce.moxiecode.com
 
 - Directories with many (hundreds) of files, may take a few seconds to display.  For instance, on my system- a 2.5gz desktop running XP, it takes 2 to 4 seconds to display a directory with 200 files.
 
+- If your website's connection is not encrypted (doesn't use SSL/TLS), passwords & usernames will be sent in clear text* during login.  However, this is true of any online login system that's over an unencrypted connection.  
+  *As of version 3.4.15, a client-side hash of the user's "plain-text" password is sent to the server.  So, while this client-side hash is still a "plain-text" password as far as the server is concerned, the user's actual raw password is protected from immediate exposure.
 
 --------------------------------------------------------------------------------
 
@@ -120,8 +129,6 @@ OneFileCMS can be configured to work with [TinyMCE](http://tinymce.moxiecode.com
 ##Needed/potential improvements
 
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
-- If your website's connection is not encrypted (doesn't use SSL/TLS), passwords & usernames will be sent in clear text* during login.  However, this is true of any online login system that's over an unencrypted connection.
-  *As of version 3.4.15, a client-side hash of the user's "plain-text" password is sent to the server.  So, while this client-side hash is still a "plain-text" password as far as the server is concerned, the user's actual raw password is protected from immediate exposure.
 - Be aware that only some very basic data & error checking is performed.  (But, it's getting better...)  
 - Anything else?
 

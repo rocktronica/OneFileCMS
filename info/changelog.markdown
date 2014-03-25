@@ -1,5 +1,11 @@
 # OneFileCMS Change Log
 
+### v3.5.12 (2014-03-25)
+
+- Fixed a minor glitch in the countdown used in login delays.
+- Associated/misc code tweaks & imrovements.
+- Added the countdown timer to the two-minute time-out "Warning..." message.
+
 ### v3.5.11 (2014-03-24)
 
 - Improved some $message handling & focus() responses.

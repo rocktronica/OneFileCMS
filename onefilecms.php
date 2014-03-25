@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.11';
+$OFCMS_version = '3.5.12';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -77,7 +77,7 @@ ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
 
 
 
-// CONFIGURABLE INFO ***********************************************************
+// USER CONFIGURABLE INFO ******************************************************
 $config_title = "OneFileCMS";
 
 $USERNAME = "username";
@@ -158,7 +158,7 @@ $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copi
 
 function System_Setup() { //****************************************************
 
-global $config_title, $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS, 
+global $config_title, $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS, $LOGIN_DELAYED, 
 	$MAIN_WIDTH, $WIDE_VIEW_WIDTH, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $config_excluded, 
 	$config_etypes, $config_stypes,$config_itypes, $config_ftypes, $config_fclass, 
 	$SHOWALLFILES, $etypes, $itypes, $ftypes, $fclasses, $excluded_list, 
@@ -166,7 +166,8 @@ global $config_title, $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS,
 	$INVALID_CHARS, $WHSPC_SLASH, $VALID_PAGES, $LOGIN_LOG_url, $LOGIN_LOG_file,
 	$ONESCRIPT,  $ONESCRIPT_file, $ONESCRIPT_backup, $ONESCRIPT_file_backup, 
 	$CONFIG_backup, $CONFIG_FILE, $CONFIG_FILE_backup, $VALID_CONFIG_FILE, 
-	$DOC_ROOT, $WEB_ROOT, $WEBSITE, $PRE_ITERATIONS, $EX, $message, $ENC_OS;
+	$DOC_ROOT, $WEB_ROOT, $WEBSITE, $PRE_ITERATIONS, $EX, $message, $ENC_OS,
+	$DELAY_Expired_Reload, $DELAY_Sort_and_Show_msgs, $DELAY_Start_Countdown, $DELAY_final_messages, $MIN_DIR_ITEMS;
 
 //Requires PHP 5.1 or newer, due to changes in explode() (and maybe others).
 define('PHP_VERSION_ID_REQUIRED',50100);   //Ex: 5.1.23 is 50123
@@ -184,7 +185,7 @@ if( PHP_VERSION_ID < PHP_VERSION_ID_REQUIRED ) {exit( 'PHP '.PHP_VERSION.'<br>'.
 
 mb_detect_order("UTF-8, ASCII, Windows-1252, ISO-8859-1"); 
 
-//Get server's File System encoding.  Windows NTFS uses ISO-8859-1 or Windows-1252.
+//Get server's File System encoding.  Windows NTFS uses ISO-8859-1 / Windows-1252.
 //Needed when working with non-ascii filenames.
 if (php_uname("s") == 'Windows NT') {$ENC_OS = 'Windows-1252';}
 else								{$ENC_OS = 'UTF-8';}
@@ -276,6 +277,17 @@ $itypes   = explode(',', mb_strtolower(str_replace(' ', '', $config_itypes))); /
 $ftypes   = explode(',', mb_strtolower(str_replace(' ', '', $config_ftypes))); //file types with icons
 $fclasses = explode(',', mb_strtolower(str_replace(' ', '', $config_fclass))); //for file types with icons
 $excluded_list = explode(',', str_replace(' ', '', $config_excluded));
+
+
+//A few variables for values that were otherwise hardcoded in js. 
+//$DELAY_... values are in milliseconds.
+//The values were determined thru quick experimentation, and may be tweaked if desired, except as noted.
+$DELAY_Sort_and_Show_msgs = 20; //Needed so "Working..." message shows during directory sorts. Mostly needed for Firefox.
+$DELAY_Start_Countdown	  = 25; //Needs to be > than $Sort_and_Show_msgs. In Timeout_Timer().
+$DELAY_final_messages	  = 25; //Needs to be > than $Sort_and_Show_msgs. Delays final Display_Messages().
+$DELAY_Expired_Reload  = 10000; //Delay from Session Expired to page reload of login screen. Ten seconds, but can be less.
+$MIN_DIR_ITEMS			  = 25; //Minimum number of directory items before "Working..." message is needed/displayed.
+
 
 //Used in hashit() and js_hash_scripts().  IE<9 is WAY slow, so keep it low.
 //For 200 iterations: (time on IE8) > (37 x time on FF). And the difference grows with the iterations.
@@ -777,7 +789,7 @@ function Valid_Path($path, $gotoroot=true) { //*********************************
 
 	$good_path = false;
 
-	if ($_SESSION['admin_page']) {
+	if (isset($_SESSION['admin_page']) && $_SESSION['admin_page']) {
 		//Permit Admin actions: changing p/w, u/n, viewing OneFile...
 		$ACCESS_ROOT == '';
 		return true;
@@ -1245,9 +1257,10 @@ function show_image(){ //*******************************************************
 
 
 
-function Timeout_Timer($COUNT, $ID, $CLASS="", $ACTION="") { //*****************
+function Timeout_Timer($COUNT, $ID, $ACTION="") { //****************************
+	global $DELAY_Start_Countdown;
 
-	return 	'<script>Start_Countdown('.$COUNT.', "'.$ID.'", "'.$CLASS.'", "'.$ACTION.'");</script>';
+	return '<script>setTimeout(\'Start_Countdown('.$COUNT.',"'.$ID.'","'.$ACTION.'")\','.$DELAY_Start_Countdown.');</script>';
 
 }//end Timeout_Timer() //*******************************************************
 
@@ -1706,13 +1719,15 @@ function Login_Page() { //******************************************************
 
 function Login_response() { //**************************************************
 	global $_, $EX, $ONESCRIPT_file, $message, $page, $USERNAME, $HASHWORD,
-				$LOGIN_ATTEMPTS, $MAX_ATTEMPTS, $LOGIN_DELAY, $LOG_LOGINS, $LOGIN_LOG_file;
+				$LOGIN_ATTEMPTS, $MAX_ATTEMPTS, $LOGIN_DELAY, $LOGIN_DELAYED, $LOG_LOGINS, $LOGIN_LOG_file;
 
 	$_SESSION = array();    //make sure it's empty
 	$_SESSION['valid'] = 0; //Default to failed login.
 	$attempts = 0;
 	$elapsed  = 0;
 	$LOGIN_ATTEMPTS = Convert_encoding($LOGIN_ATTEMPTS); //$LOGIN_ATTEMPTS only used for filesystem access.
+
+	$LOGIN_DELAYED = 0; //used to start Countdown at end of file
 
 	//Check for prior login attempts (but don't increment count just yet)
 	if (is_file($LOGIN_ATTEMPTS)) {
@@ -1722,9 +1737,8 @@ function Login_response() { //**************************************************
 	if ($attempts > 0) { $message .= '<b>'.hsc($_['login_msg_01a']).' '.$attempts.' '.hsc($_['login_msg_01b']).'</b><br>'; }
 
 	if ( ($attempts >= $MAX_ATTEMPTS) && ($elapsed < $LOGIN_DELAY) ){
-		$message .= hsc($_['login_msg_02a']).' ';
-		$message .= Timeout_Timer(($LOGIN_DELAY - $elapsed), 'timer0');
-		$message .= ' '.hsc($_['login_msg_02b']);
+		$LOGIN_DELAYED = ($LOGIN_DELAY - $elapsed);
+		$message .= hsc($_['login_msg_02a']).' <span id=timer0></span> '.hsc($_['login_msg_02b']);
 		return;
 	}
 
@@ -1747,9 +1761,8 @@ function Login_response() { //**************************************************
 		file_put_contents($LOGIN_ATTEMPTS, ++$attempts); //increment attempts
 		$message  = $EX.'<b>'.hsc($_['login_msg_03']).$attempts.'</b><br>';
 		if ($attempts >= $MAX_ATTEMPTS) {
-			$message .= hsc($_['login_msg_02a']).' ';
-			$message .= Timeout_Timer($LOGIN_DELAY, 'timer0', '', '');
-			$message .= ' '.hsc($_['login_msg_02b']);
+			$LOGIN_DELAYED = $LOGIN_DELAY;
+			$message .= hsc($_['login_msg_02a']).' <span id=timer0></span> '.hsc($_['login_msg_02b']);
 		}
 	}
 
@@ -1799,6 +1812,7 @@ function Create_Table_for_Listing() { //****************************************
 	<tbody id=DIRECTORY_LISTING></tbody>
 	<tr><td id=DIRECTORY_FOOTER colspan=7></td</tr>
 	</table>
+	<script>document.getElementById('header_filename').focus()</script>
 <?php
 }//Create_Table_for_Listing() //************************************************
 
@@ -2027,7 +2041,7 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
 	echo '<div class="edit_btns_bottom">';
 		
 		if ($text_editable && !$too_large_to_edit && !$IS_OFCMS) { //Show save & reset only if editable file
-			echo Timeout_Timer($MAX_IDLE_TIME, 'timer1','timer', 'LOGOUT');
+			echo '<span id=timer1  class="timer"></span>';
 			echo '<button type="submit" class="button" id="save_file">'.hsc($_['save_1']).'</button>'; //Submit Button
 			echo $reset_button;
 		}//end if editable
@@ -2782,7 +2796,7 @@ ICONS['delete']  = '<?php echo $ICONS["delete"]  ?>';
 
 
 function common_scripts() { //**************************************************
-	global $_, $TO_WARNING, $message, $page;
+	global $_, $TO_WARNING, $message, $page, $DELAY_Expired_Reload;
 ?>
 <script>
 
@@ -2854,21 +2868,27 @@ function format_number(number, sep) { //******************************
 
 
 //********************************************************************
-function Countdown(count, End_Time, Timer_ID, Timer_CLASS, Action){
+function Countdown(count, End_Time, Timer_ID, Action){
 	var Timer        = document.getElementById(Timer_ID);
 	var Current_Time = Math.round(new Date().getTime()/1000); //js uses milliseconds
 	    count        = End_Time - Current_Time;
-	var params = count + ', "' + End_Time + '", "' + Timer_ID + '", "' + Timer_CLASS + '", "' + Action + '"';
+	var params = count + ', "' + End_Time + '", "' + Timer_ID + '", "' + Action + '"';
 
 	$message_box = document.getElementById('message_box');
 
 	Timer.innerHTML = FormatTime(count);
 
-	if ( (count == <?php echo $TO_WARNING ?>) && (Action != "") ) { //Two minute warning...
-		$message_box.innerHTML = '<div class="message_box_contents"><b><?php echo hsc($_['session_warning']) ?></b>';
-		Timer.style.backgroundColor = "white";
-		Timer.style.color = "red";
-		Timer.style.fontWeight = "900";
+	if ((count == <?php echo $TO_WARNING ?>) && (Action != "")) { //Two minute warning...
+		
+		var timeout_warning  = '<div class="message_box_contents"><b><?php echo hsc($_['session_warning']) ?></b> ';
+			timeout_warning += '<b><span id=timer2>:--</span></b></div>';
+		$message_box.innerHTML  = timeout_warning;
+		setTimeout('Start_Countdown(' + count + ',"timer2","")',25);
+		
+		var Timer2 = document.getElementById('timer2');
+		Timer.style.color           = Timer2.style.color           = "red";
+		Timer.style.fontWeight      = Timer2.style.fontWeight      = "900";
+		Timer.style.backgroundColor = Timer2.style.backgroundColor = "white";
 	}
 
 	if ( count < 1 ) {
@@ -2876,22 +2896,21 @@ function Countdown(count, End_Time, Timer_ID, Timer_CLASS, Action){
 			Timer.innerHTML        = '<?php echo hsc($_['session_expired']) ?>';
 			$message_box.innerHTML = '<div class=message_box_contents><b><?php echo hsc($_['session_expired']) ?></b></div>';
 			//Load login screen, but delay first to make sure really expired:
-			setTimeout('window.location = window.location.pathname',10000); //1000 = 1 second
+			setTimeout('window.location = window.location.pathname', <?php echo $DELAY_Expired_Reload ?>);
 		}
 		return;
 	}
-	setTimeout('Countdown(' + params + ')',1000);
+	setTimeout('Countdown(' + params + ')',1000); //1000 = one second
 }//end Countdown() //*************************************************
 
 
 
-function Start_Countdown(count, ID, CLASS, Action){ //****************
-	document.write('<span id="' + ID + '"  class="' + CLASS + '"></span>');
+function Start_Countdown(count, ID, Action){ //***********************
 
-	var Time_Start  = Math.round(new Date().getTime()/1000);
+	var Time_Start  = Math.round(new Date().getTime()/1000); //in seconds
 	var Time_End    = Time_Start + count;
 
-	Countdown(count, Time_End, ID, CLASS, Action); //(seconds to count, id of element)
+	Countdown(count, Time_End, ID, Action); //(seconds to count, id of element)
 }//end Start_Countdown() //*******************************************
 
 
@@ -2935,22 +2954,31 @@ function FileTimeStamp(php_filemtime, show_date, show_offset, write_return){
 
 
 
-function Display_Messages($msg, new_focus) { //*******************
+function Display_Messages($msg, take_focus) { //***********************
+
+	var $page     = '<?php echo $page ?>';
+	var new_focus = '';
+	
+	take_focus = typeof new_focus == 'undefined' ? 0 : take_focus ;//default is X_box doesn't take focus()
+
+	if      ($page == 'index') { new_focus = 'header_filename'; }
+	else if ($page == 'edit')  { new_focus = 'close1'; }
+	else if ($page == 'login') { new_focus = 'username'; }
+	else if ($page == 'hash')  { new_focus = 'whattohash'; }
+	else if ($page == 'admin') { new_focus = 'close'; }
 
 	var $X_box		 = '<button type=button id="X_box">x</button>';
 	var $MESSAGE	 = '<div class=message_box_contents>' + $msg + '</div>';
 	var $message_box = document.getElementById("message_box");
 	var $new_focus	 = document.getElementById(new_focus)
-	
-	if ($msg == '') {$message_box.innerHTML = ' ';} //innerHTML must have a space or $message won't clear.
+
+	if ($msg == '') {$message_box.innerHTML = ' ';} //innerHTML must be given a space or $message_box won't clear.
 	else				{
 		$message_box.innerHTML = $X_box + $MESSAGE;
-		document.getElementById("X_box").focus();
+		var $X_box_btn	 = document.getElementById('X_box');
+		if (take_focus) {$X_box_btn.focus();}
+		$X_box_btn.onclick = function () { $message_box.innerHTML = " "; $new_focus.focus();}
 	}
-
-	var $X_box_btn	 = document.getElementById('X_box');
-
-	if ($new_focus) { $X_box_btn.onclick = function () { $message_box.innerHTML = " "; $new_focus.focus();} }
 
 }//end Display_Messages() //******************************************
 
@@ -2985,7 +3013,7 @@ Sort_Type.onclick		 = function () {Sort_and_Show(5, FLIP_IF); this.focus(); retu
 
 
 function Index_Page_scripts() { //**********************************************
-	global $_, $ONESCRIPT, $param1, $ipath, $message;
+	global $_, $ONESCRIPT, $param1, $ipath, $message, $DELAY_Sort_and_Show_msgs, $MIN_DIR_ITEMS;
 ?>
 <script>
 //  DIRECTORY_DATA[x] = ("type", "file name", filesize, timestamp, is_ofcms, "ext")	
@@ -3201,17 +3229,22 @@ function Directory_Summary() { //*************************************
 
 function Sort_and_Show(col, direction) { //***************************
 
-	//(Any pre-existing $message will be displayed after directory is displayed.)
-	Display_Messages('<b><?php echo $_['Working'] ?></b>');
+	var DELAY = 0;
+	if (DIRECTORY_ITEMS > <?php echo $MIN_DIR_ITEMS ?>) { //
+		//(Any pre-existing $message will be displayed after directory is displayed.)
+		Display_Messages('<b><?php echo $_['Working'] ?></b>');
+		
+		DELAY = <?php echo $DELAY_Sort_and_Show_msgs ?>;
+	}
 
 	setTimeout( function () { //setTimeout() needed so 'Working' message will actually get displayed *before* the sort.
 		sort_DIRECTORY(col, direction); //Sort DIRECTORY_DATA
 		Build_Directory();
 		document.getElementById('DIRECTORY_FOOTER').innerHTML = Directory_Summary();
 		Display_Messages('');
-	}, 20); //20 seems sufficient for the 'Working' message to reliably display in Firefox. (For the most part.)
+	}, DELAY);
 
-}//end Sort_and_Show() { //*******************************************
+}//end Sort_and_Show() //*********************************************
 
 
 
@@ -3365,7 +3398,7 @@ window.onunload = function() {
 }
 
 
-function Reset_file_status_indicators() {
+function Reset_file_status_indicators() {	
 	changed = false;
 	File_textarea.style.backgroundColor = "#F5FFF5";  //light green
 	File_textarea.style.borderColor     = "";
@@ -4153,7 +4186,7 @@ Load_Selected_Page();
 if ($_SESSION['valid']) {
 	//Countdown timer
 	echo '<hr style="border-color: white;">';
-	echo Timeout_Timer($MAX_IDLE_TIME, 'timer0', 'timer timeout', 'LOGOUT');
+	echo '<span id=timer0  class="timer timeout"></span>';
 	echo '<span class="timeout">'.hsc($_['time_out_txt']).'&nbsp; </span>';
 
 	//Admin link
@@ -4167,17 +4200,22 @@ echo "</body></html>\n";
 
 if ( ($page == "edit") && $WYSIWYG_VALID && $EDIT_WYSIWYG ) { include($WYSIWYG_PLUGIN_OS); }
 
-//Lastly, display any $message's
+//Display any $message's
 ?>
 <script>
-	var $page	  = '<?php echo $page ?>';
-	var $message  = '<?php echo addslashes($message) ?>';
-	var new_focus = '';
-	if      ($page == 'index') { new_focus = 'header_filename'; document.getElementById('header_filename').focus(); }
-	else if ($page == 'edit')  { new_focus = 'close1'; }
+	var $page    = '<?php echo $page ?>';
+	var $message = '<?php echo addslashes($message) ?>';
 
-	//The setTimeout() time should be greater than what is set for the Sort_and_Show() "working..." message.
-	setTimeout('Display_Messages($message, new_focus)',25);
+	<?php //Cause $message's $X_box to take focus on these pages on (if any $message, of course) ?>
+	if (($page == 'index') || ($page == 'edit')) {take_focus = 1;}
+	else										 {take_focus = 0;}
+
+	<?php //The setTimeout() time should be greater than what is set for the Sort_and_Show() "working..." message. ?>
+	setTimeout('Display_Messages($message, take_focus)',<?php echo $DELAY_final_messages ?>);
 </script>
 <?php
+//start any timers (Yea, they could probably be put in a window.onload function or something...)
+if ($_SESSION['valid']) { echo Timeout_Timer($MAX_IDLE_TIME, 'timer0', 'LOGOUT'); }
+if ($page == 'edit')    { echo Timeout_Timer($MAX_IDLE_TIME, 'timer1', 'LOGOUT'); }
+if ($LOGIN_DELAYED > 0) { echo Timeout_Timer($LOGIN_DELAYED, 'timer0', ''); }
 //##### END OF FILE ############################################################
