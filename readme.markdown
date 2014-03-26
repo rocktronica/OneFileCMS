@@ -2,7 +2,7 @@
 
 ## Yes, that's *exactly* what it is!
 
-OneFileCMS is a simple CMS (Content Management System) contained entirely in a single file, database-less PHP script.
+OneFileCMS is a simple CMS (Content Management System) contained entirely in a single file, database-less, PHP script.
 
 With basic editing, upload, and file managing functions, OneFileCMS can maintain an entire website completely in-browser without any external programs.
 
@@ -17,8 +17,8 @@ With basic editing, upload, and file managing functions, OneFileCMS can maintain
 - [Demo](#demo)
 - [Features](#features)
 - [Installation](#installation)
-- [FAQ](#faq)
 - [Requirements](#requirements)
+- [FAQ](#faq)
 - [Limitations and Considerations](#limitations)
 - [Needed/potential improvements](#potential)
 - [License, Credit, Et Cetera](#license)
@@ -59,6 +59,17 @@ As with any CMS, you may also have to modify the file permissions of your site's
 You can also change the file name from "onefilecms.php" to something else, such as "admin.php". (Be careful about making it a folder's default file: your server may get stuck in redirects.)
 
 --------------------------------------------------------------------------------
+## <a name=requirements></a>Requirements
+
+- PHP 5.1+
+  (Only tested on versions 5.2.8, 5.2.17, 5.3.3, and 5.4 + )
+- File permission privileges on your host.
+- A Javascript enabled browswer.
+- Most* modern browsers probably work, but I only test on Firefox, Chrome, and IE 8.
+- And- but only if you wish to see the icons- a browser that supports inline SVG.  
+  (If your browser doesn't support inline SVG, OneFileCMS will still work, just without any icons.)
+
+--------------------------------------------------------------------------------
 ## <a name=faq></a>FAQ
 
 - [Multi-Language Support?](#language)
@@ -96,10 +107,6 @@ Now, since there is no database or other means of granular control or access log
 
 It may be simple, bit it can get the job done.  While you wouldn't want to build an entire house with just a hammer and hand saw, you can "manage" quite a bit with just those two tools (and nails, of course).  Besides, "OneFileCMS" sounds cool. 
 
-### <a name=WYSIWYG></a>Where's the WYSISWYG?
-
-OneFileCMS can be easily configured to work with [TinyMCE](http://tinymce.moxiecode.com) or [CKEditor](http://ckeditor.com) (and possibly others), but the editors themselves must be obtained from their respective sites.  For basic setup instructions, read the appropriate "init" file from the extras/ directory in the OneFileCMS repo.  
-
 
 ### <a name=slowlogin></a>Why do I get a "Stop running script?" pop-up during login?
 
@@ -109,16 +116,10 @@ Not counting the time the pop-up is waiting for a response, the 8 seconds previo
 
 See the global variable "$PRE\_ITERATIONS" at the end of System\_Setup().  It can be adjusted, but it's best to do so on a local copy in a development setup, then upload the updated copy.
 
---------------------------------------------------------------------------------
-## <a name=requirements></a>Requirements
+### <a name=WYSIWYG></a>Where's the WYSISWYG?
 
-- PHP 5.1+
-  (Only tested on versions 5.2.8, 5.2.17, 5.3.3, and 5.4 + )
-- File permission privileges on your host.
-- A Javascript enabled browswer.
-- Most* modern browsers probably work, but I only test on Firefox, Chrome, and IE 8.
-- And- but only if you wish to see the icons- a browser that supports inline SVG.  
-  (If your browser doesn't support inline SVG, OneFileCMS will still work, just without any icons.)
+OneFileCMS can be easily configured to work with [TinyMCE](http://tinymce.moxiecode.com) or [CKEditor](http://ckeditor.com) (and possibly others), but the editors themselves must be obtained from their respective sites.  For basic setup instructions, read the appropriate "init" file from the extras/ directory in the OneFileCMS repo.  
+
 
 --------------------------------------------------------------------------------
 ## <a name=limitations></a>Limitations & Considerations
@@ -180,3 +181,6 @@ GENERATE/OUTPUT THE PAGE
 ## <a name=logs></a>[Change Log](http://self-evident.github.com/OneFileCMS/changelog.html)
 
 ## [Git Log](https://raw.github.com/Self-Evident/OneFileCMS/gh-pages/master-branch.git.log)
+
+
+<br><br><br><br>
