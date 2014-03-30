@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.12';
+$OFCMS_version = '3.5.13';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -88,7 +88,7 @@ $SALT     = 'somerandomsalt';
 $MAX_ATTEMPTS  = 3;    //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;   //In seconds.
 $MAX_IDLE_TIME = 600;  //In seconds. 600 = 10 minutes.  Other PHP settings (like gc) may limit its max effective value.
-$TO_WARNING    = 120;  //In seconds. When idle time remaining is less than this value, a timeout warning is displayed.
+$TO_WARNING    = 120;  //In seconds. When idle time remaining is less than this value, a TimeOut warning is displayed.
 $LOG_LOGINS    = true; //Keep log of login attempts.
 
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.          Can be px, pt, em, or %.  Assumes px otherwise.
@@ -120,6 +120,8 @@ $config_ftypes = "bin,z,gz,7z,zip,jpg,gif,png,bmp,ico,svg,asp,cfg,conf,csv,css,d
 $config_fclass = "bin,z,z ,z ,z  ,img,img,img,img,img,svg,txt,txt,cfg ,txt,css,txt,htm,htm ,htm  ,txt     ,txt,txt,txt,txt   ,txt,php,php,txt,txt";
 
 $EX = '<b>( ! )</b> '; //EXclaimation point "icon" Used in $message's
+
+$PAGEUPDOWN = 10; //Number of rows to jump using Page Up/Page Down keys on directory listing.
 
 $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copies of OneFileCMS concurrently.
 
@@ -156,7 +158,7 @@ $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copi
 
 
 
-function System_Setup() { //****************************************************
+function System_Setup() {//*****************************************************
 
 global $config_title, $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS, $LOGIN_DELAYED, 
 	$MAIN_WIDTH, $WIDE_VIEW_WIDTH, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $config_excluded, 
@@ -166,7 +168,7 @@ global $config_title, $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS, $LOGIN_DELAYED,
 	$INVALID_CHARS, $WHSPC_SLASH, $VALID_PAGES, $LOGIN_LOG_url, $LOGIN_LOG_file,
 	$ONESCRIPT,  $ONESCRIPT_file, $ONESCRIPT_backup, $ONESCRIPT_file_backup, 
 	$CONFIG_backup, $CONFIG_FILE, $CONFIG_FILE_backup, $VALID_CONFIG_FILE, 
-	$DOC_ROOT, $WEB_ROOT, $WEBSITE, $PRE_ITERATIONS, $EX, $message, $ENC_OS,
+	$DOC_ROOT, $DOC_ROOT_OS, $WEB_ROOT, $WEBSITE, $PRE_ITERATIONS, $EX, $message, $ENC_OS,
 	$DELAY_Expired_Reload, $DELAY_Sort_and_Show_msgs, $DELAY_Start_Countdown, $DELAY_final_messages, $MIN_DIR_ITEMS;
 
 //Requires PHP 5.1 or newer, due to changes in explode() (and maybe others).
@@ -203,11 +205,11 @@ $WHSPC_SLASH = "\x00..\x20/";  //Whitespace & forward slash. For trimming file &
 $WEB_ROOT  = basename($DOC_ROOT).'/'; //Used only for screen output - Non-url use.
 $WEBSITE   = $_SERVER['HTTP_HOST'].'/';
 
-$ONESCRIPT 			   = URLencode_path($_SERVER['SCRIPT_NAME']);  //Used for URL's in HTML attributes
-$ONESCRIPT_file        = $_SERVER['SCRIPT_FILENAME'];              //Non-url file system use.
-$ONESCRIPT_backup      = $ONESCRIPT.'-BACKUP.txt';                 //used for p/w & u/n updates.
+$ONESCRIPT			   = URLencode_path($_SERVER['SCRIPT_NAME']);  //Used for URL's in HTML attributes
+$ONESCRIPT_file		   = $_SERVER['SCRIPT_FILENAME'];              //Non-url file system use.
+$ONESCRIPT_backup	   = $ONESCRIPT.'-BACKUP.txt';                 //used for p/w & u/n updates.
 $ONESCRIPT_file_backup = $ONESCRIPT_file.'-BACKUP.txt';            //used for p/w & u/n updates.
-$LOGIN_ATTEMPTS        = $ONESCRIPT_file.'.invalid_login_attempts';//Non-url file system use.
+$LOGIN_ATTEMPTS		   = $ONESCRIPT_file.'.invalid_login_attempts';//Non-url file system use.
 $LOGIN_LOG_url		   = $ONESCRIPT.'-LOGIN.log';
 $LOGIN_LOG_file		   = $ONESCRIPT_file.'-LOGIN.log';
 
@@ -282,10 +284,10 @@ $excluded_list = explode(',', str_replace(' ', '', $config_excluded));
 //A few variables for values that were otherwise hardcoded in js. 
 //$DELAY_... values are in milliseconds.
 //The values were determined thru quick experimentation, and may be tweaked if desired, except as noted.
-$DELAY_Sort_and_Show_msgs = 20; //Needed so "Working..." message shows during directory sorts. Mostly needed for Firefox.
-$DELAY_Start_Countdown	  = 25; //Needs to be > than $Sort_and_Show_msgs. In Timeout_Timer().
+$DELAY_Sort_and_Show_msgs = 20; //Needed so "Working..." message shows during directory sorts. Mostly for Firefox.
+$DELAY_Start_Countdown	  = 25; //Needs to be > than $Sort_and_Show_msgs. Used in Timeout_Timer().
 $DELAY_final_messages	  = 25; //Needs to be > than $Sort_and_Show_msgs. Delays final Display_Messages().
-$DELAY_Expired_Reload  = 10000; //Delay from Session Expired to page reload of login screen. Ten seconds, but can be less.
+$DELAY_Expired_Reload  = 10000; //Delay from Session Expired to page load of login screen. Ten seconds, but can be less.
 $MIN_DIR_ITEMS			  = 25; //Minimum number of directory items before "Working..." message is needed/displayed.
 
 
@@ -539,7 +541,7 @@ $_['mcd_msg_03'] = 'file(s) and/or folder(s) deleted.'; //#####
 
 
 
-function validate_units($cssvalue) { //*****************************************
+function validate_units($cssvalue) {//******************************************
 	//Determine if valid units are set for $cssvalue:  px, pt, em, or %.
 	$main_units   = mb_substr($cssvalue, -2); 
 	if ( ($main_units != "px") && ($main_units != "pt") && ($main_units != "em") && (mb_substr($cssvalue, -1) != '%')) {
@@ -551,7 +553,7 @@ function validate_units($cssvalue) { //*****************************************
 
 
 
-function hsc($input) { //*******************************************************
+function hsc($input) {//********************************************************
 	$enc = mb_detect_encoding($input); //It should always be UTF-8 (or ASCII), but, just in case...
 	if ($enc == 'ASCII') {$enc = 'UTF-8';} //htmlspecialchars() doesn't recognize "ASCII"
 	return htmlspecialchars($input, ENT_QUOTES, $enc);
@@ -560,7 +562,7 @@ function hsc($input) { //*******************************************************
 
 
 
-function Convert_encoding($string, $to_enc = "") { //***************************
+function Convert_encoding($string, $to_enc = "") {//****************************
 	global $ENC_OS;
 								  //mb_convert_encoding($string, $to_enc, $from_enc)
 	if ($to_enc == 'UTF-8') {return mb_convert_encoding($string, 'UTF-8', $ENC_OS);} // Convert to UTF-8
@@ -570,7 +572,7 @@ function Convert_encoding($string, $to_enc = "") { //***************************
 
 
 
-function Session_Startup() { //*************************************************
+function Session_Startup() {//**************************************************
 	global $SESSION_NAME, $page, $VALID_POST;
 
 	$limit    =  0; //0 = session.
@@ -601,7 +603,7 @@ function Session_Startup() { //*************************************************
 
 
 
-function Verify_IDLE_POST_etc() { //********************************************
+function Verify_IDLE_POST_etc() {//*********************************************
 	global $_, $page, $EX, $message, $VALID_POST, $MAX_IDLE_TIME;
 
 	//Verify consistant user agent. This is set during login. (every little bit helps every little bit)
@@ -634,7 +636,7 @@ function Verify_IDLE_POST_etc() { //********************************************
 
 
 
-function hashit($key,$pre = false){ //******************************************
+function hashit($key,$pre = false) {//******************************************
 	//This is the super-secret stuff - Keep it secret, keep it safe!
 	//If you change anything here, or the $SALT, manually update the hash for your password from the Generate Hash page.
 	global $SALT, $PRE_ITERATIONS;
@@ -710,7 +712,7 @@ function Error_reporting_status_and_early_output($show_status = 0, $show_types =
 
 
 
-function Update_Recent_Pages() { //*********************************************
+function Update_Recent_Pages() {//**********************************************
 	global $page;
 
 	if (!isset($_SESSION['recent_pages'])) { $_SESSION['recent_pages'] = array($page); }
@@ -731,7 +733,7 @@ function Update_Recent_Pages() { //*********************************************
 
 
 
-function undo_magic_quotes(){ //************************************************
+function undo_magic_quotes() {//************************************************
 
 	function strip_array($var) {
 		//stripslashes() also handles cases when magic_quotes_sybase is on. 
@@ -749,7 +751,7 @@ function undo_magic_quotes(){ //************************************************
 
 
 
-function Validate_params() { //*************************************************
+function Validate_params() {//**************************************************
 	global $_, $ipath, $filename, $page, $param1, $param2, $param3, $IS_OFCMS, $EX, $message;
 
 	//Pages that require a valid $filename
@@ -773,7 +775,7 @@ function Validate_params() { //*************************************************
 
 
 
-function Valid_Path($path, $gotoroot=true) { //*********************************
+function Valid_Path($path, $gotoroot=true) {//**********************************
 	//$gotoroot: if true, return to index page of $ACCESS_ROOT.
 	global  $ipath, $ipath_OS, $filename, $param1, $param2, $param3, $ACCESS_ROOT, $ACCESS_ROOT_len, $message;
 	
@@ -815,7 +817,7 @@ function Valid_Path($path, $gotoroot=true) { //*********************************
 
 
 
-function Get_GET() { //*** Get URL passed parameters ***************************
+function Get_GET() {//**** Get URL passed parameters ***************************
 	global $_, $ipath, $ipath_OS, $filename, $filename_OS, $page, $VALID_PAGES, $EX, $message;
 	// i=some/path/,  f=somefile.xyz,          p=somepage,  m=somemessage
 	// $ipath = i  ,  $filename = $ipath.f  ,  $page = p ,  $message
@@ -856,7 +858,7 @@ function Get_GET() { //*** Get URL passed parameters ***************************
 
 
 
-function Verify_Page_Conditions() { //******************************************
+function Verify_Page_Conditions() {//*******************************************
 	global $_, $ONESCRIPT_file, $ipath, $ipath_OS, $param1, $filename, $filename_OS, $page, $EX, $message, 
 			$VALID_POST, $IS_OFCMS;
 
@@ -916,7 +918,7 @@ function Verify_Page_Conditions() { //******************************************
 
 
 
-function has_invalid_char($string) { //*****************************************
+function has_invalid_char($string) {//******************************************
 	global $INVALID_CHARS;
 	$INVALID_CHARS_array = explode(' ', $INVALID_CHARS);
 	foreach ($INVALID_CHARS_array as $bad_char) {
@@ -942,7 +944,7 @@ function URLencode_path($path){ // don't encode the forward slashes ************
 
 
 
-function dir_name($path){ //****************************************************
+function dir_name($path) {//****************************************************
 	//Modified dirname().
 	$parent = dirname($path);
 	if ($parent == "." || $parent == "/" || $parent == '\\' || $parent == "") { return ""; }
@@ -952,7 +954,7 @@ function dir_name($path){ //****************************************************
 
 
 
-function Check_path($path, $show_msg = false) { //******************************
+function Check_path($path, $show_msg = false) {//*******************************
 	// check for invalid characters & "dot" or "dot dot" path segments.
 	// Does NOT check if exists - only if of valid construction.
 	global  $_, $message, $EX, $INVALID_CHARS, $WHSPC_SLASH;
@@ -997,7 +999,7 @@ function Check_path($path, $show_msg = false) { //******************************
 
 
 
-function Sort_Seperate($path, $full_list){ //***********************************
+function Sort_Seperate($path, $full_list) {//***********************************
 	//Sort list, then seperate folders & files
 
 	natcasesort($full_list);
@@ -1017,7 +1019,7 @@ function Sort_Seperate($path, $full_list){ //***********************************
 
 
 
-function add_serial_num($filename, &$msg) { //**********************************
+function add_serial_num($filename, &$msg) {//***********************************
 	//if file_exists(file.txt), add serial# to filename until it doesn't
 	//ie: file.txt.001,  file.txt.002, file.txt.003  etc...
 	global $_, $EX;
@@ -1045,7 +1047,7 @@ function add_serial_num($filename, &$msg) { //**********************************
 
 
 
-function supports_svg() { //****************************************************
+function supports_svg() {//*****************************************************
 	//IE < 9 is the only browser checked for currently.
 	//EX: Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)
 	$USER_AGENT = $_SERVER['HTTP_USER_AGENT'];
@@ -1061,7 +1063,7 @@ function supports_svg() { //****************************************************
 
 
 
-function rCopy( $old_path, $new_path ) { //*************************************
+function rCopy( $old_path, $new_path ) {//**************************************
 	global $_, $WHSPC_SLASH, $EX, $message;
 	//Recursively copy $old_path to $new_path
 	//Both $old_ & $new_path must ALREADY be in OS/file system's encoding.
@@ -1113,7 +1115,7 @@ function rCopy( $old_path, $new_path ) { //*************************************
 
 
 
-function rDel($path){ //********************************************************
+function rDel($path) {//********************************************************
 	//Recursively delete $path & all sub-folders & files.
 	//Returns number of successful unlinks & rmdirs.
 
@@ -1143,7 +1145,7 @@ function rDel($path){ //********************************************************
 
 
 
-function Current_Path_Header(){ //**********************************************
+function Current_Path_Header() {//**********************************************
  	// Current path. ie: webroot/current/path/
 	// Each level is a link to that level.
 	global $ONESCRIPT, $ipath, $WEB_ROOT, $ACCESS_ROOT, $ACCESS_ROOT_len, $message;
@@ -1185,7 +1187,7 @@ function Current_Path_Header(){ //**********************************************
 
 
 
-function Page_Header(){ //******************************************************
+function Page_Header() {//******************************************************
 	global  $_, $DOC_ROOT, $ONESCRIPT, $page, $WEBSITE, $config_title, $OFCMS_version, $config_favicon, $message;
 
 	$favicon = '';
@@ -1197,7 +1199,7 @@ function Page_Header(){ //******************************************************
 	if ($_SESSION["valid"]) { $on_php = '<a href="'.$ONESCRIPT.'?p=phpinfo'.'" target=_blank>'.$on_php.'</a>';}
 
 	echo '<div id="header">';
-		echo '<a href="'.$ONESCRIPT.'" id="logo">'.$config_title.'</a> '.$OFCMS_version.' ';
+		echo '<a href="'.$ONESCRIPT.'" id="logo" tabindex=-1>'.$config_title.'</a> '.$OFCMS_version.' ';
 		echo $on_php;
 		
 		echo '<div class="nav">';
@@ -1211,7 +1213,7 @@ function Page_Header(){ //******************************************************
 
 
 
-function Cancel_Submit_Buttons($submit_label) { //******************************
+function Cancel_Submit_Buttons($submit_label) {//*******************************
 	//$submit_label = Rename, Copy, Delete, etc...
 	global $_, $ONESCRIPT, $ipath, $param1, $param2, $page;
 
@@ -1228,7 +1230,7 @@ function Cancel_Submit_Buttons($submit_label) { //******************************
 
 
 
-function show_image(){ //*******************************************************
+function show_image() {//*******************************************************
 	global $_, $filename, $MAX_IMG_W, $MAX_IMG_H;
 
 	$IMG = $filename;
@@ -1257,7 +1259,7 @@ function show_image(){ //*******************************************************
 
 
 
-function Timeout_Timer($COUNT, $ID, $ACTION="") { //****************************
+function Timeout_Timer($COUNT, $ID, $ACTION="") {//*****************************
 	global $DELAY_Start_Countdown;
 
 	return '<script>setTimeout(\'Start_Countdown('.$COUNT.',"'.$ID.'","'.$ACTION.'")\','.$DELAY_Start_Countdown.');</script>';
@@ -1267,7 +1269,7 @@ function Timeout_Timer($COUNT, $ID, $ACTION="") { //****************************
 
 
 
-function Init_Macros() { //*** ($varibale="some reusable chunk of code")********
+function Init_Macros() {//**** ($varibale="some reusable chunk of code")********
 	global 	$_, $ONESCRIPT, $param1, $param2, $INPUT_NUONCE, $FORM_COMMON, $PWUN_RULES;
 
 	$INPUT_NUONCE = '<input type="hidden" name="nuonce" value="'.$_SESSION['nuonce'].'">'."\n";
@@ -1280,7 +1282,7 @@ function Init_Macros() { //*** ($varibale="some reusable chunk of code")********
 
 
 
-function Init_ICONS() { //*******************************************************
+function Init_ICONS() {//********************************************************
 	global 	$ICONS;
 
 	//*********************************************************************
@@ -1294,7 +1296,7 @@ function Init_ICONS() { //******************************************************
 	}//end icon_txt() //***************************************************
 
 
-	function icon_folder($extra = ""){ //**********************************
+	function icon_folder($extra = "") {//**********************************
 		return '<svg version="1.1" width="18" height="16"><g transform="translate(0,2)">'.
 			'<path  d="M0.5, 1  L8,1  L9,2  L9,3  L16.5,3  L17,3.5  L17,13.5  L.5,13.5  L.5,.5" '.
 				'fill="#F0CD28" stroke="rgb(200,170,15)" stroke-width="1" />'.
@@ -1376,12 +1378,12 @@ function Init_ICONS() { //******************************************************
 		$ICONS['copy']    = '<span class="RCD1 C">+</span>';
 		$ICONS['delete']  = '<span class="RCD1 D">x</span>';
 	}
-}//end Init_ICONS(){ //*********************************************************
+}//end Init_ICONS() {//*********************************************************
 
 
 
 
-function List_File($file, $file_url){ //****************************************
+function List_File($file, $file_url) {//****************************************
 	global $_, $ONESCRIPT, $ICONS;
 
 	$file_OS = Convert_encoding($file);
@@ -1402,7 +1404,7 @@ function List_File($file, $file_url){ //****************************************
 
 
 
-function List_Backups_and_Logs(){ //********************************************
+function List_Backups_and_Logs() {//********************************************
 	global $_, $ONESCRIPT_backup, $ONESCRIPT_file, $ONESCRIPT_file_backup, 
 		   $CONFIG_backup, $CONFIG_FILE_backup, $LOGIN_LOG_url, $LOGIN_LOG_file;
 
@@ -1435,7 +1437,7 @@ function List_Backups_and_Logs(){ //********************************************
 
 
 
-function Admin_Page() { //******************************************************
+function Admin_Page() {//*******************************************************
 	global $_, $ONESCRIPT, $ipath, $filename, $param1, $param2, $config_title;
 
 	// Restore/Preserve $ipath prior to admin page in case OneFileCMS is edited (which would change $ipath).
@@ -1476,7 +1478,7 @@ function Admin_Page() { //******************************************************
 
 
 
-function Hash_Page() { //*******************************************************
+function Hash_Page() {//********************************************************
 	global $_, $ONESCRIPT, $param1, $param3, $INPUT_NUONCE, $PWUN_RULES;
 
 	if (!isset($_POST['whattohash'])) { $_POST['whattohash'] = ''; }
@@ -1510,7 +1512,7 @@ function Hash_Page() { //*******************************************************
 
 
 
-function Hash_response() { //***************************************************
+function Hash_response() {//****************************************************
 	global $_, $message;
 	$_POST['whattohash'] = trim($_POST['whattohash']); // trim whitespace.
 
@@ -1617,7 +1619,7 @@ function Update_config($search_for, $replace_with, $search_file, $backup_file) {
 
 
 
-function Change_PWUN_response($PWUN, $msg){ //**********************************
+function Change_PWUN_response($PWUN, $msg) {//**********************************
 	//Update $USERNAME or $HASHWORD. Default $page = changepw or changeun
 	global $_, $ONESCRIPT, $USERNAME, $HASHWORD, $EX, $message, $page, 
 		   $ONESCRIPT_file, $ONESCRIPT_file_backup, $CONFIG_FILE, $CONFIG_FILE_backup, $VALID_CONFIG_FILE;
@@ -1677,7 +1679,7 @@ function Change_PWUN_response($PWUN, $msg){ //**********************************
 
 
 
-function Logout() { //**********************************************************
+function Logout() {//***********************************************************
 	global $page;
 	session_regenerate_id(true);
 	session_unset();
@@ -1693,7 +1695,7 @@ function Logout() { //**********************************************************
 
 
 
-function Login_Page() { //******************************************************
+function Login_Page() {//*******************************************************
 	global $_, $ONESCRIPT;
 ?>
 	<?php //preserve space for message_box even when there's no message. ?>
@@ -1717,7 +1719,7 @@ function Login_Page() { //******************************************************
 
 
 
-function Login_response() { //**************************************************
+function Login_response() {//***************************************************
 	global $_, $EX, $ONESCRIPT_file, $message, $page, $USERNAME, $HASHWORD,
 				$LOGIN_ATTEMPTS, $MAX_ATTEMPTS, $LOGIN_DELAY, $LOGIN_DELAYED, $LOG_LOGINS, $LOGIN_LOG_file;
 
@@ -1782,12 +1784,14 @@ function Login_response() { //**************************************************
 
 
 
-function Create_Table_for_Listing() { //****************************************
-	global$_;
+function Create_Table_for_Listing() {//*****************************************
+	global$_, $ONEFILECMS, $ipath, $ipath_OS, $DOC_ROOT_OS, $ICONS;
 
 	//Header row: | Select All|[ ]|[X](folders first)      Name      (ext) |   Size   |    Date    |
-	
 	//<input hidden> is a dummy input to make sure files[] is always an array for Select_All() & Confirm_Ready().
+
+	$new_path = URLencode_path(dir_name($ipath)); //for "../" entry in dir list.
+	$new_path_OS = $DOC_ROOT_OS.dir_name($ipath_OS);//.dir_name($ipath_OS);
 ?>
 	<INPUT TYPE=hidden NAME="files[]" VALUE="">
 
@@ -1799,27 +1803,32 @@ function Create_Table_for_Listing() { //****************************************
 	<th class="ckbox">
 		<INPUT TYPE=checkbox id=select_all NAME=select_all VALUE=select_all></th>
 	<th class="file_name ckbox" style="">
-		<a href="#" id=sort_type>(<?php echo hsc($_['ext']) ?>)</a>
 		<INPUT TYPE=checkbox id=folders_first_ckbox NAME=folder_first VALUE=folders_first checked>
 		<label for=folders_first_ckbox id=folders_first_label title="<?php  echo hsc($_['folders_first_info']) ?>">
 			(<?php echo hsc($_['folders_first']) ?>)
-		</label>		  <a href="#" id=header_filename><?php echo hsc($_['Name']) ?></a></th>
+		</label>		  <a href="#" id=header_filename><?php echo hsc($_['Name']) ?></a><a
+							 href="#" id=sort_type>(<?php echo hsc($_['ext']) ?>)</a></th>
 	<th class="file_size"><a href="#" id=header_filesize><?php echo hsc($_['Size']) ?></a></th>
 	<th class="file_time"><a href="#" id=header_filedate><?php echo hsc($_['Date']) ?></a></th>
 	</tr>
+
+	<tr><?php // "../" directory entry ?>
+		<td colspan=4></td><td><a id=f0 href="<?php echo $ONEFILECMS.'?i='.$new_path.'">'.$ICONS['dir'] ?> ../</a></td>
+		<td></td>
+		<td class="meta_T file_time"> &nbsp;<script>FileTimeStamp(<?php echo filemtime($new_path_OS); ?>, 1, 0, 1);</script></td><tr>
 
 	<?php //Directory & footer content will be inserted later. ?>
 	<tbody id=DIRECTORY_LISTING></tbody>
 	<tr><td id=DIRECTORY_FOOTER colspan=7></td</tr>
 	</table>
-	<script>document.getElementById('header_filename').focus()</script>
+	<script>document.getElementById("header_filename").focus()</script>
 <?php
 }//Create_Table_for_Listing() //************************************************
 
 
 
 
-function Get_DIRECTORY_DATA($raw_list) { //*************************************
+function Get_DIRECTORY_DATA($raw_list) {//**************************************
 	global $_, $ONESCRIPT, $ipath, $ipath_OS, $param1, $ICONS, $message, 
 			$ftypes, $fclasses, $excluded_list, $stypes, $SHOWALLFILES, 
 			$DIRECTORY_COUNT, $DIRECTORY_DATA, $ENC_OS;
@@ -1917,7 +1926,7 @@ function Send_data_to_js_and_display() {//**************************************
 
 
 
-function Index_Page_buttons_top($file_count) { //*******************************
+function Index_Page_buttons_top($file_count) {//********************************
 	global $_, $ONESCRIPT, $param1, $ICONS;
 
 	echo '<div id=index_page_buttons>';
@@ -1946,7 +1955,7 @@ function Index_Page_buttons_top($file_count) { //*******************************
 
 
  
-function Index_Page() { //******************************************************
+function Index_Page() {//*******************************************************
 	global  $ONESCRIPT, $ipath_OS, $param1;
 	
 	init_ICONS_js();
@@ -1967,20 +1976,22 @@ function Index_Page() { //******************************************************
 
 	Send_data_to_js_and_display();
 
-	Index_Page_onclicks();
+	Index_Page_events();
 }//end Index_Page() //**********************************************************
 
 
 
 
-function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
+function Edit_Page_buttons_top($text_editable,$file_ENC) {//********************
 	global $_, $ONESCRIPT, $param1, $param2, $filename, $filename_OS, $IS_OFCMS, 
 				$WYSIWYG_VALID, $EDIT_WYSIWYG, $WYSIWYG_label, $message;
 
 	clearstatcache ();
 
 	//[View Raw] button.
-	$view_raw_button = '<button type=button id=view_raw class=button>'.hsc('View Raw').'</button>';
+	if ($text_editable) {
+		$view_raw_button = '<button type=button id=view_raw class=button>'.hsc('View Raw').'</button>';
+	} else {$view_raw_button = '';}
 
 	//[Wide View] / [Normal View] button.
 	$wide_view_button = '<button type=button id=wide_view class=button>'.hsc($_['Wide_View']).'</button>';
@@ -2014,28 +2025,22 @@ function Edit_Page_buttons_top($text_editable,$file_ENC){ //********************
 		<div class="buttons_right">
 			<?php echo $view_raw_button  ?>
 			<?php echo $wide_view_button ?>
-			<?php echo $WYSIWYG_button    ?>
+			<?php echo $WYSIWYG_button   ?>
 			<?php echo $close_button     ?>
 		</div>
 		<div class=clear></div>
 	</div>
-
-	<script>
-	var Close_button_TEST     = document.getElementById('close_TEST');
-	Close_button_TEST.onclick = function () { parent.location = '<?php echo $close_params ?>'; }
-	</script>
-
 <?php
 }//end Edit_Page_buttons_top() //***********************************************
 
 
 
 
-function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
+function Edit_Page_buttons($text_editable, $too_large_to_edit) {//**************
 	global $_, $message, $ICONS, $MAX_IDLE_TIME, $IS_OFCMS, $WYSIWYG_VALID, $EDIT_WYSIWYG;
 
 	//Using ckeditor WYSIWYG editor, <input type=reset> button doesn't work. (I don't know why.)
-	$reset_button = '<input type=reset class=button value="'.hsc($_['reset']).'" onclick="return Reset_File();" id="reset">';
+	$reset_button = '<input type=reset  id="reset" class=button value="'.hsc($_['reset']).'" onclick="return Reset_File();">';
 	if ($WYSIWYG_VALID && $EDIT_WYSIWYG) {$reset_button = '';}
 
 	echo '<div class="edit_btns_bottom">';
@@ -2046,7 +2051,7 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) { //*************
 			echo $reset_button;
 		}//end if editable
 		
-		function RCD_button($action, $icon, $label){ //***************
+		function RCD_button($action, $icon, $label) {//***************
 			global $ICONS;
 			echo '<button type=button id="'.$action.'_btn" class="button RCD">'.$ICONS[$icon].'&nbsp;'.hsc($label).'</button>';
 		}//end RCD_button() //****************************************
@@ -2097,7 +2102,7 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 				}else{          //show editable <textarea>
 					//<input name=filename> is used only to signal an Edit_response().
 					echo '<input type="hidden" name="filename" value="'.rawurlencode($filename).'">';
-					echo '<textarea id="file_editor" name="contents" cols="70" rows="25">';
+					echo '<textarea id=file_editor name=contents cols=70 rows=25>';
 					echo $FILECONTENTS.'</textarea>'."\n";
 				}
 			}//end if/elseif...
@@ -2119,7 +2124,7 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 
 
 
-function Edit_Page_Notes() { //*************************************************
+function Edit_Page_Notes() {//**************************************************
 	global $_, $MAX_IDLE_TIME;
 			$SEC = $MAX_IDLE_TIME;
 			$HRS = floor($SEC/3600);
@@ -2142,7 +2147,7 @@ function Edit_Page_Notes() { //*************************************************
 
 
 
-function Edit_Page() { //*******************************************************
+function Edit_Page() {//********************************************************
 	global $_, $filename, $filename_OS, $FILECONTENTS, $etypes, $itypes, $EX, $message, $page,
 			$MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $WYSIWYG_VALID, $IS_OFCMS;
 
@@ -2198,7 +2203,7 @@ function Edit_Page() { //*******************************************************
 
 
 
-function Edit_response(){ //***If on Edit page, and [Save] clicked *************
+function Edit_response() {//***If on Edit page, and [Save] clicked *************
 	global $_, $EX, $message, $filename, $filename_OS;
 
 	$contents    = $_POST['contents'];
@@ -2218,7 +2223,7 @@ function Edit_response(){ //***If on Edit page, and [Save] clicked *************
 
 
 
-function Upload_Page() { //*****************************************************
+function Upload_Page() {//******************************************************
 	global $_, $ONESCRIPT, $ipath, $param1, $INPUT_NUONCE, $UPLOAD_FIELDS, $MAIN_WIDTH;
 
 	$max_file_uploads = ini_get('max_file_uploads');
@@ -2260,7 +2265,7 @@ function Upload_Page() { //*****************************************************
 
 
 
-function Upload_response() { //*************************************************
+function Upload_response() {//**************************************************
 	global $_, $ipath, $ipath_OS, $page, $EX, $message, $UPLOAD_FIELDS;
 
 	$page  = "index"; //return to index.
@@ -2311,7 +2316,7 @@ function Upload_response() { //*************************************************
 
 
 
-function New_Page($title, $new_f_or_f) { //*********************************************
+function New_Page($title, $new_f_or_f) {//**********************************************
 	global $_, $FORM_COMMON, $INVALID_CHARS;
 
 	echo '<h2>'.hsc($title).'</h2>';
@@ -2326,7 +2331,7 @@ function New_Page($title, $new_f_or_f) { //*************************************
 
 
 
-function New_response($post, $isfile){ //***************************************
+function New_response($post, $isfile) {//***************************************
 	global $_, $ipath, $ipath_OS, $filename, $filename_OS, $page, $param1, $param2, $param3, $message, $EX, $INVALID_CHARS, $WHSPC_SLASH;
 
 	$page      = "index"; //Return to index if folder, or on error.
@@ -2372,7 +2377,7 @@ function New_response($post, $isfile){ //***************************************
 
 
 
-function Set_Input_width() { //*************************************************
+function Set_Input_width() {//**************************************************
 	global $_, $WEB_ROOT, $MAIN_WIDTH, $ACCESS_ROOT;
 
 	// (width of <input type=text>) = $MAIN_WIDTH - (Width of <label>) - (width of <span>$WEB_ROOT</span>)
@@ -2402,7 +2407,7 @@ function Set_Input_width() { //*************************************************
 
 
 
-function CRM_Page($action, $title, $action_id, $old_full_name) { //******************
+function CRM_Page($action, $title, $action_id, $old_full_name) {//*******************
 	//$action    = 'Copy' or 'Rename'.
 	//$action_id = 'copy_file' or 'rename_file'
 	global $_, $WEB_ROOT, $ipath, $param1, $filename, $FORM_COMMON, $ACCESS_ROOT, $ACCESS_PATH;
@@ -2437,7 +2442,7 @@ function CRM_Page($action, $title, $action_id, $old_full_name) { //*************
 
 
  
-function CRM_response($action, $msg1, $show_message = 3){ //********************
+function CRM_response($action, $msg1, $show_message = 3) {//********************
 	//$action = 'rCopy' or 'rename'.  Returns 0 if successful, 1 on error.
 	//$show_message: 0 = none; 1 = errors only; 2 = successes only; 3 = all messages (default).
 	global $_, $ONESCRIPT, $ipath, $ipath_OS, $filename, $page, $param1, $param2, $param3, 
@@ -2523,7 +2528,7 @@ function CRM_response($action, $msg1, $show_message = 3){ //********************
 
 
 
-function Delete_response($target, $show_message=3) { //*************************
+function Delete_response($target, $show_message=3) {//**************************
 	global $_, $ipath, $ipath_OS, $param1, $filename, $param2, $page, $message, $EX;
 
 	if ($target == "") { return 0; } //Prevent accidental delete of entire website.
@@ -2565,7 +2570,7 @@ function Delete_response($target, $show_message=3) { //*************************
 
 
  
-function MCD_Page($action, $page_title, $classes = '') { //*********************
+function MCD_Page($action, $page_title, $classes = '') {//**********************
 	//$action = mcd_mov or mcd_cpy or mcd_del
 	global $_,  $WEB_ROOT, $ONESCRIPT, $ipath, $ipath_OS, $param1, $filename, $page,
 			$ICONS, $ACCESS_ROOT, $ACCESS_PATH, $INPUT_NUONCE, $message;
@@ -2614,7 +2619,7 @@ function MCD_Page($action, $page_title, $classes = '') { //*********************
 
 
 
-function MCD_response($action, $msg1, $success_msg = '') { //*******************
+function MCD_response($action, $msg1, $success_msg = '') {//********************
 	global $_, $ipath, $ipath_OS, $EX, $message, $WHSPC_SLASH;
 
 	$files      = $_POST['files']; //List of files to delete (path not included)
@@ -2669,7 +2674,7 @@ function MCD_response($action, $msg1, $success_msg = '') { //*******************
 
 
 
-function Page_Title(){ //***<title>Page_Title()</title>*************************
+function Page_Title() {//***<title>Page_Title()</title>*************************
 	global $_, $page;
 
 	if     (!$_SESSION['valid'])     { return $_['Log_In'];        }
@@ -2696,7 +2701,7 @@ function Page_Title(){ //***<title>Page_Title()</title>*************************
 
 
 
-function Load_Selected_Page(){ //***********************************************
+function Load_Selected_Page() {//***********************************************
 	global $_, $ONESCRIPT, $ipath, $filename, $page;
 
 	if     (!$_SESSION['valid'])     { Login_Page(); }
@@ -2725,7 +2730,7 @@ function Load_Selected_Page(){ //***********************************************
 
 
 
-function Respond_to_POST() { //*************************************************
+function Respond_to_POST() {//**************************************************
 	global $_, $VALID_POST, $ipath, $page, $EX, $ACCESS_ROOT, $message;
 
 	if (!$VALID_POST) { return; }
@@ -2766,7 +2771,7 @@ function Respond_to_POST() { //*************************************************
 
 
 
-function init_ICONS_js() { //***************************************************
+function init_ICONS_js() {//****************************************************
 	global $ICONS;
 
 	//Currently, only icons for dir listing needed in js
@@ -2795,7 +2800,7 @@ ICONS['delete']  = '<?php echo $ICONS["delete"]  ?>';
 
 
 
-function common_scripts() { //**************************************************
+function common_scripts() {//***************************************************
 	global $_, $TO_WARNING, $message, $page, $DELAY_Expired_Reload;
 ?>
 <script>
@@ -2804,7 +2809,7 @@ function pad(num){ if ( num < 10 ){ num = "0" + num; }; return num; }
 
 
 
-function hsc(text) { //***********************************************
+function hsc(text) {//************************************************
 	//A basic htmlspecialchars()
 	return text
       .replace(/&/g, "&amp;")
@@ -2816,7 +2821,7 @@ function hsc(text) { //***********************************************
 
 
 
-function trim($string) { //*******************************************
+function trim($string) {//********************************************
 
 	//trim leading whitespace
 	$len = $string.length;
@@ -2851,7 +2856,7 @@ function FormatTime(Seconds) {//**************************************
 
 
 
-function format_number(number, sep) { //******************************
+function format_number(number, sep) {//*******************************
 	sep = typeof sep !== 'undefined' ? sep : ','; //default to a comma
 	var number	= number + "";   // 1234567890     convert number to a string
 	var result  = "";            // 1,234,567,890  sample result
@@ -2905,7 +2910,7 @@ function Countdown(count, End_Time, Timer_ID, Action){
 
 
 
-function Start_Countdown(count, ID, Action){ //***********************
+function Start_Countdown(count, ID, Action) {//***********************
 
 	var Time_Start  = Math.round(new Date().getTime()/1000); //in seconds
 	var Time_End    = Time_Start + count;
@@ -2954,7 +2959,7 @@ function FileTimeStamp(php_filemtime, show_date, show_offset, write_return){
 
 
 
-function Display_Messages($msg, take_focus) { //***********************
+function Display_Messages($msg, take_focus) {//************************
 
 	var $page     = '<?php echo $page ?>';
 	var new_focus = '';
@@ -2989,9 +2994,11 @@ function Display_Messages($msg, take_focus) { //***********************
 
 
 
-function Index_Page_onclicks() { //*********************************************
+function Index_Page_events() {//************************************************
+	global $PAGEUPDOWN;
 ?>
 <script>
+//onclick events
 var Select_All_ckbox	= document.getElementById('select_all');
 var Sort_Type			= document.getElementById('sort_type');
 var Folders_First_Ckbox = document.getElementById('folders_first_ckbox');
@@ -3005,14 +3012,85 @@ Header_Filename.onclick  = function () {Sort_and_Show(1, FLIP_IF); this.focus();
 Header_Filesize.onclick  = function () {Sort_and_Show(2, FLIP_IF); this.focus(); return false;}
 Header_Filedate.onclick  = function () {Sort_and_Show(3, FLIP_IF); this.focus(); return false;}
 Sort_Type.onclick		 = function () {Sort_and_Show(5, FLIP_IF); this.focus(); return false;}
+
+
+
+//Control cursor keys to navigate index page. (arrow up/down, page up/down, Home/End)
+document.onkeydown = function(event) { //*******************************
+
+	if (!event) {var event = window.event;} //for IE
+	var key = event.keyCode;
+
+	//Assign a few handy "constants", and ignore any other keys.
+	var AU = 38, AD = 40, PU = 33, PD = 34; END = 35, HOME = 36 // Arrow Up/Down, Page Up/Down, Home/End
+	if ((key != AU) && (key != AD) && (key != PU) && (key != PD) && (key != HOME) && (key != END)) { return }
+
+	var jump = <?php echo $PAGEUPDOWN ?>;//# of rows to jump with Page Up/Page Down.
+
+	var FROWS    = DIRECTORY_ITEMS; // For these events, "../" is 0, and files are indexed 1 to DIRECTORY_ITEMS.
+	var LAST_ROW = "f" + FROWS;
+
+	//Get id of current focus (before this event). If focus is in file list, ID = 'fn', or 'fnn', etc.
+	var ID = document.activeElement.id; 
+
+	//(F)ile (R)ow = 0,1, ... FROWS
+	var FR = parseInt(ID.substr(1));
+	if (isNaN(FR)) {FR = -1;} //If not in file list...
+
+	//true / false: indicates if current focus is on one of the elements of the table header row.
+	var focus_header = ((ID == "select_all")      || (ID == "folders_first_ckbox") || (ID == "sort_type") || 
+						(ID == "header_filename") || (ID == "header_filesize")     || (ID == "header_filedate"));
+
+	//In general: If at top of page, Arrow Up will loop to bottom of page, and vice-versa.
+	//            However, Page Up/Down will stop at top/bottom of page.
+	//            But, Page Up/Down will also "soft" stop on top/bottom of list (next Page Up/Down will scroll rest of way).
+	//            So, first check current focus, then key...
+	//
+	if      (key == HOME) { if (ID != "f0") {ID = "f0"} else {return} }
+	else if (key == END)  {	if (ID != LAST_ROW) {ID = LAST_ROW} else {return} }
+	else if (ID == 'path_0') { // webroot in path_header: webroot/current/path/
+		if      (key == AU)   {ID = LAST_ROW		 }
+		else if (key == PU)   {return				 }
+		else if (key == AD)   {ID = "header_filename"}
+		else if (key == PD)   {ID = "header_filename"}
+	}
+	else if (focus_header) { //in table header row
+		if      (key == AU) {ID = "path_0"  }
+		else if (key == PU) {ID = "path_0"  }
+		else if	(key == AD) {ID = "f0"      }
+		else if	(key == PD) {FR += jump; if (FR < FROWS) {ID = "f" + FR} else {ID = LAST_ROW}}
+	}
+	else if (FR == -1) {     // any other element not in file list
+		if 		( key == AU)				   {ID = "path_0"		  }
+		else if ( key == PU)				   {ID = "path_0"		  }
+		else if ((key == AD) && !focus_header) {ID = "header_filename"}
+		else if ((key == PD) && !focus_header) {ID = "header_filename"}
+	}
+	else { 
+		if      ((key == AD) &&  (ID == LAST_ROW)) {ID = "path_0"}
+		else if ((key == PD) &&  (ID == LAST_ROW)) {return		}
+		
+		else if	( key == AU) {			   if (FR > 0)     {ID = "f" + (FR - 1)} else {ID = "header_filename"} }
+		else if ( key == AD) {			   if (FR < FROWS) {ID = "f" + (FR + 1)} else {ID = "header_filename"} }
+		else if	( key == PU) { FR -= jump; if (FR > 0)     {ID = "f" + FR	   } else {ID = "header_filename"} }
+		else if ( key == PD) { FR += jump; if (FR < FROWS) {ID = "f" + FR	   } else {ID = LAST_ROW		 } }
+		else { return; }
+	}
+	document.getElementById(ID).focus();
+
+	//Prevent default browser scrolling via arrow & Page keys, so focus()'d element stays visible/in view port.
+	//(A few exceptions skip this via a return in the above  if/else's.)
+	if (event.preventDefault) { event.preventDefault() } else { event.returnValue = false }
+
+}//end onkeyup() //***************************************************
 </script>
 <?php
-}//end Index_Page_onclicks() //*************************************************
+}//end Index_Page_events() //***************************************************
 
 
 
 
-function Index_Page_scripts() { //**********************************************
+function Index_Page_scripts() {//***********************************************
 	global $_, $ONESCRIPT, $param1, $ipath, $message, $DELAY_Sort_and_Show_msgs, $MIN_DIR_ITEMS;
 ?>
 <script>
@@ -3036,7 +3114,7 @@ var SORT_folders_1st = true;  // Initially set to true. false = did not consider
 
 
 
-function Sort_Folders_First() { //************************************
+function Sort_Folders_First() {//*************************************
 
 	//DIRECTORY_DATA[x] = ("type", "file name", filesize, timestamp, is_ofcms)	
 
@@ -3066,7 +3144,7 @@ function Sort_Folders_First() { //************************************
 
 
 
-function sort_DIRECTORY(col, direction) { //**************************
+function sort_DIRECTORY(col, direction) {//***************************
 
 	//sort DIRECTORY_DATA[] by col and direction
 	
@@ -3111,7 +3189,7 @@ function sort_DIRECTORY(col, direction) { //**************************
 
 
 
-function Init_Dir_table_rows(DIR_LIST) { //***************************
+function Init_Dir_table_rows(DIR_LIST) {//****************************
 
 	var row, cell, cells, tr, td;
 
@@ -3127,19 +3205,24 @@ function Init_Dir_table_rows(DIR_LIST) { //***************************
 		cells[5].className = 'file_size meta_T';
 		cells[6].className = 'file_time meta_T';
 	}
-}//end Init_Dir_table_rows() { //*************************************
+}//end Init_Dir_table_rows() {//**************************************
 
 
 
 
 //********************************************************************
-function Assemble_Insert_row(IS_OFCMS, trow, href, f_or_f, filename, file_name, file_size, file_time){
+function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_name, file_size, file_time){
 
-	//Assemble [move] [copy] [delete] [x] 
-	var ren_mov = '<a href="' + href + '&amp;p=rename' + f_or_f + '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
-	var copy    = '<a href="' + href + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
-	var del     = '<a href="' + href + '&amp;p=delete' + f_or_f + '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
-	var checkbox = '<div class="ckbox"><INPUT TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
+	//While DIRECTORY_DATA, and the table rows created to list the data, are indexed from 0 (zero),
+	//the id's of files in the directory list are indexed from 1 (f1, f2...), as "../" is listed first with id=f0 (f-zero).
+	//The id's are used in Index_Page_events() "cursor" control.
+	row++;
+
+	//Assemble [move] [copy] [delete] [x]
+	var ren_mov = '<a id=f' + row + 'c0 href="' + href + '&amp;p=rename' + f_or_f + '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
+	var copy    = '<a id=f' + row + 'c1 href="' + href + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
+	var del     = '<a id=f' + row + 'c2 href="' + href + '&amp;p=delete' + f_or_f + '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
+	var checkbox = '<div class="ckbox"><INPUT id=f' + row + 'c3 TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
 
 	//Don't show remove, delete, or checkbox options for active copy of OneFileCMS.
 	if (IS_OFCMS) { ren_mov = del = checkbox = ''; }
@@ -3159,7 +3242,7 @@ function Assemble_Insert_row(IS_OFCMS, trow, href, f_or_f, filename, file_name, 
 
 
 
-function Build_Directory() { //***************************************
+function Build_Directory() {//****************************************
 
 	var DIR_LIST = document.getElementById("DIRECTORY_LISTING");
 
@@ -3185,7 +3268,7 @@ function Build_Directory() { //***************************************
 			var file_size = format_number(filesize) + ' B';
 		}
 		
-		var file_name  = '<a href="' + href  + '"';
+		var file_name  = '<a id=f'+(row + 1)+' href="' + href  + '"';
 			file_name += ' title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
 			file_name += ICONS[filetype] + '&nbsp;' + hsc(filename) + DS + '</a>';
 		var file_time  = FileTimeStamp(filetime, 1, 0, 0);
@@ -3193,14 +3276,14 @@ function Build_Directory() { //***************************************
 		var IS_OFCMS = DIRECTORY_DATA[row][4];
 		var trow = DIR_LIST.rows[row];
 		
-		Assemble_Insert_row(IS_OFCMS, trow, href, f_or_f, filename, file_name, file_size, file_time);
+		Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_name, file_size, file_time);
 	}//end for (row...
 }//end Build_Directory() //*******************************************
 
 
 
 
-function Directory_Summary() { //*************************************
+function Directory_Summary() {//**************************************
 
 	var total_items  = DIRECTORY_DATA.length;
 	var folder_count = 0;
@@ -3227,7 +3310,7 @@ function Directory_Summary() { //*************************************
 
 
 
-function Sort_and_Show(col, direction) { //***************************
+function Sort_and_Show(col, direction) {//****************************
 
 	var DELAY = 0;
 	if (DIRECTORY_ITEMS > <?php echo $MIN_DIR_ITEMS ?>) { //
@@ -3249,7 +3332,7 @@ function Sort_and_Show(col, direction) { //***************************
 
 
 
-function Select_All() { //*******************************************
+function Select_All() {//********************************************
 
 	//Does not work in IE if the variable name is spelled the same as the Element Id
 	//So, prefix with a dollar sign (a valid character in JS for variable names).
@@ -3271,7 +3354,7 @@ function Select_All() { //*******************************************
 
 
 
-function Confirm_Submit(action){ //***********************************
+function Confirm_Submit(action) {//***********************************
 	
 	var files = document.mcdselect.elements['files[]'];
 	var last  = files.length;   //number of files
@@ -3298,7 +3381,7 @@ function Confirm_Submit(action){ //***********************************
 
 
 
-function Edit_Page_scripts() { //***********************************************
+function Edit_Page_scripts() {//************************************************
 	global $_, $ONESCRIPT, $ONESCRIPT_file, $ipath, $param1, $param2, $filename,
 			$MAIN_WIDTH, $WIDE_VIEW_WIDTH, $current_view, $WYSIWYG_VALID, $EDIT_WYSIWYG;
 
@@ -3338,8 +3421,7 @@ if (File_textarea) { var start_value = File_textarea.value; }
 var submitted  = false;
 var changed    = false;
 
-//[View Raw], [Close], and [Copy], should always be present on Edit Page.
-View_Raw_button.onclick  = function () { window.open(onclick_params + 'raw_view'); }
+//[Close], and [Copy], should always be present on Edit Page.
 Close_button.onclick     = function () { parent.location = '<?php echo $close_params ?>'; }
 Close_button.focus();
 Copy_File_button.onclick = function () { parent.location = onclick_params + 'copyfile';   }
@@ -3350,32 +3432,14 @@ if ( Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>' ) {
 	Wide_View_button.innerHTML = '<?php echo hsc($_['Normal_View']) ?>';
 }
 
-//These elements do not exist if file is not editable.
+//These elements do not exist if file is not editable, or maybe if in WYSIWYG mode.
+if (View_Raw_button)    { View_Raw_button.onclick  = function ()   {window.open(onclick_params + 'raw_view'); } }
 if (Wide_View_button)   { Wide_View_button.onclick = function ()   {Wide_View();}    }
 if (Save_File_button)   { Save_File_button.onclick = function ()   {submitted=true;} }
 if (WYSIWYG_button  )   { WYSIWYG_button.onclick = function ()     {<?php echo $WYSIWYG_onclick ?>} }
 if (Rename_File_button) { Rename_File_button.onclick = function () {parent.location = onclick_params + 'renamefile';} }
 if (Delete_File_button) { Delete_File_button.onclick = function () {parent.location = onclick_params + 'deletefile';} }
 if (File_textarea)      { File_textarea.onkeyup = function(event)  {Check_for_changes(event);} }
-
-
-
-function Wide_View() {
-
-	var main_width_default = '<?php echo $MAIN_WIDTH ?>';
-
-	if ( File_textarea ) { File_textarea.style.width = '99.8%'; }
-	
-	if (Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>') {
-		Main_div.style.width       = main_width_default;
-		Wide_View_button.innerHTML = "<?php echo hsc($_['Wide_View'])?>";
-		document.cookie            = 'edit_view=' + main_width_default;
-	}else{
-		Main_div.style.width       = '<?php echo $WIDE_VIEW_WIDTH ?>';
-		Wide_View_button.innerHTML = '<?php echo hsc($_['Normal_View']) ?>';
-		document.cookie            = 'edit_view=<?php echo $WIDE_VIEW_WIDTH ?>';
-	}
-}
 
 
 
@@ -3398,10 +3462,29 @@ window.onunload = function() {
 }
 
 
+
+function Wide_View() {
+
+	var main_width_default = '<?php echo $MAIN_WIDTH ?>';
+
+	if ( File_textarea ) { File_textarea.style.width = '99.8%'; }
+	
+	if (Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>') {
+		Main_div.style.width       = main_width_default;
+		Wide_View_button.innerHTML = "<?php echo hsc($_['Wide_View'])?>";
+		document.cookie            = 'edit_view=' + main_width_default;
+	}else{
+		Main_div.style.width       = '<?php echo $WIDE_VIEW_WIDTH ?>';
+		Wide_View_button.innerHTML = '<?php echo hsc($_['Normal_View']) ?>';
+		document.cookie            = 'edit_view=<?php echo $WIDE_VIEW_WIDTH ?>';
+	}
+}
+
+
+
 function Reset_file_status_indicators() {	
 	changed = false;
 	File_textarea.style.backgroundColor = "#F5FFF5";  //light green
-	File_textarea.style.borderColor     = "";
 	Save_File_button.style.borderColor  = "";
 	Save_File_button.innerHTML          = "<?php echo hsc($_['save_1'])?>";
 	Reset_button.disabled               = "disabled";
@@ -3430,8 +3513,7 @@ function Check_for_changes(event){
 	changed = (File_textarea.value != start_value);
 	if (changed){
 		document.getElementById('message_box').innerHTML = " "; //Must have a space, or it won't clear the msg.
-		File_textarea.style.backgroundColor    = "#FFF"; //white
-		File_textarea.style.borderColor        = "#F33"; //mild red
+		File_textarea.style.backgroundColor    = "white";
 		Save_File_button.style.borderColor	   = "#F33";
 		Save_File_button.innerHTML			   = "<?php echo hsc($_['save_2'])?>";
 		Reset_button.disabled				   = "";
@@ -3453,6 +3535,7 @@ function Reset_File() {
 	setSelRange(File_textarea, 0, 0) //Move cursor to start of textarea.
 }
 
+
 Reset_file_status_indicators();
 </script>
 <?php
@@ -3461,7 +3544,7 @@ Reset_file_status_indicators();
 
 
 
-function pwun_event_scripts($form_id, $button_id, $pwun=''){ //*****************
+function pwun_event_scripts($form_id, $button_id, $pwun='') {//*****************
 	global $_;
 
 	//pre-hash "new1" & "new2" only if changing p/w (not if changing u/n).
@@ -3508,9 +3591,10 @@ function events_up(event, capture_key) {
 }
 
 
-document.onmouseup = function(event) {if (!event) {var event = window.event;} //if IE
-	//if mousedown was on submit button, but mouseup wasn't, clear message.
+document.onmouseup = function(event) {
+	if (!event) {var event = window.event;} //if IE
 
+	//if mousedown was on submit button, but mouseup wasn't, clear message.
 	var target = event.target || event.srcElement; //target = most brosers || IE
 	if ($submitdown && ($submit_button.id != target.id) ) { $message_box.innerHTML = ''; } 
 	$submitdown = false;
@@ -3551,7 +3635,7 @@ function pre_validate_pwun() {
 
 
 
-function js_hash_scripts() { //*************************************************
+function js_hash_scripts() {//**************************************************
 	global $SALT, $PRE_ITERATIONS;
 
 //Used to hash p/w's client side.  This does not really add any security to the 
@@ -3592,7 +3676,7 @@ function hash($element_id) {
 
 
 
-function style_sheet(){ //******************************************************
+function style_sheet() {//******************************************************
 ?>
 <style>
 /* --- reset --- */
@@ -3617,7 +3701,8 @@ li { margin-left: 2em }
 i, em     { font-style : italic; }
 b, strong { font-weight: bold;   }
 
-:focus { outline:0; }
+:focus {outline:0;}
+:hover {border-color: #333;}
 
 table { border-collapse:separate; border-spacing:0; }
 th,td { text-align:left; font-weight:400; }
@@ -3633,11 +3718,11 @@ input[type="file"]     { width: 100%; border: 1px solid #777; background-color: 
 input[readonly]        { color: #333; background-color: #EEE; }
 input[disabled]        { color: #555; background-color: #EEE; }
 
-input:focus  { background-color: rgb(255,250,150); }
+input:focus  { background-color: rgb(255,250,150); border: 1px solid #333; }
 input:hover  { background-color: rgb(255,250,150); }
 
-button:focus  { background-color: rgb(255,250,150); border-color: #333;}
 button:hover  { background-color: rgb(255,250,150); border-color: #333;}
+button:focus  { background-color: rgb(255,250,150); border-color: #333;}
 button:active { background-color: rgb(245,245,50);  border-color: #333;}
 
 /* --- layout --- */
@@ -3849,6 +3934,8 @@ a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
 	background-color: #EEE;
 	}
 
+.button:hover     { border: 1px solid #333; background-color: rgb(255,250,150); }
+.button:focus     { border: 1px solid #333; background-color: rgb(255,250,150); }
 .button:active    { background-color: rgb(245,245,50); }                  /*first                 */
 .button[disabled] { color: #777; background-color: #EEE; cursor: default} /*second - order matters*/
 
@@ -3861,7 +3948,6 @@ a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
 .nav a { border: 1px solid transparent; font-weight: bold; padding: .2em .6em .1em .6em; }
 .nav a:hover  { border: 1px solid #333; }
 .nav a:focus  { border: 1px solid #333; }
-.nav a:active { border: 1px solid #333; }
 
 
 /* --- edit --- */
@@ -4033,9 +4119,8 @@ input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 	padding: 1px 5px 0 5px;
 	}
 
-#path_header a:hover  { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
-#path_header a:focus  { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
-#path_header a:active { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(245,245,50); }
+#path_header a:hover  { border-left : solid 1px #777; border-right: solid 1px #777; }
+#path_header a:focus  { border-left : solid 1px #777; border-right: solid 1px #777; }
 
 </style>
 <?php
@@ -4044,7 +4129,7 @@ input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 
 
 
-function Language_and_config_adjusted_styles() { //*****************************
+function Language_and_config_adjusted_styles() {//******************************
 	global $_, $MAIN_WIDTH, $message, $page;
 ?>
 <style>
@@ -4077,7 +4162,7 @@ function Language_and_config_adjusted_styles() { //*****************************
 
 
 
-function Load_style_sheet(){ //*************************************************
+function Load_style_sheet() {//*************************************************
 	global $CSS_FILE, $message;
 
 	style_sheet(); //first load built-in defaults

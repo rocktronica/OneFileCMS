@@ -1,4 +1,4 @@
-﻿OneFileCMS Version 3.5.09 structure/layout
+﻿OneFileCMS Version 3.5.13 structure/layout
 
 LICENSE
 
@@ -97,7 +97,9 @@ JAVASCRIPT FUNCTIONS:
 		Start_Countdown()
 		FileTimeStamp()
 		Display_Messages()
-	Index_Page_onclicks()
+	Index_Page_events()
+		(various onclicks)
+		document.onkeydown
 	Index_Page_scripts()
 		Sort_FOlder_First()
 		sort_DIRECTORY()
@@ -109,12 +111,15 @@ JAVASCRIPT FUNCTIONS:
 		Select_All()
 		Confirm_Submit()
 	Edit_Page_scripts()
+		(various onclicks)
+		window.onbeforeunload
+		window.onunload
 		Wide_View()
 		Reset_file_status_indicators()
 		setSelRange()
 		Check_for_changes()
 		Reset_File()
-	event_scripts()
+	pwun_event_scripts()
 		events_down()
 		events_up()
 		pre_validate_pwun()

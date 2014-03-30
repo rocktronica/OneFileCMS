@@ -1,12 +1,12 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
-// v3.5.07
+// v3.5.13
 // Sample external config file - this file is OPTIONAL.
 //
 // Basically, what follows is just a copy & paste of the OneFileCMS CONFIGURABLE INFO section.
 
 
-// CONFIGURABLE INFO ***********************************************************
+// USER CONFIGURABLE INFO ******************************************************
 $config_title = "OneFileCMS";
 
 $USERNAME = "username";
@@ -17,7 +17,7 @@ $SALT     = 'somerandomsalt';
 $MAX_ATTEMPTS  = 3;    //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;   //In seconds.
 $MAX_IDLE_TIME = 600;  //In seconds. 600 = 10 minutes.  Other PHP settings (like gc) may limit its max effective value.
-$TO_WARNING    = 120;  //In seconds. When idle time remaining is less than this value, a timeout warning is displayed.
+$TO_WARNING    = 120;  //In seconds. When idle time remaining is less than this value, a TimeOut warning is displayed.
 $LOG_LOGINS    = true; //Keep log of login attempts.
 
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.          Can be px, pt, em, or %.  Assumes px otherwise.
@@ -49,6 +49,8 @@ $config_ftypes = "bin,z,gz,7z,zip,jpg,gif,png,bmp,ico,svg,asp,cfg,conf,csv,css,d
 $config_fclass = "bin,z,z ,z ,z  ,img,img,img,img,img,svg,txt,txt,cfg ,txt,css,txt,htm,htm ,htm  ,txt     ,txt,txt,txt,txt   ,txt,php,php,txt,txt";
 
 $EX = '<b>( ! )</b> '; //EXclaimation point "icon" Used in $message's
+
+$PAGEUPDOWN = 10; //Number of rows to jump using Page Up/Page Down keys on directory listing.
 
 $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copies of OneFileCMS concurrently.
 

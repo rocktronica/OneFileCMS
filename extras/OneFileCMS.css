@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.11
+Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.13
 *******************************************************************************/
 
 /* --- reset --- */
@@ -24,7 +24,8 @@ li { margin-left: 2em }
 i, em     { font-style : italic; }
 b, strong { font-weight: bold;   }
 
-:focus { outline:0; }
+:focus {outline:0;}
+:hover {border-color: #333;}
 
 table { border-collapse:separate; border-spacing:0; }
 th,td { text-align:left; font-weight:400; }
@@ -40,12 +41,12 @@ input[type="file"]     { width: 100%; border: 1px solid #777; background-color: 
 input[readonly]        { color: #333; background-color: #EEE; }
 input[disabled]        { color: #555; background-color: #EEE; }
 
-input:focus  { background-color: rgb(255,250,150); }
+input:focus  { background-color: rgb(255,250,150); border: 1px solid #333; }
 input:hover  { background-color: rgb(255,250,150); }
 
-button:focus  { background-color: rgb(255,250,150); border-color: #333;}
-button:hover  { background-color: rgb(255,250,150); border-color: #333;}
-button:active { background-color: rgb(245,245,50);  border-color: #333;}
+button:hover  { background-color: rgb(255,250,150); border-color: #333; }
+button:focus  { background-color: rgb(255,250,150); border-color: #333; }
+button:active { background-color: rgb(245,245,50);  border-color: #333; }
 
 /* --- layout --- */
 
@@ -256,6 +257,8 @@ a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
 	background-color: #EEE;
 	}
 
+.button:hover     { border: 1px solid #333; background-color: rgb(255,250,150); }
+.button:focus     { border: 1px solid #333; background-color: rgb(255,250,150); }
 .button:active    { background-color: rgb(245,245,50); }                  /*first                 */
 .button[disabled] { color: #777; background-color: #EEE; cursor: default} /*second - order matters*/
 
@@ -268,7 +271,6 @@ a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
 .nav a { border: 1px solid transparent; font-weight: bold; padding: .2em .6em .1em .6em; }
 .nav a:hover  { border: 1px solid #333; }
 .nav a:focus  { border: 1px solid #333; }
-.nav a:active { border: 1px solid #333; }
 
 
 /* --- edit --- */
@@ -442,4 +444,3 @@ input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 
 #path_header a:hover  { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
 #path_header a:focus  { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
-#path_header a:active { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(245,245,50); }

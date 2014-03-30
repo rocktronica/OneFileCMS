@@ -1,5 +1,11 @@
 # OneFileCMS Change Log
 
+### v3.5.13 (2014-03-30)
+
+- Added basic keyboard navigation on directory listings.
+- Removed [View Raw] button when viewing images.
+- And tweaked some css...
+
 ### v3.5.12 (2014-03-25)
 
 - Fixed a minor glitch in the countdown used in login delays.

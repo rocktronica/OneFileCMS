@@ -2,7 +2,7 @@
 
 ## Yes, that's *exactly* what it is!
 
-OneFileCMS is a simple CMS (Content Management System) contained entirely in a single file, database-less, PHP script.
+OneFileCMS is a simple CMS (Content Management System) contained entirely in a single, database-less, PHP/Javascript.
 
 With basic editing, upload, and file managing functions, OneFileCMS can maintain an entire website completely in-browser without any external programs.
 
@@ -37,10 +37,11 @@ With basic editing, upload, and file managing functions, OneFileCMS can maintain
 - Sort directory listings by file name, extension, size, or date.
 - A basic text editor.
 - A WYSIWYG editor may be added as a plugin.
-- A Login delay after too many invalid login attempts.
+- A login delay after too many invalid login attempts.
 - Adjustable idle time before auto-logout.
 - Easily modifiable & re-brandable.
 - Multi-language support.
+- Lots more...
 - <del>Possibly</del> The easiest installation process ever!
 
 --------------------------------------------------------------------------------
@@ -63,11 +64,11 @@ You can also change the file name from "onefilecms.php" to something else, such 
 
 - PHP 5.1+
   (Only tested on versions 5.2.8, 5.2.17, 5.3.3, and 5.4 + )
-- File permission privileges on your host.
 - A Javascript enabled browswer.
-- Most* modern browsers probably work, but I only test on Firefox, Chrome, and IE 8.
-- And- but only if you wish to see the icons- a browser that supports inline SVG.  
+- Most modern browsers probably work, but I only test on Firefox, Chrome, and IE 8.
+- And if you wish to see the icons- a browser that supports inline SVG.  
   (If your browser doesn't support inline SVG, OneFileCMS will still work, just without any icons.)
+- File permission privileges on your host.
 
 --------------------------------------------------------------------------------
 ## <a name=faq></a>FAQ
@@ -76,9 +77,8 @@ You can also change the file name from "onefilecms.php" to something else, such 
 - [I found something that could be better. Can I suggest it to you?](#suggestions)
 - [Can I have more than one username/password?](#multiuser)
 - [This is basically just a file manager with a text editor- why is it being called a CMS?](#handsaw)
+- [Why do I get a "Stop running this script?" alert during login?](#slowlogin)
 - [Where's the WYSISWYG?](#WYSIWYG)
-- [Why do I get a "Stop running script?" pop-up during login?](#slowlogin)
-
 
 ### <a name=language></a>Multi-Language Support?
 
@@ -105,14 +105,14 @@ Now, since there is no database or other means of granular control or access log
 
 ### <a name=handsaw></a>This is basically just a file manager with a text editor- why is it being called a CMS?
 
-It may be simple, bit it can get the job done.  While you wouldn't want to build an entire house with just a hammer and hand saw, you can "manage" quite a bit with just those two tools (and nails, of course).  Besides, "OneFileCMS" sounds cool. 
+Because it is. And it may be simple, but it can get the job done.  While you wouldn't want to build a new house from the ground up with just a hammer, hand saw, and tape measure, you can "manage" quite a bit with just those tools (and nails, of course).  Besides, "OneFileCMS" sounds cool. 
 
 
-### <a name=slowlogin></a>Why do I get a "Stop running script?" pop-up during login?
+### <a name=slowlogin></a>Why do I get a "Stop running this script?" alert during login?
 
-IE, version 8 at least, takes condsiderably longer (about 8 seconds on my test system) to run OneFile's javascript login functions than Chrome or Firefox.  Just click [No] and the login should continue normally after a few more seconds.  
+OneFile's login functions take condsiderably longer* to run on IE, version 8 at least, than on Chrome or Firefox.  Just click [ No ] on the alert, and the login should finish after a few more seconds.   *(About 8 seconds -vs- 1/4 second on my test system.)
 
-Not counting the time the pop-up is waiting for a response, the 8 seconds previously mentioned is the time to login from a 2.5gz single-core XP system.  This delay is the result of the client-side "pre-hash" OneFileCMS performs on your password before submitting the login to OneFileCMS server-side.  
+The delay is the result of the client-side "pre-hash" OneFileCMS performs on your password before submitting the login to OneFileCMS server-side.  Not counting the time the pop-up is waiting for a response, the 8 seconds previously mentioned is from a 2.5gz single-core XP system.  
 
 See the global variable "$PRE\_ITERATIONS" at the end of System\_Setup().  It can be adjusted, but it's best to do so on a local copy in a development setup, then upload the updated copy.
 
