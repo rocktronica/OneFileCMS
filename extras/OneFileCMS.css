@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.13
+Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.14
 *******************************************************************************/
 
 /* --- reset --- */
@@ -37,6 +37,7 @@ pre { background: white; border: 1px solid #777; padding: .2em; margin: 0; }
 input[type="text"]     { width: 100%; border: 1px solid #777; padding: 1px 1px 1px 0; font : 1em Courier; }
 input[type="password"] { width: 100%; border: 1px solid #777; padding: 0   1px 0   0; }
 input[type="file"]     { width: 100%; border: 1px solid #777; background-color: white; margin: 0; }
+input[type="checkbox"] { cursor : pointer; }
 
 input[readonly]        { color: #333; background-color: #EEE; }
 input[disabled]        { color: #555; background-color: #EEE; }
@@ -44,9 +45,9 @@ input[disabled]        { color: #555; background-color: #EEE; }
 input:focus  { background-color: rgb(255,250,150); border: 1px solid #333; }
 input:hover  { background-color: rgb(255,250,150); }
 
-button:hover  { background-color: rgb(255,250,150); border-color: #333; }
-button:focus  { background-color: rgb(255,250,150); border-color: #333; }
-button:active { background-color: rgb(245,245,50);  border-color: #333; }
+button:hover  { background-color: rgb(255,250,150); border-color: #333;}
+button:focus  { background-color: rgb(255,250,150); border-color: #333;}
+button:active { background-color: rgb(245,245,50);  border-color: #333;}
 
 /* --- layout --- */
 
@@ -119,45 +120,50 @@ button:active { background-color: rgb(245,245,50);  border-color: #333; }
 
 
 /*** Select All [x] ***/
-#select_all_th { min-width: 60px ; max-width: 70px; text-align: right; padding:  0 0 0 0; } /*TRBL*/
-#select_all {margin: 3px 0 0 0; cursor : pointer;}  /*checkbox*/
 #select_all_label { 
 	font   : 400 .84em arial;
 	color  : #333;
-	border-right: solid transparent 1px;
-	padding: 3px 2px 2px 2px;
+	display: inline-block;
+	padding: 4px 0 3px 0;
 	cursor : pointer;
+	width  : 72px; /*Adjusted by langauge files*/
+	border-right: solid transparent 1px;
 	}
 
-#select_all_label:hover  { border-left: 1px solid #777; background-color: rgb(255,250,150); }
-#select_all_label:hover  { border-top-width: 0; border-bottom-width: 0; }
+#select_all_label:hover  { background-color: rgb(255,250,150); }
+#select_all_label:active { background-color: rgb(245,245, 50); }
 
 
 /*** Directory list file select boxes ***/
-.ckbox {padding: 2px 4px 0 4px}
-.ckbox:focus { background-color: rgb(255,250,150); }
-.ckbox:hover { background-color: rgb(255,250,150); }
-.select_file {cursor : pointer;}
+/*ckbox is assigned to <td>'s & <th>'s that contain <input type=checkbox>*/
+.ckbox        {padding: 4px 4px 2px 4px; display: inline-block;}
+.ckbox:hover  {background-color: rgb(255,240,100);} 
+.ckbox:active {background-color: rgb(245,245, 50);}
+
+/* Slightly darker colors for [m][c][d] file options since they are small & less noticable*/
+.MCD:hover  {background-color: rgb(255,240,100);}
+.MCD:focus  {background-color: rgb(250,240,100);}
+.MCD:active {background-color: rgb(245,245, 50);}
 
 
 /*** [x] Folders First ***/
-#folders_first_ckbox {margin: 3px 0 0px 4px;cursor : pointer;}
 #folders_first_label {
-	border: solid 1px transparent;
-	font-size: .9em;
+	display: inline-block;
+	font-size  : .9em;
 	font-weight: normal;
-	color: #333; margin: 0;
-	padding: 3px 0 2px 0;
+	border     : solid 1px transparent;
+	color  : #333;
+	margin : 0 0 0 -5px;
+	padding: 4px 0 2px 0;
 	cursor : pointer;
 }
 
 #folders_first_label:hover {
-	border            : solid 1px #777;
 	background-color  : rgb(255,250,150);
-	cursor            : pointer;
 	border-left-color : silver;
 	border-right-color: silver;
 }
+#folders_first_label:active {background-color  : rgb(245,245, 50);}
 
 
 /* --- Directory Listing --- */
@@ -180,18 +186,18 @@ table.index_T th:hover { background-color: white;}
 .index_T th a { padding: 1px 0 1px 0; border-width: 0px;}
 
 .index_T th.file_name   { text-align: left; }
-.index_T th.file_name a { display: inline-block; padding: 2px 2.5em 2px 1.5em; border-top-width: 0px; border-bottom-width: 0px;}
+.index_T th.file_name a { display: inline-block; padding: 4px 2.5em 3px 1.5em; border-top-width: 0px; border-bottom-width: 0px;}
 
 #header_filename       {border-width: 0 1px 0 1px; min-width: 2.5em;}
 #header_filename:hover {border-color: silver;}
 #header_filename:focus {border-color: silver;}
 
-.index_T th.file_size a { display  : block; padding: 2px 0 2px 0; }
-.index_T th.file_time a { display  : block; padding: 2px 0 2px 0; }
+.index_T th.file_size a { display  : block; padding: 4px 0 3px 0; }
+.index_T th.file_time a { display  : block; padding: 4px 0 3px 0; }
 
-#sort_type       {float: right; padding: 1px 5px 3px 4px; border-width: 0px 0 0 1px;}
-#sort_type:hover {border-color: silver;}
-#sort_type:focus {border-color: silver;}
+#header_sorttype       {float: right; padding: 4px 5px 3px 4px; border-width: 0px 0 0 1px;}
+#header_sorttype:hover {border-color: silver;}
+#header_sorttype:focus {border-color: silver;}
 
 .file_name { max-width: 26em; }
 .file_size { min-width:  6em; padding-left: 10px; }
@@ -217,7 +223,7 @@ table.index_T th:hover { background-color: white;}
 
 
 /*These must go after .front_links and other style that affect <a> tags*/
-a { border: 1px solid transparent; text-decoration: none; }  /*color: rgb(100,45,0);*/
+a { border: 1px solid transparent; text-decoration: none; }
 a:focus  { border: 1px solid #333; background-color: rgb(255,250,150); }
 a:hover  { border: 1px solid #333; background-color: rgb(255,250,150); }
 a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
@@ -442,5 +448,5 @@ input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 	padding: 1px 5px 0 5px;
 	}
 
-#path_header a:hover  { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
-#path_header a:focus  { border-left : solid 1px #777; border-right: solid 1px #777; background-color: rgb(255,250,150); }
+#path_header a:hover  { border-left : solid 1px #777; border-right: solid 1px #777; }
+#path_header a:focus  { border-left : solid 1px #777; border-right: solid 1px #777; }

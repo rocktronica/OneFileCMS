@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.13';
+$OFCMS_version = '3.5.14';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -329,7 +329,7 @@ $_['button_padding']         = '4px 7px 4px 7px'; //T R B L
 $_['image_info_font_size']   = '1em';    //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';       //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';  //Font size of $_['Select_All']
-$_['select_all_label_width'] = '72px';   //Width of space for $_['Select_All'] //Not used as of 3.4.23
+$_['select_all_label_width'] = '72px';   //Width of space for $_['Select_All']
 $_['HTML']    = 'HTML';
 $_['WYSIWYG'] = 'WYSIWYG';
 $_['Admin']    = 'Admin';
@@ -1148,7 +1148,7 @@ function rDel($path) {//********************************************************
 function Current_Path_Header() {//**********************************************
  	// Current path. ie: webroot/current/path/
 	// Each level is a link to that level.
-	global $ONESCRIPT, $ipath, $WEB_ROOT, $ACCESS_ROOT, $ACCESS_ROOT_len, $message;
+	global $ONESCRIPT, $ipath, $WEB_ROOT, $ACCESS_ROOT, $ACCESS_ROOT_len, $TABINDEX, $message;
 
 	$unaccessable    = '';
 	$_1st_accessable = trim($WEB_ROOT, ' /');
@@ -1166,9 +1166,9 @@ function Current_Path_Header() {//**********************************************
 	echo '<h2 id="path_header">';
 		//Root (or $ACCESS_ROOT) folder of web site.
 		$p1 = '?i='.URLencode_path($ACCESS_ROOT);
-		echo $unaccessable.'<a id="path_0" href="'.$ONESCRIPT.$p1.'" class="path">'.hsc($_1st_accessable).'</a>/';
+		echo $unaccessable.'<a id=path_0 tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.$p1.'" class="path">'.hsc($_1st_accessable).'</a>/';
 		$x=0; //need here for focus() in case at webroot.
-		
+
 		if ($remaining_path != "" ) { //if not at root, show the rest
 			$path_levels  = explode("/",trim($remaining_path,'/') );
 			$levels = count($path_levels); //If levels=3, indexes = 0, 1, 2  etc...
@@ -1177,7 +1177,7 @@ function Current_Path_Header() {//**********************************************
 			for ($x=0; $x < $levels; $x++) {
 				$current_path .= $path_levels[$x].'/';
 				$p1 = '?i='.URLencode_path($ACCESS_ROOT.$current_path);
-				echo '<a id="path_'.($x+1).'" href="'.$ONESCRIPT.$p1.'" class="path">';
+				echo '<a id="path_'.($x+1).'" tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.$p1.'" class="path">';
 				echo hsc($path_levels[$x]).'</a>/';
 			}
 		}//end if(not at root)
@@ -1188,24 +1188,25 @@ function Current_Path_Header() {//**********************************************
 
 
 function Page_Header() {//******************************************************
-	global  $_, $DOC_ROOT, $ONESCRIPT, $page, $WEBSITE, $config_title, $OFCMS_version, $config_favicon, $message;
+	global  $_, $DOC_ROOT, $ONESCRIPT, $page, $WEBSITE, $config_title, $OFCMS_version, $config_favicon, $TABINDEX, $message;
+
+	$TABINDEX = 1;
 
 	$favicon = '';
 	if (file_exists($DOC_ROOT.trim($config_favicon,'/'))) {
 		$favicon =  '<img src="/'.URLencode_path($config_favicon).'" alt="">';
 	}
 
-	$on_php = '('.hsc($_['on']).'&nbsp;php&nbsp;'.phpversion().')';
-	if ($_SESSION["valid"]) { $on_php = '<a href="'.$ONESCRIPT.'?p=phpinfo'.'" target=_blank>'.$on_php.'</a>';}
-
 	echo '<div id="header">';
-		echo '<a href="'.$ONESCRIPT.'" id="logo" tabindex=-1>'.$config_title.'</a> '.$OFCMS_version.' ';
+		echo '<a href="'.$ONESCRIPT.'" id="logo" tabindex='.$TABINDEX++.'>'.$config_title.'</a> '.$OFCMS_version.' ';
+		
+		$on_php = '('.hsc($_['on']).'&nbsp;php&nbsp;'.phpversion().')';
+		if ($_SESSION["valid"]) { $on_php = '<a id=on_php tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.'?p=phpinfo'.'" target=_blank>'.$on_php.'</a>';}
 		echo $on_php;
 		
 		echo '<div class="nav">';
-			echo '<b><a href="/" target="_blank">'.$favicon.' ';
-			echo hsc($WEBSITE).'</a></b>';
-			if ($page != "login") {	echo ' | <a href="'.$ONESCRIPT.'?p=logout">'.hsc($_['Log_Out']).'</a>'; }
+			echo '<b><a id=website href="/" tabindex='.$TABINDEX++.' target="_blank">'.$favicon.' '.hsc($WEBSITE).'</a></b>';
+			if ($page != "login") {	echo ' | <a id=logout tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.'?p=logout">'.hsc($_['Log_Out']).'</a>'; }
 		echo '</div><div class=clear></div>';
 	echo '</div>';//<!-- end header -->
 }//end Page_Header() //*********************************************************
@@ -1785,35 +1786,34 @@ function Login_response() {//***************************************************
 
 
 function Create_Table_for_Listing() {//*****************************************
-	global$_, $ONEFILECMS, $ipath, $ipath_OS, $DOC_ROOT_OS, $ICONS;
+	global$_, $ONEFILECMS, $ipath, $ipath_OS, $DOC_ROOT_OS, $ICONS, $TABINDEX;
 
 	//Header row: | Select All|[ ]|[X](folders first)      Name      (ext) |   Size   |    Date    |
-	//<input hidden> is a dummy input to make sure files[] is always an array for Select_All() & Confirm_Ready().
 
 	$new_path = URLencode_path(dir_name($ipath)); //for "../" entry in dir list.
 	$new_path_OS = $DOC_ROOT_OS.dir_name($ipath_OS);//.dir_name($ipath_OS);
+
+	//<input hidden> is a dummy input to make sure files[] is always an array for Select_All() & Confirm_Ready().
 ?>
 	<INPUT TYPE=hidden NAME="files[]" VALUE="">
 
 	<table class="index_T">
 
 	<tr>
-	<th colspan=3 id="select_all_th">
-		<LABEL for=select_all id=select_all_label><?php echo hsc($_['Select_All']) ?></LABEL></th>
-	<th class="ckbox">
-		<INPUT TYPE=checkbox id=select_all NAME=select_all VALUE=select_all></th>
-	<th class="file_name ckbox" style="">
-		<INPUT TYPE=checkbox id=folders_first_ckbox NAME=folder_first VALUE=folders_first checked>
-		<label for=folders_first_ckbox id=folders_first_label title="<?php  echo hsc($_['folders_first_info']) ?>">
-			(<?php echo hsc($_['folders_first']) ?>)
-		</label>		  <a href="#" id=header_filename><?php echo hsc($_['Name']) ?></a><a
-							 href="#" id=sort_type>(<?php echo hsc($_['ext']) ?>)</a></th>
-	<th class="file_size"><a href="#" id=header_filesize><?php echo hsc($_['Size']) ?></a></th>
-	<th class="file_time"><a href="#" id=header_filedate><?php echo hsc($_['Date']) ?></a></th>
+	<th colspan=3 id=select_all_th><LABEL for=select_all_ckbox id=select_all_label><?php echo hsc($_['Select_All']) ?></LABEL></th>
+	<th><div class=ckbox><INPUT id=select_all_ckbox tabindex=<?php echo $TABINDEX++ ?> TYPE=checkbox NAME=select_all VALUE=select_all></div></th>
+	<th class=file_name>
+		<div class=ckbox><INPUT tabindex=<?php echo $TABINDEX++?> TYPE=checkbox
+			id=folders_first_ckbox NAME=folder_first VALUE=folders_first checked></div>
+	<label for=folders_first_ckbox id=folders_first_label title="<?php  echo hsc($_['folders_first_info']) ?>">(<?php echo hsc($_['folders_first']) ?>)</label
+	><a 				   tabindex=<?php echo $TABINDEX++?> href="#" id=header_filename><?php echo hsc($_['Name']) ?></a><a
+						   tabindex=<?php echo $TABINDEX++?> href="#" id=header_sorttype>(<?php echo hsc($_['ext']) ?>)</a></th>
+	<th class=file_size><a tabindex=<?php echo $TABINDEX++?> href="#" id=header_filesize><?php echo hsc($_['Size']) ?></a></th>
+	<th class=file_time><a tabindex=<?php echo $TABINDEX++?> href="#" id=header_filedate><?php echo hsc($_['Date']) ?></a></th>
 	</tr>
 
 	<tr><?php // "../" directory entry ?>
-		<td colspan=4></td><td><a id=f0 href="<?php echo $ONEFILECMS.'?i='.$new_path.'">'.$ICONS['dir'] ?> ../</a></td>
+		<td colspan=4></td><td><a id=f0 tabindex=<?php echo $TABINDEX++?> href="<?php echo $ONEFILECMS.'?i='.$new_path.'">'.$ICONS['dir'] ?> ../</a></td>
 		<td></td>
 		<td class="meta_T file_time"> &nbsp;<script>FileTimeStamp(<?php echo filemtime($new_path_OS); ?>, 1, 0, 1);</script></td><tr>
 
@@ -1821,7 +1821,6 @@ function Create_Table_for_Listing() {//*****************************************
 	<tbody id=DIRECTORY_LISTING></tbody>
 	<tr><td id=DIRECTORY_FOOTER colspan=7></td</tr>
 	</table>
-	<script>document.getElementById("header_filename").focus()</script>
 <?php
 }//Create_Table_for_Listing() //************************************************
 
@@ -1927,28 +1926,28 @@ function Send_data_to_js_and_display() {//**************************************
 
 
 function Index_Page_buttons_top($file_count) {//********************************
-	global $_, $ONESCRIPT, $param1, $ICONS;
+	global $_, $ONESCRIPT, $param1, $ICONS, $TABINDEX;
 
-	echo '<div id=index_page_buttons>';
+	echo '<div id=index_page_buttons>'."\n";
 
-	echo '<div id=mcd_submit>';
+	echo '<div id=mcd_submit>'."\n";
 	if ($file_count > 0) {
 		$onclick_m = 'onclick="Confirm_Submit( \'move\');   "';
 		$onclick_c = 'onclick="Confirm_Submit( \'copy\');   "';
 		$onclick_d = 'onclick="Confirm_Submit( \'delete\' );"';
-		echo '<button type=button '.$onclick_m.'>'.$ICONS['move'  ].'&nbsp;'.hsc($_['Move']  ).'</button>';
-		echo '<button type=button '.$onclick_c.'>'.$ICONS['copy'  ].'&nbsp;'.hsc($_['Copy']  ).'</button>';
-		echo '<button type=button '.$onclick_d.'>'.$ICONS['delete'].'&nbsp;'.hsc($_['Delete']).'</button>';
+		echo '<button id=b1 tabindex='.$TABINDEX++.' type=button '.$onclick_m.'>'.$ICONS['move'  ].'&nbsp;'.hsc($_['Move']  )."</button\n>";
+		echo '<button id=b2 tabindex='.$TABINDEX++.' type=button '.$onclick_c.'>'.$ICONS['copy'  ].'&nbsp;'.hsc($_['Copy']  )."</button\n>";
+		echo '<button id=b3 tabindex='.$TABINDEX++.' type=button '.$onclick_d.'>'.$ICONS['delete'].'&nbsp;'.hsc($_['Delete'])."</button\n>";
 	}
-	echo '</div>'; //end mcd_submit
+	echo '</div>'."\n"; //end mcd_submit
 
-	echo '<div class="front_links">';
-		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=newfolder">'.$ICONS['folder_new'].'&nbsp;'.hsc($_['New_Folder']) .'</a>';
-		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=newfile">'  .$ICONS['file_new']  .'&nbsp;'.hsc($_['New_File'])   .'</a>';
-		echo '<a href="'.$ONESCRIPT.$param1.'&amp;p=upload">'   .$ICONS['upload']    .'&nbsp;'.hsc($_['Upload_File']).'</a>';
+	echo '<div class="front_links">'."\n";
+		echo '<a id=b4 tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.$param1.'&amp;p=newfolder">'.$ICONS['folder_new'].'&nbsp;'.hsc($_['New_Folder']) .'</a>';
+		echo '<a id=b5 tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.$param1.'&amp;p=newfile">'  .$ICONS['file_new']  .'&nbsp;'.hsc($_['New_File'])   .'</a>';
+		echo '<a id=b6 tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.$param1.'&amp;p=upload">'   .$ICONS['upload']    .'&nbsp;'.hsc($_['Upload_File']).'</a>';
 	echo '</div>'; //end front_links
 	
-	echo '</div>'; //end index_page_buttons
+	echo '</div>'."\n"; //end index_page_buttons
 
 } //end Index_Page_buttons_top() //*********************************************
 
@@ -1959,7 +1958,6 @@ function Index_Page() {//*******************************************************
 	global  $ONESCRIPT, $ipath_OS, $param1;
 	
 	init_ICONS_js();
-	Index_Page_scripts();
 
 	$raw_list = scandir('./'.$ipath_OS);  //Get current directory list  (unsorted)
 	$file_count = Get_DIRECTORY_DATA($raw_list);
@@ -1974,8 +1972,8 @@ function Index_Page() {//*******************************************************
 
 	echo "</form>\n";
 
+	Index_Page_scripts();
 	Send_data_to_js_and_display();
-
 	Index_Page_events();
 }//end Index_Page() //**********************************************************
 
@@ -2995,12 +2993,12 @@ function Display_Messages($msg, take_focus) {//************************
 
 
 function Index_Page_events() {//************************************************
-	global $PAGEUPDOWN;
+	global $_, $PAGEUPDOWN, $EX;
 ?>
 <script>
 //onclick events
-var Select_All_ckbox	= document.getElementById('select_all');
-var Sort_Type			= document.getElementById('sort_type');
+var Select_All_ckbox	= document.getElementById('select_all_ckbox');
+var Header_Sorttype		= document.getElementById('header_sorttype');
 var Folders_First_Ckbox = document.getElementById('folders_first_ckbox');
 var Header_Filename		= document.getElementById('header_filename');
 var Header_Filesize		= document.getElementById('header_filesize');
@@ -3011,78 +3009,231 @@ Folders_First_Ckbox.onclick  = function () {Sort_and_Show(SORT_by, SORT_order); 
 Header_Filename.onclick  = function () {Sort_and_Show(1, FLIP_IF); this.focus(); return false;}
 Header_Filesize.onclick  = function () {Sort_and_Show(2, FLIP_IF); this.focus(); return false;}
 Header_Filedate.onclick  = function () {Sort_and_Show(3, FLIP_IF); this.focus(); return false;}
-Sort_Type.onclick		 = function () {Sort_and_Show(5, FLIP_IF); this.focus(); return false;}
+Header_Sorttype.onclick	 = function () {Sort_and_Show(5, FLIP_IF); this.focus(); return false;}
+
+Header_Filename.focus();
 
 
 
-//Control cursor keys to navigate index page. (arrow up/down, page up/down, Home/End)
-document.onkeydown = function(event) { //*******************************
+function Tab_Down(ID, FR,shifted) { //********************************
+	//Handle the background colors of checkboxes' parent <div>'s & <label>'s.
+	//(checkboxes generally don't have "background colors" as far as styles go...)
+	//Current checkbox already cleared by onkeydown().
 
+	//Prep for Tab key...
+	//Default tab action occurrs on keyUP, so "new" location is not known in onkeydown().
+	//So, if current focus is ck_box, clear bg, else if we're heading there, set bg.
+	//Tab from L, Current ID will be "f<FR>c2"
+	//Tab from R: Current ID/element is "f<FR>"
+	var fFR   = "f" + FR        //Filename
+	var fFRc2 = "f" + FR + "c2" //(x) Delete
+	var fFRc3 = "f" + FR + "c3" //[ ] Checkbox
+	var ck_box = document.getElementById(fFRc3);
+
+	var highlight = "rgb(255,250,150)";
+
+	if      (!shifted)  { //just Tab
+		if      (ID == fFRc3) { ck_box.parentNode.style.backgroundColor = "";}
+		else if (ID == fFRc2) { ck_box.parentNode.style.backgroundColor = highlight; }
+		else if (ID == "b6" ) {
+			document.getElementById('select_all_ckbox').parentNode.style.backgroundColor = highlight;
+			document.getElementById('select_all_label').style.backgroundColor = highlight;
+		}
+		else if (ID == "select_all_ckbox" ) {
+			document.getElementById('select_all_label').style.backgroundColor = "";
+			document.getElementById('folders_first_ckbox').parentNode.style.backgroundColor = highlight;
+			document.getElementById('folders_first_label').style.backgroundColor = highlight;
+		}
+		return;
+	}
+	else if (shifted)  { //Shift-Tab
+		if       (ID == fFRc3){ ck_box.parentNode.style.backgroundColor = "";}
+		else if ((ID == fFR) && (FR > 0) ) { ck_box.parentNode.style.backgroundColor = highlight; }
+		else if  (ID == "header_filename")  {
+			document.getElementById('folders_first_ckbox').parentNode.style.backgroundColor = highlight;
+			document.getElementById('folders_first_label').style.backgroundColor = highlight;
+		}
+		else if (ID == "folders_first_ckbox") {
+			document.getElementById('folders_first_label').style.backgroundColor = "";
+			document.getElementById('select_all_ckbox').parentNode.style.backgroundColor = highlight;
+			document.getElementById('select_all_label').style.backgroundColor = highlight;
+		}
+		return;
+	}
+
+}//end Tab_Down() { //************************************************
+
+
+
+document.onmousedown = function (event) { //************************
+	//Mouse clicks may remove focus from focused elements, including checkboxes, 
+	//but don't clear the manual "highlight" of the parent div's & label's of checkbox's
+
+	//Clear parent div of a checkbox
+	var ID = document.activeElement.id;
+	if (document.activeElement.type == 'checkbox') {
+		document.getElementById(ID).parentNode.style.backgroundColor = "";
+	}
+
+	//Clear labels...  (don't check, just clear them all)
+	document.getElementById('select_all_label').style.backgroundColor = "";
+	document.getElementById('folders_first_label').style.backgroundColor = "";
+
+}//end onclick() //***************************************************
+
+
+
+document.onkeydown = function(event) { //*****************************
+	//Control cursor keys to navigate index page. (Arrows, Page, Home, End)
+
+	var jump = <?php echo $PAGEUPDOWN ?>;//# of rows to jump with Page Up/Page Down.
+	var highlight = "rgb(255,250,150)";
+	
+	//Get key pressed...
 	if (!event) {var event = window.event;} //for IE
 	var key = event.keyCode;
 
-	//Assign a few handy "constants", and ignore any other keys.
-	var AU = 38, AD = 40, PU = 33, PD = 34; END = 35, HOME = 36 // Arrow Up/Down, Page Up/Down, Home/End
-	if ((key != AU) && (key != AD) && (key != PU) && (key != PD) && (key != HOME) && (key != END)) { return }
+	//Assign a few handy "constants": Arrow U/D/L/R, Page Up/Down, etc... 
+	var AU = 38, AD = 40, AL = 37, AR = 39, PU = 33, PD = 34; END = 35, HOME = 36, ESC = 27, TAB = 9;
+	
+	//Ignore any other key presses...
+	if ((key != AU) && (key != AD) && (key != AL) && (key != AR) && (key != PU) && (key != PD) && 
+		(key != HOME) && (key != END) && (key != ESC) && (key != TAB)) { return }
 
-	var jump = <?php echo $PAGEUPDOWN ?>;//# of rows to jump with Page Up/Page Down.
-
-	var FROWS    = DIRECTORY_ITEMS; // For these events, "../" is 0, and files are indexed 1 to DIRECTORY_ITEMS.
-	var LAST_ROW = "f" + FROWS;
+	//File Rows. For these events, "../" is 0, and files are indexed 1 to DIRECTORY_ITEMS.
+	var FROWS     = DIRECTORY_ITEMS;
+	var LAST_FILE = "f" + FROWS;
 
 	//Get id of current focus (before this event). If focus is in file list, ID = 'fn', or 'fnn', etc.
-	var ID = document.activeElement.id; 
-
+	var ID      = document.activeElement.id;
+	var x_focus = ID.substr(0,1);
+	
 	//(F)ile (R)ow = 0,1, ... FROWS
 	var FR = parseInt(ID.substr(1));
-	if (isNaN(FR)) {FR = -1;} //If not in file list...
+	if (isNaN(FR) || (x_focus != "f")) {FR = -1;} //If not in file list...
 
-	//true / false: indicates if current focus is on one of the elements of the table header row.
-	var focus_header = ((ID == "select_all")      || (ID == "folders_first_ckbox") || (ID == "sort_type") || 
-						(ID == "header_filename") || (ID == "header_filesize")     || (ID == "header_filedate"));
+	//If current ID/element is checkbox, clear bgcolor of parent div (ckboxes don't have background colors), & it's label if...
+	var is_ckbox = (document.activeElement.type == "checkbox");
+	if (is_ckbox) {document.getElementById(ID).parentNode.style.backgroundColor = ""; }
 
-	//In general: If at top of page, Arrow Up will loop to bottom of page, and vice-versa.
-	//            However, Page Up/Down will stop at top/bottom of page.
-	//            But, Page Up/Down will also "soft" stop on top/bottom of list (next Page Up/Down will scroll rest of way).
-	//            So, first check current focus, then key...
-	//
-	if      (key == HOME) { if (ID != "f0") {ID = "f0"} else {return} }
-	else if (key == END)  {	if (ID != LAST_ROW) {ID = LAST_ROW} else {return} }
-	else if (ID == 'path_0') { // webroot in path_header: webroot/current/path/
-		if      (key == AU)   {ID = LAST_ROW		 }
-		else if (key == PU)   {return				 }
-		else if (key == AD)   {ID = "header_filename"}
-		else if (key == PD)   {ID = "header_filename"}
+	//Always clear these labels (simply losing or changing focus() won't).
+	document.getElementById('select_all_label').style.backgroundColor = "";
+	document.getElementById('folders_first_label').style.backgroundColor = "";
+	
+	//If no files in current folder, [Move][Copy][Delete] won't exist (id's b1 b2 b3). Use [New Folder] (id="b4").
+	if (document.getElementById("b3")) {var button_row = "b2"} else {var button_row = "b4"}
+
+	//Indicate if current focus is on one of the elements of the table header row. (true / false)
+	//Select All[ ] | [x](folders first) Name  (.ext) | Size |  Date  |
+	var focus_header = ((ID == "select_all_ckbox") || (ID == "folders_first_ckbox") || (ID == "header_filename") || 
+						(ID == "header_sorttype")  || (ID == "header_filesize")     || (ID == "header_filedate"));
+
+	//Prepare for Arrow Left/Right keys ...
+	//To simulate Tab/Shift-tab, get list of all tags & incement/decrement to their tabindex.
+	if ((key == AL) || (key == AR)){
+		var FOCUS = document.activeElement.tabIndex;
+		var all_tags = document.getElementsByTagName('*');
+		var tag_count = all_tags.length;
 	}
-	else if (focus_header) { //in table header row
-		if      (key == AU) {ID = "path_0"  }
-		else if (key == PU) {ID = "path_0"  }
-		else if	(key == AD) {ID = "f0"      }
-		else if	(key == PD) {FR += jump; if (FR < FROWS) {ID = "f" + FR} else {ID = LAST_ROW}}
+
+	//PROCESS KEYDOWN ... In general:
+	//  Tab- handle checkbox's (parent <div>'s & <label>'s), otherwise allow default action.
+	//  Esc simply removes focus from active element.
+	//	Home toggles between [webroot]/current/path/ and [../] (first file is list)
+	//	End goes only to last file in list.
+	//	Arrow Up/Down will loop from (top to bottom)/(bottom to top) of page.
+	//  Page Up/Down will likewise loop thru page.
+	//  Arrow Left/Right will function similarly to Tab/Shift-Tab, but stopping at first/last link on page.
+
+	if      (key == TAB)  { Tab_Down(ID, FR, event.shiftKey); return; }
+	else if (key == ESC)  { document.activeElement.blur();    return; }
+	else if (key == END)  { if (ID != LAST_FILE) {ID = LAST_FILE} else {return} }
+	else if (key == HOME) {
+		if      (ID == "f0")     {ID = "path_0"}
+		else if (ID == "path_0") {ID = "f0"}
+		else if (FR  > 0)        {ID = "f0";}
+		else					 {ID = "path_0"}
 	}
-	else if (FR == -1) {     // any other element not in file list
-		if 		( key == AU)				   {ID = "path_0"		  }
-		else if ( key == PU)				   {ID = "path_0"		  }
-		else if ((key == AD) && !focus_header) {ID = "header_filename"}
-		else if ((key == PD) && !focus_header) {ID = "header_filename"}
+	else if (key == AL) { 
+		for (var i = 0; i < tag_count; i++) {
+			if (all_tags[i].tabIndex == FOCUS) {
+				for (var j = i; j > 0; j--) {if (all_tags[j].tabIndex == (FOCUS - 1)) {ID = all_tags[j].id; break;}}
+			}
+		}
 	}
-	else { 
-		if      ((key == AD) &&  (ID == LAST_ROW)) {ID = "path_0"}
-		else if ((key == PD) &&  (ID == LAST_ROW)) {return		}
-		
-		else if	( key == AU) {			   if (FR > 0)     {ID = "f" + (FR - 1)} else {ID = "header_filename"} }
-		else if ( key == AD) {			   if (FR < FROWS) {ID = "f" + (FR + 1)} else {ID = "header_filename"} }
-		else if	( key == PU) { FR -= jump; if (FR > 0)     {ID = "f" + FR	   } else {ID = "header_filename"} }
-		else if ( key == PD) { FR += jump; if (FR < FROWS) {ID = "f" + FR	   } else {ID = LAST_ROW		 } }
-		else { return; }
+	else if (key == AR) {
+		if (ID == "admin") {ID = LAST_FILE;}
+		for (var i = 0; i < tag_count; i++) {
+			if (all_tags[i].tabIndex == FOCUS) {
+				for (var j = i; j < tag_count; j++) {if (all_tags[j].tabIndex == (FOCUS + 1)) {ID = all_tags[j].id; break;}}
+			}
+		}
 	}
+	else if (ID == "admin") {
+		if      (key == AU) {ID = LAST_FILE}
+		else if (key == PU) {ID = LAST_FILE}
+		else if (key == AD) {ID = "path_0"}
+		else if (key == PD) {ID = "path_0"}
+	}
+	else if (x_focus == 'p') { //In path_header: webroot/current/path/
+		if      (key == AU)   {ID = LAST_FILE}
+		else if (key == PU)   {ID = LAST_FILE}
+		else if (key == AD)   {ID = button_row}
+		else if (key == PD)   {ID = "f0"}
+	}
+	else if (x_focus == "b") { //[Move][Copy][Delete]  [New Folder][New File][Upload File]
+		if 		(key == AU) {ID = "path_0"		   }
+		else if (key == PU) {ID = "path_0"		   }
+		else if (key == AD) {ID = "header_filename"}
+		else if (key == PD) {ID = "f0"			   }
+	}
+	else if (focus_header) { //Table header row
+		if      (key == AU) {ID = button_row}
+		else if (key == PU) {ID = "path_0"}
+		else if	(key == AD) {ID = "f0"}
+		else if	(key == PD) {FR += jump; if (FR < FROWS) {ID = "f" + FR} else {ID = LAST_FILE}}
+	}
+	else if ((FROWS == 0) && (key == PD) && (ID == 'f0')) {ID = "path_0"} //no files, only "../"
+	else if (FR == 0) { //First row
+		if		(key == AU) {ID = "header_filename"}
+		else if	(key == PU) {ID = "path_0"}
+		else if (key == AD) {FR++      ; if (FR <= FROWS) {ID = "f" + FR} else {ID = "path_0";}  }
+		else if (key == PD) {FR += jump; if (FR <= FROWS) {ID = "f" + FR} else {ID = LAST_FILE;} }
+	}
+	else if (FR == FROWS) { //Last row
+		if		(key == AU) { FR--      ; if (FR >= 0) {ID = "f" + FR} else {ID = "header_filename" } }
+		else if	(key == PU) { FR -= jump; if (FR >= 0) {ID = "f" + FR} else {ID = "f0"} }
+		else if (key == AD) { ID = "path_0" }
+		else if (key == PD) { ID = "path_0" }
+	}
+	else if (FR > 0){ //Middle rows...
+		if		(key == AU) { FR--;				         ID = "f" + FR						   }
+		else if	(key == PU) { FR -= jump; if (FR >= 0)     {ID = "f" + FR} else {ID = "f0"}	   }
+		else if (key == AD) { FR++; 	   if (FR <= FROWS) {ID = "f" + FR} else {ID = "path_0"; } }
+		else if (key == PD) { FR += jump; if (FR <= FROWS) {ID = "f" + FR} else {ID = LAST_FILE;} }
+	}
+	else if (FR == -1) {ID = "path_0"}     //Anyplace other than path_header, buttons, table
+	else {
+		//just in case I missed something...
+		var error_message  = '<?php echo __LINE__.$EX.'<b>'.hsc($_['Error']).'</b> onkeydown(): ' ?>';
+		    error_message += "key = " + key + ", FR = " + FR + ", ID = " + ID + ",x_focus = " + x_focus
+		Display_Messages(error_message);
+		return;
+	}
+
 	document.getElementById(ID).focus();
 
+	//If new ID/element is checkbox, set bgcolor of parent div (ckboxes don't have background colors), & it's label if apropo.
+	if (document.activeElement.type == "checkbox") {document.getElementById(ID).parentNode.style.backgroundColor = highlight;}
+	if (ID == "select_all_ckbox")    {document.getElementById('select_all_label').style.backgroundColor = highlight;}
+	if (ID == "folders_first_ckbox") {document.getElementById('folders_first_label').style.backgroundColor = highlight;}
+	
 	//Prevent default browser scrolling via arrow & Page keys, so focus()'d element stays visible/in view port.
 	//(A few exceptions skip this via a return in the above  if/else's.)
-	if (event.preventDefault) { event.preventDefault() } else { event.returnValue = false }
-
-}//end onkeyup() //***************************************************
+	if ( (ID != 'path_0') || ((ID == 'path_0') && (key == AD)) || ((ID == 'path_0') && (key == PD))) {
+		if (event.preventDefault) { event.preventDefault() } else { event.returnValue = false }
+	}
+}//end onkeydown() //*************************************************
 </script>
 <?php
 }//end Index_Page_events() //***************************************************
@@ -3091,7 +3242,7 @@ document.onkeydown = function(event) { //*******************************
 
 
 function Index_Page_scripts() {//***********************************************
-	global $_, $ONESCRIPT, $param1, $ipath, $message, $DELAY_Sort_and_Show_msgs, $MIN_DIR_ITEMS;
+	global $_, $ONESCRIPT, $param1, $ipath, $message, $DELAY_Sort_and_Show_msgs, $MIN_DIR_ITEMS, $TABINDEX;
 ?>
 <script>
 //  DIRECTORY_DATA[x] = ("type", "file name", filesize, timestamp, is_ofcms, "ext")	
@@ -3099,6 +3250,7 @@ var DIRECTORY_DATA	  = new Array();
 
 var ONESCRIPT	= "<?php echo $ONESCRIPT ?>";
 var PARAM1		= "<?php echo $param1 ?>";  //capitalized here as it is used as a constant.
+var TABINDEX    = <?php echo $TABINDEX ?>;  //TABINDEX only used by js from this point on...
 
 //a few usefull constants for using sort_DIRECTORY()
 var DESCENDING	= 0;
@@ -3219,10 +3371,10 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	row++;
 
 	//Assemble [move] [copy] [delete] [x]
-	var ren_mov = '<a id=f' + row + 'c0 href="' + href + '&amp;p=rename' + f_or_f + '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
-	var copy    = '<a id=f' + row + 'c1 href="' + href + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
-	var del     = '<a id=f' + row + 'c2 href="' + href + '&amp;p=delete' + f_or_f + '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
-	var checkbox = '<div class="ckbox"><INPUT id=f' + row + 'c3 TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
+	var ren_mov = '<a id=f' + row + 'c0 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=rename' + f_or_f + '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
+	var copy    = '<a id=f' + row + 'c1 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
+	var del     = '<a id=f' + row + 'c2 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=delete' + f_or_f + '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
+	var checkbox = '<div class=ckbox><INPUT id=f' + row + 'c3 tabindex='+ (TABINDEX++) +' TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
 
 	//Don't show remove, delete, or checkbox options for active copy of OneFileCMS.
 	if (IS_OFCMS) { ren_mov = del = checkbox = ''; }
@@ -3243,6 +3395,8 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 
 
 function Build_Directory() {//****************************************
+
+	TABINDEX    = <?php echo $TABINDEX ?>;  //Rest TABINDEX
 
 	var DIR_LIST = document.getElementById("DIRECTORY_LISTING");
 
@@ -3268,7 +3422,8 @@ function Build_Directory() {//****************************************
 			var file_size = format_number(filesize) + ' B';
 		}
 		
-		var file_name  = '<a id=f'+(row + 1)+' href="' + href  + '"';
+		//For file, (TABINDEX + 4) to account for [m][c][d][x] which are added in Assemble_Insert_Row()
+		var file_name  = '<a id=f'+(row + 1)+' tabindex='+ (TABINDEX + 4) +' href="' + href  + '"'; 
 			file_name += ' title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
 			file_name += ICONS[filetype] + '&nbsp;' + hsc(filename) + DS + '</a>';
 		var file_time  = FileTimeStamp(filetime, 1, 0, 0);
@@ -3277,6 +3432,7 @@ function Build_Directory() {//****************************************
 		var trow = DIR_LIST.rows[row];
 		
 		Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_name, file_size, file_time);
+		TABINDEX++; //To accuont for file_name above
 	}//end for (row...
 }//end Build_Directory() //*******************************************
 
@@ -3359,7 +3515,7 @@ function Confirm_Submit(action) {//***********************************
 	var files = document.mcdselect.elements['files[]'];
 	var last  = files.length;   //number of files
 	var no_files = true;
-	var f_msg    = "<?php echo addslashes($_['No_files']) ?>";	
+	var f_msg    = "<?php echo hsc($_['No_files']) ?>";	
 
 	document.mcdselect.mcdaction.value = action; 
 
@@ -3369,7 +3525,7 @@ function Confirm_Submit(action) {//***********************************
 	}
 
 	//Don't submit form if no files are checked.
-	if ( no_files ) { alert(f_msg); return false; }
+	if ( no_files ) { Display_Messages(f_msg, 1); return false; }
 
 	document.mcdselect.submit(); //submit form.
 }//end Confirm_Submit() //********************************************
@@ -3446,7 +3602,7 @@ if (File_textarea)      { File_textarea.onkeyup = function(event)  {Check_for_ch
 window.onbeforeunload = function() {
 	if ( changed && !submitted ) {
 		//FF4+ Ingores the supplied msg below & only uses a system msg for the prompt.
-		<?php //use addslashes() because this is for a js alert() or confirm(), not HTML ?>
+		<?php //use addslashes(), not hsc(), because this is for a js alert() / confirm(), not HTML ?>
 		return "<?php echo addslashes($_['unload_unsaved']) ?>";
 	}
 }
@@ -3509,7 +3665,8 @@ function setSelRange(inputEl, selStart, selEnd) {
 
 
 function Check_for_changes(event){
-	var keycode=event.keyCode? event.keyCode : event.charCode;
+	if (!event) {var event = window.event;} //if IE
+	var keycode = event.keyCode? event.keyCode : event.charCode;
 	changed = (File_textarea.value != start_value);
 	if (changed){
 		document.getElementById('message_box').innerHTML = " "; //Must have a space, or it won't clear the msg.
@@ -3572,7 +3729,8 @@ $submit_button.onkeyup     = function(event) {events_up(event, 32);}
 $submit_button.onmouseup   = function(event) {events_up(event,  0);} //For mouse events, keyCode is 0 or undefined, and ignored.
 
 
-function events_down(event, capture_key) {if (!event) {var event = window.event;} //if IE
+function events_down(event, capture_key) {
+	if (!event) {var event = window.event;} //if IE
 	$thispage = true; //Make sure keydown was on this page.
 	if ((event.type.substr(0,3) == 'key') && (event.keyCode != capture_key)) {return true;}
 	$message_box.innerHTML = '<div class="message_box_contents"><b><?php echo hsc($_['Working']) ?></b>';
@@ -3714,6 +3872,7 @@ pre { background: white; border: 1px solid #777; padding: .2em; margin: 0; }
 input[type="text"]     { width: 100%; border: 1px solid #777; padding: 1px 1px 1px 0; font : 1em Courier; }
 input[type="password"] { width: 100%; border: 1px solid #777; padding: 0   1px 0   0; }
 input[type="file"]     { width: 100%; border: 1px solid #777; background-color: white; margin: 0; }
+input[type="checkbox"] { cursor : pointer; }
 
 input[readonly]        { color: #333; background-color: #EEE; }
 input[disabled]        { color: #555; background-color: #EEE; }
@@ -3796,45 +3955,50 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 
 
 /*** Select All [x] ***/
-#select_all_th { min-width: 60px ; max-width: 70px; text-align: right; padding:  0 0 0 0; } /*TRBL*/
-#select_all {margin: 3px 0 0 0; cursor : pointer;}  /*checkbox*/
 #select_all_label { 
 	font   : 400 .84em arial;
 	color  : #333;
-	border-right: solid transparent 1px;
-	padding: 3px 2px 2px 2px;
+	display: inline-block;
+	padding: 4px 0 3px 0;
 	cursor : pointer;
+	width  : 72px; /*Adjusted by langauge files*/
+	border-right: solid transparent 1px;
 	}
 
-#select_all_label:hover  { border-left: 1px solid #777; background-color: rgb(255,250,150); }
-#select_all_label:hover  { border-top-width: 0; border-bottom-width: 0; }
+#select_all_label:hover  { background-color: rgb(255,250,150); }
+#select_all_label:active { background-color: rgb(245,245, 50); }
 
 
 /*** Directory list file select boxes ***/
-.ckbox {padding: 2px 4px 0 4px}
-.ckbox:focus { background-color: rgb(255,250,150); }
-.ckbox:hover { background-color: rgb(255,250,150); }
-.select_file {cursor : pointer;}
+/*ckbox is assigned to <td>'s & <th>'s that contain <input type=checkbox>*/
+.ckbox        {padding: 4px 4px 2px 4px; display: inline-block;}
+.ckbox:hover  {background-color: rgb(255,240,100);} 
+.ckbox:active {background-color: rgb(245,245, 50);}
+
+/* Slightly darker colors for [m][c][d] file options since they are small & less noticable*/
+.MCD:hover  {background-color: rgb(255,240,100);}
+.MCD:focus  {background-color: rgb(250,240,100);}
+.MCD:active {background-color: rgb(245,245, 50);}
 
 
 /*** [x] Folders First ***/
-#folders_first_ckbox {margin: 3px 0 0px 4px;cursor : pointer;}
 #folders_first_label {
-	border: solid 1px transparent;
-	font-size: .9em;
+	display: inline-block;
+	font-size  : .9em;
 	font-weight: normal;
-	color: #333; margin: 0;
-	padding: 3px 0 2px 0;
+	border     : solid 1px transparent;
+	color  : #333;
+	margin : 0 0 0 -5px;
+	padding: 4px 0 2px 0;
 	cursor : pointer;
 }
 
 #folders_first_label:hover {
-	border            : solid 1px #777;
 	background-color  : rgb(255,250,150);
-	cursor            : pointer;
 	border-left-color : silver;
 	border-right-color: silver;
 }
+#folders_first_label:active {background-color  : rgb(245,245, 50);}
 
 
 /* --- Directory Listing --- */
@@ -3857,18 +4021,18 @@ table.index_T th:hover { background-color: white;}
 .index_T th a { padding: 1px 0 1px 0; border-width: 0px;}
 
 .index_T th.file_name   { text-align: left; }
-.index_T th.file_name a { display: inline-block; padding: 2px 2.5em 2px 1.5em; border-top-width: 0px; border-bottom-width: 0px;}
+.index_T th.file_name a { display: inline-block; padding: 4px 2.5em 3px 1.5em; border-top-width: 0px; border-bottom-width: 0px;}
 
 #header_filename       {border-width: 0 1px 0 1px; min-width: 2.5em;}
 #header_filename:hover {border-color: silver;}
 #header_filename:focus {border-color: silver;}
 
-.index_T th.file_size a { display  : block; padding: 2px 0 2px 0; }
-.index_T th.file_time a { display  : block; padding: 2px 0 2px 0; }
+.index_T th.file_size a { display  : block; padding: 4px 0 3px 0; }
+.index_T th.file_time a { display  : block; padding: 4px 0 3px 0; }
 
-#sort_type       {float: right; padding: 1px 5px 3px 4px; border-width: 0px 0 0 1px;}
-#sort_type:hover {border-color: silver;}
-#sort_type:focus {border-color: silver;}
+#header_sorttype       {float: right; padding: 4px 5px 3px 4px; border-width: 0px 0 0 1px;}
+#header_sorttype:hover {border-color: silver;}
+#header_sorttype:focus {border-color: silver;}
 
 .file_name { max-width: 26em; }
 .file_size { min-width:  6em; padding-left: 10px; }
@@ -3894,7 +4058,7 @@ table.index_T th:hover { background-color: white;}
 
 
 /*These must go after .front_links and other style that affect <a> tags*/
-a { border: 1px solid transparent; text-decoration: none; }  /*color: rgb(100,45,0);*/
+a { border: 1px solid transparent; text-decoration: none; }
 a:focus  { border: 1px solid #333; background-color: rgb(255,250,150); }
 a:hover  { border: 1px solid #333; background-color: rgb(255,250,150); }
 a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
@@ -4121,7 +4285,6 @@ input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 
 #path_header a:hover  { border-left : solid 1px #777; border-right: solid 1px #777; }
 #path_header a:focus  { border-left : solid 1px #777; border-right: solid 1px #777; }
-
 </style>
 <?php
 }//end style_sheet() //*********************************************************
@@ -4154,7 +4317,7 @@ function Language_and_config_adjusted_styles() {//******************************
 	}
 	
 #select_all_label { font-size: <?php echo $_['select_all_label_size']?>; } /*Default .84em */
-#select_all_label { width: <?php echo $_['select_all_label_width']?>; }    /*Default 72px  Not used as of 3.4.23 */
+#select_all_label { width: <?php echo $_['select_all_label_width']?>; }    /*Default 72px  */
 </style>
 <?php
 }//end Language_and_config_adjusted_styles() //*********************************
@@ -4274,9 +4437,13 @@ if ($_SESSION['valid']) {
 	echo '<span id=timer0  class="timer timeout"></span>';
 	echo '<span class="timeout">'.hsc($_['time_out_txt']).'&nbsp; </span>';
 
+	//Add tabindex to Admin link only on Index page. The *5 is to account for [m][c][d][x] and file names.
+	if (isset($DIRECTORY_COUNT)) {$TAB_INDEX = "tabindex=".($TABINDEX + ($DIRECTORY_COUNT * 5));}
+	else                         {$TAB_INDEX = ""; }
+
 	//Admin link
 	if ( ($_SESSION['admin_page'] === false) ) {
-		echo '<a id="admin" href="'.$ONESCRIPT.$param1.$param2.'&amp;p=admin">'.hsc($_['Admin']).'</a>';
+		echo '<a id="admin" '.$TAB_INDEX.' href="'.$ONESCRIPT.$param1.$param2.'&amp;p=admin">'.hsc($_['Admin']).'</a>';
 	}
 }//end footer
 
@@ -4291,7 +4458,7 @@ if ( ($page == "edit") && $WYSIWYG_VALID && $EDIT_WYSIWYG ) { include($WYSIWYG_P
 	var $page    = '<?php echo $page ?>';
 	var $message = '<?php echo addslashes($message) ?>';
 
-	<?php //Cause $message's $X_box to take focus on these pages on (if any $message, of course) ?>
+	<?php //Cause $message's $X_box to take focus on these pages only (if any $message, of course) ?>
 	if (($page == 'index') || ($page == 'edit')) {take_focus = 1;}
 	else										 {take_focus = 0;}
 

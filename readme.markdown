@@ -35,6 +35,7 @@ With basic editing, upload, and file managing functions, OneFileCMS can maintain
  
 - All the basic file management features like renaming, moving, copying, deleting, and uploading.
 - Sort directory listings by file name, extension, size, or date.
+- Keyboard navigation of directory list. (Arrows, Page Up/Down, Home, End)
 - A basic text editor.
 - A WYSIWYG editor may be added as a plugin.
 - A login delay after too many invalid login attempts.
@@ -110,9 +111,10 @@ Because it is. And it may be simple, but it can get the job done.  While you wou
 
 ### <a name=slowlogin></a>Why do I get a "Stop running this script?" alert during login?
 
-OneFile's login functions take condsiderably longer* to run on IE, version 8 at least, than on Chrome or Firefox.  Just click [ No ] on the alert, and the login should finish after a few more seconds.   *(About 8 seconds -vs- 1/4 second on my test system.)
+OneFile's login functions take condsiderably longer* to run on IE, version 8 at least, than on Chrome or Firefox.  Just click [ No ] on the alert, and the login should finish after a few more seconds.  
+(*About 8 seconds -vs- 1/4 second on my test system.)
 
-The delay is the result of the client-side "pre-hash" OneFileCMS performs on your password before submitting the login to OneFileCMS server-side.  Not counting the time the pop-up is waiting for a response, the 8 seconds previously mentioned is from a 2.5gz single-core XP system.  
+The delay is the result of the client-side "pre-hash" OneFileCMS performs on your password before submitting the login to OneFileCMS server-side.  Not counting the time the alert is waiting for a response, the 8 seconds previously mentioned is from a 2.5gz single-core XP system.  
 
 See the global variable "$PRE\_ITERATIONS" at the end of System\_Setup().  It can be adjusted, but it's best to do so on a local copy in a development setup, then upload the updated copy.
 
@@ -124,13 +126,13 @@ OneFileCMS can be easily configured to work with [TinyMCE](http://tinymce.moxiec
 --------------------------------------------------------------------------------
 ## <a name=limitations></a>Limitations & Considerations
 
-- OneFileCMS would not be the best option for a site that requires different levels of privileges, unless all of the users are trusted to stay within their designated areas of responsibility. Since OneFileCMS allows file uploads and editing files directly on the web server, there is simply no way to secure against any particular action.  
-
-  These issues, of course, are not unique to OneFileCMS - as they will exist in any CMS that permits unrestricted file editing & uploads.
-
 - If you need to upload a lots of files, an FTP program may be a bit more flexible & practicle.
 
 - Directories with hundreds of files can take a several seconds to display.  For instance, on my system- a 2.5gz desktop running XP, it takes 2 to 4 seconds to display a directory with 200 files.
+
+- OneFileCMS would not be the best option for a site that requires different levels of privileges, unless all of the users are trusted to stay within their designated areas of responsibility. Since OneFileCMS allows file uploads and editing files directly on the web server, there is simply no way to secure against any particular action.  
+
+  These issues, of course, are not unique to OneFileCMS - as they will exist in any CMS that permits unrestricted file editing & uploads.
 
 - If your website's connection is not encrypted (doesn't use SSL/TLS), passwords & usernames will be sent in clear text* during login.  However, this is true of any login system that's over an unencrypted connection.  
   *As of version 3.4.15, a client-side hash of the user's "plain-text" password is sent to the server.  So, while this client-side hash is still a "plain-text" password as far as the server is concerned, the user's actual raw password is protected from immediate exposure.

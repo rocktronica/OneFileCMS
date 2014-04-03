@@ -1,5 +1,12 @@
 # OneFileCMS Change Log
 
+### v3.5.14 (2014-04-03)
+
+- Improved keyboard navigation of directory listings (Arrows, Page Up/Down, etc...)
+- Asked "how hard can it be?" - and found out...
+- Fixed a minor bug on the Edit page (affected IE only).
+- Some css adjustments/cleanup (needs lots more).
+
 ### v3.5.13 (2014-03-30)
 
 - Added basic keyboard navigation on directory listings.
