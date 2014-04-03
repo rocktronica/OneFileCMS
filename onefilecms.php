@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.14';
+$OFCMS_version = '3.5.15';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -3370,14 +3370,24 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	//The id's are used in Index_Page_events() "cursor" control.
 	row++;
 
-	//Assemble [move] [copy] [delete] [x]
-	var ren_mov = '<a id=f' + row + 'c0 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=rename' + f_or_f + '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
-	var copy    = '<a id=f' + row + 'c1 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
-	var del     = '<a id=f' + row + 'c2 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=delete' + f_or_f + '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
-	var checkbox = '<div class=ckbox><INPUT id=f' + row + 'c3 tabindex='+ (TABINDEX++) +' TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
+	//[Move] [Copy] [Delete]  [x]
+	var ren_mov = del = checkbox = '';
 
-	//Don't show remove, delete, or checkbox options for active copy of OneFileCMS.
-	if (IS_OFCMS) { ren_mov = del = checkbox = ''; }
+	//Assemble [move] [copy] [delete] [x]   ([copy] is always available)
+	//The empty <a>'s are to accommodate keyboard nav via onkeydown() in Index_Page_events()...
+	if (!IS_OFCMS) {
+		ren_mov = '<a id=f' + row + 'c0 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=rename' + f_or_f + '"'+' title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
+	} else { ren_mov = '<a id=f' + row + 'c0 tabindex='+ (TABINDEX++) +'>&nbsp;</a>'}
+
+	var copy    = '<a id=f' + row + 'c1 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
+
+	if (!IS_OFCMS) {
+		del     = '<a id=f' + row + 'c2 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=delete' + f_or_f + '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
+		checkbox = '<div class=ckbox><INPUT id=f' + row + 'c3 tabindex='+ (TABINDEX++) +' TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
+	} else {
+		del      = '<a id=f' + row + 'c2 tabindex='+ (TABINDEX++) +'>&nbsp;</a>'
+		checkbox = '<a id=f' + row + 'c3 tabindex='+ (TABINDEX++) +'>&nbsp;</a>'
+	}
 
 	//fill the <td>'s
 	cells = trow.cells;
@@ -3872,13 +3882,15 @@ pre { background: white; border: 1px solid #777; padding: .2em; margin: 0; }
 input[type="text"]     { width: 100%; border: 1px solid #777; padding: 1px 1px 1px 0; font : 1em Courier; }
 input[type="password"] { width: 100%; border: 1px solid #777; padding: 0   1px 0   0; }
 input[type="file"]     { width: 100%; border: 1px solid #777; background-color: white; margin: 0; }
-input[type="checkbox"] { cursor : pointer; }
 
 input[readonly]        { color: #333; background-color: #EEE; }
 input[disabled]        { color: #555; background-color: #EEE; }
 
 input:focus  { background-color: rgb(255,250,150); border: 1px solid #333; }
 input:hover  { background-color: rgb(255,250,150); }
+
+/*-- Must be after input:focus, as it alters border --*/
+input[type="checkbox"] { cursor: pointer; border: none;}
 
 button:hover  { background-color: rgb(255,250,150); border-color: #333;}
 button:focus  { background-color: rgb(255,250,150); border-color: #333;}
@@ -3970,7 +3982,7 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 
 
 /*** Directory list file select boxes ***/
-/*ckbox is assigned to <td>'s & <th>'s that contain <input type=checkbox>*/
+/*ckbox is assigned to <div>'s etc that contain <input type=checkbox>*/
 .ckbox        {padding: 4px 4px 2px 4px; display: inline-block;}
 .ckbox:hover  {background-color: rgb(255,240,100);} 
 .ckbox:active {background-color: rgb(245,245, 50);}

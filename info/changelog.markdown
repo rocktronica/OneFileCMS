@@ -1,6 +1,11 @@
 # OneFileCMS Change Log
 
-### v3.5.14 (2014-04-03)
+### v3.5.15 (2014-04-03)
+
+- Fixed a minor keyboard navigation bug on Index page if active copy of OnefileCMS is listed.
+- Fixed css "glitch" that ony affected IE - removed borders on checkboxes.
+
+### v3.5.14 (2014-04-02)
 
 - Improved keyboard navigation of directory listings (Arrows, Page Up/Down, etc...)
 - Asked "how hard can it be?" - and found out...

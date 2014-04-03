@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.14
+Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.15
 *******************************************************************************/
 
 /* --- reset --- */
@@ -37,13 +37,15 @@ pre { background: white; border: 1px solid #777; padding: .2em; margin: 0; }
 input[type="text"]     { width: 100%; border: 1px solid #777; padding: 1px 1px 1px 0; font : 1em Courier; }
 input[type="password"] { width: 100%; border: 1px solid #777; padding: 0   1px 0   0; }
 input[type="file"]     { width: 100%; border: 1px solid #777; background-color: white; margin: 0; }
-input[type="checkbox"] { cursor : pointer; }
 
 input[readonly]        { color: #333; background-color: #EEE; }
 input[disabled]        { color: #555; background-color: #EEE; }
 
 input:focus  { background-color: rgb(255,250,150); border: 1px solid #333; }
 input:hover  { background-color: rgb(255,250,150); }
+
+/*-- Must be after input:focus, as it alters border --*/
+input[type="checkbox"] { cursor: pointer; border: none;}
 
 button:hover  { background-color: rgb(255,250,150); border-color: #333;}
 button:focus  { background-color: rgb(255,250,150); border-color: #333;}
@@ -135,7 +137,7 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 
 
 /*** Directory list file select boxes ***/
-/*ckbox is assigned to <td>'s & <th>'s that contain <input type=checkbox>*/
+/*ckbox is assigned to <div>'s etc that contain <input type=checkbox>*/
 .ckbox        {padding: 4px 4px 2px 4px; display: inline-block;}
 .ckbox:hover  {background-color: rgb(255,240,100);} 
 .ckbox:active {background-color: rgb(245,245, 50);}
