@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.15';
+$OFCMS_version = '3.5.16';
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -909,7 +909,7 @@ function Verify_Page_Conditions() {//*******************************************
 	if ($page == "raw_view"){
 		$raw_contents = file_get_contents($filename_OS);
 		$file_ENC = mb_detect_encoding($raw_contents); //ASCII, UTF-8, etc...
-		header("Content-Type: text/plain charset=UTF-8");
+		header('Content-type: text/plain; charset=utf-8');
 		echo mb_convert_encoding($raw_contents, 'UTF-8', $file_ENC);
 		die;
 	}
@@ -1190,7 +1190,7 @@ function Current_Path_Header() {//**********************************************
 function Page_Header() {//******************************************************
 	global  $_, $DOC_ROOT, $ONESCRIPT, $page, $WEBSITE, $config_title, $OFCMS_version, $config_favicon, $TABINDEX, $message;
 
-	$TABINDEX = 1;
+	$TABINDEX = 1; //Initial tabindex
 
 	$favicon = '';
 	if (file_exists($DOC_ROOT.trim($config_favicon,'/'))) {
@@ -3017,7 +3017,7 @@ Header_Filename.focus();
 
 function Tab_Down(ID, FR,shifted) { //********************************
 	//Handle the background colors of checkboxes' parent <div>'s & <label>'s.
-	//(checkboxes generally don't have "background colors" as far as styles go...)
+	//(checkboxes generally don't have "background colors" as far as css goes...)
 	//Current checkbox already cleared by onkeydown().
 
 	//Prep for Tab key...
@@ -3079,7 +3079,7 @@ document.onmousedown = function (event) { //************************
 	document.getElementById('select_all_label').style.backgroundColor = "";
 	document.getElementById('folders_first_label').style.backgroundColor = "";
 
-}//end onclick() //***************************************************
+}//end onmousedown() //***********************************************
 
 
 
@@ -3112,38 +3112,52 @@ document.onkeydown = function(event) { //*****************************
 	var FR = parseInt(ID.substr(1));
 	if (isNaN(FR) || (x_focus != "f")) {FR = -1;} //If not in file list...
 
-	//If current ID/element is checkbox, clear bgcolor of parent div (ckboxes don't have background colors), & it's label if...
+	//If current ID/element is checkbox, clear bgcolor of parent div (ckboxes don't have background colors).
 	var is_ckbox = (document.activeElement.type == "checkbox");
 	if (is_ckbox) {document.getElementById(ID).parentNode.style.backgroundColor = ""; }
 
-	//Always clear these labels (simply losing or changing focus() won't).
+	//Always clear these labels (simply losing focus() of their child checkboxes won't).
 	document.getElementById('select_all_label').style.backgroundColor = "";
 	document.getElementById('folders_first_label').style.backgroundColor = "";
 	
 	//If no files in current folder, [Move][Copy][Delete] won't exist (id's b1 b2 b3). Use [New Folder] (id="b4").
-	if (document.getElementById("b3")) {var button_row = "b2"} else {var button_row = "b4"}
+	if (document.getElementById("b2")) {var button_row = "b2"} else {var button_row = "b4"}
 
 	//Indicate if current focus is on one of the elements of the table header row. (true / false)
 	//Select All[ ] | [x](folders first) Name  (.ext) | Size |  Date  |
 	var focus_header = ((ID == "select_all_ckbox") || (ID == "folders_first_ckbox") || (ID == "header_filename") || 
 						(ID == "header_sorttype")  || (ID == "header_filesize")     || (ID == "header_filedate"));
 
-	//Prepare for Arrow Left/Right keys ...
-	//To simulate Tab/Shift-tab, get list of all tags & incement/decrement to their tabindex.
+	//Prep for Arrow Left/Right keys ...
+	//To simulate Tab/Shift-tab, get list of all tab-able tags & compare each tabindex to current tabindex.
+	//All tab-able tags should have a tabindex = 1, 2, 3... etc, with no duplicates.
 	if ((key == AL) || (key == AR)){
-		var FOCUS = document.activeElement.tabIndex;
-		var all_tags = document.getElementsByTagName('*');
-		var tag_count = all_tags.length;
+		var focus_tabindex = document.activeElement.tabIndex;
+		
+		//##### Make function for creation of tabindex_IDs[], and call at end of Build_Directory?
+		//##### Only really needed after sorts, not on each onkeydonw().
+		var all_tags     = document.getElementsByTagName('*');
+		var tag_count    = all_tags.length;
+		var tabindex_IDs = []; //Array of ID's of all tags with a tabindex, and indexed by tabindex.
+		//
+		//Create array of ID's of all tags with a tabindex. (all tabable elements should have a tabindex)
+		
+		for (var x = 0; x < tag_count; x++) {
+			if (all_tags[x].tabIndex > 0) {
+				tabindex_IDs[all_tags[x].tabIndex] = all_tags[x].id;
+			}
+		}
+		var last_tabindex = tabindex_IDs.length - 1; //[0] is not used, as no element should have tabindex=0.
 	}
 
-	//PROCESS KEYDOWN ... In general:
+	//PROCESS KEYDOWN EVENT... In general:
 	//  Tab- handle checkbox's (parent <div>'s & <label>'s), otherwise allow default action.
 	//  Esc simply removes focus from active element.
 	//	Home toggles between [webroot]/current/path/ and [../] (first file is list)
 	//	End goes only to last file in list.
-	//	Arrow Up/Down will loop from (top to bottom)/(bottom to top) of page.
-	//  Page Up/Down will likewise loop thru page.
-	//  Arrow Left/Right will function similarly to Tab/Shift-Tab, but stopping at first/last link on page.
+	//	Arrow Up/Down will loop from (top to bottom)/(bottom to top) of page (no hard stops).
+	//  Page Up/Down will likewise loop thru page, with soft-stops at first/last filenames.
+	//  Arrow Left/Right will function similarly to Tab/Shift-Tab, but hard stop at first/last link on page.
 
 	if      (key == TAB)  { Tab_Down(ID, FR, event.shiftKey); return; }
 	else if (key == ESC)  { document.activeElement.blur();    return; }
@@ -3155,19 +3169,10 @@ document.onkeydown = function(event) { //*****************************
 		else					 {ID = "path_0"}
 	}
 	else if (key == AL) { 
-		for (var i = 0; i < tag_count; i++) {
-			if (all_tags[i].tabIndex == FOCUS) {
-				for (var j = i; j > 0; j--) {if (all_tags[j].tabIndex == (FOCUS - 1)) {ID = all_tags[j].id; break;}}
-			}
-		}
+		if (focus_tabindex > 1) {ID = tabindex_IDs[focus_tabindex - 1];}
 	}
 	else if (key == AR) {
-		if (ID == "admin") {ID = LAST_FILE;}
-		for (var i = 0; i < tag_count; i++) {
-			if (all_tags[i].tabIndex == FOCUS) {
-				for (var j = i; j < tag_count; j++) {if (all_tags[j].tabIndex == (FOCUS + 1)) {ID = all_tags[j].id; break;}}
-			}
-		}
+		if ( focus_tabindex < last_tabindex ) {ID = tabindex_IDs[focus_tabindex + 1];}
 	}
 	else if (ID == "admin") {
 		if      (key == AU) {ID = LAST_FILE}
@@ -3371,15 +3376,15 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	row++;
 
 	//[Move] [Copy] [Delete]  [x]
-	var ren_mov = del = checkbox = '';
+	var ren_mov  = copy = del = checkbox = '';
 
 	//Assemble [move] [copy] [delete] [x]   ([copy] is always available)
 	//The empty <a>'s are to accommodate keyboard nav via onkeydown() in Index_Page_events()...
 	if (!IS_OFCMS) {
-		ren_mov = '<a id=f' + row + 'c0 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=rename' + f_or_f + '"'+' title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
+		ren_mov = '<a id=f' + row + 'c0 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=rename' + f_or_f + '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
 	} else { ren_mov = '<a id=f' + row + 'c0 tabindex='+ (TABINDEX++) +'>&nbsp;</a>'}
 
-	var copy    = '<a id=f' + row + 'c1 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
+	copy        = '<a id=f' + row + 'c1 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
 
 	if (!IS_OFCMS) {
 		del     = '<a id=f' + row + 'c2 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=delete' + f_or_f + '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
@@ -4465,21 +4470,27 @@ echo "</body></html>\n";
 if ( ($page == "edit") && $WYSIWYG_VALID && $EDIT_WYSIWYG ) { include($WYSIWYG_PLUGIN_OS); }
 
 //Display any $message's
-?>
-<script>
-	var $page    = '<?php echo $page ?>';
-	var $message = '<?php echo addslashes($message) ?>';
+echo '<script>';
+echo 'var $page    = "'.$page.'";';
+echo 'var $message = "'.addslashes($message).'";';
+	    //Cause $message's $X_box to take focus on these pages only.
+echo 'if (($page == "index") || ($page == "edit")) {take_focus = 1}';
+echo 'else										   {take_focus = 0}';
 
-	<?php //Cause $message's $X_box to take focus on these pages only (if any $message, of course) ?>
-	if (($page == 'index') || ($page == 'edit')) {take_focus = 1;}
-	else										 {take_focus = 0;}
+	//##### ACTUAL COUNTDOWN STARTS ON THE SERVER.
+	//##### DO I NEED TO ACCOUNT FOR TIME RECEIVING & LOADING PAGE CLIENT SIDE?
 
-	<?php //The setTimeout() time should be greater than what is set for the Sort_and_Show() "working..." message. ?>
-	setTimeout('Display_Messages($message, take_focus)',<?php echo $DELAY_final_messages ?>);
-</script>
-<?php
+	//The setTimeout() time should be greater than what is set for the Sort_and_Show() "working..." message.
+echo 'setTimeout("Display_Messages($message, take_focus)",'.$DELAY_final_messages.');';
+echo '</script>';
+
 //start any timers (Yea, they could probably be put in a window.onload function or something...)
 if ($_SESSION['valid']) { echo Timeout_Timer($MAX_IDLE_TIME, 'timer0', 'LOGOUT'); }
 if ($page == 'edit')    { echo Timeout_Timer($MAX_IDLE_TIME, 'timer1', 'LOGOUT'); }
 if ($LOGIN_DELAYED > 0) { echo Timeout_Timer($LOGIN_DELAYED, 'timer0', ''); }
 //##### END OF FILE ############################################################
+
+//##### Header (UTF-8) for [View Raw] incorrect or not getting sent??
+//##### If file has non-ascii characters, browers display in ISO-8859-1/Windows-1252,
+//##### Except IE asks to download the file...
+//##### When I manually select UTF-8, files display fine.

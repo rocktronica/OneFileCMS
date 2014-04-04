@@ -100,13 +100,13 @@ I may not have the time/bandwidth/inclination to implement every feature, but I 
 
 ### <a name=multiuser></a>Can I have more than one username/password?
 
-Yes!  Well, sort of... indirectly.  Upload or create addional copies of OneFileCMS, but give them different file names.(ex: OneFile1.php and OneFile2.php etc...)  Then, in each copy, maintain different usernames, passwords, and $session_name config values.  
+Yes!  Well, sort of... indirectly.  Upload or create additional copies of OneFileCMS, but give them different file names.(ex: OneFile1.php and OneFile2.php etc...)  Then, in each copy, maintain different usernames, passwords, and $session_name config values.  
   
 Now, since there is no database or other means of granular control or access logging, multiple usernames provides limited utility.  However, having at least one working backup copy of OneFileCMS available is recommended in case the primary copy gets corrupted.
 
 ### <a name=handsaw></a>This is basically just a file manager with a text editor- why is it being called a CMS?
 
-Because it is. And it may be simple, but it can get the job done.  While you wouldn't want to build a new house from the ground up with just a hammer, hand saw, and tape measure, you can "manage" quite a bit with just those tools (and nails, of course).  Besides, "OneFileCMS" sounds cool. 
+Becaus "OneFileCMS" sounds cool.  And, because it is. It may be simple, but it can get the job done.  While you wouldn't want to build a new house from the ground up with just a hammer, hand saw, and tape measure, you can "manage" quite a bit with just those tools (and nails, of course).   
 
 
 ### <a name=slowlogin></a>Why do I get a "Stop running this script?" alert during login?

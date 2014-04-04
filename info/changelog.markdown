@@ -1,5 +1,10 @@
 # OneFileCMS Change Log
 
+### v3.5.16 (2014-04-04)
+
+- Improved logic for handling Left & Rigth arrow keys in Index_Page_events()
+- Left some //##### comments in as reminders for potential improvements.
+
 ### v3.5.15 (2014-04-03)
 
 - Fixed a minor keyboard navigation bug on Index page if active copy of OnefileCMS is listed.
