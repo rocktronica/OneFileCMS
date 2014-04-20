@@ -1,8 +1,28 @@
-<?php mb_internal_encoding('utf-8');  $message = ""; //initialize here so can .= at any point later.
+<?php ob_start(); mb_internal_encoding('utf-8');  $message = ""; //initialize $message here so can .= at any point later.
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.16';
+$OFCMS_version = '3.5.17';
+
+
+
+
+//******************************************************************************
+//Some basic security & error log settings
+//
+//ob_start(); //Catch any early output. Closed prior to page output. Moved to top of file.
+ini_set('session.use_trans_sid', 0);    //make sure URL supplied SESSID's are not used
+ini_set('session.use_only_cookies', 1); //make sure URL supplied SESSID's are not used
+error_reporting(E_ALL & ~E_STRICT);     //(E_ALL &~ E_STRICT) for everything, 0 for none.
+ini_set('display_errors', 'on');
+ini_set('log_errors'    , 'off');
+ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
+//Determine good folder for session file? Default is tmp/, which is not secure, but it may not be a serious concern.
+//session_save_path($safepath)  or  ini_set('session.save_path', $safepath)
+//******************************************************************************
+
+
+
 
 /*******************************************************************************
 Except where noted otherwise:
@@ -32,6 +52,7 @@ SOFTWARE.
 *******************************************************************************/
 
 
+
 /*******************************************************************************
 A portion of this software is copyright under terms of the "BSD" license (below).
 The copyright holders of that portion are indicated near where that portion is included.
@@ -58,21 +79,6 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *******************************************************************************/
-
-
-
-
-//Some basic security & error log settings**************************************
-ob_start(); //Catch any early output. Closed prior to page output.
-ini_set('session.use_trans_sid', 0);    //make sure URL supplied SESSID's are not used
-ini_set('session.use_only_cookies', 1); //make sure URL supplied SESSID's are not used
-error_reporting(E_ALL & ~E_STRICT);     //(E_ALL &~ E_STRICT) for everything, 0 for none.
-ini_set('display_errors', 'on');
-ini_set('log_errors'    , 'off');
-ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
-//Determine good folder for session file? Default is tmp/, which is not secure, but it may not be a serious concern.
-//session_save_path($safepath)  or  ini_set('session.save_path', $safepath)
-//******************************************************************************
 
 
 
@@ -181,7 +187,8 @@ if (!defined('PHP_VERSION_ID')) {
 	$phpversion = explode('.', PHP_VERSION);
 	define('PHP_VERSION_ID', ($phpversion[0] * 10000 + $phpversion[1] * 100 + $phpversion[2]));
 }
-if( PHP_VERSION_ID < PHP_VERSION_ID_REQUIRED ) {exit( 'PHP '.PHP_VERSION.'<br>'.hsc($_['OFCMS_requires']).' '.PHP_VERSION_REQUIRED );
+if( PHP_VERSION_ID < PHP_VERSION_ID_REQUIRED ) {
+	exit( 'PHP '.PHP_VERSION.'<br>'.hsc($_['OFCMS_requires']).' '.PHP_VERSION_REQUIRED );
 }
 
 
@@ -303,7 +310,7 @@ $PRE_ITERATIONS = 1000;
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.5.07
+// OneFileCMS Language Settings v3.5.17
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -1369,11 +1376,13 @@ function Init_ICONS() {//*******************************************************
 	$ICONS['move']    = icon_folder($arc_arrow);
 	$ICONS['copy']    = '<svg version="1.1" width="12" height="12"><g transform="translate(1,1)">'.$circle_plus_rev.'</g></svg>';
 	$ICONS['delete']  = '<svg version="1.1" width="12" height="12"><g transform="translate(1,1)">'.$circle_x.'</g></svg>';
+	$ICONS['up_dir']  = icon_folder('<g transform="scale(1.1) translate(1.75,2) rotate(-45, 5, 5)">'.$up_arrow.'</g>');
 
 	if (!supports_svg()) { //Text "icons" if SVG not supported.  Mostly for IE < 9
 		foreach ($ICONS as $key=> $value) { $ICONS[$key] = ""; }
-		$ICONS['dir']    = '[+]';
-		$ICONS['folder'] = '[+]';
+		$ICONS['up_dir']  = '[&lt;]';
+		$ICONS['dir']	  = '[+]';
+		$ICONS['folder']  = '[+]';
 		$ICONS['ren_mov'] = '<span class="RCD1 R">&gt;</span>';
 		$ICONS['move']    = '<span class="RCD1 R">&gt;</span>';
 		$ICONS['copy']    = '<span class="RCD1 C">+</span>';
@@ -1786,7 +1795,7 @@ function Login_response() {//***************************************************
 
 
 function Create_Table_for_Listing() {//*****************************************
-	global$_, $ONEFILECMS, $ipath, $ipath_OS, $DOC_ROOT_OS, $ICONS, $TABINDEX;
+	global$_, $ONEFILECMS, $ipath, $ipath_OS, $DOC_ROOT_OS, $ICONS, $TABINDEX, $ACCESS_ROOT;
 
 	//Header row: | Select All|[ ]|[X](folders first)      Name      (ext) |   Size   |    Date    |
 
@@ -1797,25 +1806,47 @@ function Create_Table_for_Listing() {//*****************************************
 ?>
 	<INPUT TYPE=hidden NAME="files[]" VALUE="">
 
-	<table class="index_T">
+	<?php //RE: $TABINDEX's below
+		// In order to have ['Name'] (it's background) expand to fill available space in header,
+		// (ext) is float'ed right, but has to be listed first, before ['Name'].
+		// However, tabindex's need to be in order as displayed, not in order as listed in source.
+	?>
 
+	<table class="index_T">
 	<tr>
-	<th colspan=3 id=select_all_th><LABEL for=select_all_ckbox id=select_all_label><?php echo hsc($_['Select_All']) ?></LABEL></th>
-	<th><div class=ckbox><INPUT id=select_all_ckbox tabindex=<?php echo $TABINDEX++ ?> TYPE=checkbox NAME=select_all VALUE=select_all></div></th>
+	<th colspan=3><LABEL for=select_all_ckbox id=select_all_label><?php echo hsc($_['Select_All']) ?></LABEL></th>
+	<th><div class=ckbox>
+			<INPUT id=select_all_ckbox tabindex=<?php echo $TABINDEX++ ?> TYPE=checkbox NAME=select_all VALUE=select_all>
+		</div>
+	</th>
 	<th class=file_name>
-		<div class=ckbox><INPUT tabindex=<?php echo $TABINDEX++?> TYPE=checkbox
-			id=folders_first_ckbox NAME=folder_first VALUE=folders_first checked></div>
-	<label for=folders_first_ckbox id=folders_first_label title="<?php  echo hsc($_['folders_first_info']) ?>">(<?php echo hsc($_['folders_first']) ?>)</label
-	><a 				   tabindex=<?php echo $TABINDEX++?> href="#" id=header_filename><?php echo hsc($_['Name']) ?></a><a
-						   tabindex=<?php echo $TABINDEX++?> href="#" id=header_sorttype>(<?php echo hsc($_['ext']) ?>)</a></th>
+		<div id=ff_ckbox_div class=ckbox>
+			<INPUT tabindex=<?php echo $TABINDEX++?> TYPE=checkbox id=folders_first_ckbox NAME=folders_first VALUE=folders_first checked>
+		</div>
+		<label for=folders_first_ckbox id=folders_first_label title="<?php  echo hsc($_['folders_first_info']) ?>">
+			(<?php echo hsc($_['folders_first']) ?>)
+		</label>
+		<a tabindex=<?php echo ($TABINDEX + 1)?> href="#" id=header_sorttype>(<?php echo hsc($_['ext']) ?>)</a>
+		<a tabindex=<?php echo $TABINDEX++?>     href="#" id=header_filename><?php echo hsc($_['Name']) ?></a>
+		<?php $TABINDEX++ // ?>
+	</th>
 	<th class=file_size><a tabindex=<?php echo $TABINDEX++?> href="#" id=header_filesize><?php echo hsc($_['Size']) ?></a></th>
 	<th class=file_time><a tabindex=<?php echo $TABINDEX++?> href="#" id=header_filedate><?php echo hsc($_['Date']) ?></a></th>
 	</tr>
 
 	<tr><?php // "../" directory entry ?>
-		<td colspan=4></td><td><a id=f0 tabindex=<?php echo $TABINDEX++?> href="<?php echo $ONEFILECMS.'?i='.$new_path.'">'.$ICONS['dir'] ?> ../</a></td>
+		<td colspan=4></td>
+		<td>
+<?php		if ($ipath == $ACCESS_ROOT) {
+				echo '<a id=f0 tabindex='.$TABINDEX++.'>&nbsp;</a>';
+			}
+			else {
+				echo '<a id=f0 tabindex='.$TABINDEX++.' href="'.$ONEFILECMS.'?i='.$new_path.'"> <b>..</b> /</a>'; //#### '.$ICONS['up_dir'].'
+			}
+?>		</td>
 		<td></td>
-		<td class="meta_T file_time"> &nbsp;<script>FileTimeStamp(<?php echo filemtime($new_path_OS); ?>, 1, 0, 1);</script></td><tr>
+		<td></td>
+	<tr>
 
 	<?php //Directory & footer content will be inserted later. ?>
 	<tbody id=DIRECTORY_LISTING></tbody>
@@ -1849,7 +1880,7 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 		//Get file .ext & check against $stypes (files types to show)
 		$filename_parts = explode(".", mb_strtolower($filename));
 		
-		//First check for no $ext:  "filename"  or ".filename"
+		//Check for no $ext:  "filename"  or ".filename"
 		$segments = count($filename_parts);
 		if( $segments === 1 || (($segments === 2) && ($filename_parts[0] === "")) ) {
 				 $ext =  '';
@@ -2772,19 +2803,19 @@ function Respond_to_POST() {//**************************************************
 function init_ICONS_js() {//****************************************************
 	global $ICONS;
 
-	//Currently, only icons for dir listing needed in js
+	//Currently, only icons for dir listing are needed in js
 ?>
 <script>
 var ICONS = new Array();
-ICONS['bin'] = '<?php echo $ICONS["bin"] ?>';
-ICONS['z']   = '<?php echo $ICONS["z"] ?>';
-ICONS['img'] = '<?php echo $ICONS["img"] ?>';
-ICONS['svg'] = '<?php echo $ICONS["svg"] ?>';
-ICONS['txt'] = '<?php echo $ICONS["txt"] ?>';
-ICONS['htm'] = '<?php echo $ICONS["htm"] ?>';
-ICONS['php'] = '<?php echo $ICONS["php"] ?>';
-ICONS['css'] = '<?php echo $ICONS["css"] ?>';
-ICONS['cfg'] = '<?php echo $ICONS["cfg"] ?>';
+ICONS['bin']	 = '<?php echo $ICONS["bin"]	 ?>';
+ICONS['z']		 = '<?php echo $ICONS["z"]		 ?>';
+ICONS['img']	 = '<?php echo $ICONS["img"]	 ?>';
+ICONS['svg']	 = '<?php echo $ICONS["svg"]	 ?>';
+ICONS['txt']	 = '<?php echo $ICONS["txt"]	 ?>';
+ICONS['htm']	 = '<?php echo $ICONS["htm"]	 ?>';
+ICONS['php']	 = '<?php echo $ICONS["php"]	 ?>';
+ICONS['css']	 = '<?php echo $ICONS["css"]	 ?>';
+ICONS['cfg']	 = '<?php echo $ICONS["cfg"]	 ?>';
 ICONS['dir']     = '<?php echo $ICONS["dir"]     ?>';
 ICONS['folder']  = '<?php echo $ICONS["folder"]  ?>';
 ICONS['ren_mov'] = '<?php echo $ICONS["ren_mov"] ?>';
@@ -2957,7 +2988,9 @@ function FileTimeStamp(php_filemtime, show_date, show_offset, write_return){
 
 
 
-function Display_Messages($msg, take_focus) {//************************
+function Display_Messages($msg, take_focus) {//***********************
+
+	$tabindex_xbox = typeof $tabindex_xbox !== 'undefined' ? $tabindex_xbox : 0;
 
 	var $page     = '<?php echo $page ?>';
 	var new_focus = '';
@@ -2970,7 +3003,7 @@ function Display_Messages($msg, take_focus) {//************************
 	else if ($page == 'hash')  { new_focus = 'whattohash'; }
 	else if ($page == 'admin') { new_focus = 'close'; }
 
-	var $X_box		 = '<button type=button id="X_box">x</button>';
+	var $X_box		 = '<button tabindex=' + $tabindex_xbox + ' type=button id="X_box">x</button>';
 	var $MESSAGE	 = '<div class=message_box_contents>' + $msg + '</div>';
 	var $message_box = document.getElementById("message_box");
 	var $new_focus	 = document.getElementById(new_focus)
@@ -3015,7 +3048,25 @@ Header_Filename.focus();
 
 
 
-function Tab_Down(ID, FR,shifted) { //********************************
+document.onmousedown = function (event) { //************************
+	//Mouse clicks may remove focus from focused elements, including checkboxes, 
+	//but don't clear the manual "highlight" of the parent div's & label's of checkbox's
+
+	//Clear parent div of a checkbox
+	var ID = document.activeElement.id;
+	if (document.activeElement.type == 'checkbox') {
+		document.getElementById(ID).parentNode.style.backgroundColor = "";
+	}
+
+	//Clear labels...  (don't check, just clear 'em)
+	document.getElementById('select_all_label').style.backgroundColor = "";
+	document.getElementById('folders_first_label').style.backgroundColor = "";
+
+}//end onmousedown() //***********************************************
+
+
+
+function on_Tab_down(ID, FR,shifted) { //*****************************
 	//Handle the background colors of checkboxes' parent <div>'s & <label>'s.
 	//(checkboxes generally don't have "background colors" as far as css goes...)
 	//Current checkbox already cleared by onkeydown().
@@ -3024,18 +3075,18 @@ function Tab_Down(ID, FR,shifted) { //********************************
 	//Default tab action occurrs on keyUP, so "new" location is not known in onkeydown().
 	//So, if current focus is ck_box, clear bg, else if we're heading there, set bg.
 	//Tab from L, Current ID will be "f<FR>c2"
-	//Tab from R: Current ID/element is "f<FR>"
+	//Tab from R: Current ID is "f<FR>"
 	var fFR   = "f" + FR        //Filename
-	var fFRc2 = "f" + FR + "c2" //(x) Delete
-	var fFRc3 = "f" + FR + "c3" //[ ] Checkbox
-	var ck_box = document.getElementById(fFRc3);
+	var ckbox = "f" + FR + "c3" //[ ] Checkbox
+	var del   = "f" + FR + "c2" //(x) Delete
 
+	var ck_box = document.getElementById(ckbox);
 	var highlight = "rgb(255,250,150)";
 
 	if      (!shifted)  { //just Tab
-		if      (ID == fFRc3) { ck_box.parentNode.style.backgroundColor = "";}
-		else if (ID == fFRc2) { ck_box.parentNode.style.backgroundColor = highlight; }
-		else if (ID == "b6" ) {
+		if      (ID == ckbox) { ck_box.parentNode.style.backgroundColor = "";}
+		else if (ID == del  ) { ck_box.parentNode.style.backgroundColor = highlight; }
+		else if (ID == "b6" ) { //[New Folder]
 			document.getElementById('select_all_ckbox').parentNode.style.backgroundColor = highlight;
 			document.getElementById('select_all_label').style.backgroundColor = highlight;
 		}
@@ -3047,7 +3098,7 @@ function Tab_Down(ID, FR,shifted) { //********************************
 		return;
 	}
 	else if (shifted)  { //Shift-Tab
-		if       (ID == fFRc3){ ck_box.parentNode.style.backgroundColor = "";}
+		if       (ID == ckbox){ ck_box.parentNode.style.backgroundColor = "";}
 		else if ((ID == fFR) && (FR > 0) ) { ck_box.parentNode.style.backgroundColor = highlight; }
 		else if  (ID == "header_filename")  {
 			document.getElementById('folders_first_ckbox').parentNode.style.backgroundColor = highlight;
@@ -3061,25 +3112,7 @@ function Tab_Down(ID, FR,shifted) { //********************************
 		return;
 	}
 
-}//end Tab_Down() { //************************************************
-
-
-
-document.onmousedown = function (event) { //************************
-	//Mouse clicks may remove focus from focused elements, including checkboxes, 
-	//but don't clear the manual "highlight" of the parent div's & label's of checkbox's
-
-	//Clear parent div of a checkbox
-	var ID = document.activeElement.id;
-	if (document.activeElement.type == 'checkbox') {
-		document.getElementById(ID).parentNode.style.backgroundColor = "";
-	}
-
-	//Clear labels...  (don't check, just clear them all)
-	document.getElementById('select_all_label').style.backgroundColor = "";
-	document.getElementById('folders_first_label').style.backgroundColor = "";
-
-}//end onmousedown() //***********************************************
+}//end on_Tab_down() { //*********************************************
 
 
 
@@ -3107,7 +3140,7 @@ document.onkeydown = function(event) { //*****************************
 	//Get id of current focus (before this event). If focus is in file list, ID = 'fn', or 'fnn', etc.
 	var ID      = document.activeElement.id;
 	var x_focus = ID.substr(0,1);
-	
+
 	//(F)ile (R)ow = 0,1, ... FROWS
 	var FR = parseInt(ID.substr(1));
 	if (isNaN(FR) || (x_focus != "f")) {FR = -1;} //If not in file list...
@@ -3129,28 +3162,25 @@ document.onkeydown = function(event) { //*****************************
 						(ID == "header_sorttype")  || (ID == "header_filesize")     || (ID == "header_filedate"));
 
 	//Prep for Arrow Left/Right keys ...
-	//To simulate Tab/Shift-tab, get list of all tab-able tags & compare each tabindex to current tabindex.
+	//To simulate Tab/Shift-tab, get list of all tab-able tags.
+	//Below, will compare each tabindex to current tabindex, and allow for skips in tabindex.
 	//All tab-able tags should have a tabindex = 1, 2, 3... etc, with no duplicates.
 	if ((key == AL) || (key == AR)){
 		var focus_tabindex = document.activeElement.tabIndex;
 		
-		//##### Make function for creation of tabindex_IDs[], and call at end of Build_Directory?
-		//##### Only really needed after sorts, not on each onkeydonw().
+		//Need to check all elements on each onkeydown(), in case things change (like closing of message box).
 		var all_tags     = document.getElementsByTagName('*');
 		var tag_count    = all_tags.length;
-		var tabindex_IDs = []; //Array of ID's of all tags with a tabindex, and indexed by tabindex.
-		//
-		//Create array of ID's of all tags with a tabindex. (all tabable elements should have a tabindex)
+		var tabindex_IDs = []; //Array of ID's of all tags with a tabindex, indexed by tabindex.
 		
+		//Create array of the ID's of all tags with a tabindex. (All tabable elements should have a tabindex set.)
 		for (var x = 0; x < tag_count; x++) {
-			if (all_tags[x].tabIndex > 0) {
-				tabindex_IDs[all_tags[x].tabIndex] = all_tags[x].id;
-			}
+			ti = all_tags[x].tabIndex;
+			if (ti > 0) { tabindex_IDs[ti] = all_tags[x].id; }
 		}
-		var last_tabindex = tabindex_IDs.length - 1; //[0] is not used, as no element should have tabindex=0.
 	}
 
-	//PROCESS KEYDOWN EVENT... In general:
+	//PROCESS THE KEYDOWN EVENT... In general:
 	//  Tab- handle checkbox's (parent <div>'s & <label>'s), otherwise allow default action.
 	//  Esc simply removes focus from active element.
 	//	Home toggles between [webroot]/current/path/ and [../] (first file is list)
@@ -3159,7 +3189,7 @@ document.onkeydown = function(event) { //*****************************
 	//  Page Up/Down will likewise loop thru page, with soft-stops at first/last filenames.
 	//  Arrow Left/Right will function similarly to Tab/Shift-Tab, but hard stop at first/last link on page.
 
-	if      (key == TAB)  { Tab_Down(ID, FR, event.shiftKey); return; }
+	if      (key == TAB)  { on_Tab_down(ID, FR, event.shiftKey); return; }
 	else if (key == ESC)  { document.activeElement.blur();    return; }
 	else if (key == END)  { if (ID != LAST_FILE) {ID = LAST_FILE} else {return} }
 	else if (key == HOME) {
@@ -3168,11 +3198,17 @@ document.onkeydown = function(event) { //*****************************
 		else if (FR  > 0)        {ID = "f0";}
 		else					 {ID = "path_0"}
 	}
-	else if (key == AL) { 
-		if (focus_tabindex > 1) {ID = tabindex_IDs[focus_tabindex - 1];}
+	else if (key == AL) {
+		//Find first tab-able element to the left (usually just (focus_tabindex - 1))
+		for (var new_index = (focus_tabindex - 1); new_index > 0; new_index--) {
+			if (tabindex_IDs[new_index]) { ID = tabindex_IDs[new_index]; break; }
+		}
 	}
 	else if (key == AR) {
-		if ( focus_tabindex < last_tabindex ) {ID = tabindex_IDs[focus_tabindex + 1];}
+		//Find first tab-able element to the right (usually just (focus_tabindex + 1))
+		for (var new_index = (focus_tabindex + 1); new_index < tabindex_IDs.length; new_index++) {
+			if (tabindex_IDs[new_index]) { ID = tabindex_IDs[new_index]; break; }
+		}
 	}
 	else if (ID == "admin") {
 		if      (key == AU) {ID = LAST_FILE}
@@ -3212,9 +3248,9 @@ document.onkeydown = function(event) { //*****************************
 		else if (key == PD) { ID = "path_0" }
 	}
 	else if (FR > 0){ //Middle rows...
-		if		(key == AU) { FR--;				         ID = "f" + FR						   }
-		else if	(key == PU) { FR -= jump; if (FR >= 0)     {ID = "f" + FR} else {ID = "f0"}	   }
-		else if (key == AD) { FR++; 	   if (FR <= FROWS) {ID = "f" + FR} else {ID = "path_0"; } }
+		if		(key == AU) { FR--;							ID = "f" + FR						  }
+		else if	(key == PU) { FR -= jump; if (FR >= 0)     {ID = "f" + FR} else {ID = "f0"}	  	  }
+		else if (key == AD) { FR++; 	  if (FR <= FROWS) {ID = "f" + FR} else {ID = "path_0"; } }
 		else if (key == PD) { FR += jump; if (FR <= FROWS) {ID = "f" + FR} else {ID = LAST_FILE;} }
 	}
 	else if (FR == -1) {ID = "path_0"}     //Anyplace other than path_header, buttons, table
@@ -3228,7 +3264,7 @@ document.onkeydown = function(event) { //*****************************
 
 	document.getElementById(ID).focus();
 
-	//If new ID/element is checkbox, set bgcolor of parent div (ckboxes don't have background colors), & it's label if apropo.
+	//If new ID/element is checkbox, set bgcolor of parent div & it's label (ckboxes don't have background colors).
 	if (document.activeElement.type == "checkbox") {document.getElementById(ID).parentNode.style.backgroundColor = highlight;}
 	if (ID == "select_all_ckbox")    {document.getElementById('select_all_label').style.backgroundColor = highlight;}
 	if (ID == "folders_first_ckbox") {document.getElementById('folders_first_label').style.backgroundColor = highlight;}
@@ -3303,16 +3339,21 @@ function Sort_Folders_First() {//*************************************
 
 function sort_DIRECTORY(col, direction) {//***************************
 
+	if (DIRECTORY_DATA.length < 2) {return} //can't sort 1 or zero items.
+
 	//sort DIRECTORY_DATA[] by col and direction
 	
 	//col: 1 for "file name", 2 for filesize, 3 for timestamp, 5 for "ext"
 	//derection: 0 = desending, 1 = ascending, 2 = flip, 3 = flip only if new col != SORT_by
 
-	//SORT_by, SORT_order, SORT_folders_1st: values set by prior (or initial) sort.
+	//SORT_by, SORT_order, and SORT_folders_1st: values set by prior (or initial) sort.
 
 	//If needed, set default col and/or direction.
 	col       = typeof col       !== 'undefined' ? col       : 1;
 	direction = typeof direction !== 'undefined' ? direction : ASCENDING;
+
+	//Filename ckboxes are cleared automatically on a resort, in Assemble_Insert_row(), so this needs cleared also.
+	Select_All_ckbox.checked = false;
 
 	//If new sort column, sort ascending. (FLIP overides, but is not currently used.)
 	if ((col != SORT_by) && (direction != FLIP)) { direction = ASCENDING; SORT_by = col; } 
@@ -3381,13 +3422,15 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	//Assemble [move] [copy] [delete] [x]   ([copy] is always available)
 	//The empty <a>'s are to accommodate keyboard nav via onkeydown() in Index_Page_events()...
 	if (!IS_OFCMS) {
-		ren_mov = '<a id=f' + row + 'c0 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=rename' + f_or_f + '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
-	} else { ren_mov = '<a id=f' + row + 'c0 tabindex='+ (TABINDEX++) +'>&nbsp;</a>'}
+		ren_mov  = '<a id=f' + row + 'c0 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=rename' + f_or_f + '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
+	} else {
+		ren_mov  = '<a id=f' + row + 'c0 tabindex='+ (TABINDEX++) +'>&nbsp;</a>'
+	}
 
-	copy        = '<a id=f' + row + 'c1 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
+	copy         = '<a id=f' + row + 'c1 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
 
 	if (!IS_OFCMS) {
-		del     = '<a id=f' + row + 'c2 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=delete' + f_or_f + '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
+		del      = '<a id=f' + row + 'c2 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=delete' + f_or_f + '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
 		checkbox = '<div class=ckbox><INPUT id=f' + row + 'c3 tabindex='+ (TABINDEX++) +' TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
 	} else {
 		del      = '<a id=f' + row + 'c2 tabindex='+ (TABINDEX++) +'>&nbsp;</a>'
@@ -3998,23 +4041,28 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 .MCD:active {background-color: rgb(245,245, 50);}
 
 
-/*** [x] Folders First ***/
+/*** [x] (folders first) ***/
+
+#ff_ckbox_div {float: left;}
+
 #folders_first_label {
 	display: inline-block;
+	float: left;
 	font-size  : .9em;
 	font-weight: normal;
 	border     : solid 1px transparent;
 	color  : #333;
-	margin : 0 0 0 -5px;
-	padding: 4px 0 2px 0;
+	margin : 0 0 0 0;
+	padding: 4px 3px 2px 0;
 	cursor : pointer;
-}
+	}
 
 #folders_first_label:hover {
 	background-color  : rgb(255,250,150);
 	border-left-color : silver;
 	border-right-color: silver;
-}
+	}
+
 #folders_first_label:active {background-color  : rgb(245,245, 50);}
 
 
@@ -4037,10 +4085,17 @@ table.index_T th:hover { background-color: white;}
 .index_T td a {	display: block; border: none; padding: 2px 4px 2px 4px; overflow : hidden; }
 .index_T th a { padding: 1px 0 1px 0; border-width: 0px;}
 
-.index_T th.file_name   { text-align: left; }
-.index_T th.file_name a { display: inline-block; padding: 4px 2.5em 3px 1.5em; border-top-width: 0px; border-bottom-width: 0px;}
+th.file_name {min-width: 15em}
 
-#header_filename       {border-width: 0 1px 0 1px; min-width: 2.5em;}
+.index_T th.file_name a {
+	display: inline-block;
+	padding: 4px 1em 3px 1em;
+	border-top-width: 0px;
+	border-bottom-width: 0px;
+	text-align: center;
+	}
+
+#header_filename       {border-width: 0 1px 0 1px; display: block; overflow: auto;}
 #header_filename:hover {border-color: silver;}
 #header_filename:focus {border-color: silver;}
 
@@ -4443,6 +4498,7 @@ Page_Header();
 
 if ($_SESSION['valid'] && $Show_Path) { Current_Path_Header(); }
 
+$TABINDEX_XBOX = $TABINDEX++; //Messages, and the [X] box, not displayed until later.
 echo '<div id="message_box"></div>';
 
 Load_Selected_Page();
@@ -4454,7 +4510,8 @@ if ($_SESSION['valid']) {
 	echo '<span id=timer0  class="timer timeout"></span>';
 	echo '<span class="timeout">'.hsc($_['time_out_txt']).'&nbsp; </span>';
 
-	//Add tabindex to Admin link only on Index page. The *5 is to account for [m][c][d][x] and file names.
+	//Adjust tabindex to account for [m][c][d][x] and file names in directory list.
+	//(Directory list created via js, so $TAB_INDEX is also passed to, and handled by, js at that point.)
 	if (isset($DIRECTORY_COUNT)) {$TAB_INDEX = "tabindex=".($TABINDEX + ($DIRECTORY_COUNT * 5));}
 	else                         {$TAB_INDEX = ""; }
 
@@ -4471,6 +4528,7 @@ if ( ($page == "edit") && $WYSIWYG_VALID && $EDIT_WYSIWYG ) { include($WYSIWYG_P
 
 //Display any $message's
 echo '<script>';
+echo 'var $tabindex_xbox = '.$TABINDEX_XBOX.';'; //Used in Display_Messages()
 echo 'var $page    = "'.$page.'";';
 echo 'var $message = "'.addslashes($message).'";';
 	    //Cause $message's $X_box to take focus on these pages only.
@@ -4480,8 +4538,8 @@ echo 'else										   {take_focus = 0}';
 	//##### ACTUAL COUNTDOWN STARTS ON THE SERVER.
 	//##### DO I NEED TO ACCOUNT FOR TIME RECEIVING & LOADING PAGE CLIENT SIDE?
 
-	//The setTimeout() time should be greater than what is set for the Sort_and_Show() "working..." message.
-echo 'setTimeout("Display_Messages($message, take_focus)",'.$DELAY_final_messages.');';
+	//The setTimeout() delay should be greater than what is set for the Sort_and_Show() "working..." message.
+echo 'setTimeout("Display_Messages($message, take_focus)", '.$DELAY_final_messages.');';
 echo '</script>';
 
 //start any timers (Yea, they could probably be put in a window.onload function or something...)
@@ -4492,5 +4550,5 @@ if ($LOGIN_DELAYED > 0) { echo Timeout_Timer($LOGIN_DELAYED, 'timer0', ''); }
 
 //##### Header (UTF-8) for [View Raw] incorrect or not getting sent??
 //##### If file has non-ascii characters, browers display in ISO-8859-1/Windows-1252,
-//##### Except IE asks to download the file...
-//##### When I manually select UTF-8, files display fine.
+//##### Except IE, which asks to download the file...
+//##### When browsers manually set to UTF-8, files display fine.

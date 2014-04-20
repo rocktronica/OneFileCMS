@@ -34,9 +34,9 @@ With basic editing, upload, and file managing functions, OneFileCMS can maintain
 ## <a name=features></a>Features
  
 - All the basic file management features like renaming, moving, copying, deleting, and uploading.
+- A basic text editor.
 - Sort directory listings by file name, extension, size, or date.
 - Keyboard navigation of directory list. (Arrows, Page Up/Down, Home, End)
-- A basic text editor.
 - A WYSIWYG editor may be added as a plugin.
 - A login delay after too many invalid login attempts.
 - Adjustable idle time before auto-logout.
@@ -65,7 +65,7 @@ You can also change the file name from "onefilecms.php" to something else, such 
 
 - PHP 5.1+
   (Only tested on versions 5.2.8, 5.2.17, 5.3.3, and 5.4 + )
-- A Javascript enabled browswer.
+- A Javascript enabled browser.
 - Most modern browsers probably work, but I only test on Firefox, Chrome, and IE 8.
 - And if you wish to see the icons- a browser that supports inline SVG.  
   (If your browser doesn't support inline SVG, OneFileCMS will still work, just without any icons.)
@@ -106,7 +106,9 @@ Now, since there is no database or other means of granular control or access log
 
 ### <a name=handsaw></a>This is basically just a file manager with a text editor- why is it being called a CMS?
 
-Becaus "OneFileCMS" sounds cool.  And, because it is. It may be simple, but it can get the job done.  While you wouldn't want to build a new house from the ground up with just a hammer, hand saw, and tape measure, you can "manage" quite a bit with just those tools (and nails, of course).   
+Because it is. It may be simple, but it can get the job done.  While you wouldn't want to build a new house from the ground up with just a hammer, hand saw, and tape measure, you can "manage" quite a bit with just those tools.  
+
+And, because "OneFileCMS" sounds cool.
 
 
 ### <a name=slowlogin></a>Why do I get a "Stop running this script?" alert during login?

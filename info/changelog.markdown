@@ -1,5 +1,9 @@
 # OneFileCMS Change Log
 
+### v3.5.17 (2014-04-20)
+
+- Additional improvments to arrow key handling, particularly in regards to $message box.
+
 ### v3.5.16 (2014-04-04)
 
 - Improved logic for handling Left & Rigth arrow keys in Index_Page_events()

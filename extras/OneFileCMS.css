@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.15
+Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.17
 *******************************************************************************/
 
 /* --- reset --- */
@@ -148,23 +148,28 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 .MCD:active {background-color: rgb(245,245, 50);}
 
 
-/*** [x] Folders First ***/
+/*** [x] (folders first) ***/
+
+#ff_ckbox_div {float: left;}
+
 #folders_first_label {
 	display: inline-block;
+	float: left;
 	font-size  : .9em;
 	font-weight: normal;
 	border     : solid 1px transparent;
 	color  : #333;
-	margin : 0 0 0 -5px;
-	padding: 4px 0 2px 0;
+	margin : 0 0 0 0;
+	padding: 4px 3px 2px 0;
 	cursor : pointer;
-}
+	}
 
 #folders_first_label:hover {
 	background-color  : rgb(255,250,150);
 	border-left-color : silver;
 	border-right-color: silver;
-}
+	}
+
 #folders_first_label:active {background-color  : rgb(245,245, 50);}
 
 
@@ -187,10 +192,17 @@ table.index_T th:hover { background-color: white;}
 .index_T td a {	display: block; border: none; padding: 2px 4px 2px 4px; overflow : hidden; }
 .index_T th a { padding: 1px 0 1px 0; border-width: 0px;}
 
-.index_T th.file_name   { text-align: left; }
-.index_T th.file_name a { display: inline-block; padding: 4px 2.5em 3px 1.5em; border-top-width: 0px; border-bottom-width: 0px;}
+th.file_name {min-width: 15em}
 
-#header_filename       {border-width: 0 1px 0 1px; min-width: 2.5em;}
+.index_T th.file_name a {
+	display: inline-block;
+	padding: 4px 1em 3px 1em;
+	border-top-width: 0px;
+	border-bottom-width: 0px;
+	text-align: center;
+	}
+
+#header_filename       {border-width: 0 1px 0 1px; display: block; overflow: auto;}
 #header_filename:hover {border-color: silver;}
 #header_filename:focus {border-color: silver;}
 
