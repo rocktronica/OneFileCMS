@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.17';
+$OFCMS_version = '3.5.18';
 
 
 
@@ -28,7 +28,7 @@ ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
 Except where noted otherwise:
 
 Copyright © 2009-2012 https://github.com/rocktronica
-Copyright © 2012-     https://github.com/Self-Evident  David W. Gay
+Copyright © 2012-     https://github.com/Self-Evident
 
 Under the following terms (an "MIT" License):
 
@@ -56,6 +56,7 @@ SOFTWARE.
 /*******************************************************************************
 A portion of this software is copyright under terms of the "BSD" license (below).
 The copyright holders of that portion are indicated near where that portion is included.
+(Search for references to the BSD license)
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -83,8 +84,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-// USER CONFIGURABLE INFO ******************************************************
-$config_title = "OneFileCMS";
+// CONFIGURABLE OPTIONS ********************************************************
+$MAIN_TITLE = "OneFileCMS";
 
 $USERNAME = "username";
 $HASHWORD = "18350bc2181858e679605434735b1c2db6e7e4bb72b50a6d93d9ad1362f3e1c2";
@@ -93,7 +94,7 @@ $SALT     = 'somerandomsalt';
 
 $MAX_ATTEMPTS  = 3;    //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;   //In seconds.
-$MAX_IDLE_TIME = 600;  //In seconds. 600 = 10 minutes.  Other PHP settings (like gc) may limit its max effective value.
+$MAX_IDLE_TIME = 60000;//600;  //In seconds. 600 = 10 minutes.  Other PHP settings (like gc) may limit its max effective value.
 $TO_WARNING    = 120;  //In seconds. When idle time remaining is less than this value, a TimeOut warning is displayed.
 $LOG_LOGINS    = true; //Keep log of login attempts.
 
@@ -109,21 +110,22 @@ $MAX_IMG_H   = 1000; //Max height (in px).  I don't know, it just looks reasonab
 
 $UPLOAD_FIELDS = 10; //Number of upload fields on Upload File(s) page. Max value is ini_get('max_file_uploads').
 
-$config_favicon   = "favicon.ico"; //Path is relative to root of website.
-$config_excluded  = ""; //files to exclude from directory listings- CaSe sEnsiTive!
+$FAVICON  = "favicon.ico"; //Path is relative to root of website.
 
-$config_etypes = "svg,asp,cfg,conf,csv,css,dtd,htm,html,xhtml,htaccess,ini,js,log,markdown,md,php,pl,txt,text"; //Editable file types.
-$config_stypes = "*"; // Shown types; only files of the given types should show up in the file-listing
-	// Use $config_stypes exactly like $config_etypes (list of extensions separated by commas).
-	// If $config_stypes is set to null - by intention or by error - only folders will be shown.
-	// If $config_stypes is set to the *-wildcard (the default), all files will show up.
-	// If $config_stypes is set to "html,htm" for example, only file with the extension "html" or "htm" will get listed.
+$EXCLUDED_FILES  = ""; //csv list of filenames to exclude from directory listings- CaSe sEnsiTive!
 
-$config_itypes = "jpg,gif,png,bmp,ico"; //image types to display on edit page.
+$EDIT_FILES = "svg,asp,cfg,conf,csv,css,dtd,htm,html,xhtml,htaccess,ini,js,log,markdown,md,php,pl,txt,text"; //Editable file types.
+$SHOW_FILES = "*"; // Shown types; only files of the given types should show up in the file-listing
+	// Use $SHOW_FILES exactly like $EDIT_FILES: a list of extensions separated by commas.
+	// If $SHOW_FILES is set to null - by intention or by error - only folders will be shown.
+	// If $SHOW_FILES is set to the *-wildcard (the default), all files will show up.
+	// If $SHOW_FILES is set to "html,htm" for example, only file with the extension "html" or "htm" will get listed.
+
+$SHOW_IMGS = "jpg,gif,png,bmp,ico"; //image types to display on edit page.
 //File types (extensions).  _ftypes & _fclass must have the same number of values. bin is default.
-$config_ftypes = "bin,z,gz,7z,zip,jpg,gif,png,bmp,ico,svg,asp,cfg,conf,csv,css,dtd,htm,html,xhtml,htaccess,ini,js,log,markdown,md,php,pl,txt,text";
+$FILE_TYPES = "bin,z,gz,7z,zip,jpg,gif,png,bmp,ico,svg,asp,cfg,conf,csv,css,dtd,htm,html,xhtml,htaccess,ini,js,log,markdown,md,php,pl,txt,text";
 //Cooresponding file classes to _ftypes - used to determine icons for directory listing.
-$config_fclass = "bin,z,z ,z ,z  ,img,img,img,img,img,svg,txt,txt,cfg ,txt,css,txt,htm,htm ,htm  ,txt     ,txt,txt,txt,txt   ,txt,php,php,txt,txt";
+$FILE_CLASSES = "bin,z,z ,z ,z  ,img,img,img,img,img,svg,txt,txt,cfg ,txt,css,txt,htm,htm ,htm  ,txt     ,txt,txt,txt,txt   ,txt,php,php,txt,txt";
 
 $EX = '<b>( ! )</b> '; //EXclaimation point "icon" Used in $message's
 
@@ -159,17 +161,17 @@ $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copi
 //See the sample file in the OneFileCMS github repo for format example.
 //$CONFIG_FILE = 'OneFileCMS.config.SAMPLE.php';
 
-//end CONFIGURABLE INFO ********************************************************
+//end CONFIGURABLE OPTIoNS *****************************************************
 
 
 
 
 function System_Setup() {//*****************************************************
 
-global $config_title, $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS, $LOGIN_DELAYED, 
-	$MAIN_WIDTH, $WIDE_VIEW_WIDTH, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $config_excluded, 
-	$config_etypes, $config_stypes,$config_itypes, $config_ftypes, $config_fclass, 
-	$SHOWALLFILES, $etypes, $itypes, $ftypes, $fclasses, $excluded_list, 
+global $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS, $LOGIN_DELAYED, 
+	$MAIN_WIDTH, $WIDE_VIEW_WIDTH, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $EXCLUDED_FILES, 
+	$EDIT_FILES, $SHOW_FILES, $SHOW_IMGS, $FILE_TYPES, $FILE_CLASSES, 
+	$SHOWALLFILES, $etypes, $stypes, $itypes, $ftypes, $fclasses, $excluded_list, 
 	$LANGUAGE_FILE, $ACCESS_ROOT, $ACCESS_ROOT_len, $WYSIWYG_PLUGIN, $WYSIWYG_VALID, $WYSIWYG_PLUGIN_OS, 
 	$INVALID_CHARS, $WHSPC_SLASH, $VALID_PAGES, $LOGIN_LOG_url, $LOGIN_LOG_file,
 	$ONESCRIPT,  $ONESCRIPT_file, $ONESCRIPT_backup, $ONESCRIPT_file_backup, 
@@ -276,16 +278,16 @@ ini_set('session.gc_maxlifetime', $MAX_IDLE_TIME + 100); //in case the default i
 
 $VALID_PAGES = array("login","logout","admin","hash","changepw","changeun","index","edit","upload","uploaded","newfile","renamefile","copyfile","deletefile","deletefolder","newfolder","renamefolder","copyfolder","mcdaction", "phpinfo", "raw_view");
 
-//Make arrays out of a few $config_variables for actual use later.
+//Make arrays out of a few config variables for actual use later.
 //First, remove spaces and make lowercase (for *types).
 $SHOWALLFILES = $stypes = false;
-  if ($config_stypes == '*') { $SHOWALLFILES = true; }
-  else { $stypes   = explode(',', mb_strtolower(str_replace(' ', '', $config_stypes))); }//shown file types
-$etypes   = explode(',', mb_strtolower(str_replace(' ', '', $config_etypes))); //editable file types
-$itypes   = explode(',', mb_strtolower(str_replace(' ', '', $config_itypes))); //images types to display
-$ftypes   = explode(',', mb_strtolower(str_replace(' ', '', $config_ftypes))); //file types with icons
-$fclasses = explode(',', mb_strtolower(str_replace(' ', '', $config_fclass))); //for file types with icons
-$excluded_list = explode(',', str_replace(' ', '', $config_excluded));
+  if ($SHOW_FILES == '*') { $SHOWALLFILES = true; }
+  else { $stypes   = explode(',', mb_strtolower(str_replace(' ', '', $SHOW_FILES))); }//shown file types
+$etypes   = explode(',', mb_strtolower(str_replace(' ', '', $EDIT_FILES)));   //editable file types
+$itypes   = explode(',', mb_strtolower(str_replace(' ', '', $SHOW_IMGS)));    //images types to display
+$ftypes   = explode(',', mb_strtolower(str_replace(' ', '', $FILE_TYPES)));   //file types with icons
+$fclasses = explode(',', mb_strtolower(str_replace(' ', '', $FILE_CLASSES))); //for file types with icons
+$excluded_list = explode(',', str_replace(' ', '', $EXCLUDED_FILES));
 
 
 //A few variables for values that were otherwise hardcoded in js. 
@@ -294,7 +296,7 @@ $excluded_list = explode(',', str_replace(' ', '', $config_excluded));
 $DELAY_Sort_and_Show_msgs = 20; //Needed so "Working..." message shows during directory sorts. Mostly for Firefox.
 $DELAY_Start_Countdown	  = 25; //Needs to be > than $Sort_and_Show_msgs. Used in Timeout_Timer().
 $DELAY_final_messages	  = 25; //Needs to be > than $Sort_and_Show_msgs. Delays final Display_Messages().
-$DELAY_Expired_Reload  = 10000; //Delay from Session Expired to page load of login screen. Ten seconds, but can be less.
+$DELAY_Expired_Reload  = 10000; //Delay from Session Expired to page load of login screen. Ten seconds, but can be less/more.
 $MIN_DIR_ITEMS			  = 25; //Minimum number of directory items before "Working..." message is needed/displayed.
 
 
@@ -310,7 +312,7 @@ $PRE_ITERATIONS = 1000;
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.5.17
+// OneFileCMS Language Settings v3.5.18
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -322,7 +324,7 @@ $_['LANG'] = 'EN';
 // Remember to slash-escape any single quotes that may be within the text:  \'
 // The back-slash itself may or may not also need to be escaped:  \\
 //
-// If present as a trailing comment, "## NT ##" means 'Need Translation'.
+// If present as a trailing comment, "## NT ##" means 'Needs Translation'.
 //
 // These first few settings control a few font and layout settings.
 // In some instances, some langauges may use significantly longer words or phrases than others.
@@ -503,7 +505,7 @@ $_['confirm_reset']   = 'Reset file and loose unsaved changes?';
 $_['OFCMS_requires']  = 'OneFileCMS requires PHP';
 $_['logout_msg']      = 'You have successfully logged out.';
 $_['edit_caution_01'] = 'CAUTION'; //##### No longer used as of 3.5.07
-$_['edit_caution_02'] = 'You are viewing the active copy of OneFileCM.'; //## NT ## changed wording 3.5.07
+$_['edit_caution_02'] = 'You are viewing the active copy of OneFileCMS.'; //## NT ## changed wording 3.5.07
 $_['time_out_txt']    = 'Session time out in:';
 $_['error_reporting_01'] = 'Display errors is';
 $_['error_reporting_02'] = 'Log errors is';
@@ -515,7 +517,7 @@ $_['admin_txt_00'] = 'Old Backup Found';
 $_['admin_txt_01'] = 'A backup file was created in case of an error during a username or password change. Therefore, it may contain old information and should be deleted if not needed. In any case, it will be automatically overwritten on the next password or username change.';
 $_['admin_txt_02'] = 'General Information';
 $_['admin_txt_14'] = 'For a small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep them secret, of course). Every little bit helps...';
-$_['admin_txt_16'] = 'OneFileCMS can not be used to edit itself directly.  However, you can make a copy & edit it.  Then simply run the copy.'; //## NT ## Changed wording in 3.5.07
+$_['admin_txt_16'] = 'OneFileCMS can not be used to edit itself directly.  However, you can make a copy and edit it.'; //## NT ## Changed wording in 3.5.07
 $_['pw_current'] = 'Current Password';
 $_['pw_change']  = 'Change Password';
 $_['pw_new']     = 'New Password';
@@ -555,7 +557,7 @@ function validate_units($cssvalue) {//******************************************
 		$cssvalue = ($cssvalue * 1).'px';   //If not, assume px.
 	}
 	return $cssvalue;
-}//end valid_units() //*********************************************************
+}//end validate_units() //******************************************************
 
 
 
@@ -649,8 +651,8 @@ function hashit($key,$pre = false) {//******************************************
 	global $SALT, $PRE_ITERATIONS;
 	$hash = trim($key); // trim off leading & trailing whitespace.
 
-	//If generating a hash from the Hash_Page(), also do the "pre-hash".  Generally,
-	//the "pre-hash" is done client-side during a login attempt, or when changing p/w or u/n.
+	//Generally, the "pre-hash" is done client-side during a login attempt, or when changing p/w or u/n.
+	//However, if generating a hash from the Hash_Page(), do the "pre-hash" now.
 	if ($pre) { for ( $x=0; $x < $PRE_ITERATIONS; $x++ ) {$hash = hash('sha256', $hash.$SALT);}  }
 
 	for ( $x=0; $x < 10001; $x++ ) { $hash = hash('sha256', $hash.$SALT); }
@@ -914,6 +916,7 @@ function Verify_Page_Conditions() {//*******************************************
 	
 	//[View Raw] file contents in a browser window (in plain text, NOT HTML).
 	if ($page == "raw_view"){
+		ob_start();
 		$raw_contents = file_get_contents($filename_OS);
 		$file_ENC = mb_detect_encoding($raw_contents); //ASCII, UTF-8, etc...
 		header('Content-type: text/plain; charset=utf-8');
@@ -1013,7 +1016,7 @@ function Sort_Seperate($path, $full_list) {//***********************************
 	$files= array();
 	$folders= array();
 	$F=1; $D=1;  //indexes
-	foreach( $full_list as $item ) {
+	foreach ( $full_list as $item ) {
 		if ( ($item == '.') || ($item == '..') || ($item == "")){ continue; }
 		$fullpath_OS = Convert_encoding($path.$item);
 		if (is_dir($fullpath_OS)) { $folders[$D++] = $item; }
@@ -1107,7 +1110,7 @@ function rCopy( $old_path, $new_path ) {//**************************************
 		$error_code = (mkdir($new_path, 0755)*1);
 		
 		if ( sizeof($dir_list) > 0 ) {
-			foreach( $dir_list as $file ) {
+			foreach ( $dir_list as $file ) {
 				if ( $file == "." || $file == ".." ) { continue; }
 				
 				$error_code += rCopy( $old_path.'/'.$file, $new_path.'/'.$file);
@@ -1195,24 +1198,24 @@ function Current_Path_Header() {//**********************************************
 
 
 function Page_Header() {//******************************************************
-	global  $_, $DOC_ROOT, $ONESCRIPT, $page, $WEBSITE, $config_title, $OFCMS_version, $config_favicon, $TABINDEX, $message;
+	global  $_, $DOC_ROOT, $ONESCRIPT, $page, $WEBSITE, $MAIN_TITLE, $OFCMS_version, $FAVICON, $TABINDEX, $message;
 
 	$TABINDEX = 1; //Initial tabindex
 
-	$favicon = '';
-	if (file_exists($DOC_ROOT.trim($config_favicon,'/'))) {
-		$favicon =  '<img src="/'.URLencode_path($config_favicon).'" alt="">';
+	$favicon_img = '';
+	if (file_exists($DOC_ROOT.trim($FAVICON,'/'))) {
+		$favicon_img =  '<img src="/'.URLencode_path($FAVICON).'" alt="">';
 	}
 
 	echo '<div id="header">';
-		echo '<a href="'.$ONESCRIPT.'" id="logo" tabindex='.$TABINDEX++.'>'.$config_title.'</a> '.$OFCMS_version.' ';
+		echo '<a href="'.$ONESCRIPT.'" id="logo" tabindex='.$TABINDEX++.'>'.hsc($MAIN_TITLE).'</a> '.$OFCMS_version.' ';
 		
 		$on_php = '('.hsc($_['on']).'&nbsp;php&nbsp;'.phpversion().')';
 		if ($_SESSION["valid"]) { $on_php = '<a id=on_php tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.'?p=phpinfo'.'" target=_blank>'.$on_php.'</a>';}
 		echo $on_php;
 		
 		echo '<div class="nav">';
-			echo '<b><a id=website href="/" tabindex='.$TABINDEX++.' target="_blank">'.$favicon.' '.hsc($WEBSITE).'</a></b>';
+			echo '<b><a id=website href="/" tabindex='.$TABINDEX++.' target="_blank">'.$favicon_img.' '.hsc($WEBSITE).'</a></b>';
 			if ($page != "login") {	echo ' | <a id=logout tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.'?p=logout">'.hsc($_['Log_Out']).'</a>'; }
 		echo '</div><div class=clear></div>';
 	echo '</div>';//<!-- end header -->
@@ -1283,8 +1286,9 @@ function Init_Macros() {//**** ($varibale="some reusable chunk of code")********
 	$INPUT_NUONCE = '<input type="hidden" name="nuonce" value="'.$_SESSION['nuonce'].'">'."\n";
 	$FORM_COMMON = '<form method="post" action="'.$ONESCRIPT.$param1.$param2.'">'.$INPUT_NUONCE."\n";
 
-	$PWUN_RULES  = '<p>'.hsc($_['pw_txt_02']).'<ol><li>'.hsc($_['pw_txt_04']).'<li>'.hsc($_['pw_txt_06']);
-	$PWUN_RULES .= '<li>'.hsc($_['pw_txt_10']).'<li>'.hsc($_['pw_txt_08']).'</ol>';
+	$PWUN_RULES  = '<p>'.hsc($_['pw_txt_02']);
+	$PWUN_RULES	.= '<ol><li>'.hsc($_['pw_txt_04']).'<li>'.hsc($_['pw_txt_06']);
+	$PWUN_RULES .=     '<li>'.hsc($_['pw_txt_10']).'<li>'.hsc($_['pw_txt_08']).'</ol>';
 }//end Init_Macros() //*********************************************************
 
 
@@ -1448,7 +1452,7 @@ function List_Backups_and_Logs() {//********************************************
 
 
 function Admin_Page() {//*******************************************************
-	global $_, $ONESCRIPT, $ipath, $filename, $param1, $param2, $config_title;
+	global $_, $ONESCRIPT, $ipath, $filename, $param1, $param2, $MAIN_TITLE;
 
 	// Restore/Preserve $ipath prior to admin page in case OneFileCMS is edited (which would change $ipath).
 	if   ( $_SESSION['admin_page'] ) { $ipath  = $_SESSION['admin_ipath'];
@@ -1470,7 +1474,7 @@ function Admin_Page() {//*******************************************************
 	echo $button_attribs.$param1.'&amp;p=changepw\'">'.hsc($_['pw_change']).'</button>'; 
 	echo $button_attribs.$param1.'&amp;p=changeun\'">'.hsc($_['un_change']).'</button>'; 
 	echo $button_attribs.$param1.'&amp;p=hash\'">'.hsc($_['Generate_Hash']).'</button>'; 
-	echo $button_attribs.$edit_params.'\'">'.hsc($_['View'].' '.$config_title).'</button>';
+	echo $button_attribs.$edit_params.'\'">'.hsc($_['View'].' '.$MAIN_TITLE).'</button>';
 	echo '</span>';
 
 	echo '<div class="info">';
@@ -1541,7 +1545,7 @@ function Hash_response() {//****************************************************
 //******************************************************************************
 function Change_PWUN_Page($pwun, $type, $page_title, $label_new, $label_confirm) {
 	//$pwun must = "pw" or "un"
-	global $_, $EX, $ONESCRIPT, $param1, $param2, $param3, $INPUT_NUONCE, $config_title, $PWUN_RULES;
+	global $_, $EX, $ONESCRIPT, $param1, $param2, $param3, $INPUT_NUONCE, $PWUN_RULES;
 
 	$params = $param1.$param2.'&amp;p='. $_SESSION['recent_pages'][1];
 ?>
@@ -1838,10 +1842,10 @@ function Create_Table_for_Listing() {//*****************************************
 		<td colspan=4></td>
 		<td>
 <?php		if ($ipath == $ACCESS_ROOT) {
-				echo '<a id=f0 tabindex='.$TABINDEX++.'>&nbsp;</a>';
+				echo '<a id=f0c4 tabindex='.$TABINDEX++.'>&nbsp;</a>';
 			}
 			else {
-				echo '<a id=f0 tabindex='.$TABINDEX++.' href="'.$ONEFILECMS.'?i='.$new_path.'"> <b>..</b> /</a>'; //#### '.$ICONS['up_dir'].'
+				echo '<a id=f0c4 tabindex='.$TABINDEX++.' href="'.$ONEFILECMS.'?i='.$new_path.'">'.$ICONS['up_dir'].' <b>..</b> /</a>'; //#### '.$ICONS['up_dir'].'
 			}
 ?>		</td>
 		<td></td>
@@ -1850,7 +1854,7 @@ function Create_Table_for_Listing() {//*****************************************
 
 	<?php //Directory & footer content will be inserted later. ?>
 	<tbody id=DIRECTORY_LISTING></tbody>
-	<tr><td id=DIRECTORY_FOOTER colspan=7></td</tr>
+	<tr><td id=DIRECTORY_FOOTER colspan=7></td></tr>
 	</table>
 <?php
 }//Create_Table_for_Listing() //************************************************
@@ -1864,7 +1868,7 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 			$DIRECTORY_COUNT, $DIRECTORY_DATA, $ENC_OS;
 
 	//Doesn't use global $filename or $filename_OS in this function (because they shouldn't exist on the Index page)
-	//$filename below is JUST the file's name.  In some functions, it's the full/path/filename
+	//$filename below is JUST the file's name.  In other functions, it's the full/path/filename
 
 	$DIRECTORY_COUNT = 0; //final count to exclude . & .., and possibly $excluded file names
 	foreach ($raw_list as $raw_filename) { //$raw_list is in server's File System encoding
@@ -1887,9 +1891,11 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 		} else { $ext = end($filename_parts); }
 		
 		//Check $filename & $ext against white & black lists. If not to be shown, get next $filename...
-		if ($SHOWALLFILES || in_array($ext, $stypes)) { $SHOWTYPE = TRUE; } else { $SHOWTYPE = FALSE; }
-		if (in_array($filename, $excluded_list)) {$excluded = TRUE;} else {$excluded = FALSE;}
-		if ( !$SHOWTYPE || $excluded ) { continue; }
+		if (!is_dir($filename_OS)) {
+			if ($SHOWALLFILES || in_array($ext, $stypes)) { $SHOWTYPE = TRUE; } else { $SHOWTYPE = FALSE; }
+			if (in_array($filename, $excluded_list)) 	  { $excluded = TRUE; } else { $excluded = FALSE; }
+			if ( !$SHOWTYPE || in_array($filename, $excluded_list) ) { continue; }
+		}
 			
 		//Used to hide rename & delete options for active copy of OneFileCMS.
 		$IS_OFCMS = 0;
@@ -1897,7 +1903,7 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 		
 		//Set icon type based on if dir, or file type ($ext).
 		if (is_dir($filename_OS)) { $type = 'dir'; }
-		else {						$type = $fclasses[array_search($ext, $ftypes)]; }
+		else					  { $type = $fclasses[array_search($ext, $ftypes)]; }
 		
 		//Determine icon to show
 		if (in_array($type,$fclasses)) { $icon = $ICONS[$type];}
@@ -2634,7 +2640,7 @@ function MCD_Page($action, $page_title, $classes = '') {//**********************
 		
 		echo '<table class="verify '.$classes.'">';
 		echo '<tr><th>'.hsc($_['Selected_Files']).':</th></tr>'."\n";
-		foreach($full_list as $file) {
+		foreach ($full_list as $file) {
 			$file_OS = Convert_encoding($file);
 			if (is_dir($ipath_OS.$file_OS)) { echo '<tr><td>'.$ICONS['folder'].'&nbsp;'.hsc($file).' /</td></tr>'; }
 			else                            { echo '<tr><td>'                          .hsc($file).'</td></tr>'; }
@@ -2995,7 +3001,7 @@ function Display_Messages($msg, take_focus) {//***********************
 	var $page     = '<?php echo $page ?>';
 	var new_focus = '';
 	
-	take_focus = typeof new_focus == 'undefined' ? 0 : take_focus ;//default is X_box doesn't take focus()
+	take_focus = typeof new_focus == 'undefined' ? 0 : take_focus ;  //default is X_box doesn't take focus()
 
 	if      ($page == 'index') { new_focus = 'header_filename'; }
 	else if ($page == 'edit')  { new_focus = 'close1'; }
@@ -3003,7 +3009,7 @@ function Display_Messages($msg, take_focus) {//***********************
 	else if ($page == 'hash')  { new_focus = 'whattohash'; }
 	else if ($page == 'admin') { new_focus = 'close'; }
 
-	var $X_box		 = '<button tabindex=' + $tabindex_xbox + ' type=button id="X_box">x</button>';
+	var $X_box		 = '<button tabindex=' + $tabindex_xbox + ' type=button id=X_box>x</button>';
 	var $MESSAGE	 = '<div class=message_box_contents>' + $msg + '</div>';
 	var $message_box = document.getElementById("message_box");
 	var $new_focus	 = document.getElementById(new_focus)
@@ -3076,43 +3082,42 @@ function on_Tab_down(ID, FR,shifted) { //*****************************
 	//So, if current focus is ck_box, clear bg, else if we're heading there, set bg.
 	//Tab from L, Current ID will be "f<FR>c2"
 	//Tab from R: Current ID is "f<FR>"
-	var fFR   = "f" + FR        //Filename
+	var fFR   = "f" + FR + "c4" //Filename
 	var ckbox = "f" + FR + "c3" //[ ] Checkbox
 	var del   = "f" + FR + "c2" //(x) Delete
 
 	var ck_box = document.getElementById(ckbox);
-	var highlight = "rgb(255,250,150)";
+	var highlight1 = "rgb(255,250,150)";
+	var highlight2 = "rgb(255,240,140)";
 
 	if      (!shifted)  { //just Tab
 		if      (ID == ckbox) { ck_box.parentNode.style.backgroundColor = "";}
-		else if (ID == del  ) { ck_box.parentNode.style.backgroundColor = highlight; }
+		else if (ID == del  ) { ck_box.parentNode.style.backgroundColor = highlight2; }
 		else if (ID == "b6" ) { //[New Folder]
-			document.getElementById('select_all_ckbox').parentNode.style.backgroundColor = highlight;
-			document.getElementById('select_all_label').style.backgroundColor = highlight;
+			document.getElementById('select_all_ckbox').parentNode.style.backgroundColor = highlight1;
+			document.getElementById('select_all_label').style.backgroundColor = highlight1;
 		}
 		else if (ID == "select_all_ckbox" ) {
 			document.getElementById('select_all_label').style.backgroundColor = "";
-			document.getElementById('folders_first_ckbox').parentNode.style.backgroundColor = highlight;
-			document.getElementById('folders_first_label').style.backgroundColor = highlight;
+			document.getElementById('folders_first_ckbox').parentNode.style.backgroundColor = highlight1;
+			document.getElementById('folders_first_label').style.backgroundColor = highlight1;
 		}
-		return;
 	}
 	else if (shifted)  { //Shift-Tab
 		if       (ID == ckbox){ ck_box.parentNode.style.backgroundColor = "";}
-		else if ((ID == fFR) && (FR > 0) ) { ck_box.parentNode.style.backgroundColor = highlight; }
+		else if ((ID == fFR) && (FR > 0) ) { ck_box.parentNode.style.backgroundColor = highlight2; }
 		else if  (ID == "header_filename")  {
-			document.getElementById('folders_first_ckbox').parentNode.style.backgroundColor = highlight;
-			document.getElementById('folders_first_label').style.backgroundColor = highlight;
+			document.getElementById('folders_first_ckbox').parentNode.style.backgroundColor = highlight1;
+			document.getElementById('folders_first_label').style.backgroundColor = highlight1;
 		}
 		else if (ID == "folders_first_ckbox") {
 			document.getElementById('folders_first_label').style.backgroundColor = "";
-			document.getElementById('select_all_ckbox').parentNode.style.backgroundColor = highlight;
-			document.getElementById('select_all_label').style.backgroundColor = highlight;
+			document.getElementById('select_all_ckbox').parentNode.style.backgroundColor = highlight1;
+			document.getElementById('select_all_label').style.backgroundColor = highlight1;
 		}
-		return;
 	}
-
 }//end on_Tab_down() { //*********************************************
+
 
 
 
@@ -3120,39 +3125,45 @@ document.onkeydown = function(event) { //*****************************
 	//Control cursor keys to navigate index page. (Arrows, Page, Home, End)
 
 	var jump = <?php echo $PAGEUPDOWN ?>;//# of rows to jump with Page Up/Page Down.
-	var highlight = "rgb(255,250,150)";
+	var highlight1 = "rgb(255,250,150)";
+	var highlight2 = "rgb(255,240,140)";
 	
 	//Get key pressed...
 	if (!event) {var event = window.event;} //for IE
 	var key = event.keyCode;
 
 	//Assign a few handy "constants": Arrow U/D/L/R, Page Up/Down, etc... 
-	var AU = 38, AD = 40, AL = 37, AR = 39, PU = 33, PD = 34; END = 35, HOME = 36, ESC = 27, TAB = 9;
+	var AU = 38, AD = 40, AL = 37, AR = 39, PU = 33, PD = 34; END = 35, HOME = 36, ESC = 27, TAB = 9, ENTER = 13;
 	
 	//Ignore any other key presses...
 	if ((key != AU) && (key != AD) && (key != AL) && (key != AR) && (key != PU) && (key != PD) && 
-		(key != HOME) && (key != END) && (key != ESC) && (key != TAB)) { return }
+		(key != HOME) && (key != END) && (key != ESC) && (key != TAB) && (key != ENTER)) { return }
 
 	//File Rows. For these events, "../" is 0, and files are indexed 1 to DIRECTORY_ITEMS.
 	var FROWS     = DIRECTORY_ITEMS;
-	var LAST_FILE = "f" + FROWS;
+	var LAST_FILE = "f" + FROWS + "c4";
 
 	//Get id of current focus (before this event). If focus is in file list, ID = 'fn', or 'fnn', etc.
 	var ID      = document.activeElement.id;
 	var x_focus = ID.substr(0,1);
 
-	//(F)ile (R)ow = 0,1, ... FROWS
-	var FR = parseInt(ID.substr(1));
-	if (isNaN(FR) || (x_focus != "f")) {FR = -1;} //If not in file list...
+	//When ID=f00c0 (zeros mean any digit)
+	//FR: Digits after "f" are the (F)ile (R)ow    (0,1, ... FROWS)
+	//FC: Digit  after 'c' is  the (F)ile (C)olumn (0=move, 1=copy, 2=del, 3=ckbox)
+	var FR = parseInt(ID.substr(1));      if (isNaN(FR) || (x_focus != "f")) {FR = -1;} //If not in file list...
+	var FC = parseInt(ID.split('c')[1]);  if (isNaN(FC)) {FC = -1;}
 
-	//If current ID/element is checkbox, clear bgcolor of parent div (ckboxes don't have background colors).
-	var is_ckbox = (document.activeElement.type == "checkbox");
-	if (is_ckbox) {document.getElementById(ID).parentNode.style.backgroundColor = ""; }
+	if(key != ENTER) { //(ignore if ENTER since focus doesn't change.)
+		
+		//If current ID/element is checkbox, clear bgcolor of parent div (ckboxes don't have background colors).
+		var is_ckbox = (document.activeElement.type == "checkbox");
+		if (is_ckbox) {document.getElementById(ID).parentNode.style.backgroundColor = ""; }
+		
+		//Always clear these labels (simply losing focus() of their child checkboxes won't).
+		document.getElementById('select_all_label').style.backgroundColor = "";
+		document.getElementById('folders_first_label').style.backgroundColor = "";
+	}
 
-	//Always clear these labels (simply losing focus() of their child checkboxes won't).
-	document.getElementById('select_all_label').style.backgroundColor = "";
-	document.getElementById('folders_first_label').style.backgroundColor = "";
-	
 	//If no files in current folder, [Move][Copy][Delete] won't exist (id's b1 b2 b3). Use [New Folder] (id="b4").
 	if (document.getElementById("b2")) {var button_row = "b2"} else {var button_row = "b4"}
 
@@ -3175,28 +3186,49 @@ document.onkeydown = function(event) { //*****************************
 		
 		//Create array of the ID's of all tags with a tabindex. (All tabable elements should have a tabindex set.)
 		for (var x = 0; x < tag_count; x++) {
-			ti = all_tags[x].tabIndex;
+			var ti = all_tags[x].tabIndex;
 			if (ti > 0) { tabindex_IDs[ti] = all_tags[x].id; }
 		}
 	}
 
-	//PROCESS THE KEYDOWN EVENT... In general:
+	//PROCESS THE KEYDOWN EVENT... /////////////////////////////////////////////
+	//In general:
+	//  ENTER - enabled to check/unckeck checkboxes, and respond as needed.
 	//  Tab- handle checkbox's (parent <div>'s & <label>'s), otherwise allow default action.
 	//  Esc simply removes focus from active element.
-	//	Home toggles between [webroot]/current/path/ and [../] (first file is list)
+	//	Home toggles between [webroot]/current/path/ and [../] (first file in list)
 	//	End goes only to last file in list.
 	//	Arrow Up/Down will loop from (top to bottom)/(bottom to top) of page (no hard stops).
 	//  Page Up/Down will likewise loop thru page, with soft-stops at first/last filenames.
 	//  Arrow Left/Right will function similarly to Tab/Shift-Tab, but hard stop at first/last link on page.
 
-	if      (key == TAB)  { on_Tab_down(ID, FR, event.shiftKey); return; }
+	if (key == ENTER) {	
+		
+		if (ID == "select_all_ckbox") {
+			document.mcdselect.select_all.checked = !document.mcdselect.select_all.checked
+			Select_All();
+		}
+		else if (ID == "folders_first_ckbox") {
+			document.mcdselect.folders_first_ckbox.checked = !document.mcdselect.folders_first_ckbox.checked;
+			Sort_and_Show(SORT_by, SORT_order);
+		}
+		else if (FC == 3) {  //Is focus on a checkbox next to a file name?
+			document.getElementById(ID).checked = !document.getElementById(ID).checked;
+		}
+		
+		return;
+	}
+	else if (key == TAB)  {
+		on_Tab_down(ID, FR, event.shiftKey);
+		return;
+	}
 	else if (key == ESC)  { document.activeElement.blur();    return; }
-	else if (key == END)  { if (ID != LAST_FILE) {ID = LAST_FILE} else {return} }
+	else if (key == END)  { if (ID != LAST_FILE) {ID = LAST_FILE;} else {return} }
 	else if (key == HOME) {
-		if      (ID == "f0")     {ID = "path_0"}
-		else if (ID == "path_0") {ID = "f0"}
-		else if (FR  > 0)        {ID = "f0";}
-		else					 {ID = "path_0"}
+		if      (FR == 0)        {ID = "path_0";}
+		else if (ID == "path_0") {ID = "f0c4";}
+		else if (FR  > 0)        {ID = "f0c4";}
+		else					 {ID = "path_0";}
 	}
 	else if (key == AL) {
 		//Find first tab-able element to the left (usually just (focus_tabindex - 1))
@@ -3213,45 +3245,62 @@ document.onkeydown = function(event) { //*****************************
 	else if (ID == "admin") {
 		if      (key == AU) {ID = LAST_FILE}
 		else if (key == PU) {ID = LAST_FILE}
+		else if (key == AD) {ID = "logo"}
+		else if (key == PD) {ID = "logo"}
+	}
+	else if ((ID == "logo")|| (ID == "on_php") || (ID == "website") || (ID == "logout")) {
+		if      (key == AU) {ID = "admin"}
+		else if (key == PU) {ID = "admin"}
 		else if (key == AD) {ID = "path_0"}
-		else if (key == PD) {ID = "path_0"}
+		else if (key == PD) {ID = "f0c4"}
+	}
+	else if (ID == "X_box") {
+		if      (key == AU)   {ID = "path_0"}
+		else if (key == PU)   {ID = "logo"}
+		else if (key == AD)   {ID = button_row}
+		else if (key == PD)   {ID = "f0c4"}
 	}
 	else if (x_focus == 'p') { //In path_header: webroot/current/path/
-		if      (key == AU)   {ID = LAST_FILE}
-		else if (key == PU)   {ID = LAST_FILE}
+		if      (key == AU)   {ID = "logo"}
+		else if (key == PU)   {ID = "logo"}
 		else if (key == AD)   {ID = button_row}
-		else if (key == PD)   {ID = "f0"}
+		else if (key == PD)   {ID = "f0c4"}
 	}
 	else if (x_focus == "b") { //[Move][Copy][Delete]  [New Folder][New File][Upload File]
 		if 		(key == AU) {ID = "path_0"		   }
 		else if (key == PU) {ID = "path_0"		   }
 		else if (key == AD) {ID = "header_filename"}
-		else if (key == PD) {ID = "f0"			   }
+		else if (key == PD) {ID = "f0c4"		   }
 	}
 	else if (focus_header) { //Table header row
 		if      (key == AU) {ID = button_row}
 		else if (key == PU) {ID = "path_0"}
-		else if	(key == AD) {ID = "f0"}
-		else if	(key == PD) {FR += jump; if (FR < FROWS) {ID = "f" + FR} else {ID = LAST_FILE}}
+		else if	(key == AD) {ID = "f0c4"}
+		else if	(key == PD) {FR += jump; if (FR < FROWS) {ID = "f" + FR + "c4"} else {ID = LAST_FILE}}
 	}
-	else if ((FROWS == 0) && (key == PD) && (ID == 'f0')) {ID = "path_0"} //no files, only "../"
-	else if (FR == 0) { //First row
+	else if ((FR == 0) && (FROWS == 0)) { //empty folder
 		if		(key == AU) {ID = "header_filename"}
 		else if	(key == PU) {ID = "path_0"}
-		else if (key == AD) {FR++      ; if (FR <= FROWS) {ID = "f" + FR} else {ID = "path_0";}  }
-		else if (key == PD) {FR += jump; if (FR <= FROWS) {ID = "f" + FR} else {ID = LAST_FILE;} }
+		else if (key == AD) {ID = "admin";}
+		else if (key == PD) {ID = "admin";}
 	}
-	else if (FR == FROWS) { //Last row
-		if		(key == AU) { FR--      ; if (FR >= 0) {ID = "f" + FR} else {ID = "header_filename" } }
-		else if	(key == PU) { FR -= jump; if (FR >= 0) {ID = "f" + FR} else {ID = "f0"} }
-		else if (key == AD) { ID = "path_0" }
-		else if (key == PD) { ID = "path_0" }
+	else if (FR == FROWS) { //Last row (FROWS is the number of files listed)
+		if		(key == AU) { FR--      ; if (FR >= 0) {ID = "f" + FR + "c" + FC} else {ID = "header_filename" } }
+		else if	(key == PU) { FR -= jump; if (FR >= 0) {ID = "f" + FR + "c" + FC} else {ID = "f0c4"} }
+		else if (key == AD) { ID = "admin" }
+		else if (key == PD) { ID = "admin" }
+	}
+	else if (FR == 0) { //FR (File Row) is in the first row of files
+		if		(key == AU) {ID = "header_filename"}
+		else if	(key == PU) {ID = "path_0"}
+		else if (key == AD) {FR++      ; if (FR <= FROWS) {ID = "f" + FR + "c" + FC} else {ID = "path_0";}  }
+		else if (key == PD) {FR += jump; if (FR <= FROWS) {ID = "f" + FR + "c" + FC} else {ID = LAST_FILE;} }
 	}
 	else if (FR > 0){ //Middle rows...
-		if		(key == AU) { FR--;							ID = "f" + FR						  }
-		else if	(key == PU) { FR -= jump; if (FR >= 0)     {ID = "f" + FR} else {ID = "f0"}	  	  }
-		else if (key == AD) { FR++; 	  if (FR <= FROWS) {ID = "f" + FR} else {ID = "path_0"; } }
-		else if (key == PD) { FR += jump; if (FR <= FROWS) {ID = "f" + FR} else {ID = LAST_FILE;} }
+		if		(key == AU) { FR--      ; if (FR == 0) {FC=4} ID = "f" + FR + "c" + FC;	}
+		else if	(key == PU) { FR -= jump; if (FR >= 0)      { ID = "f" + FR + "c" + FC} else {ID = "f0c4"}	 }
+		else if (key == AD) { FR++; 	  if (FR <= FROWS)  { ID = "f" + FR + "c" + FC} else {ID = "path_0"; } }
+		else if (key == PD) { FR += jump; if (FR <= FROWS)  { ID = "f" + FR + "c" + FC} else {ID = LAST_FILE;} }
 	}
 	else if (FR == -1) {ID = "path_0"}     //Anyplace other than path_header, buttons, table
 	else {
@@ -3265,9 +3314,9 @@ document.onkeydown = function(event) { //*****************************
 	document.getElementById(ID).focus();
 
 	//If new ID/element is checkbox, set bgcolor of parent div & it's label (ckboxes don't have background colors).
-	if (document.activeElement.type == "checkbox") {document.getElementById(ID).parentNode.style.backgroundColor = highlight;}
-	if (ID == "select_all_ckbox")    {document.getElementById('select_all_label').style.backgroundColor = highlight;}
-	if (ID == "folders_first_ckbox") {document.getElementById('folders_first_label').style.backgroundColor = highlight;}
+	if (document.activeElement.type == "checkbox") {document.getElementById(ID).parentNode.style.backgroundColor = highlight2;}
+	if (ID == "select_all_ckbox")    {document.getElementById('select_all_label').style.backgroundColor = highlight1;}
+	if (ID == "folders_first_ckbox") {document.getElementById('folders_first_label').style.backgroundColor = highlight1;}
 	
 	//Prevent default browser scrolling via arrow & Page keys, so focus()'d element stays visible/in view port.
 	//(A few exceptions skip this via a return in the above  if/else's.)
@@ -3344,7 +3393,7 @@ function sort_DIRECTORY(col, direction) {//***************************
 	//sort DIRECTORY_DATA[] by col and direction
 	
 	//col: 1 for "file name", 2 for filesize, 3 for timestamp, 5 for "ext"
-	//derection: 0 = desending, 1 = ascending, 2 = flip, 3 = flip only if new col != SORT_by
+	//direction: 0 = desending, 1 = ascending, 2 = flip, 3 = flip only if new col != SORT_by
 
 	//SORT_by, SORT_order, and SORT_folders_1st: values set by prior (or initial) sort.
 
@@ -3481,7 +3530,7 @@ function Build_Directory() {//****************************************
 		}
 		
 		//For file, (TABINDEX + 4) to account for [m][c][d][x] which are added in Assemble_Insert_Row()
-		var file_name  = '<a id=f'+(row + 1)+' tabindex='+ (TABINDEX + 4) +' href="' + href  + '"'; 
+		var file_name  = '<a id=f'+(row + 1)+'c'+4+ ' tabindex='+ (TABINDEX + 4) +' href="' + href  + '"'; 
 			file_name += ' title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
 			file_name += ICONS[filetype] + '&nbsp;' + hsc(filename) + DS + '</a>';
 		var file_time  = FileTimeStamp(filetime, 1, 0, 0);
@@ -3534,7 +3583,8 @@ function Sort_and_Show(col, direction) {//****************************
 		DELAY = <?php echo $DELAY_Sort_and_Show_msgs ?>;
 	}
 
-	setTimeout( function () { //setTimeout() needed so 'Working' message will actually get displayed *before* the sort.
+	//setTimeout() needed so 'Working' message will actually get displayed *before* the sort.
+	setTimeout( function () {
 		sort_DIRECTORY(col, direction); //Sort DIRECTORY_DATA
 		Build_Directory();
 		document.getElementById('DIRECTORY_FOOTER').innerHTML = Directory_Summary();
@@ -3555,7 +3605,7 @@ function Select_All() {//********************************************
 	var files = document.mcdselect.elements['files[]'];
 	var last  = files.length; //number of files
 	var select_all = document.mcdselect.select_all;
-	
+
 	if (select_all.checked) {
 		$select_all_label.innerHTML = '<?php echo hsc($_['Clear_All']) ?>';
 	}else{
@@ -3569,7 +3619,7 @@ function Select_All() {//********************************************
 
 
 function Confirm_Submit(action) {//***********************************
-	
+
 	var files = document.mcdselect.elements['files[]'];
 	var last  = files.length;   //number of files
 	var no_files = true;
@@ -3647,13 +3697,13 @@ if ( Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>' ) {
 }
 
 //These elements do not exist if file is not editable, or maybe if in WYSIWYG mode.
-if (View_Raw_button)    { View_Raw_button.onclick  = function ()   {window.open(onclick_params + 'raw_view'); } }
-if (Wide_View_button)   { Wide_View_button.onclick = function ()   {Wide_View();}    }
-if (Save_File_button)   { Save_File_button.onclick = function ()   {submitted=true;} }
-if (WYSIWYG_button  )   { WYSIWYG_button.onclick = function ()     {<?php echo $WYSIWYG_onclick ?>} }
+if (View_Raw_button)    { View_Raw_button.onclick 	 = function () {window.open(onclick_params + 'raw_view'); } }
+if (Wide_View_button)   { Wide_View_button.onclick 	 = function () {Wide_View();}    }
+if (Save_File_button)   { Save_File_button.onclick 	 = function () {submitted=true;} }
+if (WYSIWYG_button  )   { WYSIWYG_button.onclick 	 = function () {<?php echo $WYSIWYG_onclick ?>} }
 if (Rename_File_button) { Rename_File_button.onclick = function () {parent.location = onclick_params + 'renamefile';} }
 if (Delete_File_button) { Delete_File_button.onclick = function () {parent.location = onclick_params + 'deletefile';} }
-if (File_textarea)      { File_textarea.onkeyup = function(event)  {Check_for_changes(event);} }
+if (File_textarea)      { File_textarea.onkeyup 	 = function(event) {Check_for_changes(event);} }
 
 
 
@@ -4032,12 +4082,12 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 /*** Directory list file select boxes ***/
 /*ckbox is assigned to <div>'s etc that contain <input type=checkbox>*/
 .ckbox        {padding: 4px 4px 2px 4px; display: inline-block;}
-.ckbox:hover  {background-color: rgb(255,240,100);} 
+.ckbox:hover  {background-color: rgb(255,240,140);} 
 .ckbox:active {background-color: rgb(245,245, 50);}
 
 /* Slightly darker colors for [m][c][d] file options since they are small & less noticable*/
-.MCD:hover  {background-color: rgb(255,240,100);}
-.MCD:focus  {background-color: rgb(250,240,100);}
+.MCD:hover  {background-color: rgb(255,240,140);}
+.MCD:focus  {background-color: rgb(255,240,140);}
 .MCD:active {background-color: rgb(245,245, 50);}
 
 
@@ -4324,7 +4374,7 @@ hr { /*-- -- -- -- -- -- --*/
 input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 #new_location {border-left: none;}
 
-#del_backup   { margin: 0; padding: 2px 5px}
+#del_backup   { margin: 0; padding: 2px 5px; border: 1px solid transparent;}
 
 /*** For old IE only: text "icons" for Rename, Copy, and Delete ***/
 .RCD1  {font: 900 7pt arial; padding: 0px 3px 0px 3px; margin: 0px; float: left}
@@ -4481,7 +4531,7 @@ header('Content-type: text/html; charset=UTF-8');
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="robots" content="noindex">
 <?php
-echo '<title>'.hsc($config_title.' - '.Page_Title()).'</title>'."\n";
+echo '<title>'.hsc($MAIN_TITLE.' - '.Page_Title()).'</title>'."\n";
 
 Load_style_sheet();
 
@@ -4493,6 +4543,7 @@ Error_reporting_status_and_early_output(0,0); //0,0 will only show early output.
 
 if ($_SESSION['valid']) { echo '<div id="main" >'; }
 else                    { echo '<div id="login_page">'; }
+
 
 Page_Header();
 

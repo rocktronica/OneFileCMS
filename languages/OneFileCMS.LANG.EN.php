@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.5.11
+// OneFileCMS Language Settings v3.5.18
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -25,7 +25,7 @@ $_['button_padding']         = '4px 7px 4px 7px'; //T R B L
 $_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
-$_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All'] //Not used as of 3.4.23
+$_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All']
 
 $_['HTML']    = 'HTML';
 $_['WYSIWYG'] = 'WYSIWYG';
@@ -61,7 +61,7 @@ $_['Password'] = 'Password';
 $_['Rename']   = 'Rename';
 $_['reset']    = 'Reset';
 $_['save_1']   = 'Save';
-$_['save_2']   = 'SAVE CHANGES'; //#### removed '!' in 3.5.07
+$_['save_2']   = 'SAVE CHANGES';
 $_['Size']     = 'Size';
 $_['Source']   = 'Source';
 $_['successful'] = 'successful';
@@ -209,7 +209,7 @@ $_['confirm_reset']   = 'Reset file and loose unsaved changes?';
 $_['OFCMS_requires']  = 'OneFileCMS requires PHP';
 $_['logout_msg']      = 'You have successfully logged out.';
 $_['edit_caution_01'] = 'CAUTION'; //##### No longer used as of 3.5.07
-$_['edit_caution_02'] = 'You are viewing the active copy of OneFileCM.'; //## NT ## changed wording 3.5.07
+$_['edit_caution_02'] = 'You are viewing the active copy of OneFileCMS.'; //## NT ## changed wording 3.5.07
 $_['time_out_txt']    = 'Session time out in:';
 
 $_['error_reporting_01'] = 'Display errors is';
@@ -223,7 +223,7 @@ $_['admin_txt_00'] = 'Old Backup Found';
 $_['admin_txt_01'] = 'A backup file was created in case of an error during a username or password change. Therefore, it may contain old information and should be deleted if not needed. In any case, it will be automatically overwritten on the next password or username change.';
 $_['admin_txt_02'] = 'General Information';
 $_['admin_txt_14'] = 'For a small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep them secret, of course). Every little bit helps...';
-$_['admin_txt_16'] = 'OneFileCMS can not be used to edit itself directly.  However, you can make a copy & edit it.  Then simply run the copy.'; //## NT ## Changed wording in 3.5.07
+$_['admin_txt_16'] = 'OneFileCMS can not be used to edit itself directly.  However, you can make a copy and edit it.'; //## NT ## Changed wording in 3.5.07
 
 $_['pw_current'] = 'Current Password';
 $_['pw_change']  = 'Change Password';

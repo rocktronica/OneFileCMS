@@ -83,12 +83,12 @@ You can also change the file name from "onefilecms.php" to something else, such 
 
 ### <a name=language></a>Multi-Language Support?
 
-Yes!  While English (EN) is the default - German (DE), Spanish (ES), Dutch (NL), and Russian (RU) are also available.
+Yes!  While English (EN) is the default, the following laguages are also available:
 
-- German (Deutsch) courtesy of [codeless](http://github.com/codeless).
-- Spanish (Espanõla) courtesy of [fermuch](http://github.com/fermuch).
-- Dutch (Nederlands) courtesy of [symsec](http://github.com/symsec).  
-- Russian courtesy of [zaykin](https://github.com/zaykin).  
+- Deutsch (DE) courtesy of [codeless](http://github.com/codeless).
+- Espanõla (ES) courtesy of [fermuch](http://github.com/fermuch).
+- Nederlands (NL) courtesy of [symsec](http://github.com/symsec).  
+- Pусский (RU) courtesy of [zaykin](https://github.com/zaykin).  
 
 If you speak another language and would like to contribute, translations are welcomed and appreciated!  Just use the English language file (or any of the others) as a template, and translate each word, phrase, etc., as appropriate.
 
@@ -100,13 +100,13 @@ I may not have the time/bandwidth/inclination to implement every feature, but I 
 
 ### <a name=multiuser></a>Can I have more than one username/password?
 
-Yes!  Well, sort of... indirectly.  Upload or create additional copies of OneFileCMS, but give them different file names.(ex: OneFile1.php and OneFile2.php etc...)  Then, in each copy, maintain different usernames, passwords, and $session_name config values.  
+Yes!  Well, sort of... indirectly.  Upload or create additional copies of OneFileCMS, but give them different file names.(ex: OneFile1.php and OneFile2.php etc...)  Then, in each copy, maintain different usernames, passwords, and $session\_name config values.  
   
 Now, since there is no database or other means of granular control or access logging, multiple usernames provides limited utility.  However, having at least one working backup copy of OneFileCMS available is recommended in case the primary copy gets corrupted.
 
 ### <a name=handsaw></a>This is basically just a file manager with a text editor- why is it being called a CMS?
 
-Because it is. It may be simple, but it can get the job done.  While you wouldn't want to build a new house from the ground up with just a hammer, hand saw, and tape measure, you can "manage" quite a bit with just those tools.  
+Because it is. It may be simple, but it can get the job done.  While you wouldn't want to build a new house from the ground up with just a hammer, saw, and tape measure, you can "manage" quite a bit with just those tools.  
 
 And, because "OneFileCMS" sounds cool.
 
@@ -130,7 +130,7 @@ OneFileCMS can be easily configured to work with [TinyMCE](http://tinymce.moxiec
 
 - If you need to upload a lots of files, an FTP program may be a bit more flexible & practicle.
 
-- Directories with hundreds of files can take a several seconds to display.  For instance, on my system- a 2.5gz desktop running XP, it takes 2 to 4 seconds to display a directory with 200 files.
+- Directories with hundreds of files can take several seconds to display.  For instance, on my system- a 2.5gz desktop running XP, it takes 2 to 4 seconds to display a directory with 200 files.
 
 - OneFileCMS would not be the best option for a site that requires different levels of privileges, unless all of the users are trusted to stay within their designated areas of responsibility. Since OneFileCMS allows file uploads and editing files directly on the web server, there is simply no way to secure against any particular action.  
 
