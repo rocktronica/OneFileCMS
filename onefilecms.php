@@ -1,8 +1,8 @@
-<?php ob_start(); mb_internal_encoding('utf-8');  $message = ""; //initialize $message here so can .= at any point later.
+<?php ob_start(); mb_internal_encoding('utf-8');  $MESSAGE = ""; //initialize $MESSAGE here so can .= at any point later.
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.18';
+$OFCMS_version = '3.5.19';
 
 
 
@@ -94,12 +94,15 @@ $SALT     = 'somerandomsalt';
 
 $MAX_ATTEMPTS  = 3;    //Max failed login attempts before LOGIN_DELAY starts.
 $LOGIN_DELAY   = 10;   //In seconds.
-$MAX_IDLE_TIME = 60000;//600;  //In seconds. 600 = 10 minutes.  Other PHP settings (like gc) may limit its max effective value.
+$MAX_IDLE_TIME = 600;  //In seconds. 600 = 10 minutes.  Other PHP settings (like gc) may limit its max effective value.
 $TO_WARNING    = 120;  //In seconds. When idle time remaining is less than this value, a TimeOut warning is displayed.
 $LOG_LOGINS    = true; //Keep log of login attempts.
 
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.          Can be px, pt, em, or %.  Assumes px otherwise.
 $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked.  Can be px, pt, em, or %.  Assumes px otherwise.
+
+$WORD_WRAP = "on"; //"on" or (anything else) =="off".  Word-wrap state on page load of edit page. Once on page, word-wrap can toggle on/off.
+$TAB_SIZE  = 8;    //Some browsers recognize a css tab-size. Some don't.  If your's doesn't, LEAVE AT 8.  (IE/Edge, as of mid-2016)
 
 $MAX_EDIT_SIZE = 200000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
 $MAX_VIEW_SIZE = 1000000; // If file > $MAX_EDIT_SIZE, don't even view in OneFileCMS.
@@ -127,7 +130,7 @@ $FILE_TYPES = "bin,z,gz,7z,zip,jpg,gif,png,bmp,ico,svg,asp,cfg,conf,csv,css,dtd,
 //Cooresponding file classes to _ftypes - used to determine icons for directory listing.
 $FILE_CLASSES = "bin,z,z ,z ,z  ,img,img,img,img,img,svg,txt,txt,cfg ,txt,css,txt,htm,htm ,htm  ,txt     ,txt,txt,txt,txt   ,txt,php,php,txt,txt";
 
-$EX = '<b>( ! )</b> '; //EXclaimation point "icon" Used in $message's
+$EX = '<b>( ! )</b> '; //EXclaimation point "icon" Used in $MESSAGE's
 
 $PAGEUPDOWN = 10; //Number of rows to jump using Page Up/Page Down keys on directory listing.
 
@@ -171,12 +174,12 @@ function System_Setup() {//*****************************************************
 global $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS, $LOGIN_DELAYED, 
 	$MAIN_WIDTH, $WIDE_VIEW_WIDTH, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $EXCLUDED_FILES, 
 	$EDIT_FILES, $SHOW_FILES, $SHOW_IMGS, $FILE_TYPES, $FILE_CLASSES, 
-	$SHOWALLFILES, $etypes, $stypes, $itypes, $ftypes, $fclasses, $excluded_list, 
+	$SHOWALLFILES, $ETYPES, $STYPES, $ITYPES, $FTYPES, $FCLASSES, $EXCLUDED_LIST, 
 	$LANGUAGE_FILE, $ACCESS_ROOT, $ACCESS_ROOT_len, $WYSIWYG_PLUGIN, $WYSIWYG_VALID, $WYSIWYG_PLUGIN_OS, 
 	$INVALID_CHARS, $WHSPC_SLASH, $VALID_PAGES, $LOGIN_LOG_url, $LOGIN_LOG_file,
 	$ONESCRIPT,  $ONESCRIPT_file, $ONESCRIPT_backup, $ONESCRIPT_file_backup, 
 	$CONFIG_backup, $CONFIG_FILE, $CONFIG_FILE_backup, $VALID_CONFIG_FILE, 
-	$DOC_ROOT, $DOC_ROOT_OS, $WEB_ROOT, $WEBSITE, $PRE_ITERATIONS, $EX, $message, $ENC_OS,
+	$DOC_ROOT, $DOC_ROOT_OS, $WEB_ROOT, $WEBSITE, $PRE_ITERATIONS, $EX, $MESSAGE, $ENC_OS,
 	$DELAY_Expired_Reload, $DELAY_Sort_and_Show_msgs, $DELAY_Start_Countdown, $DELAY_final_messages, $MIN_DIR_ITEMS;
 
 //Requires PHP 5.1 or newer, due to changes in explode() (and maybe others).
@@ -234,7 +237,7 @@ if (isset($CONFIG_FILE)) {
 		$CONFIG_FILE_backup = $CONFIG_FILE.'-BACKUP.txt';                 //used for p/w & u/n updates.
 	}
 	else {
-		$message .= $EX.'<b>$CONFIG_FILE '.hsc($_['Not_found']).':</b> '.$CONFIG_FILE.'<br>';
+		$MESSAGE .= $EX.'<b>$CONFIG_FILE '.hsc($_['Not_found']).':</b> '.$CONFIG_FILE.'<br>';
 		$CONFIG_FILE = $CONFIG_FILE_OS = '';
 	}
 }
@@ -260,7 +263,7 @@ if (!isset($ACCESS_ROOT)) { $ACCESS_ROOT = ''; } //At least make sure it's set.
 $ACCESS_ROOT_OS = Convert_encoding($ACCESS_ROOT);
 
 if (!is_dir($DOC_ROOT_OS.$ACCESS_ROOT_OS) || (Check_path($ACCESS_ROOT,1) === false) ) {
-	$message .= __LINE__.$EX.'<b>$ACCESS_ROOT '.hsc($_['Invalid_path']).': </b>'.$ACCESS_ROOT.'<br>';
+	$MESSAGE .= __LINE__.$EX.'<b>$ACCESS_ROOT '.hsc($_['Invalid_path']).': </b>'.$ACCESS_ROOT.'<br>';
 	$ACCESS_ROOT = $ACCESS_ROOT_OS = '';
 }
 if ($ACCESS_ROOT != '') {
@@ -280,14 +283,14 @@ $VALID_PAGES = array("login","logout","admin","hash","changepw","changeun","inde
 
 //Make arrays out of a few config variables for actual use later.
 //First, remove spaces and make lowercase (for *types).
-$SHOWALLFILES = $stypes = false;
+$SHOWALLFILES = $STYPES = false;
   if ($SHOW_FILES == '*') { $SHOWALLFILES = true; }
-  else { $stypes   = explode(',', mb_strtolower(str_replace(' ', '', $SHOW_FILES))); }//shown file types
-$etypes   = explode(',', mb_strtolower(str_replace(' ', '', $EDIT_FILES)));   //editable file types
-$itypes   = explode(',', mb_strtolower(str_replace(' ', '', $SHOW_IMGS)));    //images types to display
-$ftypes   = explode(',', mb_strtolower(str_replace(' ', '', $FILE_TYPES)));   //file types with icons
-$fclasses = explode(',', mb_strtolower(str_replace(' ', '', $FILE_CLASSES))); //for file types with icons
-$excluded_list = explode(',', str_replace(' ', '', $EXCLUDED_FILES));
+  else { $STYPES   = explode(',', mb_strtolower(str_replace(' ', '', $SHOW_FILES))); }//shown file types
+$ETYPES   = explode(',', mb_strtolower(str_replace(' ', '', $EDIT_FILES)));   //editable file types
+$ITYPES   = explode(',', mb_strtolower(str_replace(' ', '', $SHOW_IMGS)));    //images types to display
+$FTYPES   = explode(',', mb_strtolower(str_replace(' ', '', $FILE_TYPES)));   //file types with icons
+$FCLASSES = explode(',', mb_strtolower(str_replace(' ', '', $FILE_CLASSES))); //for file types with icons
+$EXCLUDED_LIST = explode(',', str_replace(' ', '', $EXCLUDED_FILES));
 
 
 //A few variables for values that were otherwise hardcoded in js. 
@@ -312,7 +315,7 @@ $PRE_ITERATIONS = 1000;
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.5.18
+// OneFileCMS Language Settings v3.5.19
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -334,7 +337,7 @@ $_['front_links_margin_L']   = '1.0em';
 $_['MCD_margin_R']           = '1.0em';  //[Move] [Copy] [Delete] buttons
 $_['button_font_size']       = '0.9em';  //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
-$_['button_padding']         = '4px 7px 4px 7px'; //T R B L
+$_['button_padding']         = '4px 4px 4px 4px'; //T R B L
 $_['image_info_font_size']   = '1em';    //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';       //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';  //Font size of $_['Select_All']
@@ -368,6 +371,7 @@ $_['Move']     = 'Move';
 $_['Moved']    = 'Moved';
 $_['Name']     = 'Name';
 $_['on']       = 'on';
+$_['off']      = 'off';  //## NT ## as of 3.5.19
 $_['Password'] = 'Password';
 $_['Rename']   = 'Rename';
 $_['reset']    = 'Reset';
@@ -390,6 +394,7 @@ $_['Open_View']      = 'Open/View in browser window';
 $_['Edit_View']      = 'Edit / View';
 $_['Wide_View']      = 'Wide View';
 $_['Normal_View']    = 'Normal View';
+$_['Word_Wrap']	 	 = 'Word Wrap';	//## NT ## as of 3.5.19
 $_['Upload_File']    = 'Upload File';
 $_['New_File']       = 'New File';
 $_['Ren_Move']       = 'Rename / Move';
@@ -613,7 +618,7 @@ function Session_Startup() {//**************************************************
 
 
 function Verify_IDLE_POST_etc() {//*********************************************
-	global $_, $page, $EX, $message, $VALID_POST, $MAX_IDLE_TIME;
+	global $_, $page, $EX, $MESSAGE, $VALID_POST, $MAX_IDLE_TIME;
 
 	//Verify consistant user agent. This is set during login. (every little bit helps every little bit)
 	if ( !isset($_SESSION['user_agent']) || ($_SESSION['user_agent'] != $_SERVER['HTTP_USER_AGENT']) ) { Logout(); }
@@ -623,7 +628,7 @@ function Verify_IDLE_POST_etc() {//*********************************************
 		$idle_time = ( time() - $_SESSION['last_active_time'] );
 		if ( $idle_time > $MAX_IDLE_TIME ) {
 			Logout();
-			$message .= hsc($_['verify_msg_01']).'<br>';
+			$MESSAGE .= hsc($_['verify_msg_01']).'<br>';
 			return;
 		}
 	}
@@ -637,7 +642,7 @@ function Verify_IDLE_POST_etc() {//*********************************************
 		}else{ //If it exists but doesn't match - something's wrong. Probably a page reload.
 			$page  = "index";
 			$_POST = "";
-			$message .= $EX.'<b>'.hsc($_['verify_msg_02']).'</b><br>';
+			$MESSAGE .= $EX.'<b>'.hsc($_['verify_msg_02']).'</b><br>';
 		}
 	}
 }//end Verify_IDLE_POST_etc() //************************************************
@@ -761,7 +766,7 @@ function undo_magic_quotes() {//************************************************
 
 
 function Validate_params() {//**************************************************
-	global $_, $ipath, $filename, $page, $param1, $param2, $param3, $IS_OFCMS, $EX, $message;
+	global $_, $ipath, $filename, $page, $param1, $param2, $param3, $IS_OFCMS, $EX, $MESSAGE;
 
 	//Pages that require a valid $filename
 	$file_pages = array("edit", "renamefile", "copyfile", "deletefile");
@@ -786,7 +791,7 @@ function Validate_params() {//**************************************************
 
 function Valid_Path($path, $gotoroot=true) {//**********************************
 	//$gotoroot: if true, return to index page of $ACCESS_ROOT.
-	global  $ipath, $ipath_OS, $filename, $param1, $param2, $param3, $ACCESS_ROOT, $ACCESS_ROOT_len, $message;
+	global  $ipath, $ipath_OS, $filename, $param1, $param2, $param3, $ACCESS_ROOT, $ACCESS_ROOT_len, $MESSAGE;
 	
 	//Limit access to the folder $ACCESS_ROOT:
 	//$ACCESS_ROOT = some/root/path/
@@ -827,9 +832,9 @@ function Valid_Path($path, $gotoroot=true) {//**********************************
 
 
 function Get_GET() {//**** Get URL passed parameters ***************************
-	global $_, $ipath, $ipath_OS, $filename, $filename_OS, $page, $VALID_PAGES, $EX, $message;
+	global $_, $ipath, $ipath_OS, $filename, $filename_OS, $page, $VALID_PAGES, $EX, $MESSAGE;
 	// i=some/path/,  f=somefile.xyz,          p=somepage,  m=somemessage
-	// $ipath = i  ,  $filename = $ipath.f  ,  $page = p ,  $message
+	// $ipath = i  ,  $filename = $ipath.f  ,  $page = p ,  $MESSAGE
 	//   (NOTE: in some functions $filename = just the file's name, ie: $_GET['f'], with no path/)
 	//#####  (Normalize $filename program-wide??)
 	// Perform initial, basic, validation.
@@ -848,27 +853,27 @@ function Get_GET() {//**** Get URL passed parameters ***************************
 	
 	$filename_OS = Convert_encoding($filename);
 	if ( ($filename != "") && !is_file($filename_OS)  ) {
-		$message .= $EX.'<b>'.hsc($_['get_get_msg_01']).'</b> ';
-		$message .= hsc(dir_name($filename)).'<b>'.hsc(basename($filename)).'</b><br>';
+		$MESSAGE .= $EX.'<b>'.hsc($_['get_get_msg_01']).'</b> ';
+		$MESSAGE .= hsc(dir_name($filename)).'<b>'.hsc(basename($filename)).'</b><br>';
 		$filename = $filename_OS = "";
 	}
 
 	//Initialize & validate $page
 	if (isset($_GET["p"])) { $page = $_GET["p"]; } else { $page = "index"; }
 	if (!in_array($page, $VALID_PAGES)) {
-		$message .= $EX.hsc($_['get_get_msg_02']).' <b>'.hsc($page).'</b><br>';
+		$MESSAGE .= $EX.hsc($_['get_get_msg_02']).' <b>'.hsc($page).'</b><br>';
 		$page = "index";  //If invalid $_GET["p"]
 	}
 	
 	//Sanitize any message. Initialized on line 1 / top of this file.
-	if (isset($_GET["m"])) { $message .= hsc($_GET["m"]); }
+	if (isset($_GET["m"])) { $MESSAGE .= hsc($_GET["m"]); }
 }//end Get_GET() //*************************************************************
 
 
 
 
 function Verify_Page_Conditions() {//*******************************************
-	global $_, $ONESCRIPT_file, $ipath, $ipath_OS, $param1, $filename, $filename_OS, $page, $EX, $message, 
+	global $_, $ONESCRIPT_file, $ipath, $ipath_OS, $param1, $filename, $filename_OS, $page, $EX, $MESSAGE, 
 			$VALID_POST, $IS_OFCMS;
 
 	//If exited admin pages, restore $ipath 
@@ -887,7 +892,7 @@ function Verify_Page_Conditions() {//*******************************************
 		
 	elseif ( $page == "logout" ) {
 		Logout();
-		$message .= hsc($_['logout_msg']);
+		$MESSAGE .= hsc($_['logout_msg']);
 	}
 	//Don't load rename or delete folder pages at webroot.
 	elseif ( ($page == "deletefolder" || $page == "renamefolder") && ($ipath == "") ) {
@@ -910,7 +915,7 @@ function Verify_Page_Conditions() {//*******************************************
 	}
 	//if size of $_POST > post_max_size, PHP only returns empty $_POST & $_FILE arrays.
 	elseif ( ($page == "uploaded") && !$VALID_POST ) {
-		$message .= $EX.'<b> '.hsc($_['upload_error_01a']).' '.ini_get('post_max_size').'</b> '.hsc($_['upload_error_01b']).'<br>';
+		$MESSAGE .= $EX.'<b> '.hsc($_['upload_error_01a']).' '.ini_get('post_max_size').'</b> '.hsc($_['upload_error_01b']).'<br>';
 		$page = "index";
 	}
 	
@@ -967,7 +972,7 @@ function dir_name($path) {//****************************************************
 function Check_path($path, $show_msg = false) {//*******************************
 	// check for invalid characters & "dot" or "dot dot" path segments.
 	// Does NOT check if exists - only if of valid construction.
-	global  $_, $message, $EX, $INVALID_CHARS, $WHSPC_SLASH;
+	global  $_, $MESSAGE, $EX, $INVALID_CHARS, $WHSPC_SLASH;
 
 	$path = str_replace('\\','/',$path);   //Make sure all forward slashes.
 	$path = trim($path, $WHSPC_SLASH);     // trim whitespace & slashes
@@ -999,7 +1004,7 @@ function Check_path($path, $show_msg = false) {//*******************************
 	}
 
 	if ($errors > 0) {
-		if ($show_msg) { $message .= $err_msg; }
+		if ($show_msg) { $MESSAGE .= $err_msg; }
 		return false;
 	}
 
@@ -1074,7 +1079,7 @@ function supports_svg() {//*****************************************************
 
 
 function rCopy( $old_path, $new_path ) {//**************************************
-	global $_, $WHSPC_SLASH, $EX, $message;
+	global $_, $WHSPC_SLASH, $EX, $MESSAGE;
 	//Recursively copy $old_path to $new_path
 	//Both $old_ & $new_path must ALREADY be in OS/file system's encoding.
 	//(ie: usually UTF-8, but often ISO-8859-1 for Windows.)
@@ -1097,7 +1102,7 @@ function rCopy( $old_path, $new_path ) {//**************************************
 	while (mb_strlen($test_path) >= mb_strlen($old_path)) {
 		$test_path = dirname($test_path);
 		if ( $test_path == $old_path ) {
-			$message .= $EX.' <b>'.hsc($_['rCopy_msg_01']).'</b><br>';
+			$MESSAGE .= $EX.' <b>'.hsc($_['rCopy_msg_01']).'</b><br>';
 			return 0;
 		}
 	}
@@ -1158,7 +1163,7 @@ function rDel($path) {//********************************************************
 function Current_Path_Header() {//**********************************************
  	// Current path. ie: webroot/current/path/
 	// Each level is a link to that level.
-	global $ONESCRIPT, $ipath, $WEB_ROOT, $ACCESS_ROOT, $ACCESS_ROOT_len, $TABINDEX, $message;
+	global $ONESCRIPT, $ipath, $WEB_ROOT, $ACCESS_ROOT, $ACCESS_ROOT_len, $TABINDEX, $MESSAGE;
 
 	$unaccessable    = '';
 	$_1st_accessable = trim($WEB_ROOT, ' /');
@@ -1198,7 +1203,7 @@ function Current_Path_Header() {//**********************************************
 
 
 function Page_Header() {//******************************************************
-	global  $_, $DOC_ROOT, $ONESCRIPT, $page, $WEBSITE, $MAIN_TITLE, $OFCMS_version, $FAVICON, $TABINDEX, $message;
+	global  $_, $DOC_ROOT, $ONESCRIPT, $page, $WEBSITE, $MAIN_TITLE, $OFCMS_version, $FAVICON, $TABINDEX, $MESSAGE;
 
 	$TABINDEX = 1; //Initial tabindex
 
@@ -1527,7 +1532,7 @@ function Hash_Page() {//********************************************************
 
 
 function Hash_response() {//****************************************************
-	global $_, $message;
+	global $_, $MESSAGE;
 	$_POST['whattohash'] = trim($_POST['whattohash']); // trim whitespace.
 
 	//Ignore/don't hash an empty string - passwords can't be blank.
@@ -1535,8 +1540,8 @@ function Hash_response() {//****************************************************
 
 	//The second parameter to hashit(), 1, tells hashit() to also do the "pre-hash", which is
 	//normally done client-side during a login attempt, p/w change, or u/n change.
-	$message .= hsc($_['Password']).': '.hsc($_POST['whattohash']).'<br>';
-	$message .= hsc($_['Hash']).': '.hashit($_POST['whattohash'], 1).'<br>';
+	$MESSAGE .= hsc($_['Password']).': '.hsc($_POST['whattohash']).'<br>';
+	$MESSAGE .= hsc($_['Hash']).': '.hashit($_POST['whattohash'], 1).'<br>';
 }//end Hash_response() //*******************************************************
 
 
@@ -1592,13 +1597,13 @@ function Change_PWUN_Page($pwun, $type, $page_title, $label_new, $label_confirm)
  
 //******************************************************************************
 function Update_config($search_for, $replace_with, $search_file, $backup_file) {
-	global  $_, $EX, $message;
+	global  $_, $EX, $MESSAGE;
 	
 	$search_file_OS = Convert_encoding($search_file);
 	$backup_file_OS = Convert_encoding($backup_file);
 
 	if ( !is_file($search_file_OS) ) {
-		$message .= $EX.' <b>'.hsc($_['Not_found']).': </b>'.hsc($search_file).'<br>';
+		$MESSAGE .= $EX.' <b>'.hsc($_['Not_found']).': </b>'.hsc($search_file).'<br>';
 		return false;
 	}
 
@@ -1618,14 +1623,14 @@ function Update_config($search_for, $replace_with, $search_file, $backup_file) {
 	}
 
 	//This should not happen, but just in case...
-	if (!$found){ $message .= $EX.' <b>'.hsc($_['Not_found']).': </b>'.hsc($search_for).'<br>'; return false; }
+	if (!$found){ $MESSAGE .= $EX.' <b>'.hsc($_['Not_found']).': </b>'.hsc($search_for).'<br>'; return false; }
 	
 	copy($search_file_OS, $backup_file_OS); // Just in case...
 
 	$updated_contents = implode("\n", $search_lines);
 
 	if (file_put_contents($search_file_OS, $updated_contents, LOCK_EX) === false) {
-		$message .= $EX.'<b>'.hsc($_['update_failed']).'</b><br>';
+		$MESSAGE .= $EX.'<b>'.hsc($_['update_failed']).'</b><br>';
 		return false;
 	}else {return true;}
 }//end Update_config() //*******************************************************
@@ -1635,7 +1640,7 @@ function Update_config($search_for, $replace_with, $search_file, $backup_file) {
 
 function Change_PWUN_response($PWUN, $msg) {//**********************************
 	//Update $USERNAME or $HASHWORD. Default $page = changepw or changeun
-	global $_, $ONESCRIPT, $USERNAME, $HASHWORD, $EX, $message, $page, 
+	global $_, $ONESCRIPT, $USERNAME, $HASHWORD, $EX, $MESSAGE, $page, 
 		   $ONESCRIPT_file, $ONESCRIPT_file_backup, $CONFIG_FILE, $CONFIG_FILE_backup, $VALID_CONFIG_FILE;
 
 	// trim white-space from input values
@@ -1651,15 +1656,15 @@ function Change_PWUN_response($PWUN, $msg) {//**********************************
 	}
 	//If any field is blank...
 	elseif ( ($current_pass == "") || ($new_pwun == "") || ($confirm_pwun == "") ) {
-		$message .= $error_msg.hsc($_['change_pw_07']).'<br>';
+		$MESSAGE .= $error_msg.hsc($_['change_pw_07']).'<br>';
 	}
 	//If new & Confirm values don't match...
 	elseif ($new_pwun != $confirm_pwun) {
-		$message .= $error_msg.hsc($_['change_pw_04']).'<br>';
+		$MESSAGE .= $error_msg.hsc($_['change_pw_04']).'<br>';
 	}
 	//If incorrect current p/w, logout.  (new == confirm at this point)
 	elseif (hashit($current_pass) != $HASHWORD) { 
-		$message .= $error_msg.'<br>'.hsc($_['change_pw_03']).'<br>';
+		$MESSAGE .= $error_msg.'<br>'.hsc($_['change_pw_03']).'<br>';
 		Logout();
 	}
 	//Else change username or password
@@ -1676,15 +1681,15 @@ function Change_PWUN_response($PWUN, $msg) {//**********************************
 		
 		//If specified & it exists, update external config file.
 		if ( $VALID_CONFIG_FILE ) {
-			$message .= hsc($_['change_pw_05']).' '.hsc($_['change_pw_06']).'. . . ';
+			$MESSAGE .= hsc($_['change_pw_05']).' '.hsc($_['change_pw_06']).'. . . ';
 			$updated = Update_config($search_for, $replace_with, $CONFIG_FILE, $CONFIG_FILE_backup);
 		}else{ //Update OneFileCMS
-			$message .= hsc($_['change_pw_05']).' OneFileCMS . . . ';
+			$MESSAGE .= hsc($_['change_pw_05']).' OneFileCMS . . . ';
 			$updated = Update_config($search_for, $replace_with, $ONESCRIPT_file, $ONESCRIPT_file_backup);
 		}
 		
-		if ($updated === false) { $message .= $error_msg.'<br>'; }
-		else                    { $message .= $success_msg.'<br>'; }
+		if ($updated === false) { $MESSAGE .= $error_msg.'<br>'; }
+		else                    { $MESSAGE .= $success_msg.'<br>'; }
 		
 		$page = "admin"; //Return to Admin page.
 	}
@@ -1734,7 +1739,7 @@ function Login_Page() {//*******************************************************
 
 
 function Login_response() {//***************************************************
-	global $_, $EX, $ONESCRIPT_file, $message, $page, $USERNAME, $HASHWORD,
+	global $_, $EX, $ONESCRIPT_file, $MESSAGE, $page, $USERNAME, $HASHWORD,
 				$LOGIN_ATTEMPTS, $MAX_ATTEMPTS, $LOGIN_DELAY, $LOGIN_DELAYED, $LOG_LOGINS, $LOGIN_LOG_file;
 
 	$_SESSION = array();    //make sure it's empty
@@ -1750,11 +1755,11 @@ function Login_response() {//***************************************************
 		$attempts = (int)file_get_contents($LOGIN_ATTEMPTS);
 		$elapsed  = time() - filemtime($LOGIN_ATTEMPTS);
 	}
-	if ($attempts > 0) { $message .= '<b>'.hsc($_['login_msg_01a']).' '.$attempts.' '.hsc($_['login_msg_01b']).'</b><br>'; }
+	if ($attempts > 0) { $MESSAGE .= '<b>'.hsc($_['login_msg_01a']).' '.$attempts.' '.hsc($_['login_msg_01b']).'</b><br>'; }
 
 	if ( ($attempts >= $MAX_ATTEMPTS) && ($elapsed < $LOGIN_DELAY) ){
 		$LOGIN_DELAYED = ($LOGIN_DELAY - $elapsed);
-		$message .= hsc($_['login_msg_02a']).' <span id=timer0></span> '.hsc($_['login_msg_02b']);
+		$MESSAGE .= hsc($_['login_msg_02a']).' <span id=timer0></span> '.hsc($_['login_msg_02b']);
 		return;
 	}
 
@@ -1775,10 +1780,10 @@ function Login_response() {//***************************************************
 		
 	}else{
 		file_put_contents($LOGIN_ATTEMPTS, ++$attempts); //increment attempts
-		$message  = $EX.'<b>'.hsc($_['login_msg_03']).$attempts.'</b><br>';
+		$MESSAGE  = $EX.'<b>'.hsc($_['login_msg_03']).$attempts.'</b><br>';
 		if ($attempts >= $MAX_ATTEMPTS) {
 			$LOGIN_DELAYED = $LOGIN_DELAY;
-			$message .= hsc($_['login_msg_02a']).' <span id=timer0></span> '.hsc($_['login_msg_02b']);
+			$MESSAGE .= hsc($_['login_msg_02a']).' <span id=timer0></span> '.hsc($_['login_msg_02b']);
 		}
 	}
 
@@ -1863,8 +1868,8 @@ function Create_Table_for_Listing() {//*****************************************
 
 
 function Get_DIRECTORY_DATA($raw_list) {//**************************************
-	global $_, $ONESCRIPT, $ipath, $ipath_OS, $param1, $ICONS, $message, 
-			$ftypes, $fclasses, $excluded_list, $stypes, $SHOWALLFILES, 
+	global $_, $ONESCRIPT, $ipath, $ipath_OS, $param1, $ICONS, $MESSAGE, 
+			$FTYPES, $FCLASSES, $EXCLUDED_LIST, $STYPES, $SHOWALLFILES, 
 			$DIRECTORY_COUNT, $DIRECTORY_DATA, $ENC_OS;
 
 	//Doesn't use global $filename or $filename_OS in this function (because they shouldn't exist on the Index page)
@@ -1881,7 +1886,7 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 		if ($ENC_OS == 'UTF-8') {$filename = $raw_filename;}
 		else                    {$filename = Convert_encoding($raw_filename,'UTF-8');}
 		
-		//Get file .ext & check against $stypes (files types to show)
+		//Get file .ext & check against $STYPES (files types to show)
 		$filename_parts = explode(".", mb_strtolower($filename));
 		
 		//Check for no $ext:  "filename"  or ".filename"
@@ -1892,9 +1897,9 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 		
 		//Check $filename & $ext against white & black lists. If not to be shown, get next $filename...
 		if (!is_dir($filename_OS)) {
-			if ($SHOWALLFILES || in_array($ext, $stypes)) { $SHOWTYPE = TRUE; } else { $SHOWTYPE = FALSE; }
-			if (in_array($filename, $excluded_list)) 	  { $excluded = TRUE; } else { $excluded = FALSE; }
-			if ( !$SHOWTYPE || in_array($filename, $excluded_list) ) { continue; }
+			if ($SHOWALLFILES || in_array($ext, $STYPES)) { $SHOWTYPE = TRUE; } else { $SHOWTYPE = FALSE; }
+			if (in_array($filename, $EXCLUDED_LIST)) 	  { $excluded = TRUE; } else { $excluded = FALSE; }
+			if ( !$SHOWTYPE || in_array($filename, $EXCLUDED_LIST) ) { continue; }
 		}
 			
 		//Used to hide rename & delete options for active copy of OneFileCMS.
@@ -1903,10 +1908,10 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 		
 		//Set icon type based on if dir, or file type ($ext).
 		if (is_dir($filename_OS)) { $type = 'dir'; }
-		else					  { $type = $fclasses[array_search($ext, $ftypes)]; }
+		else					  { $type = $FCLASSES[array_search($ext, $FTYPES)]; }
 		
 		//Determine icon to show
-		if (in_array($type,$fclasses)) { $icon = $ICONS[$type];}
+		if (in_array($type,$FCLASSES)) { $icon = $ICONS[$type];}
 		elseif ($type == 'dir')        { $icon = $ICONS['folder']; }
 		else                           { $icon = $ICONS['bin']; } //default
 			
@@ -2019,7 +2024,7 @@ function Index_Page() {//*******************************************************
 
 function Edit_Page_buttons_top($text_editable,$file_ENC) {//********************
 	global $_, $ONESCRIPT, $param1, $param2, $filename, $filename_OS, $IS_OFCMS, 
-				$WYSIWYG_VALID, $EDIT_WYSIWYG, $WYSIWYG_label, $message;
+				$WYSIWYG_VALID, $EDIT_WYSIWYG, $WYSIWYG_label, $MESSAGE;
 
 	clearstatcache ();
 
@@ -2072,7 +2077,7 @@ function Edit_Page_buttons_top($text_editable,$file_ENC) {//********************
 
 
 function Edit_Page_buttons($text_editable, $too_large_to_edit) {//**************
-	global $_, $message, $ICONS, $MAX_IDLE_TIME, $IS_OFCMS, $WYSIWYG_VALID, $EDIT_WYSIWYG;
+	global $_, $MESSAGE, $ICONS, $MAX_IDLE_TIME, $IS_OFCMS, $WYSIWYG_VALID, $EDIT_WYSIWYG;
 
 	//Using ckeditor WYSIWYG editor, <input type=reset> button doesn't work. (I don't know why.)
 	$reset_button = '<input type=reset  id="reset" class=button value="'.hsc($_['reset']).'" onclick="return Reset_File();">';
@@ -2105,8 +2110,8 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) {//**************
 
 //******************************************************************************
 function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_view, $file_ENC){
-	global $_, $ONESCRIPT, $param1, $param2, $param3, $filename, $filename_OS, $itypes, $INPUT_NUONCE, $EX, $message, 
-		   $FILECONTENTS, $WYSIWYG_VALID, $EDIT_WYSIWYG, $IS_OFCMS, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE;
+	global $_, $ONESCRIPT, $param1, $param2, $param3, $filename, $filename_OS, $ITYPES, $INPUT_NUONCE, $EX, $MESSAGE, 
+		   $FILECONTENTS, $WYSIWYG_VALID, $EDIT_WYSIWYG, $IS_OFCMS, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $WORD_WRAP;
 
 	$too_large_to_edit_message =
 		'<b>'.hsc($_['too_large_to_edit_01']).' '.number_format($MAX_EDIT_SIZE).' '.hsc($_['bytes']).'</b><br>'.
@@ -2122,10 +2127,10 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 		
 		Edit_Page_buttons_top($text_editable, $file_ENC);
 		
-		if ( !in_array( mb_strtolower($ext), $itypes) ) { //If non-image...
+		if ( !in_array( mb_strtolower($ext), $ITYPES) ) { //If non-image...
 				
-			if     (!$text_editable)      { $message .= hsc($_['edit_txt_01']).'<br><br>'; }
-			elseif ( $too_large_to_edit ) { $message .= $too_large_to_edit_message; }
+			if     (!$text_editable)      { $MESSAGE .= hsc($_['edit_txt_01']).'<br><br>'; }
+			elseif ( $too_large_to_edit ) { $MESSAGE .= $too_large_to_edit_message; }
 			elseif (!$IS_OFCMS) {
 				//Did htmlspecialchars return an empty string from a non-empty file?
 				$bad_chars = ( ($FILECONTENTS == "") && (filesize($filename_OS) > 0) );
@@ -2135,10 +2140,22 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 					echo hsc($_['edit_txt_03']).'<br>';
 					echo hsc($_['edit_txt_04']).'<br></pre>'."\n";
 				}else{          //show editable <textarea>
+					
+					$ww_on_checked = $ww_off_checked = "";
+					if ($WORD_WRAP == "on") {$ww_on_checked = "checked";} else {$ww_off_checked = "checked";}
+					
 					//<input name=filename> is used only to signal an Edit_response().
 					echo '<input type="hidden" name="filename" value="'.rawurlencode($filename).'">';
-					echo '<textarea id=file_editor name=contents cols=70 rows=25>';
-					echo $FILECONTENTS.'</textarea>'."\n";
+					
+					echo "<div id=wrapper_linenums_editor>";
+					echo 	"<div id=line_numbers tabindex='-1'><div id=line_1>1</div><div id=line_0></div></div>";
+					echo 	"<textarea id=file_editor class=tab_size name=contents cols=70 rows=25>$FILECONTENTS</textarea>\n";
+					echo "</div>\n";
+					
+					echo "<div id=ww_options>".hsc($_['Word_Wrap']).":";
+					echo 	"<label><input id=word_wrap_on  type=radio name=word_wrap value=on $ww_on_checked>{$_['on']}</label>";
+					echo 	"<label><input id=word_wrap_off type=radio name=word_wrap value=off $ww_off_checked>{$_['off']}</label>";
+					echo "</div>\n";
 				}
 			}//end if/elseif...
 			
@@ -2183,14 +2200,14 @@ function Edit_Page_Notes() {//**************************************************
 
 
 function Edit_Page() {//********************************************************
-	global $_, $filename, $filename_OS, $FILECONTENTS, $etypes, $itypes, $EX, $message, $page,
+	global $_, $filename, $filename_OS, $FILECONTENTS, $ETYPES, $ITYPES, $EX, $MESSAGE, $page,
 			$MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $WYSIWYG_VALID, $IS_OFCMS;
 
 	$filename_parts = explode(".", mb_strtolower($filename));
 	$ext = end($filename_parts);
 
 	//Determine if a text editable file type
-	if ( in_array($ext, $etypes) ) { $text_editable = TRUE;  }
+	if ( in_array($ext, $ETYPES) ) { $text_editable = TRUE;  }
 	else                           { $text_editable = FALSE; }
 
 	$too_large_to_edit = (filesize($filename_OS) > $MAX_EDIT_SIZE);
@@ -2223,15 +2240,15 @@ function Edit_Page() {//********************************************************
 
 	Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_view, $file_ENC);
 	
-	if ( in_array( $ext, $itypes) ) { show_image(); } //If image, show below the [Rename/Move] [Copy] [Delete] buttons
+	if ( in_array( $ext, $ITYPES) ) { show_image(); } //If image, show below the [Rename/Move] [Copy] [Delete] buttons
 
 	echo '<div class=clear></div>';
 
 	//If viewing OneFileCMS itself, show Edit Disabled message.
 	if ($IS_OFCMS && $page == "edit") {
-		$message .= '<style>.message_box_contents {background: red;}</style>';
-		$message .= '<style>#message_box          {color: white;}   </style>';
-		$message .= '<b>'.$EX.hsc($_['edit_caution_02']).' &nbsp; '.$_['edit_txt_00'].'</b><br>';
+		$MESSAGE .= '<style>.message_box_contents {background: red;}</style>';
+		$MESSAGE .= '<style>#message_box          {color: white;}   </style>';
+		$MESSAGE .= '<b>'.$EX.hsc($_['edit_caution_02']).' &nbsp; '.$_['edit_txt_00'].'</b><br>';
 	}
 }//end Edit_Page() //***********************************************************
 
@@ -2239,7 +2256,7 @@ function Edit_Page() {//********************************************************
 
 
 function Edit_response() {//***If on Edit page, and [Save] clicked *************
-	global $_, $EX, $message, $filename, $filename_OS;
+	global $_, $EX, $MESSAGE, $filename, $filename_OS;
 
 	$contents    = $_POST['contents'];
 	
@@ -2249,9 +2266,9 @@ function Edit_response() {//***If on Edit page, and [Save] clicked *************
 	$bytes = file_put_contents($filename_OS, $contents);
 
 	if ($bytes !== false) {
-		$message .= '<b>'.hsc($_['edit_msg_01']).' '.number_format($bytes).' '.hsc($_['edit_msg_02']).'</b><br>';
+		$MESSAGE .= '<b>'.hsc($_['edit_msg_01']).' '.number_format($bytes).' '.hsc($_['edit_msg_02']).'</b><br>';
 	}else{
-		$message .= $EX.'<b>'.hsc($_['edit_msg_03']).'</b><br>';
+		$MESSAGE .= $EX.'<b>'.hsc($_['edit_msg_03']).'</b><br>';
 	}
 }//end Edit_response() //*******************************************************
 
@@ -2301,7 +2318,7 @@ function Upload_Page() {//******************************************************
 
 
 function Upload_response() {//**************************************************
-	global $_, $ipath, $ipath_OS, $page, $EX, $message, $UPLOAD_FIELDS;
+	global $_, $ipath, $ipath_OS, $page, $EX, $MESSAGE, $UPLOAD_FIELDS;
 
 	$page  = "index"; //return to index.
 
@@ -2324,11 +2341,11 @@ function Upload_response() {//**************************************************
 		else                  { $ERRMSG = ''; }
 		
 		if ( ($ipath === false) || (($ipath != "") && !is_dir($ipath_OS))) {
-			$message .= $EX.'<b>'.hsc($_['upload_msg_02']).'</b><br>';
-			$message .= '<span class="filename">'.hsc($ipath).'</span></b><br>';
-			$message .= hsc($_['upload_msg_03']).'</b><br>';
+			$MESSAGE .= $EX.'<b>'.hsc($_['upload_msg_02']).'</b><br>';
+			$MESSAGE .= '<span class="filename">'.hsc($ipath).'</span></b><br>';
+			$MESSAGE .= hsc($_['upload_msg_03']).'</b><br>';
 		}else{
-			$message .= '<b>'.hsc($_['upload_msg_04']).'</b> <span class="filename">'.hsc(basename($filename_up)).'</span><br>';
+			$MESSAGE .= '<b>'.hsc($_['upload_msg_04']).'</b> <span class="filename">'.hsc(basename($filename_up)).'</span><br>';
 			
 			if ( isset($_POST['ifexists']) && ($_POST['ifexists'] == 'overwrite') ) {
 				if (is_file($filename_OS)) { $savefile_msg .= hsc($_['upload_msg_07']) ; }
@@ -2338,9 +2355,9 @@ function Upload_response() {//**************************************************
 			
 			$filename_OS = Convert_encoding($filename_up);
 			if(move_uploaded_file($_FILES['upload_file']['tmp_name'][$N], $filename_OS)) {
-				$message .= '<b>'.hsc($_['upload_msg_05']).'</b> '.$savefile_msg.'<br>';
+				$MESSAGE .= '<b>'.hsc($_['upload_msg_05']).'</b> '.$savefile_msg.'<br>';
 			} else{
-				$message .= '<b>'.$EX.hsc($_['upload_msg_06']).'</b> '.$ERRMSG.'</b><br>';
+				$MESSAGE .= '<b>'.$EX.hsc($_['upload_msg_06']).'</b> '.$ERRMSG.'</b><br>';
 			}
 		}
 	}//end foreach $_FILES
@@ -2367,7 +2384,7 @@ function New_Page($title, $new_f_or_f) {//**************************************
 
 
 function New_response($post, $isfile) {//***************************************
-	global $_, $ipath, $ipath_OS, $filename, $filename_OS, $page, $param1, $param2, $param3, $message, $EX, $INVALID_CHARS, $WHSPC_SLASH;
+	global $_, $ipath, $ipath_OS, $filename, $filename_OS, $page, $param1, $param2, $param3, $MESSAGE, $EX, $INVALID_CHARS, $WHSPC_SLASH;
 
 	$page      = "index"; //Return to index if folder, or on error.
 
@@ -2382,30 +2399,30 @@ function New_response($post, $isfile) {//***************************************
 	$msg_new  = '<span class="filename">'.hsc($new_name).'</span><br>';
 
 	if (has_invalid_char($new_name)){
-		$message .= $EX.'<b>'.hsc($_['new_file_msg_01']).'</b> '.$msg_new;
-		$message .= '<b>'.hsc($_['new_file_msg_02']).'<span class="mono"> '.hsc($INVALID_CHARS).'</span></b>';
+		$MESSAGE .= $EX.'<b>'.hsc($_['new_file_msg_01']).'</b> '.$msg_new;
+		$MESSAGE .= '<b>'.hsc($_['new_file_msg_02']).'<span class="mono"> '.hsc($INVALID_CHARS).'</span></b>';
 		
 	}elseif ($new_name == ""){ //No new name given.
 		$page   = "new".$f_or_f;
 		$param3 = '&amp;p=index'; //For [Cancel] button
 		
 	}elseif (file_exists($filename_OS)) { //Does file or folder already exist ?
-		$message .= $EX.'<b>'.hsc($_['new_file_msg_04']).' '.$msg_new;
+		$MESSAGE .= $EX.'<b>'.hsc($_['new_file_msg_04']).' '.$msg_new;
 		
 	}elseif ($isfile && touch($filename_OS) ) { //Create File
-		$message .= '<b>'.hsc($_['new_file_msg_05']).'</b> '.$msg_new; //New File success.
+		$MESSAGE .= '<b>'.hsc($_['new_file_msg_05']).'</b> '.$msg_new; //New File success.
 		$page     = "edit";                                      //Return to edit page.
 		$param2   = '&amp;f='.rawurlencode(basename($filename)); //for Edit_Page() buttons
 		$param3   = '&amp;p=edit';                               //for Edit_Page() buttons
 		
 	}elseif (!$isfile && mkdir($filename_OS,0755)) { //Create Folder
-		$message .= '<b>'.hsc($_['new_file_msg_07']).'</b> '.$msg_new; //New folder success
+		$MESSAGE .= '<b>'.hsc($_['new_file_msg_07']).'</b> '.$msg_new; //New folder success
 		$ipath    = $filename;  //return to new folder
 		$ipath_OS = Convert_encoding($filename);
 		$param1   = '?i='.URLencode_path($ipath);
 		
 	}else{
-		$message .= $EX.'<b>'.hsc($_['new_file_msg_01']).':</b><br>'.$msg_new; //'Error - new file not created:'
+		$MESSAGE .= $EX.'<b>'.hsc($_['new_file_msg_01']).':</b><br>'.$msg_new; //'Error - new file not created:'
 	}
 }//end New_response() //********************************************************
 
@@ -2481,7 +2498,7 @@ function CRM_response($action, $msg1, $show_message = 3) {//********************
 	//$action = 'rCopy' or 'rename'.  Returns 0 if successful, 1 on error.
 	//$show_message: 0 = none; 1 = errors only; 2 = successes only; 3 = all messages (default).
 	global $_, $ONESCRIPT, $ipath, $ipath_OS, $filename, $page, $param1, $param2, $param3, 
-			$message, $EX, $INVALID_CHARS, $WHSPC_SLASH;
+			$MESSAGE, $EX, $INVALID_CHARS, $WHSPC_SLASH;
 
 	$old_full_name = trim($_POST['old_full_name'], $WHSPC_SLASH);     //Trim whitespace & slashes.
 	$new_name_only = trim($_POST['new_name'], $WHSPC_SLASH);
@@ -2549,8 +2566,8 @@ function CRM_response($action, $msg1, $show_message = 3) {//********************
 
 	if (($bad_name !='' ) && ($error_code == 0)) { $err_msg .= '<span class="filename">'.hsc($bad_name).'</span><br>'; }
 
-	if (($show_message & 1) && ($error_code == 0)) { $message .= $err_msg; } //Show error message.
-	if ( $show_message & 2)                        { $message .= $scs_msg; } //Show success message.
+	if (($show_message & 1) && ($error_code == 0)) { $MESSAGE .= $err_msg; } //Show error message.
+	if ( $show_message & 2)                        { $MESSAGE .= $scs_msg; } //Show success message.
 
 	//Prior page should be either index or edit
 	$page = $_SESSION['recent_pages'][1];
@@ -2564,7 +2581,7 @@ function CRM_response($action, $msg1, $show_message = 3) {//********************
 
 
 function Delete_response($target, $show_message=3) {//**************************
-	global $_, $ipath, $ipath_OS, $param1, $filename, $param2, $page, $message, $EX;
+	global $_, $ipath, $ipath_OS, $param1, $filename, $param2, $page, $MESSAGE, $EX;
 
 	if ($target == "") { return 0; } //Prevent accidental delete of entire website.
 
@@ -2596,8 +2613,8 @@ function Delete_response($target, $show_message=3) {//**************************
 		}
 	}
 
-	if ($show_message & 1) { $message .= $err_msg; } //Show error message.
-	if ($show_message & 2) { $message .= $scs_msg; } //Show success message.
+	if ($show_message & 1) { $MESSAGE .= $err_msg; } //Show error message.
+	if ($show_message & 2) { $MESSAGE .= $scs_msg; } //Show success message.
 
 	return $error_code;
 }//end Delete_response() //*****************************************************
@@ -2608,7 +2625,7 @@ function Delete_response($target, $show_message=3) {//**************************
 function MCD_Page($action, $page_title, $classes = '') {//**********************
 	//$action = mcd_mov or mcd_cpy or mcd_del
 	global $_,  $WEB_ROOT, $ONESCRIPT, $ipath, $ipath_OS, $param1, $filename, $page,
-			$ICONS, $ACCESS_ROOT, $ACCESS_PATH, $INPUT_NUONCE, $message;
+			$ICONS, $ACCESS_ROOT, $ACCESS_PATH, $INPUT_NUONCE, $MESSAGE;
 
 	//Prep for a single file or folder
 	if( $page == "deletefile" || $page == "deletefolder" ){
@@ -2655,7 +2672,7 @@ function MCD_Page($action, $page_title, $classes = '') {//**********************
 
 
 function MCD_response($action, $msg1, $success_msg = '') {//********************
-	global $_, $ipath, $ipath_OS, $EX, $message, $WHSPC_SLASH;
+	global $_, $ipath, $ipath_OS, $EX, $MESSAGE, $WHSPC_SLASH;
 
 	$files      = $_POST['files']; //List of files to delete (path not included)
 	$errors     = 0; //number of failed moves, copies, or deletes
@@ -2670,8 +2687,8 @@ function MCD_response($action, $msg1, $success_msg = '') {//********************
 	$show_message = 1; //1= show error msg only.
 	
 	if ( ($new_location != "") && !is_dir($new_location_OS)) {
-		$message .= $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_01']).'</b><br>';
-		$message .= '<span class="filename">'.hsc($_POST['new_location']).'</span><br>';
+		$MESSAGE .= $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_01']).'</b><br>';
+		$MESSAGE .= '<span class="filename">'.hsc($_POST['new_location']).'</span><br>';
 		return;
 	}elseif ($action == 'rDel') {
 		foreach ($files as $file){
@@ -2693,15 +2710,15 @@ function MCD_response($action, $msg1, $success_msg = '') {//********************
 		}
 	}
 
-	if ($errors) {$message .= $EX.' <b>'.$errors.' '.hsc($_['errors']).'.</b><br>';}
+	if ($errors) {$MESSAGE .= $EX.' <b>'.$errors.' '.hsc($_['errors']).'.</b><br>';}
 	
-	$message .= '<b>'.$successful.' '.hsc($success_msg).'</b><br>';
+	$MESSAGE .= '<b>'.$successful.' '.hsc($success_msg).'</b><br>';
 
 	if ($action != 'rDel') {
 		if ($successful > 0) { //"From:" & "To:" lines if any successes.
-			$message .= '<div id="message_left"><b>'.hsc($_['From']).'<br>'.hsc($_['To']).'</b></div>';
-			$message .= '<b>:</b><span class="filename"> '.hsc($mcd_ipath).'</span><br>';
-			$message .= '<b>:</b><span class="filename"> '.hsc($ipath).'</span><br>';
+			$MESSAGE .= '<div id="message_left"><b>'.hsc($_['From']).'<br>'.hsc($_['To']).'</b></div>';
+			$MESSAGE .= '<b>:</b><span class="filename"> '.hsc($mcd_ipath).'</span><br>';
+			$MESSAGE .= '<b>:</b><span class="filename"> '.hsc($ipath).'</span><br>';
 		}
 	}
 }//end MCD_response() //********************************************************
@@ -2766,21 +2783,21 @@ function Load_Selected_Page() {//***********************************************
 
 
 function Respond_to_POST() {//**************************************************
-	global $_, $VALID_POST, $ipath, $page, $EX, $ACCESS_ROOT, $message;
+	global $_, $VALID_POST, $ipath, $page, $EX, $ACCESS_ROOT, $MESSAGE;
 
 	if (!$VALID_POST) { return; }
 	
 	//First, validate any $_POST'ed paths against $ACCESS_ROOT.
 	if (isset($_POST["old_full_name"]) && !Valid_Path($_POST["old_full_name"], false)) {
 		//unlikely, but just in case
-		$message .= $EX.'<b>'.hsc($_['Invalid_path']).': </b><span class=filename>'.hsc($_POST["old_full_name"]).'</span>';
+		$MESSAGE .= $EX.'<b>'.hsc($_['Invalid_path']).': </b><span class=filename>'.hsc($_POST["old_full_name"]).'</span>';
 		$VALID_POST = 0;
 		return;
 	}
 	if (isset($_POST["new_location"])) {
 		$_POST["new_location"] = $ACCESS_ROOT.$_POST["new_location"];
 		if (!Valid_Path($_POST["new_location"], false)) {  
-			$message .= $EX.'<b>'.hsc($_['Invalid_path']).': </b><span class=filename>'.hsc($_POST["new_location"]).'</span>';
+			$MESSAGE .= $EX.'<b>'.hsc($_['Invalid_path']).': </b><span class=filename>'.hsc($_POST["new_location"]).'</span>';
 			$VALID_POST = 0;
 			return;
 		}
@@ -2836,9 +2853,11 @@ ICONS['delete']  = '<?php echo $ICONS["delete"]  ?>';
 
 
 function common_scripts() {//***************************************************
-	global $_, $TO_WARNING, $message, $page, $DELAY_Expired_Reload;
+	global $_, $TO_WARNING, $MESSAGE, $page, $DELAY_Expired_Reload;
 ?>
 <script>
+var $MESSAGE = "";
+
 
 function pad(num){ if ( num < 10 ){ num = "0" + num; }; return num; }
 
@@ -2914,7 +2933,7 @@ function Countdown(count, End_Time, Timer_ID, Action){
 	    count        = End_Time - Current_Time;
 	var params = count + ', "' + End_Time + '", "' + Timer_ID + '", "' + Action + '"';
 
-	$message_box = document.getElementById('message_box');
+	var $msg_box = document.getElementById('message_box');
 
 	Timer.innerHTML = FormatTime(count);
 
@@ -2922,7 +2941,7 @@ function Countdown(count, End_Time, Timer_ID, Action){
 		
 		var timeout_warning  = '<div class="message_box_contents"><b><?php echo hsc($_['session_warning']) ?></b> ';
 			timeout_warning += '<b><span id=timer2>:--</span></b></div>';
-		$message_box.innerHTML  = timeout_warning;
+		$msg_box.innerHTML  = timeout_warning;
 		setTimeout('Start_Countdown(' + count + ',"timer2","")',25);
 		
 		var Timer2 = document.getElementById('timer2');
@@ -2934,7 +2953,7 @@ function Countdown(count, End_Time, Timer_ID, Action){
 	if ( count < 1 ) {
 		if ( Action == 'LOGOUT') {
 			Timer.innerHTML        = '<?php echo hsc($_['session_expired']) ?>';
-			$message_box.innerHTML = '<div class=message_box_contents><b><?php echo hsc($_['session_expired']) ?></b></div>';
+			$msg_box.innerHTML = '<div class=message_box_contents><b><?php echo hsc($_['session_expired']) ?></b></div>';
 			//Load login screen, but delay first to make sure really expired:
 			setTimeout('window.location = window.location.pathname', <?php echo $DELAY_Expired_Reload ?>);
 		}
@@ -2996,12 +3015,12 @@ function FileTimeStamp(php_filemtime, show_date, show_offset, write_return){
 
 function Display_Messages($msg, take_focus) {//***********************
 
-	$tabindex_xbox = typeof $tabindex_xbox !== 'undefined' ? $tabindex_xbox : 0;
+	if (typeof take_focus === 'undefined') {take_focus = 0;}  //default is X_box doesn't take focus()
+
+	if (typeof $tabindex_xbox === 'undefined') {$tabindex_xbox = 0;}
 
 	var $page     = '<?php echo $page ?>';
 	var new_focus = '';
-	
-	take_focus = typeof new_focus == 'undefined' ? 0 : take_focus ;  //default is X_box doesn't take focus()
 
 	if      ($page == 'index') { new_focus = 'header_filename'; }
 	else if ($page == 'edit')  { new_focus = 'close1'; }
@@ -3010,16 +3029,16 @@ function Display_Messages($msg, take_focus) {//***********************
 	else if ($page == 'admin') { new_focus = 'close'; }
 
 	var $X_box		 = '<button tabindex=' + $tabindex_xbox + ' type=button id=X_box>x</button>';
-	var $MESSAGE	 = '<div class=message_box_contents>' + $msg + '</div>';
-	var $message_box = document.getElementById("message_box");
+	var $msg_div	 = '<div class=message_box_contents>' + $msg + '</div>';
+	var $msg_box     = document.getElementById("message_box");
 	var $new_focus	 = document.getElementById(new_focus)
 
-	if ($msg == '') {$message_box.innerHTML = ' ';} //innerHTML must be given a space or $message_box won't clear.
-	else				{
-		$message_box.innerHTML = $X_box + $MESSAGE;
+	if ($msg == '') { $msg_box.innerHTML = ' '; } //innerHTML must be given a space or $msg_box won't clear.
+	else {
+		$msg_box.innerHTML = $X_box + $msg_div;
 		var $X_box_btn	 = document.getElementById('X_box');
 		if (take_focus) {$X_box_btn.focus();}
-		$X_box_btn.onclick = function () { $message_box.innerHTML = " "; $new_focus.focus();}
+		$X_box_btn.onclick = function () { $msg_box.innerHTML = " "; $new_focus.focus();}
 	}
 
 }//end Display_Messages() //******************************************
@@ -3056,7 +3075,7 @@ Header_Filename.focus();
 
 document.onmousedown = function (event) { //************************
 	//Mouse clicks may remove focus from focused elements, including checkboxes, 
-	//but don't clear the manual "highlight" of the parent div's & label's of checkbox's
+	//but do not clear the manual "highlight" of the parent div's & label's of checkbox's
 
 	//Clear parent div of a checkbox
 	var ID = document.activeElement.id;
@@ -3078,7 +3097,7 @@ function on_Tab_down(ID, FR,shifted) { //*****************************
 	//Current checkbox already cleared by onkeydown().
 
 	//Prep for Tab key...
-	//Default tab action occurrs on keyUP, so "new" location is not known in onkeydown().
+	//Default tab action occurrs on keyUP, so "new" location is not known by onkeydown().
 	//So, if current focus is ck_box, clear bg, else if we're heading there, set bg.
 	//Tab from L, Current ID will be "f<FR>c2"
 	//Tab from R: Current ID is "f<FR>"
@@ -3332,7 +3351,7 @@ document.onkeydown = function(event) { //*****************************
 
 
 function Index_Page_scripts() {//***********************************************
-	global $_, $ONESCRIPT, $param1, $ipath, $message, $DELAY_Sort_and_Show_msgs, $MIN_DIR_ITEMS, $TABINDEX;
+	global $_, $ONESCRIPT, $param1, $ipath, $MESSAGE, $DELAY_Sort_and_Show_msgs, $MIN_DIR_ITEMS, $TABINDEX;
 ?>
 <script>
 //  DIRECTORY_DATA[x] = ("type", "file name", filesize, timestamp, is_ofcms, "ext")	
@@ -3577,7 +3596,7 @@ function Sort_and_Show(col, direction) {//****************************
 
 	var DELAY = 0;
 	if (DIRECTORY_ITEMS > <?php echo $MIN_DIR_ITEMS ?>) { //
-		//(Any pre-existing $message will be displayed after directory is displayed.)
+		//(Any pre-existing $MESSAGE will be displayed after directory is displayed.)
 		Display_Messages('<b><?php echo $_['Working'] ?></b>');
 		
 		DELAY = <?php echo $DELAY_Sort_and_Show_msgs ?>;
@@ -3646,8 +3665,8 @@ function Confirm_Submit(action) {//***********************************
 
 
 function Edit_Page_scripts() {//************************************************
-	global $_, $ONESCRIPT, $ONESCRIPT_file, $ipath, $param1, $param2, $filename,
-			$MAIN_WIDTH, $WIDE_VIEW_WIDTH, $current_view, $WYSIWYG_VALID, $EDIT_WYSIWYG;
+	global $_, $ONESCRIPT, $ONESCRIPT_file, $ipath, $param1, $param2, $filename, $WORD_WRAP, 
+			$MAIN_WIDTH, $WIDE_VIEW_WIDTH, $current_view, $WYSIWYG_VALID, $EDIT_WYSIWYG, $TAB_SIZE;
 
 	//Determine edit_view width.
 	$current_view = $MAIN_WIDTH;
@@ -3703,7 +3722,20 @@ if (Save_File_button)   { Save_File_button.onclick 	 = function () {submitted=tr
 if (WYSIWYG_button  )   { WYSIWYG_button.onclick 	 = function () {<?php echo $WYSIWYG_onclick ?>} }
 if (Rename_File_button) { Rename_File_button.onclick = function () {parent.location = onclick_params + 'renamefile';} }
 if (Delete_File_button) { Delete_File_button.onclick = function () {parent.location = onclick_params + 'deletefile';} }
-if (File_textarea)      { File_textarea.onkeyup 	 = function(event) {Check_for_changes(event);} }
+if (File_textarea)      { File_textarea.addEventListener("keyup", function(event) {Check_for_changes(event);}) }
+
+
+//Prevent form-submission on enter of the word-wrap radio buttons.  They are only used for changing word-wrap visually.
+var $edit_form = document.getElementById('edit_form');
+$edit_form.addEventListener( "submit", function(event) {Ignore_Submit(event)});
+
+
+
+function Ignore_Submit(event) {
+	if (!event) {var event = window.event;} //for IE
+	if (document.activeElement.type == "radio") {event.preventDefault();}
+}
+
 
 
 
@@ -3729,10 +3761,11 @@ window.onunload = function() {
 
 function Wide_View() {
 
+	//#####  Wide_View() currently only works on #file_editor (editable files).  Doesn't work when "edit disabled".  Yet.
+	
 	var main_width_default = '<?php echo $MAIN_WIDTH ?>';
 
-	if ( File_textarea ) { File_textarea.style.width = '99.8%'; }
-	
+	//Set view width
 	if (Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>') {
 		Main_div.style.width       = main_width_default;
 		Wide_View_button.innerHTML = "<?php echo hsc($_['Wide_View'])?>";
@@ -3742,7 +3775,15 @@ function Wide_View() {
 		Wide_View_button.innerHTML = '<?php echo hsc($_['Normal_View']) ?>';
 		document.cookie            = 'edit_view=<?php echo $WIDE_VIEW_WIDTH ?>';
 	}
-}
+	
+	//Corrects word-wrapping after changing between normal and wide-view. (Doesn't always wrap consistantly/use break-word.)
+	var tmp = File_textarea.value;
+	File_textarea.value = "";
+	File_textarea.value = tmp;
+
+	Line_Numbers.Set_Line_Numbers();
+
+}// end Wide_View() 
 
 
 
@@ -3788,6 +3829,7 @@ function Check_for_changes(event){
 }
 
 
+
 //Reset textarea value to when page was loaded.
 //Used by [Reset] button, and when page unloads (browser back, etc).
 //Needed becuase if the page is reloaded (ctl-r, or browser back/forward, etc.),
@@ -3801,7 +3843,214 @@ function Reset_File() {
 }
 
 
+
+
+function Line_Numbering(line_numbers_id, listing_id, line0_id, line1_id, wrap_on_id, wrap_off_id, ww_div_id) {
+
+	var line_numbers = document.getElementById(line_numbers_id);
+	var listing 	 = document.getElementById(listing_id);
+	var line_zero    = document.getElementById(line0_id); //empty: used for char-width calc.
+	var line_one     = document.getElementById(line1_id); //<div>1</div> will contain the line numbers.
+	var wrap_on_opt  = document.getElementById(wrap_on_id);
+	var wrap_off_opt = document.getElementById(wrap_off_id);
+	var ww_div 		 = document.getElementById(ww_div_id);
+
+	var char_width     = (line_zero.offsetLeft - line_one.offsetLeft);
+	var padding_L 	   = parseInt(window.getComputedStyle(listing).getPropertyValue("padding-left"));
+	var padding_R 	   = parseInt(window.getComputedStyle(listing).getPropertyValue("padding-right"));
+
+	var Display_Width_Chars = function() {return Math.floor((listing.clientWidth - padding_L - padding_R) / char_width)};
+
+	var TAB_SIZE = <?php echo $TAB_SIZE ?>;
+
+	line_zero.innerHTML = ""; //Just makin' sure. Only used for char-width calc.
+
+	line_numbers.style.height = listing.offsetHeight + "px";
+
+
+	Set_Line_Numbers(); 
+
+
+	listing.addEventListener("scroll",  function(event){Set_Line_Numbers(event)});
+	listing.addEventListener("keyup",   function(event){Set_Line_Numbers(event)});
+	listing.addEventListener("mouseup", function(event){Set_Line_Numbers(event)});
+	listing.addEventListener("paste",   function(event){Set_Line_Numbers(event)});
+
+	wrap_on_opt.onchange  = function() {Toggle_Word_Wrap(this.value);}
+	wrap_off_opt.onchange = function() {Toggle_Word_Wrap(this.value);}
+
+	document.onkeyup = function() {Word_Wrap_Focus_Styles(); }
+	document.onclick = function() {Word_Wrap_Focus_Styles();}
+
+
+
+	//Set default/page load condition from CONFIGURABLE OPTIONS...
+	Toggle_Word_Wrap("<?php echo $WORD_WRAP ?>");
+	Word_Wrap_labels("<?php echo $WORD_WRAP ?>");
+
+
+
+	function Word_Wrap_labels(word_wrap) {
+		//<label> around the radio buttons.
+		
+		if (word_wrap == "on") {
+			wrap_on_opt.parentNode.style.backgroundColor = "#DFD";
+			wrap_on_opt.parentNode.style.borderColor = "#373";
+			wrap_off_opt.parentNode.style.backgroundColor = "#EEE";
+			wrap_off_opt.parentNode.style.borderColor = "#777";
+		} else {
+			wrap_on_opt.parentNode.style.backgroundColor = "#EEE";
+			wrap_on_opt.parentNode.style.borderColor = "#777";
+			wrap_off_opt.parentNode.style.backgroundColor = "#DFD";
+			wrap_off_opt.parentNode.style.borderColor = "#373";
+		}
+	}//end Word_Wrap_labels()
+
+
+
+	function Word_Wrap_Focus_Styles() {
+		
+		var active_id = document.activeElement.id;
+		if ((active_id == wrap_on_id) || (active_id == wrap_off_id)) {
+			
+			//<label> around the radio buttons.
+			if (active_id == wrap_on_id) {var on_off = "on";} else {var on_off = "off";}
+			Word_Wrap_labels(on_off);
+			
+			//<div> around the <label> around the radio buttons.
+			ww_div.style.backgroundColor = "rgb(255,250,150)";
+			ww_div.style.borderColor = "black";
+		}
+		else {
+			ww_div.style.backgroundColor = "#EEE";
+			ww_div.style.borderColor = "#777";
+		}
+	}//end Word_Wrap_Focus_Styles()
+
+
+
+	function Toggle_Word_Wrap(on_off) {
+		
+		if (on_off == "on") {listing.style["white-space"] = "pre-wrap";}
+		else 				{listing.style["white-space"] = "pre";}
+		
+		Set_Line_Numbers();
+		
+	}//end Toggle_Word_Wrap()
+
+
+
+	function Line_Count(str) {
+		
+		var line_count = 0;
+		var i = 0
+		
+		//line_count = (str.split(/\r\n|\r|\n/).length); //This is a little slower for very very very very very large files.
+		
+		for (i = 0; i < str.length; ++i) { 
+			if(str[i] == '\n') { line_count++; } //Also check for \r for some systems?
+		}
+		
+		line_count++;  //Last line doesn't have a new-line at the end.
+		
+		return line_count; 
+		
+	}//end Line_Count()
+
+
+
+	function Effective_Line_Length(line, tab_size){
+		
+		var TAB = "\t";
+		var effective_length = 0;
+		var next_tab_stop    = 0;
+		
+		for (x = 0; x < line.length; x++) {
+			
+			effective_length++;  //At this point, this may include a tab char, but not any subsequent space to the next tab-stop.
+			
+			if (effective_length > next_tab_stop) {next_tab_stop += tab_size;}
+			
+			if (line[x] == TAB) {effective_length = next_tab_stop;}  //adds the subsequent space to the next tab-stop.
+		}
+		
+		return effective_length;
+		
+	}//end Effective_Line_Length()
+	
+
+
+	function Create_Line_Numbers(){
+		
+		var current_width = Display_Width_Chars();
+		
+		var lc = Line_Count(listing.value)
+		var numbers  = '';	//String to contain the line numbers.
+		var lines    = listing.value.split('\n');
+		var cur_line = 0;	//listing[cur_line]
+		var line_len = 0;	//line length adjusted for tabs, to get effective length, and effective word-wrap.
+							//(each tab = 1 to 8 characters, depending...)
+		var effective_line_length = 0; //When tabs are expanded...
+		var line_count_wrapped = 0;
+		
+		for(var num = 1; num <= lc; num++) { 
+			
+			cur_line = num - 1;
+			
+			numbers += num + "\n";  // \n is MUCH faster than <br>
+			
+			effective_line_length = Effective_Line_Length(lines[cur_line], TAB_SIZE);
+			
+			if (wrap_on_opt.checked && (effective_line_length > current_width) ) {
+				
+				line_count_wrapped = Math.ceil(effective_line_length / current_width) - 1; //# of addtional lines after wrapped...
+				
+				//If desired, to mark a continued line, put a dash, plus, or whatever, just before the \n.
+				for (var x = 0; x < (line_count_wrapped); x++) { numbers += "\n"; }
+			}
+		}
+		
+		line_one.innerHTML = numbers;
+		
+	}//end Create_Line_Numbers()
+
+
+
+	function Set_Line_Numbers(event) {
+		
+		//Ignore a few keys that don't affect/not needed for line numbering.
+		if (event) { //event
+			if (window.event) { var event = window.event } 
+				
+			//Page Up/Down, End, Home, Arrow L/U/R/D
+			if ((event.keyCode > 32) && (event.keyCode < 41)) {return;}
+		} 
+		
+		Create_Line_Numbers();
+		
+		//Scroll/align the line numbers with the textarea.
+		line_numbers.scrollTop = listing.scrollTop;
+		
+	}//end Set_Line_Numbers()
+
+
+
+	var LN = {};
+	LN.Effective_Line_Length = Effective_Line_Length;
+	LN.Create_Line_Numbers   = Create_Line_Numbers;
+	LN.Set_Line_Numbers		 = Set_Line_Numbers;
+	
+	return LN;
+
+}//end Line_Numbering() //***********************************
+
+
+
+Line_Numbers = Line_Numbering("line_numbers", "file_editor", "line_0", "line_1", "word_wrap_on", "word_wrap_off", "ww_options");
+
+
 Reset_file_status_indicators();
+
 </script>
 <?php
 }//end Edit_Page_scripts() //***************************************************
@@ -3821,7 +4070,7 @@ function pwun_event_scripts($form_id, $button_id, $pwun='') {//*****************
 <script>
 var $form          = document.getElementById('<?php echo $form_id ?>');
 var $submit_button = document.getElementById('<?php echo $button_id ?>');
-var $message_box   = document.getElementById('message_box');
+var $pwun_msg_box   = document.getElementById('message_box');
 var $thispage      = false; //Used to ignore keyup if keydown started on prior page.
 var $submitdown    = false; //Used in document.mouseup event
 
@@ -3841,7 +4090,7 @@ function events_down(event, capture_key) {
 	if (!event) {var event = window.event;} //if IE
 	$thispage = true; //Make sure keydown was on this page.
 	if ((event.type.substr(0,3) == 'key') && (event.keyCode != capture_key)) {return true;}
-	$message_box.innerHTML = '<div class="message_box_contents"><b><?php echo hsc($_['Working']) ?></b>';
+	$pwun_msg_box.innerHTML = '<div class="message_box_contents"><b><?php echo hsc($_['Working']) ?></b>';
 }
 
 
@@ -3862,7 +4111,7 @@ document.onmouseup = function(event) {
 
 	//if mousedown was on submit button, but mouseup wasn't, clear message.
 	var target = event.target || event.srcElement; //target = most brosers || IE
-	if ($submitdown && ($submit_button.id != target.id) ) { $message_box.innerHTML = ''; } 
+	if ($submitdown && ($submit_button.id != target.id) ) { $pwun_msg_box.innerHTML = ''; } 
 	$submitdown = false;
 }
 
@@ -3870,26 +4119,27 @@ document.onmouseup = function(event) {
 function pre_validate_pwun() {
 	var $pw = document.getElementById('password');
 
-	//These must exist for checks below.
-	var $username = $pw;    var $new1 = $pw;    var $new2 = $pw;
+	var $username = $pw;
+	var $new1 	  = $pw;
+	var $new2 	  = $pw;
 
 	if (document.getElementById('username')){
-		var $username = document.getElementById('username');
+		$username = document.getElementById('username');
 	}
 	if (document.getElementById('new1')){
-		var $new1 = document.getElementById('new1');
-		var $new2 = document.getElementById('new2');
+		$new1 = document.getElementById('new1');
+		$new2 = document.getElementById('new2');
 	}
 
 
 	//If any field is blank..
 	if (($username.value == '') || ($pw.value == '') || ($new1.value == '') || ($new2.value == '')) {
-		$message_box.innerHTML = '<div class="message_box_contents"><b><?php echo hsc($_['change_pw_07']) ?></b>';
+		$pwun_msg_box.innerHTML = '<div class="message_box_contents"><b><?php echo hsc($_['change_pw_07']) ?></b>';
 		return false;
 	}
 	//If new & confirm new values do not match...
 	if (trim($new1.value) != trim($new2.value)) {
-		$message_box.innerHTML = '<div class="message_box_contents"><b><?php echo hsc($_['change_pw_04']) ?></b>';
+		$pwun_msg_box.innerHTML = '<div class="message_box_contents"><b><?php echo hsc($_['change_pw_04']) ?></b>';
 		return false;
 	}
 	return true;
@@ -3948,14 +4198,15 @@ function style_sheet() {//******************************************************
 /* --- reset --- */
 * { border : 0; outline: 0; margin: 0; padding: 0;
     font-family: inherit; font-weight: inherit; font-style : inherit;
-    font-size  : 100%; vertical-align: baseline; outline: none; }
+    font-size  : 100%; vertical-align: baseline; box-sizing: border-box; }
 
+:before, :after { box-sizing: border-box; } /*not currently used anywhere, but you never know...*/
 
 /* --- general formatting --- */
 
 html { background: linear-gradient(170deg, white, rgb(50, 120,190)); background-attachment: fixed;}
 
-body { height: 100%; font-size: 1em; font-family: sans-serif; } 
+body { height: 100%; font-size: 1em; font-family: sans-serif; overflow-y: scroll; }
 
 p, table, ol { margin-bottom: .6em;}
 
@@ -3980,6 +4231,7 @@ pre { background: white; border: 1px solid #777; padding: .2em; margin: 0; }
 input[type="text"]     { width: 100%; border: 1px solid #777; padding: 1px 1px 1px 0; font : 1em Courier; }
 input[type="password"] { width: 100%; border: 1px solid #777; padding: 0   1px 0   0; }
 input[type="file"]     { width: 100%; border: 1px solid #777; background-color: white; margin: 0; }
+input[type="radio"]    { margin: 0 1px 2px 3px; vertical-align: middle; cursor : pointer; }
 
 input[readonly]        { color: #333; background-color: #EEE; }
 input[disabled]        { color: #555; background-color: #EEE; }
@@ -4259,21 +4511,100 @@ a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
 
 .view_file { font: .9em Courier; background-color: #F8F8F8; }
 
+
+
+#wrapper_linenums_editor {
+	vertical-align	: top;
+	white-space		: nowrap;
+	padding			: 0px;
+	border			: none;
+	width		 	: 100%;
+}
+
+#line_numbers, #file_editor {
+	vertical-align	: top;
+	display			: inline-block;
+	white-space		: pre;
+	margin			: 0;
+	font			: normal .9em courier;
+}
+
+
+#line_numbers {
+	min-width	: 3.1em;  /* Must be wider than scroll-bar left-right arrows, or no scrollbar appears. */
+	padding		: 1px .3em 0 .2em;
+	border		: 1px solid #777;
+	background	: #ccc;
+	color		: #444;
+	overflow-y	: hidden;
+	overflow-x  : scroll;  /*This may be grayed out, but provides visual consistancy with #file_editor.*/
+	text-align	: right;
+}
+
+#line_0, #line_1 {margin: 0; display: inline-block; }
+
+.tab_size {
+	tab-size     : 8;
+	-o-tab-size  : 8;
+	-moz-tab-size: 8;
+}
+
 #file_editor {
-	border: 1px solid #999;
-	font  : .9em Courier;
-	margin: 0 0 .7em 0;
-	width : 99.8%;
-	height: 32em;
+	font  	  : .9em Courier;
+	border	  : 1px solid #777;
+	height	  : 40em;
+	width     : 96.6%;		/* compromise betweeen Normal and Wide views. May be dynamic someday. */
+	margin	  : 0 0 .7em 0;
+	padding   : 1px 0 0 3px;
+	overflow   : scroll;
+	word-break : break-all;
+	word-wrap  : normal;
+	white-space: pre-wrap;
+	resize     : none;
+	
+	color			: black; /* Default. May make themeable, along with background-color. */
+	
+	/* Set in Reset_file_status_indicators() and Check_for_changes() */
+	background-color: white;
 	}
 
-#file_editor:focus { border: 1px solid #000; }
+
+#file_editor:focus { border-color: #000; }
 
 .file_meta	{ float: left; margin-top: .6em; font-size: .95em; color: #222; }
 
 #edit_notes { font-size: .8em; color: #222 ;margin-top: 1em; clear:both; }
 
 .notes      { margin-bottom: .4em; }
+
+
+#ww_options {
+	display: inline-block;
+	height : 28px;  
+	padding: 5px 6px 0 7px;
+	border: solid 1px #777;
+	color  : black;
+	font-size  : .9em;
+	font-family: sans-serif;
+	background-color: #EEE;
+} 
+
+#ww_options:hover {background-color: rgb(255,250,150); border-color: black;}
+
+#ww_options > label {
+	padding: 0px 3px 0px 0em;
+	margin-left: .3em;
+	font-weight: normal;
+	border : 1px solid #777;
+	border-radius: 3px;
+	background-color: #EEE;
+}
+
+#ww_options > label:hover  { background-color: #DDD; border-color: #333; cursor : pointer; }
+
+
+
+
 
 
 /* --- log in --- */
@@ -4368,8 +4699,6 @@ hr { /*-- -- -- -- -- -- --*/
 
 .edit_btns_bottom {float: right;}
 .edit_btns_bottom .button { margin-left: .7em; } /*Adjusted by langauge files*/
-.edit_btns_bottom .RCD { padding-left: 5px; padding-right: 6px; }
-.edit_btns_bottom svg  { padding : 0 4px 0 0; }
 
 input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 #new_location {border-left: none;}
@@ -4415,10 +4744,16 @@ input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 
 
 function Language_and_config_adjusted_styles() {//******************************
-	global $_, $MAIN_WIDTH, $message, $page;
+	global $_, $MAIN_WIDTH, $MESSAGE, $page, $TAB_SIZE;
 ?>
 <style>
 #main { width: <?php echo $MAIN_WIDTH ?>; } /*Default 810px*/
+
+.tab_size {
+	tab-size     : <?php echo $TAB_SIZE ?>;
+	-o-tab-size  : <?php echo $TAB_SIZE ?>;
+	-moz-tab-size: <?php echo $TAB_SIZE ?>;
+}
 
 .button {
 	padding  : <?php echo $_['button_padding']   ?>; /*Default 4px 7px 4px 7px */
@@ -4437,7 +4772,8 @@ function Language_and_config_adjusted_styles() {//******************************
 .edit_btns_bottom .button {
 	margin-left: <?php echo $_['button_margin_L'] ?>; /*Default .7em*/
 	}
-	
+
+
 #select_all_label { font-size: <?php echo $_['select_all_label_size']?>; } /*Default .84em */
 #select_all_label { width: <?php echo $_['select_all_label_width']?>; }    /*Default 72px  */
 </style>
@@ -4448,7 +4784,7 @@ function Language_and_config_adjusted_styles() {//******************************
 
 
 function Load_style_sheet() {//*************************************************
-	global $CSS_FILE, $message;
+	global $CSS_FILE, $MESSAGE;
 
 	style_sheet(); //first load built-in defaults
 
@@ -4577,12 +4913,12 @@ echo "</body></html>\n";
 
 if ( ($page == "edit") && $WYSIWYG_VALID && $EDIT_WYSIWYG ) { include($WYSIWYG_PLUGIN_OS); }
 
-//Display any $message's
+//Display any $MESSAGE's
 echo '<script>';
 echo 'var $tabindex_xbox = '.$TABINDEX_XBOX.';'; //Used in Display_Messages()
-echo 'var $page    = "'.$page.'";';
-echo 'var $message = "'.addslashes($message).'";';
-	    //Cause $message's $X_box to take focus on these pages only.
+echo 'var $page = "'.$page.'";';
+echo '$MESSAGE += "'.addslashes($MESSAGE).'";'; //js version of $MESSAGE declared at top of common_scripts().
+	    //Cause $MESSAGE's $X_box to take focus on these pages only.
 echo 'if (($page == "index") || ($page == "edit")) {take_focus = 1}';
 echo 'else										   {take_focus = 0}';
 
@@ -4590,10 +4926,10 @@ echo 'else										   {take_focus = 0}';
 	//##### DO I NEED TO ACCOUNT FOR TIME RECEIVING & LOADING PAGE CLIENT SIDE?
 
 	//The setTimeout() delay should be greater than what is set for the Sort_and_Show() "working..." message.
-echo 'setTimeout("Display_Messages($message, take_focus)", '.$DELAY_final_messages.');';
+echo 'setTimeout("Display_Messages($MESSAGE, take_focus)", '.$DELAY_final_messages.');';
 echo '</script>';
 
-//start any timers (Yea, they could probably be put in a window.onload function or something...)
+//start any timers...
 if ($_SESSION['valid']) { echo Timeout_Timer($MAX_IDLE_TIME, 'timer0', 'LOGOUT'); }
 if ($page == 'edit')    { echo Timeout_Timer($MAX_IDLE_TIME, 'timer1', 'LOGOUT'); }
 if ($LOGIN_DELAYED > 0) { echo Timeout_Timer($LOGIN_DELAYED, 'timer0', ''); }

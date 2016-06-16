@@ -10,7 +10,7 @@ With basic editing, upload, and file managing functions, OneFileCMS can maintain
 ![OneFileCMS](http://self-evident.github.com/OneFileCMS/images/OneFileCMS_screenshot.png)
 
 ###Edit screen:
-![OneFileCMS](http://self-evident.github.com/OneFileCMS/images/OneFileCMS_screenshot_edit.png)
+![OneFileCMS](http://self-evident.github.com/OneFileCMS/images/OFCMS_screenshot_edit.02.png)
 
 --------------------------------------------------------------------------------
 ## Contents:
@@ -34,7 +34,7 @@ With basic editing, upload, and file managing functions, OneFileCMS can maintain
 ## <a name=features></a>Features
  
 - All the basic file management features like renaming, moving, copying, deleting, and uploading.
-- A basic text editor.
+- A basic text editor with line numbers.
 - Sort directory listings by file name, extension, size, or date.
 - Keyboard navigation of directory list. (Arrows, Page Up/Down, Home, End)
 - A WYSIWYG editor may be added as a plugin.
@@ -66,9 +66,9 @@ You can also change the file name from "onefilecms.php" to something else, such 
 - PHP 5.1+
   (Only tested on versions 5.2.8, 5.2.17, 5.3.3, and 5.4 + )
 - A Javascript enabled browser.
-- Most modern browsers probably work, but I only test on Firefox, Chrome, and IE 8.
+- Most modern browsers probably work, but I only test on Firefox and Chrome.
 - And if you wish to see the icons- a browser that supports inline SVG.  
-  (If your browser doesn't support inline SVG, OneFileCMS will still work, just without any icons.)
+  (If your browser doesn't support inline SVG, OneFileCMS will still work, but with text icons instead.)
 - File permission privileges on your host.
 
 --------------------------------------------------------------------------------
@@ -156,6 +156,7 @@ OneFileCMS can be easily configured to work with [TinyMCE](http://tinymce.moxiec
 
 - With Chrome, and possibly Safari, issue with Edit page: Clicking browser [back] & then browser [forward],  with file changed and not saved. On return (after [forward] clicked), file still has changes, but indicators are green (saved/unchanged). Does not affect FF 7+ or IE 8+.
 - Be aware that only some very basic data & error checking is performed.  (But, it's getting better...)  
+- With line numbering, word-wrap is now break-all (wraps in middle of words instead at nearest white-space as with break-word).
 - Anything else?
 
 --------------------------------------------------------------------------------

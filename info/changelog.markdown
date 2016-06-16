@@ -1,5 +1,11 @@
 # OneFileCMS Change Log
 
+### v3.5.19 (2016-06-16)
+
+- Added line numbers to left of edit window.  A current side effect is wrapping is now break-word, instead of word-break.  That is, lines may wrap in the midddle of words, not just on white-space. 
+- Added a word-wrap toggle option on the edit page.  Only works on editable files. Files with edit disabled still just word-wrap normally as appropriate.
+- And some code cleanup etc.
+
 ### v3.5.18 (2016-06-09)
 
 - And a few more improvements to arrow key handling.

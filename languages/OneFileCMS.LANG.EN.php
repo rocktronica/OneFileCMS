@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.5.18
+// OneFileCMS Language Settings v3.5.19
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -11,7 +11,7 @@ $_['LANG'] = 'EN';
 // Remember to slash-escape any single quotes that may be within the text:  \'
 // The back-slash itself may or may not also need to be escaped:  \\
 //
-// If present as a trailing comment, "## NT ##" means 'Need Translation'.
+// If present as a trailing comment, "## NT ##" means 'Needs Translation'.
 //
 // These first few settings control a few font and layout settings.
 // In some instances, some langauges may use significantly longer words or phrases than others.
@@ -21,7 +21,7 @@ $_['front_links_margin_L']   = '1.0em';
 $_['MCD_margin_R']           = '1.0em';   //[Move] [Copy] [Delete] buttons
 $_['button_font_size']       = '0.9em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
-$_['button_padding']         = '4px 7px 4px 7px'; //T R B L
+$_['button_padding']         = '4px 4px 4px 4px'; //T R B L
 $_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
@@ -57,6 +57,7 @@ $_['Move']     = 'Move';
 $_['Moved']    = 'Moved';
 $_['Name']     = 'Name';
 $_['on']       = 'on';
+$_['off']      = 'off';     //## NT ## as of 3.5.19
 $_['Password'] = 'Password';
 $_['Rename']   = 'Rename';
 $_['reset']    = 'Reset';
@@ -69,8 +70,8 @@ $_['To']       = 'To';
 $_['Upload']   = 'Upload';
 $_['Username'] = 'Username';
 $_['View']     = 'View';
-$_['Working']  = 'Working - please wait...';
 
+$_['Working']      = 'Working - please wait...';
 $_['Log_In']       = 'Log In';
 $_['Log_Out']      = 'Log Out';
 $_['Admin_Options'] = 'Administration Options';
@@ -80,6 +81,7 @@ $_['Open_View']    = 'Open/View in browser window';
 $_['Edit_View']    = 'Edit / View';
 $_['Wide_View']    = 'Wide View';
 $_['Normal_View']  = 'Normal View';
+$_['Word_Wrap']    = 'Word Wrap'; //## NT ## as of 3.5.19
 $_['Upload_File']  = 'Upload File';
 $_['New_File']     = 'New File';
 $_['Ren_Move']     = 'Rename / Move';
