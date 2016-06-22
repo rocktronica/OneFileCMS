@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.5.11
+// OneFileCMS Language Settings v3.5.20
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -21,56 +21,57 @@ $_['front_links_margin_L']   = '0.5em';
 $_['MCD_margin_R']           = '1.0em';   //[Move] [Copy] [Delete] buttons
 $_['button_font_size']       = '0.9em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
-$_['button_padding']         = '4px 4px'; //T&B L&R
+$_['button_padding']         = '4px 4px'; //T R B L
 $_['image_info_font_size']   = '.95em';   //show_img_msg_01  &  _02
 $_['image_info_pos']         = ' ';       //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
-$_['select_all_label_width'] = '110px';   //Width of space for $_['Select_All'] //Not used as of 3.4.23
+$_['select_all_label_width'] = '110px';   //Width of space for $_['Select_All']
 
 $_['HTML']    = 'HTML';
 $_['WYSIWYG'] = 'WYSIWYG'; //## NT ##
 
 $_['Admin']    = 'Administrador';
-$_['bytes']    = 'bytes';   //## NT ##
+$_['bytes']    = 'bytes';
 $_['Cancel']   = 'Cancelar';
-$_['cancelled'] = 'cancelled'; //## NT ##
+$_['cancelled'] = 'cancelado';
 $_['Close']    = 'Cerrar';
 $_['Copy']     = 'Copiar';
 $_['Copied']   = 'Copiado';
 $_['Create']   = 'Crear';
-$_['Date']     = 'Date';    //## NT ##
+$_['Date']     = 'Fecha';
 $_['Delete']   = 'Eliminar';
 $_['DELETE']   = 'ELIMINAR';
 $_['Deleted']  = 'Eliminado';
 $_['Edit']     = 'Editar';
 $_['Enter']    = 'Entrar';
-$_['Error']    = 'Error';   //## NT ##
+$_['Error']    = 'Error';
 $_['errors']   = 'errores';
 $_['ext']      = 'ext';
 $_['File']     = 'Archivo';
-$_['files']    = 'files';   //## NT ##
+$_['files']    = 'archivos';
 $_['Folder']   = 'Carpeta';
-$_['folders']  = 'folders'; //## NT ##
+$_['folders']  = 'carpetas';
 $_['From']     = 'de';
 $_['Hash']     = 'Cadena';
 $_['Move']     = 'Mover';
 $_['Moved']    = 'Movido';
-$_['Name']     = 'Name';    //## NT ##
+$_['Name']     = 'Nombre ';
 $_['on']       = 'activado';
+$_['off']      = 'apagar';
 $_['Password'] = 'contraseña';
 $_['Rename']   = 'Renombrar';
 $_['reset']    = 'Reiniciar';
 $_['save_1']   = 'Guardar';
 $_['save_2']   = '¡GUARDAR CAMBIOS';
-$_['Size']     = 'Size';    //## NT ##
+$_['Size']     = 'Tamaño';
 $_['Source']   = 'Source';  //## NT ##
 $_['successful'] = 'satisfactoriamente';
 $_['To']       = 'Hacia';
 $_['Upload']   = 'Subir';
 $_['Username'] = 'Usuario';
-$_['View']     = 'View';    //## NT ##
-$_['Working']  = 'Working - please wait...'; //## NT ##
+$_['View']     = 'Ver';
 
+$_['Working']      = 'Working - please wait...'; //## NT ##
 $_['Log_In']       = 'Iniciar Sesión';
 $_['Log_Out']      = 'Cerrar Sesión';
 $_['Admin_Options'] = 'Opciones de Administración';
@@ -80,6 +81,8 @@ $_['Open_View']    = 'Abrir/Ver en una ventana del navegador';
 $_['Edit_View']    = 'Editar / Ver Archivo';
 $_['Wide_View']    = 'Vista Ampliada';
 $_['Normal_View']  = 'Vista Normal';
+$_['Word_Wrap']    = 'Word Wrap'; //## NT ##
+$_['Line_Wrap']    = 'Line Wrap'; //## NT ##
 $_['Upload_File']  = 'Subir Archivo';
 $_['New_File']     = 'Archivo Nuevo';
 $_['Ren_Move']     = 'Renombrar / Mover';

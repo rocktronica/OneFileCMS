@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.5.11
+// OneFileCMS Language Settings v3.5.20
 
 $_['LANGUAGE'] = 'Deutsch';
 $_['LANG'] = 'DE';
@@ -21,24 +21,24 @@ $_['front_links_margin_L']   = '0.3em';
 $_['MCD_margin_R']           = '1.0em';   //[Move] [Copy] [Delete] buttons
 $_['button_font_size']       = '0.8em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
-$_['button_padding']         = '4px 4px'; //T&B L&R
+$_['button_padding']         = '4px 4px'; //T R B L
 $_['image_info_font_size']   = '.95em';   //show_img_msg_01  &  _02
 $_['image_info_pos']         = '1';       //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
-$_['select_all_label_width'] = '76px';    //Width of space for $_['Select_All'] //Not used as of 3.4.23
+$_['select_all_label_width'] = '76px';    //Width of space for $_['Select_All']
 
 $_['HTML']    = 'HTML';
-$_['WYSIWYG'] = 'WYSIWYG'; //## NT ##
+$_['WYSIWYG'] = 'WYSIWYG';
 
 $_['Admin']    = 'Konfiguration';
-$_['bytes']    = 'bytes';   //## NT ##
+$_['bytes']    = 'Bytes';
 $_['Cancel']   = 'Abbrechen';
-$_['cancelled'] = 'cancelled'; //## NT ##
+$_['cancelled'] = 'abgebrochen';
 $_['Close']    = 'Schließen';
 $_['Copy']     = 'Erstellen';
 $_['Copied']   = 'Kopieren';
 $_['Create']   = 'Kopiert';
-$_['Date']     = 'Date';    //## NT ##
+$_['Date']     = 'Datum';
 $_['Delete']   = 'Löschen';
 $_['DELETE']   = 'LÖSCHEN';
 $_['Deleted']  = 'Gelöschte';
@@ -50,27 +50,28 @@ $_['ext']      = 'ext';
 $_['File']     = 'Datei';
 $_['files']    = 'files';   //## NT ##
 $_['Folder']   = 'Ordner';
-$_['folders']  = 'folders'; //## NT ##
+$_['folders']  = 'Verzeichnisse';
 $_['From']     = 'Von';
 $_['Hash']     = 'Streuwert';
 $_['Move']     = 'Verschieben';
 $_['Moved']    = 'Verschoben';
-$_['Name']     = 'Name';    //## NT ##
+$_['Name']     = 'Name';
 $_['on']       = 'läuft unter';
+$_['off']      = 'aus';
 $_['Password'] = 'Passwort';
 $_['Rename']   = 'Umbenennen';
 $_['reset']    = 'Zurücksetzen';
 $_['save_1']   = 'Speichern';
 $_['save_2']   = 'ÄNDERUNGEN SPEICHERN';
-$_['Size']     = 'Size';    //## NT ##
+$_['Size']     = 'Größe';
 $_['Source']   = 'Source';  //## NT ##
 $_['successful'] = 'Erfolgreich';
 $_['To']       = 'Auf';
 $_['Upload']   = 'Heraufladen';
 $_['Username'] = 'Benutzername';
-$_['View']     = 'View';    //## NT ##
-$_['Working']  = 'Working - please wait...'; //## NT ##
+$_['View']     = 'Aussicht';
 
+$_['Working']      = 'Working - please wait...'; //## NT ##
 $_['Log_In']       = 'Anmelden';
 $_['Log_Out']      = 'Abmelden';
 $_['Admin_Options'] = 'Konfiguration Optionen';
@@ -80,6 +81,8 @@ $_['Open_View']    = 'Ansicht im Browser-Fenster';
 $_['Edit_View']    = 'Datei Bearbeiten / Ansicht';
 $_['Wide_View']    = 'Breitenadaptierte Ansicht';
 $_['Normal_View']  = 'Normale Ansicht';
+$_['Word_Wrap']    = 'Word Wrap'; //## NT ##
+$_['Line_Wrap']    = 'Line Wrap'; //## NT ##
 $_['Upload_File']  = 'Datei heraufladen';
 $_['New_File']     = 'Neuer Datei';
 $_['Ren_Move']     = 'Umbenennen / Verschieben';
@@ -168,8 +171,8 @@ $_['upload_txt_05'] = 'Für die hochgeladenen Dateien, die bereits existieren: '
 $_['upload_txt_06'] = 'Umbenennen (Auf filename.ext.001 etc...)';
 $_['upload_txt_07'] = 'Überschreiben';
 
-$_['upload_err_01'] = 'Error 1: Datei zu groß. Von php.ini:';
-$_['upload_err_02'] = 'Error 2: Datei zu groß. (MAX_FILE_SIZE HTML form element)';
+$_['upload_err_01'] = 'Fehler 1: Datei zu groß. Von php.ini:';
+$_['upload_err_02'] = 'Fehler 2: Datei zu groß. (MAX_FILE_SIZE HTML form element)';
 $_['upload_err_03'] = 'Fehler 3: Die Datei wurde nur teilweise heraufgeladen.';
 $_['upload_err_04'] = 'Fehler 4: Es wurde keine Datei heraufgeladen.';
 $_['upload_err_05'] = 'Fehler 5:';

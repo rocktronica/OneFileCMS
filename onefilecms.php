@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.19';
+$OFCMS_version = '3.5.20';
 
 
 
@@ -17,8 +17,9 @@ error_reporting(E_ALL & ~E_STRICT);     //(E_ALL &~ E_STRICT) for everything, 0 
 ini_set('display_errors', 'on');
 ini_set('log_errors'    , 'off');
 ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
-//Determine good folder for session file? Default is tmp/, which is not secure, but it may not be a serious concern.
-//session_save_path($safepath)  or  ini_set('session.save_path', $safepath)
+//
+//Determine good folder for session file. Default is /tmp/, which is not secure.
+//session_save_path('/home/content/username/tmp/'); //##### or:  ini_set('session.save_path', 'some_safe_path')
 //******************************************************************************
 
 
@@ -101,10 +102,10 @@ $LOG_LOGINS    = true; //Keep log of login attempts.
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.          Can be px, pt, em, or %.  Assumes px otherwise.
 $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked.  Can be px, pt, em, or %.  Assumes px otherwise.
 
-$WORD_WRAP = "on"; //"on" or (anything else) =="off".  Word-wrap state on page load of edit page. Once on page, word-wrap can toggle on/off.
+$LINE_WRAP = "on"; //"on", or (anything else) = "off".  Default for edit page. Once on page, line-wrap can toggle on/off.
 $TAB_SIZE  = 8;    //Some browsers recognize a css tab-size. Some don't.  If your's doesn't, LEAVE AT 8.  (IE/Edge, as of mid-2016)
 
-$MAX_EDIT_SIZE = 200000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
+$MAX_EDIT_SIZE = 210000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
 $MAX_VIEW_SIZE = 1000000; // If file > $MAX_EDIT_SIZE, don't even view in OneFileCMS.
                           // The default max view size is completely arbitrary. Basically, it was 2am, and seemed like a good idea at the time.
 
@@ -315,7 +316,7 @@ $PRE_ITERATIONS = 1000;
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.5.19
+// OneFileCMS Language Settings v3.5.20
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -395,6 +396,7 @@ $_['Edit_View']      = 'Edit / View';
 $_['Wide_View']      = 'Wide View';
 $_['Normal_View']    = 'Normal View';
 $_['Word_Wrap']	 	 = 'Word Wrap';	//## NT ## as of 3.5.19
+$_['Line_Wrap']	 	 = 'Line Wrap';	//## NT ## as of 3.5.20
 $_['Upload_File']    = 'Upload File';
 $_['New_File']       = 'New File';
 $_['Ren_Move']       = 'Rename / Move';
@@ -1314,7 +1316,7 @@ function Init_ICONS() {//*******************************************************
 
 
 	function icon_folder($extra = "") {//**********************************
-		return '<svg version="1.1" width="18" height="16"><g transform="translate(0,2)">'.
+		return '<svg version="1.1" width="18" height="14"><g transform="translate(0,0)">'.
 			'<path  d="M0.5, 1  L8,1  L9,2  L9,3  L16.5,3  L17,3.5  L17,13.5  L.5,13.5  L.5,.5" '.
 				'fill="#F0CD28" stroke="rgb(200,170,15)" stroke-width="1" />'.
 			'<path  d="M1.5, 8  L7, 8  L8.5,6.3  L16,6.3  L7.5, 6.3   L6.5,7.5  L1.5,7.5" '.
@@ -1383,8 +1385,8 @@ function Init_ICONS() {//*******************************************************
 	$ICONS['file_new']   = icon_txt('#444', 'black', 'white', $extra_new);
 	$ICONS['ren_mov'] = icon_folder('<g transform="translate(2.5,3)">'.$pencil.'</g>'.$arc_arrow);
 	$ICONS['move']    = icon_folder($arc_arrow);
-	$ICONS['copy']    = '<svg version="1.1" width="12" height="12"><g transform="translate(1,1)">'.$circle_plus_rev.'</g></svg>';
-	$ICONS['delete']  = '<svg version="1.1" width="12" height="12"><g transform="translate(1,1)">'.$circle_x.'</g></svg>';
+	$ICONS['copy']    = '<svg version="1.1" width="12" height="14"><g transform="translate(1,2)">'.$circle_plus_rev.'</g></svg>';
+	$ICONS['delete']  = '<svg version="1.1" width="12" height="14"><g transform="translate(1,2)">'.$circle_x.'</g></svg>';
 	$ICONS['up_dir']  = icon_folder('<g transform="scale(1.1) translate(1.75,2) rotate(-45, 5, 5)">'.$up_arrow.'</g>');
 
 	if (!supports_svg()) { //Text "icons" if SVG not supported.  Mostly for IE < 9
@@ -1839,7 +1841,7 @@ function Create_Table_for_Listing() {//*****************************************
 		<a tabindex=<?php echo $TABINDEX++?>     href="#" id=header_filename><?php echo hsc($_['Name']) ?></a>
 		<?php $TABINDEX++ // ?>
 	</th>
-	<th class=file_size><a tabindex=<?php echo $TABINDEX++?> href="#" id=header_filesize><?php echo hsc($_['Size']) ?></a></th>
+	<th class=file_size><a tabindex=<?php echo $TABINDEX++?> href="#" id=header_filesize><?php echo hsc($_['Size']." (".$_['bytes'].")") ?></a></th>
 	<th class=file_time><a tabindex=<?php echo $TABINDEX++?> href="#" id=header_filedate><?php echo hsc($_['Date']) ?></a></th>
 	</tr>
 
@@ -1936,7 +1938,7 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 
 
  
-function Send_data_to_js_and_display() {//**************************************
+function Send_directory_data_to_js() {//****************************************
 	global $DIRECTORY_DATA, $DIRECTORY_COUNT;
 	//"send" DIRECTORY_DATA to javascript.
 	$data_for_js = "<script>\n";
@@ -1945,24 +1947,23 @@ function Send_data_to_js_and_display() {//**************************************
 	for ($x = 0; $x < $DIRECTORY_COUNT; $x++) {
 		$filename = $DIRECTORY_DATA[$x][1];
 		if ( ($filename != '.') && ($filename != '..') ) {; // skip . & ..
-			$data_for_js .= 'DIRECTORY_DATA['.$row++.'] = new Array(';
-			$data_for_js .= ' "'.     $DIRECTORY_DATA[$x][0].'"';	// "type"
-			$data_for_js .= ',"'.     addslashes($DIRECTORY_DATA[$x][1]).'"';	// "file name"
-			$data_for_js .= ', '.     $DIRECTORY_DATA[$x][2];		// filesize
-			$data_for_js .= ', '.     $DIRECTORY_DATA[$x][3];		// timestamp
-			$data_for_js .= ', '.     $DIRECTORY_DATA[$x][4];		// is_ofcms
-			$data_for_js .= ',"'.     addslashes($DIRECTORY_DATA[$x][5]).'"';	// "ext"
-			$data_for_js .= ");\n";
+			$data_for_js .= 'DIRECTORY_DATA['.$row++.'] = [';
+			$data_for_js .= '"'  .$DIRECTORY_DATA[$x][0].'"';				// "type"
+			$data_for_js .= ', "'.addslashes($DIRECTORY_DATA[$x][1]).'"';	// "file name"
+			$data_for_js .= ', ' .$DIRECTORY_DATA[$x][2];					// filesize
+			$data_for_js .= ', ' .$DIRECTORY_DATA[$x][3];					// timestamp
+			$data_for_js .= ', ' .$DIRECTORY_DATA[$x][4];					// is_ofcms
+			$data_for_js .= ', "'.addslashes($DIRECTORY_DATA[$x][5]).'"';	// "ext"
+			$data_for_js .= "];\n";
 		}//end skip . & ..
 	}//end for x
 
-	//Initial sort & display of the directory, by (filename, ascending).
 	$data_for_js .= "var DIRECTORY_ITEMS = DIRECTORY_DATA.length;\n";
-	$data_for_js .= 'Sort_and_Show();'."\n";
 
 	$data_for_js .= "</script>\n";
 	echo $data_for_js;
-}//end Send_data_to_js_and_display() {//****************************************
+
+}//end Send_directory_data_to_js() {//******************************************
 
 
 
@@ -1977,16 +1978,16 @@ function Index_Page_buttons_top($file_count) {//********************************
 		$onclick_m = 'onclick="Confirm_Submit( \'move\');   "';
 		$onclick_c = 'onclick="Confirm_Submit( \'copy\');   "';
 		$onclick_d = 'onclick="Confirm_Submit( \'delete\' );"';
-		echo '<button id=b1 tabindex='.$TABINDEX++.' type=button '.$onclick_m.'>'.$ICONS['move'  ].'&nbsp;'.hsc($_['Move']  )."</button\n>";
-		echo '<button id=b2 tabindex='.$TABINDEX++.' type=button '.$onclick_c.'>'.$ICONS['copy'  ].'&nbsp;'.hsc($_['Copy']  )."</button\n>";
-		echo '<button id=b3 tabindex='.$TABINDEX++.' type=button '.$onclick_d.'>'.$ICONS['delete'].'&nbsp;'.hsc($_['Delete'])."</button\n>";
+		echo '<button id=b1 tabindex='.$TABINDEX++.' type=button '.$onclick_m.'>'.$ICONS['move'  ].hsc($_['Move']  )."</button\n>";
+		echo '<button id=b2 tabindex='.$TABINDEX++.' type=button '.$onclick_c.'>'.$ICONS['copy'  ].hsc($_['Copy']  )."</button\n>";
+		echo '<button id=b3 tabindex='.$TABINDEX++.' type=button '.$onclick_d.'>'.$ICONS['delete'].hsc($_['Delete'])."</button\n>";
 	}
 	echo '</div>'."\n"; //end mcd_submit
 
 	echo '<div class="front_links">'."\n";
-		echo '<a id=b4 tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.$param1.'&amp;p=newfolder">'.$ICONS['folder_new'].'&nbsp;'.hsc($_['New_Folder']) .'</a>';
-		echo '<a id=b5 tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.$param1.'&amp;p=newfile">'  .$ICONS['file_new']  .'&nbsp;'.hsc($_['New_File'])   .'</a>';
-		echo '<a id=b6 tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.$param1.'&amp;p=upload">'   .$ICONS['upload']    .'&nbsp;'.hsc($_['Upload_File']).'</a>';
+		echo '<a id=b4 tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.$param1.'&amp;p=newfolder">'.$ICONS['folder_new'].hsc($_['New_Folder']) .'</a>';
+		echo '<a id=b5 tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.$param1.'&amp;p=newfile">'  .$ICONS['file_new']  .hsc($_['New_File'])   .'</a>';
+		echo '<a id=b6 tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.$param1.'&amp;p=upload">'   .$ICONS['upload']    .hsc($_['Upload_File']).'</a>';
 	echo '</div>'; //end front_links
 	
 	echo '</div>'."\n"; //end index_page_buttons
@@ -2015,7 +2016,7 @@ function Index_Page() {//*******************************************************
 	echo "</form>\n";
 
 	Index_Page_scripts();
-	Send_data_to_js_and_display();
+	Send_directory_data_to_js();
 	Index_Page_events();
 }//end Index_Page() //**********************************************************
 
@@ -2050,6 +2051,7 @@ function Edit_Page_buttons_top($text_editable,$file_ENC) {//********************
 
 	//[Close] button
 	$close_button = '<button type=button id=close1 class=button>'.hsc($_['Close']).'</button>';
+
 ?>
 	<div class="edit_btns_top">
 		<div class="file_meta">
@@ -2111,7 +2113,15 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) {//**************
 //******************************************************************************
 function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_view, $file_ENC){
 	global $_, $ONESCRIPT, $param1, $param2, $param3, $filename, $filename_OS, $ITYPES, $INPUT_NUONCE, $EX, $MESSAGE, 
-		   $FILECONTENTS, $WYSIWYG_VALID, $EDIT_WYSIWYG, $IS_OFCMS, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $WORD_WRAP;
+		   $FILECONTENTS, $WYSIWYG_VALID, $EDIT_WYSIWYG, $IS_OFCMS, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $LINE_WRAP;
+
+	//Line-wrap on or off?  $LINE_WRAP default value set in configuration section.
+	//Used to set initial value of on/off button below textarea. A default value is in config section.
+	if (isset($_COOKIE['line_wrap'])) {
+		if (($_COOKIE['line_wrap'] === "on") || ($_COOKIE['line_wrap'] === "off")) {
+			$LINE_WRAP = $_COOKIE['line_wrap'];
+		}
+	}
 
 	$too_large_to_edit_message =
 		'<b>'.hsc($_['too_large_to_edit_01']).' '.number_format($MAX_EDIT_SIZE).' '.hsc($_['bytes']).'</b><br>'.
@@ -2121,19 +2131,25 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 		'<b>'.hsc($_['too_large_to_view_01']).' '.number_format($MAX_VIEW_SIZE).' '.hsc($_['bytes']).'</b><br>'.
 		hsc($_['too_large_to_view_02']).'<br>'.hsc($_['too_large_to_view_03']).'<br>';
 
-	echo '<form id="edit_form" name="edit_form" method="post" action="'.$ONESCRIPT.$param1.$param2.$param3.'">';
+	echo '<form id=edit_form name=edit_form method=post action="'.$ONESCRIPT.$param1.$param2.$param3.'">';
 		
 		echo $INPUT_NUONCE;
 		
 		Edit_Page_buttons_top($text_editable, $file_ENC);
 		
 		if ( !in_array( mb_strtolower($ext), $ITYPES) ) { //If non-image...
+			
+			//Did htmlspecialchars return an empty string from a non-empty file?
+			$bad_chars = ( ($FILECONTENTS == "") && (filesize($filename_OS) > 0) );
+			
+			if     (!$text_editable) { $MESSAGE .= hsc($_['edit_txt_01']).'<br><br>'; }
+			elseif ( $text_editable && $too_large_to_view ) {
+				echo '<p class="message_box_contents">'.$too_large_to_view_message.'</p>';
+			} else {
 				
-			if     (!$text_editable)      { $MESSAGE .= hsc($_['edit_txt_01']).'<br><br>'; }
-			elseif ( $too_large_to_edit ) { $MESSAGE .= $too_large_to_edit_message; }
-			elseif (!$IS_OFCMS) {
-				//Did htmlspecialchars return an empty string from a non-empty file?
-				$bad_chars = ( ($FILECONTENTS == "") && (filesize($filename_OS) > 0) );
+				if ($IS_OFCMS || $too_large_to_edit) {$readonly = "readonly";} else {$readonly = "";}
+				
+				if ( $too_large_to_edit ) { $MESSAGE .= $too_large_to_edit_message; }
 				
 				if ($bad_chars){ //Show message: may be a bad character in file
 					echo '<pre class="edit_disabled">'.$EX.hsc($_['edit_txt_02']).'<br>';
@@ -2141,28 +2157,19 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 					echo hsc($_['edit_txt_04']).'<br></pre>'."\n";
 				}else{          //show editable <textarea>
 					
-					$ww_on_checked = $ww_off_checked = "";
-					if ($WORD_WRAP == "on") {$ww_on_checked = "checked";} else {$ww_off_checked = "checked";}
-					
 					//<input name=filename> is used only to signal an Edit_response().
-					echo '<input type="hidden" name="filename" value="'.rawurlencode($filename).'">';
+					echo '<input type=hidden name=filename value="'.rawurlencode($filename).'">';
 					
 					echo "<div id=wrapper_linenums_editor>";
 					echo 	"<div id=line_numbers tabindex='-1'><div id=line_1>1</div><div id=line_0></div></div>";
-					echo 	"<textarea id=file_editor class=tab_size name=contents cols=70 rows=25>$FILECONTENTS</textarea>\n";
+					echo 	"<textarea $readonly id=file_editor class=tab_size name=contents cols=70 rows=25>$FILECONTENTS</textarea>\n";
 					echo "</div>\n";
 					
-					echo "<div id=ww_options>".hsc($_['Word_Wrap']).":";
-					echo 	"<label><input id=word_wrap_on  type=radio name=word_wrap value=on $ww_on_checked>{$_['on']}</label>";
-					echo 	"<label><input id=word_wrap_off type=radio name=word_wrap value=off $ww_off_checked>{$_['off']}</label>";
-					echo "</div>\n";
+					$wrap_on_off = hsc($_['Line_Wrap']." ".$_['on']."/".$_['off']);
+					echo "<button type=button class=button id=toggle_wrap name=toggle_wrap value=$LINE_WRAP>$wrap_on_off</button>";
 				}
 			}//end if/elseif...
 			
-			if     ( $text_editable && $too_large_to_view ) //This condition must come first.
-				{ echo '<p class="message_box_contents">'.$too_large_to_view_message.'</p>'; }
-			elseif ($IS_OFCMS || $too_large_to_edit)
-				{ echo '<pre class="edit_disabled view_file">'.$FILECONTENTS.'</pre>'."\n"; }
 		}//end if non-image
 		
 		Edit_Page_buttons($text_editable, $too_large_to_edit);
@@ -2217,7 +2224,7 @@ function Edit_Page() {//********************************************************
 	if (!$text_editable || $too_large_to_edit) {$WYSIWYG_VALID = 0;}
 
 	//Get file contents
-	if (($text_editable && !$too_large_to_view) || $IS_OFCMS) {
+ 	if (($text_editable && !$too_large_to_view) || $IS_OFCMS) {
 		$raw_contents = file_get_contents($filename_OS);
 		$file_ENC = mb_detect_encoding($raw_contents); //ASCII, UTF-8, ISO-8859-1, etc...
 		if ($file_ENC != 'UTF-8') { $raw_contents = mb_convert_encoding($raw_contents, 'UTF-8', $file_ENC); }
@@ -2225,6 +2232,7 @@ function Edit_Page() {//********************************************************
 		$file_ENC     = "";
 		$raw_contents = "";
 	}
+
 
 	if (PHP_VERSION_ID < 50400) { $FILECONTENTS = hsc($raw_contents); }
 	else						{ $FILECONTENTS = htmlspecialchars($raw_contents,ENT_SUBSTITUTE | ENT_QUOTES, 'UTF-8');	}
@@ -3028,7 +3036,7 @@ function Display_Messages($msg, take_focus) {//***********************
 	else if ($page == 'hash')  { new_focus = 'whattohash'; }
 	else if ($page == 'admin') { new_focus = 'close'; }
 
-	var $X_box		 = '<button tabindex=' + $tabindex_xbox + ' type=button id=X_box>x</button>';
+	var $X_box		 = '<button tabindex=' + $tabindex_xbox + ' type=button id=X_box>&times;</button>';
 	var $msg_div	 = '<div class=message_box_contents>' + $msg + '</div>';
 	var $msg_box     = document.getElementById("message_box");
 	var $new_focus	 = document.getElementById(new_focus)
@@ -3161,6 +3169,7 @@ document.onkeydown = function(event) { //*****************************
 	//File Rows. For these events, "../" is 0, and files are indexed 1 to DIRECTORY_ITEMS.
 	var FROWS     = DIRECTORY_ITEMS;
 	var LAST_FILE = "f" + FROWS + "c4";
+	var FIRST_FILE = "f0c4";
 
 	//Get id of current focus (before this event). If focus is in file list, ID = 'fn', or 'fnn', etc.
 	var ID      = document.activeElement.id;
@@ -3215,7 +3224,7 @@ document.onkeydown = function(event) { //*****************************
 	//  ENTER - enabled to check/unckeck checkboxes, and respond as needed.
 	//  Tab- handle checkbox's (parent <div>'s & <label>'s), otherwise allow default action.
 	//  Esc simply removes focus from active element.
-	//	Home toggles between [webroot]/current/path/ and [../] (first file in list)
+	//	Home goes to the first row in list - (../)
 	//	End goes only to last file in list.
 	//	Arrow Up/Down will loop from (top to bottom)/(bottom to top) of page (no hard stops).
 	//  Page Up/Down will likewise loop thru page, with soft-stops at first/last filenames.
@@ -3242,13 +3251,8 @@ document.onkeydown = function(event) { //*****************************
 		return;
 	}
 	else if (key == ESC)  { document.activeElement.blur();    return; }
-	else if (key == END)  { if (ID != LAST_FILE) {ID = LAST_FILE;} else {return} }
-	else if (key == HOME) {
-		if      (FR == 0)        {ID = "path_0";}
-		else if (ID == "path_0") {ID = "f0c4";}
-		else if (FR  > 0)        {ID = "f0c4";}
-		else					 {ID = "path_0";}
-	}
+	else if (key == END)  { if (ID != LAST_FILE ) {ID = LAST_FILE; } }
+	else if (key == HOME) {	if (ID != FIRST_FILE) {ID = FIRST_FILE;} }
 	else if (key == AL) {
 		//Find first tab-able element to the left (usually just (focus_tabindex - 1))
 		for (var new_index = (focus_tabindex - 1); new_index > 0; new_index--) {
@@ -3417,8 +3421,8 @@ function sort_DIRECTORY(col, direction) {//***************************
 	//SORT_by, SORT_order, and SORT_folders_1st: values set by prior (or initial) sort.
 
 	//If needed, set default col and/or direction.
-	col       = typeof col       !== 'undefined' ? col       : 1;
-	direction = typeof direction !== 'undefined' ? direction : ASCENDING;
+	if (typeof col       === 'undefined') { col = 1 }
+	if (typeof direction === 'undefined') { direction = ASCENDING }
 
 	//Filename ckboxes are cleared automatically on a resort, in Assemble_Insert_row(), so this needs cleared also.
 	Select_All_ckbox.checked = false;
@@ -3545,7 +3549,7 @@ function Build_Directory() {//****************************************
 			var DS        = '';
 			var f_or_f    = 'file';
 			var href      = ONESCRIPT + PARAM1 + '&amp;f=' + encodeURIComponent(filename) + '&amp;p=edit';
-			var file_size = format_number(filesize) + ' B';
+			var file_size = format_number(filesize);
 		}
 		
 		//For file, (TABINDEX + 4) to account for [m][c][d][x] which are added in Assemble_Insert_Row()
@@ -3595,6 +3599,7 @@ function Directory_Summary() {//**************************************
 function Sort_and_Show(col, direction) {//****************************
 
 	var DELAY = 0;
+
 	if (DIRECTORY_ITEMS > <?php echo $MIN_DIR_ITEMS ?>) { //
 		//(Any pre-existing $MESSAGE will be displayed after directory is displayed.)
 		Display_Messages('<b><?php echo $_['Working'] ?></b>');
@@ -3637,6 +3642,7 @@ function Select_All() {//********************************************
 
 
 
+
 function Confirm_Submit(action) {//***********************************
 
 	var files = document.mcdselect.elements['files[]'];
@@ -3658,6 +3664,7 @@ function Confirm_Submit(action) {//***********************************
 }//end Confirm_Submit() //********************************************
 
 </script>
+
 <?php
 }//end Index_Page_scripts() //**************************************************
 
@@ -3665,7 +3672,7 @@ function Confirm_Submit(action) {//***********************************
 
 
 function Edit_Page_scripts() {//************************************************
-	global $_, $ONESCRIPT, $ONESCRIPT_file, $ipath, $param1, $param2, $filename, $WORD_WRAP, 
+	global $_, $ONESCRIPT, $ONESCRIPT_file, $ipath, $param1, $param2, $filename, $LINE_WRAP,
 			$MAIN_WIDTH, $WIDE_VIEW_WIDTH, $current_view, $WYSIWYG_VALID, $EDIT_WYSIWYG, $TAB_SIZE;
 
 	//Determine edit_view width.
@@ -3683,6 +3690,7 @@ function Edit_Page_scripts() {//************************************************
 	//For [Close] button
 	$close_params = $ONESCRIPT.$param1;
 	if ( $_SESSION['admin_page'] ) { $close_params .= '&p=admin'; } //If came from admin page, return there.
+
 ?>
 <script>
 var onclick_params = '<?php echo $ONESCRIPT.$param1.'&f='.rawurlencode(basename($filename)).'&p=' ?>';
@@ -3725,7 +3733,8 @@ if (Delete_File_button) { Delete_File_button.onclick = function () {parent.locat
 if (File_textarea)      { File_textarea.addEventListener("keyup", function(event) {Check_for_changes(event);}) }
 
 
-//Prevent form-submission on enter of the word-wrap radio buttons.  They are only used for changing word-wrap visually.
+//Prevent form-submission on enter of the word-wrap radio buttons.
+//They are only used for changing word-wrap visually.
 var $edit_form = document.getElementById('edit_form');
 $edit_form.addEventListener( "submit", function(event) {Ignore_Submit(event)});
 
@@ -3759,10 +3768,26 @@ window.onunload = function() {
 
 
 
+function Correct_Word_Wrapping(text_area) {
+
+	//Correct word-wrapping and save cursor postion/selection
+	//after toggling between Wide/Normal views, and between Wrap on/off.
+	//(Doesn't always wrap consistantly or seem to use break-all.)
+	//This is so line-numbers line-up correctly.
+
+	var tmp = text_area.value;
+	var cursorX1 = text_area.selectionStart;
+	var cursorx2 = text_area.selectionEnd;
+	text_area.value = "";
+	text_area.value = tmp;
+	text_area.selectionStart = cursorX1;
+	text_area.selectionEnd   = cursorx2;
+}
+
+
+
 function Wide_View() {
 
-	//#####  Wide_View() currently only works on #file_editor (editable files).  Doesn't work when "edit disabled".  Yet.
-	
 	var main_width_default = '<?php echo $MAIN_WIDTH ?>';
 
 	//Set view width
@@ -3775,12 +3800,10 @@ function Wide_View() {
 		Wide_View_button.innerHTML = '<?php echo hsc($_['Normal_View']) ?>';
 		document.cookie            = 'edit_view=<?php echo $WIDE_VIEW_WIDTH ?>';
 	}
-	
-	//Corrects word-wrapping after changing between normal and wide-view. (Doesn't always wrap consistantly/use break-word.)
-	var tmp = File_textarea.value;
-	File_textarea.value = "";
-	File_textarea.value = tmp;
 
+
+	Correct_Word_Wrapping(File_textarea);
+	
 	Line_Numbers.Set_Line_Numbers();
 
 }// end Wide_View() 
@@ -3845,15 +3868,15 @@ function Reset_File() {
 
 
 
-function Line_Numbering(line_numbers_id, listing_id, line0_id, line1_id, wrap_on_id, wrap_off_id, ww_div_id) {
+function Line_Numbering(line_numbers_id, listing_id, line0_id, line1_id, toggle_wrap_id) {
 
 	var line_numbers = document.getElementById(line_numbers_id);
 	var listing 	 = document.getElementById(listing_id);
 	var line_zero    = document.getElementById(line0_id); //empty: used for char-width calc.
 	var line_one     = document.getElementById(line1_id); //<div>1</div> will contain the line numbers.
-	var wrap_on_opt  = document.getElementById(wrap_on_id);
-	var wrap_off_opt = document.getElementById(wrap_off_id);
-	var ww_div 		 = document.getElementById(ww_div_id);
+	var toggle_wrap	 = document.getElementById(toggle_wrap_id);
+	var initial_wrap = "<?php echo $LINE_WRAP ?>";
+	var TAB_SIZE 	 = <?php echo $TAB_SIZE ?>;
 
 	var char_width     = (line_zero.offsetLeft - line_one.offsetLeft);
 	var padding_L 	   = parseInt(window.getComputedStyle(listing).getPropertyValue("padding-left"));
@@ -3861,82 +3884,51 @@ function Line_Numbering(line_numbers_id, listing_id, line0_id, line1_id, wrap_on
 
 	var Display_Width_Chars = function() {return Math.floor((listing.clientWidth - padding_L - padding_R) / char_width)};
 
-	var TAB_SIZE = <?php echo $TAB_SIZE ?>;
-
 	line_zero.innerHTML = ""; //Just makin' sure. Only used for char-width calc.
 
 	line_numbers.style.height = listing.offsetHeight + "px";
 
 
-	Set_Line_Numbers(); 
 
-
+	if (listing.getAttribute('readonly') === null) {
+		//If not readonly (ie: editable)...
+		listing.addEventListener("keyup",   function(event){Set_Line_Numbers(event)});
+		listing.addEventListener("mouseup", function(event){Set_Line_Numbers(event)});
+		listing.addEventListener("paste",   function(event){Set_Line_Numbers(event)});
+	}
+	
 	listing.addEventListener("scroll",  function(event){Set_Line_Numbers(event)});
-	listing.addEventListener("keyup",   function(event){Set_Line_Numbers(event)});
-	listing.addEventListener("mouseup", function(event){Set_Line_Numbers(event)});
-	listing.addEventListener("paste",   function(event){Set_Line_Numbers(event)});
-
-	wrap_on_opt.onchange  = function() {Toggle_Word_Wrap(this.value);}
-	wrap_off_opt.onchange = function() {Toggle_Word_Wrap(this.value);}
-
-	document.onkeyup = function() {Word_Wrap_Focus_Styles(); }
-	document.onclick = function() {Word_Wrap_Focus_Styles();}
+	
+	toggle_wrap.onclick = function() {Toggle_Line_Wrap(this);}
 
 
 
-	//Set default/page load condition from CONFIGURABLE OPTIONS...
-	Toggle_Word_Wrap("<?php echo $WORD_WRAP ?>");
-	Word_Wrap_labels("<?php echo $WORD_WRAP ?>");
+	//Set default/page load condition, and also init's the line numbers...
+	//We're just setting the initial condition now, not actually toggling,
+	//so "pre-toggle" the indicator here as Toggle_Line_Wrap() will toggle it back...
+	if (initial_wrap === "off") {toggle_wrap.value = "on";} else {toggle_wrap.value = "off";}
+	Toggle_Line_Wrap(toggle_wrap);
 
 
 
-	function Word_Wrap_labels(word_wrap) {
-		//<label> around the radio buttons.
+	function Toggle_Line_Wrap(on_off) {
 		
-		if (word_wrap == "on") {
-			wrap_on_opt.parentNode.style.backgroundColor = "#DFD";
-			wrap_on_opt.parentNode.style.borderColor = "#373";
-			wrap_off_opt.parentNode.style.backgroundColor = "#EEE";
-			wrap_off_opt.parentNode.style.borderColor = "#777";
-		} else {
-			wrap_on_opt.parentNode.style.backgroundColor = "#EEE";
-			wrap_on_opt.parentNode.style.borderColor = "#777";
-			wrap_off_opt.parentNode.style.backgroundColor = "#DFD";
-			wrap_off_opt.parentNode.style.borderColor = "#373";
-		}
-	}//end Word_Wrap_labels()
-
-
-
-	function Word_Wrap_Focus_Styles() {
-		
-		var active_id = document.activeElement.id;
-		if ((active_id == wrap_on_id) || (active_id == wrap_off_id)) {
-			
-			//<label> around the radio buttons.
-			if (active_id == wrap_on_id) {var on_off = "on";} else {var on_off = "off";}
-			Word_Wrap_labels(on_off);
-			
-			//<div> around the <label> around the radio buttons.
-			ww_div.style.backgroundColor = "rgb(255,250,150)";
-			ww_div.style.borderColor = "black";
+		if (on_off.value == "on") {
+			on_off.value  				 = "off"
+			document.cookie 			 = 'line_wrap=off'
+			listing.style["white-space"] = "pre";
 		}
 		else {
-			ww_div.style.backgroundColor = "#EEE";
-			ww_div.style.borderColor = "#777";
+			on_off.value  				 = "on"
+			document.cookie				 = 'line_wrap=on'
+			listing.style["white-space"] = "pre-wrap";
 		}
-	}//end Word_Wrap_Focus_Styles()
-
-
-
-	function Toggle_Word_Wrap(on_off) {
 		
-		if (on_off == "on") {listing.style["white-space"] = "pre-wrap";}
-		else 				{listing.style["white-space"] = "pre";}
+		Correct_Word_Wrapping(listing);
 		
 		Set_Line_Numbers();
 		
-	}//end Toggle_Word_Wrap()
+	}//end Toggle_Line_Wrap()
 
 
 
@@ -3945,10 +3937,8 @@ function Line_Numbering(line_numbers_id, listing_id, line0_id, line1_id, wrap_on
 		var line_count = 0;
 		var i = 0
 		
-		//line_count = (str.split(/\r\n|\r|\n/).length); //This is a little slower for very very very very very large files.
-		
 		for (i = 0; i < str.length; ++i) { 
-			if(str[i] == '\n') { line_count++; } //Also check for \r for some systems?
+			if(str[i] == '\n') { line_count++; } //Line-endings are normalized to \n elsewhere in OFCMS. (server-side)
 		}
 		
 		line_count++;  //Last line doesn't have a new-line at the end.
@@ -3989,9 +3979,8 @@ function Line_Numbering(line_numbers_id, listing_id, line0_id, line1_id, wrap_on
 		var lines    = listing.value.split('\n');
 		var cur_line = 0;	//listing[cur_line]
 		var line_len = 0;	//line length adjusted for tabs, to get effective length, and effective word-wrap.
-							//(each tab = 1 to 8 characters, depending...)
-		var effective_line_length = 0; //When tabs are expanded...
-		var line_count_wrapped = 0;
+		var effective_line_length = 0; //line length after tabs are expanded...
+		var line_count_wrapped = 0;   //number of visual lines, not neccessarily numbered lines, with line-wrap on.
 		
 		for(var num = 1; num <= lc; num++) { 
 			
@@ -4001,7 +3990,7 @@ function Line_Numbering(line_numbers_id, listing_id, line0_id, line1_id, wrap_on
 			
 			effective_line_length = Effective_Line_Length(lines[cur_line], TAB_SIZE);
 			
-			if (wrap_on_opt.checked && (effective_line_length > current_width) ) {
+			if ((toggle_wrap.value == "on") && (effective_line_length > current_width)) {
 				
 				line_count_wrapped = Math.ceil(effective_line_length / current_width) - 1; //# of addtional lines after wrapped...
 				
@@ -4040,17 +4029,20 @@ function Line_Numbering(line_numbers_id, listing_id, line0_id, line1_id, wrap_on
 	LN.Create_Line_Numbers   = Create_Line_Numbers;
 	LN.Set_Line_Numbers		 = Set_Line_Numbers;
 	
+	//Set initial cursor location to start of file, instead of end (the default).
+	listing.selectionStart = 0;
+	listing.selectionEnd = 0;
+
 	return LN;
 
 }//end Line_Numbering() //***********************************
 
 
 
-Line_Numbers = Line_Numbering("line_numbers", "file_editor", "line_0", "line_1", "word_wrap_on", "word_wrap_off", "ww_options");
+Line_Numbers = Line_Numbering("line_numbers", "file_editor", "line_0", "line_1", "toggle_wrap");
 
 
 Reset_file_status_indicators();
-
 </script>
 <?php
 }//end Edit_Page_scripts() //***************************************************
@@ -4208,6 +4200,8 @@ html { background: linear-gradient(170deg, white, rgb(50, 120,190)); background-
 
 body { height: 100%; font-size: 1em; font-family: sans-serif; overflow-y: scroll; }
 
+svg { position: relative; top: 2px; }
+
 p, table, ol { margin-bottom: .6em;}
 
 h1,h2,h3,h4,h5,h6 { font-weight: bold; }
@@ -4242,9 +4236,13 @@ input:hover  { background-color: rgb(255,250,150); }
 /*-- Must be after input:focus, as it alters border --*/
 input[type="checkbox"] { cursor: pointer; border: none;}
 
+button, .button {border-radius: 5px;}
+
 button:hover  { background-color: rgb(255,250,150); border-color: #333;}
 button:focus  { background-color: rgb(255,250,150); border-color: #333;}
 button:active { background-color: rgb(245,245,50);  border-color: #333;}
+
+button:active, .button:active{ position:relative; top :1px; left:1px; }
 
 /* --- layout --- */
 
@@ -4280,26 +4278,20 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 	}
 
 
-#message_box { border: none; margin: .5em 0 0 0; padding: 0; min-height: 1.88em;}
+#message_box { border: none; margin: .5em 0 .5em 0; padding: 0; min-height: 1.88em;}
 
 .message_box_contents { border: 1px solid gray; padding: 3px 2px 2px 4px; background: #FFF000; }
 
-#message_box #message_left {
-	float  : left;
-	margin : 0;
-	padding: 0;
-	border : none;
-	font-weight : 900;
-	}
+#message_box #message_left {float: left; margin: 0; padding: 0; border: none; font-weight: 900; }
 
 #message_box  #X_box {
 	display: block;
 	float  : right;
 	margin : 0;
-	padding: 0 2px 0 3px;
+	padding: 0px 0px 0 1px;
 	border : 1px solid gray;
-	font   : 16pt courier;
-	line-height: 18px;
+	font-size  : 20px;
+	line-height: 16px;
 	background : #EEE;
 	}
 
@@ -4312,7 +4304,7 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 
 /* ------ INDEX Page ------ */
 
-#index_page_buttons     { margin: 0 0 0 0; }
+#index_page_buttons     { margin: 0; }
 #index_page_buttons div { display: inline-block; vertical-align: bottom; }
 
 
@@ -4409,10 +4401,10 @@ th.file_name {min-width: 15em}
 #header_sorttype:focus {border-color: silver;}
 
 .file_name { max-width: 26em; }
-.file_size { min-width:  6em; padding-left: 10px; }
-.file_time { min-width: 10em; padding-left: 10px; }
+.file_size { min-width:  6em; }
+.file_time { min-width: 10em; }
 
-.meta_T { padding-right: 4px; text-align: right; font-family: courier; font-size: .9em; color: #222; }
+.meta_T { padding: 0 .6em; text-align: right; font-family: courier; font-size: .9em; color: #222; }
 
 #DIRECTORY_FOOTER {text-align: center; font-size: .9em; color: #333; padding: 3px 0 0 0; }
 
@@ -4421,15 +4413,16 @@ th.file_name {min-width: 15em}
 .front_links { float: right; }
  
 .front_links a {
-	display: inline-block;
-	margin-top  : .2em;
+	display		: inline-block;
 	border      : 1px solid #777;
 	font-size   : 1em;  /*Adjusted by langauge files*/
 	margin-left : 1em;  /*Adjusted by langauge files*/
 	padding     : 3px 5px 2px 4px; /*TRBL*/
 	background-color: #EEE;
+	border-radius: 5px;
 	}
 
+.front_links svg { position: relative; top: 1px; margin-right: 5px; }
 
 /*These must go after .front_links and other style that affect <a> tags*/
 a { border: 1px solid transparent; text-decoration: none; }
@@ -4440,20 +4433,20 @@ a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
 
 /*** [Move] [Copy] [Delete] ***/
 
-#mcd_submit { margin: 0; height: 1.8em; }
+#mcd_submit { margin: 0; }
 
 #mcd_submit button {
-	height   : 1.55em;
+	height   : 1.75em;
 	cursor   : pointer;
 	border   : 1px solid #777;
-	padding  : 0px 4px 0px 3px; /*TRBL*/
-	margin-top  :  .5em;  /* Helps align bottoms with New & Upload buttons */
-	margin-left : 0.0em;  /* no longer needs adjusted by langauge files */
+	padding  : 0px 3px 0px 2px; /*TRBL*/
 	margin-right: 1.0em;  /* Adjusted by language files */
 	font-size: .9em;
 	color    : rgb(100,45,0);
 	background-color: #EEE;
 	}
+
+#mcd_submit svg { margin-right: 5px; }
 
 #mcd_submit button:focus  { border: 1px solid #333; background-color: rgb(255,250,150); }
 #mcd_submit button:hover  { border: 1px solid #333; background-color: rgb(255,250,150); }
@@ -4554,7 +4547,7 @@ a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
 	border	  : 1px solid #777;
 	height	  : 40em;
 	width     : 96.6%;		/* compromise betweeen Normal and Wide views. May be dynamic someday. */
-	margin	  : 0 0 .7em 0;
+	margin	  : 0 0 .7em 2px;
 	padding   : 1px 0 0 3px;
 	overflow   : scroll;
 	word-break : break-all;
@@ -4687,7 +4680,7 @@ hr { /*-- -- -- -- -- -- --*/
 
 .timer {border: 1px solid #eee; padding: 3px .5em 4px .5em;}
 
-.timeout {float:right; font-size: .95em; color: #111;}
+.timeout {float:right; font-size: .95em; color: #111; padding-right: .3em;}
 
 .edit_btns_top {margin: .2em 0 .5em 0;}
 
@@ -4855,6 +4848,7 @@ if ($_SESSION['valid']) {
 
 
 
+
 //******************************************************************************
 //Output page contents
 //******************************************************************************
@@ -4893,9 +4887,9 @@ Load_Selected_Page();
 //footer...
 if ($_SESSION['valid']) {
 	//Countdown timer
-	echo '<hr style="border-color: white;">';
-	echo '<span id=timer0  class="timer timeout"></span>';
-	echo '<span class="timeout">'.hsc($_['time_out_txt']).'&nbsp; </span>';
+	echo "<hr style='border-color: white;'>\n";
+	echo "<span id=timer0  class='timer timeout'></span>";
+	echo "<span class=timeout>".hsc($_['time_out_txt'])."</span>";
 
 	//Adjust tabindex to account for [m][c][d][x] and file names in directory list.
 	//(Directory list created via js, so $TAB_INDEX is also passed to, and handled by, js at that point.)
@@ -4915,19 +4909,22 @@ if ( ($page == "edit") && $WYSIWYG_VALID && $EDIT_WYSIWYG ) { include($WYSIWYG_P
 
 //Display any $MESSAGE's
 echo '<script>';
-echo 'var $tabindex_xbox = '.$TABINDEX_XBOX.';'; //Used in Display_Messages()
-echo 'var $page = "'.$page.'";';
-echo '$MESSAGE += "'.addslashes($MESSAGE).'";'; //js version of $MESSAGE declared at top of common_scripts().
+echo 'var $tabindex_xbox = '.$TABINDEX_XBOX.";\n"; //Used in Display_Messages()
+echo 'var $page = "'.$page.'";'."\n";
+echo '$MESSAGE += "'.addslashes($MESSAGE).'";'."\n"; //js version of $MESSAGE declared at top of common_scripts().
 	    //Cause $MESSAGE's $X_box to take focus on these pages only.
-echo 'if (($page == "index") || ($page == "edit")) {take_focus = 1}';
-echo 'else										   {take_focus = 0}';
+echo 'if (($page == "index") || ($page == "edit")) {take_focus = 1}'."\n";
+echo 'else										   {take_focus = 0}'."\n\n";
+
+//Initial sort & display of the directory, by (filename, ascending).
+if ($page == "index") {	echo "Sort_and_Show();\n\n"; }
+
+//The setTimeout() delay should be greater than what is set for the Sort_and_Show() "working..." message.
+echo 'setTimeout("Display_Messages($MESSAGE, take_focus)", '.$DELAY_final_messages.');';
+echo "</script>\n\n";
 
 	//##### ACTUAL COUNTDOWN STARTS ON THE SERVER.
 	//##### DO I NEED TO ACCOUNT FOR TIME RECEIVING & LOADING PAGE CLIENT SIDE?
-
-	//The setTimeout() delay should be greater than what is set for the Sort_and_Show() "working..." message.
-echo 'setTimeout("Display_Messages($MESSAGE, take_focus)", '.$DELAY_final_messages.');';
-echo '</script>';
 
 //start any timers...
 if ($_SESSION['valid']) { echo Timeout_Timer($MAX_IDLE_TIME, 'timer0', 'LOGOUT'); }

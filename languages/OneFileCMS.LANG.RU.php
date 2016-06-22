@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.5.11
+// OneFileCMS Language Settings v3.5.20
 
 $_['LANGUAGE'] = 'Russian';
 $_['LANG'] = 'RU';
@@ -25,20 +25,20 @@ $_['button_padding']         = '4px 5px'; //T R B L
 $_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
-$_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All'] //Not used as of 3.4.23
+$_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All']
 
 $_['HTML']    = 'HTML';
-$_['WYSIWYG'] = 'WYSIWYG'; //## NT ##
+$_['WYSIWYG'] = 'WYSIWYG';
 
 $_['Admin']    = 'Админка';
 $_['bytes']    = 'байт';
 $_['Cancel']   = 'Отмена';
-$_['cancelled'] = 'cancelled'; //## NT ##
+$_['cancelled'] = 'отменен';
 $_['Close']    = 'Закрыть';
 $_['Copy']     = 'Копия';
 $_['Copied']   = 'Копировать';
 $_['Create']   = 'Создать';
-$_['Date']     = 'Date';    //## NT ##
+$_['Date']     = 'Дата';
 $_['Delete']   = 'Удалить';
 $_['DELETE']   = 'УДАЛИТЬ';
 $_['Deleted']  = 'Удалено';
@@ -48,29 +48,30 @@ $_['Error']    = 'Ошибка';
 $_['errors']   = 'ошибки';
 $_['ext']      = 'ext';
 $_['File']     = 'Файл';
-$_['files']    = 'files';   //## NT ##
+$_['files']    = 'файлы';
 $_['Folder']   = 'Папка';
-$_['folders']  = 'folders'; //## NT ##
+$_['folders']  = 'папки';
 $_['From']     = 'из';
 $_['Hash']     = 'Хэш';
 $_['Move']     = 'Переместить';
 $_['Moved']    = 'Перемещено';
-$_['Name']     = 'Name';    //## NT ##
+$_['Name']     = 'имя';
 $_['on']       = 'в';
+$_['off']      = 'от';
 $_['Password'] = 'Пароль';
 $_['Rename']   = 'Rename';  //## NT ##
 $_['reset']    = 'Сбросить';
 $_['save_1']   = 'Сохранить';
 $_['save_2']   = 'СОХРАНИТЬ ИЗМЕНЕНИЯ';
-$_['Size']     = 'Size';    //## NT ##
+$_['Size']     = 'Размер';
 $_['Source']   = 'Source';  //## NT ##
 $_['successful'] = 'успешно';
 $_['To']       = 'В';
 $_['Upload']   = 'Загрузить';
 $_['Username'] = 'Логин';
-$_['View']     = 'View';    //## NT ##
-$_['Working']  = 'Working - please wait...'; //## NT ##
+$_['View']     = 'вид';
 
+$_['Working']      = 'Working - please wait...'; //## NT ##
 $_['Log_In']       = 'Войти';
 $_['Log_Out']      = 'Выйти';
 $_['Admin_Options'] = 'Настройки Администратора';
@@ -80,6 +81,8 @@ $_['Open_View']    = 'Открыть/Открыть в окне браузера
 $_['Edit_View']    = 'Ред. / Смотреть';
 $_['Wide_View']    = 'Широкий Обзор';
 $_['Normal_View']  = 'Нормальный Обзор';
+$_['Word_Wrap']    = 'Word Wrap'; //## NT ##
+$_['Line_Wrap']    = 'Line Wrap'; //## NT ##
 $_['Upload_File']  = 'Загрузить файл';
 $_['New_File']     = 'Новый файл';
 $_['Ren_Move']     = 'Переименовать / Переместить';

@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.5.11
+// OneFileCMS Language Settings v3.5.20
 
 $_['LANGUAGE'] = 'Nederlands (Dutch)';
 $_['LANG'] = 'NL';
@@ -21,24 +21,24 @@ $_['front_links_margin_L']   = '0.4em';
 $_['MCD_margin_R']           = '1.0em';   //[Move] [Copy] [Delete] buttons
 $_['button_font_size']       = '0.8em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
-$_['button_padding']         = '4px 3px'; //T&B L&R
+$_['button_padding']         = '4px 3px'; //T R B L
 $_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
-$_['select_all_label_width'] = '90px';    //Width of space for $_['Select_All'] //Not used as of 3.4.23
+$_['select_all_label_width'] = '90px';    //Width of space for $_['Select_All']
 
 $_['HTML']    = 'HTML';
-$_['WYSIWYG'] = 'WYSIWYG'; //## NT ##
+$_['WYSIWYG'] = 'WYSIWYG';
 
 $_['Admin']    = 'Beheer';
-$_['bytes']    = 'bytes';   //## NT ##
+$_['bytes']    = 'bytes';
 $_['Cancel']   = 'Annuleren';
-$_['cancelled'] = 'cancelled'; //## NT ##
+$_['cancelled'] = 'geannuleerd';
 $_['Close']    = 'Sluiten';
 $_['Copy']     = 'Kopiëren';
 $_['Copied']   = 'Gekopiëerd';
 $_['Create']   = 'Aanmaken';
-$_['Date']     = 'Date';    //## NT ##
+$_['Date']     = 'Datum';
 $_['Delete']   = 'Verwijderen';
 $_['DELETE']   = 'VERWIJDER';
 $_['Deleted']  = 'Verwijderd';
@@ -48,29 +48,30 @@ $_['Error']    = 'Fout';
 $_['errors']   = 'fouten';
 $_['ext']      = 'ext';
 $_['File']     = 'Bestand';
-$_['files']    = 'files';   //## NT ##
+$_['files']    = 'bestanden';
 $_['Folder']   = 'Map';
-$_['folders']  = 'folders'; //## NT ##
+$_['folders']  = 'mappen';
 $_['From']     = 'Van';
-$_['Hash']     = 'Hash';    //## NT ##
+$_['Hash']     = 'Hash';
 $_['Move']     = 'Verplaats';
 $_['Moved']    = 'Verplaatst';
-$_['Name']     = 'Name';    //## NT ##
-$_['on']       = 'on';      //## NT ##
+$_['Name']     = 'Naam';
+$_['on']       = 'aan';
+$_['off']      = 'uit';
 $_['Password'] = 'Wachtwoord';
 $_['Rename']   = 'Hernoemen';
 $_['reset']    = 'Reset';   //## NT ##
 $_['save_1']   = 'Opslaan';
 $_['save_2']   = 'WIJZIGINGEN OPSLAAN';
-$_['Size']     = 'Size';    //## NT ##
+$_['Size']     = 'Grootte';
 $_['Source']   = 'Source';  //## NT ##
 $_['successful'] = 'succesvol';
 $_['To']       = 'Aan';
 $_['Upload']   = 'Upload';  //## NT ##
 $_['Username'] = 'Gebruikersnaam';
-$_['View']     = 'View';    //## NT ##
-$_['Working']  = 'Working - please wait...'; //## NT ##
+$_['View']     = 'Uitzicht';
 
+$_['Working']      = 'Working - please wait...'; //## NT ##
 $_['Log_In']       = 'Inloggen';
 $_['Log_Out']      = 'Uitloggen';
 $_['Admin_Options'] = 'Opties voor beheer';
@@ -80,6 +81,8 @@ $_['Open_View']    = 'Openen/Bekijken in browser venster';
 $_['Edit_View']    = 'Bewerken / weergeven';
 $_['Wide_View']    = 'Wijd Gezichtsveld';
 $_['Normal_View']  = 'Normaal Gezichtsveld';
+$_['Word_Wrap']    = 'Word Wrap'; //## NT ##
+$_['Line_Wrap']    = 'Line Wrap'; //## NT ##
 $_['Upload_File']  = 'Bestand Uploaden';
 $_['New_File']     = 'Nieuw Bestand';
 $_['Ren_Move']     = 'Hernoemen / Verplaatsen';

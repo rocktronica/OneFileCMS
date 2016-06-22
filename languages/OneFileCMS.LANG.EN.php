@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.5.19
+// OneFileCMS Language Settings v3.5.20
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -11,7 +11,7 @@ $_['LANG'] = 'EN';
 // Remember to slash-escape any single quotes that may be within the text:  \'
 // The back-slash itself may or may not also need to be escaped:  \\
 //
-// If present as a trailing comment, "## NT ##" means 'Needs Translation'.
+// If present as a trailing comment, "## NT ##" means 'Need Translation'.
 //
 // These first few settings control a few font and layout settings.
 // In some instances, some langauges may use significantly longer words or phrases than others.
@@ -33,7 +33,7 @@ $_['WYSIWYG'] = 'WYSIWYG';
 $_['Admin']    = 'Admin';
 $_['bytes']    = 'bytes';
 $_['Cancel']   = 'Cancel';
-$_['cancelled'] = 'cancelled'; //## NT ## as of 3.5.07
+$_['cancelled'] = 'cancelled';
 $_['Close']    = 'Close';
 $_['Copy']     = 'Copy';
 $_['Copied']   = 'Copied';
@@ -57,7 +57,7 @@ $_['Move']     = 'Move';
 $_['Moved']    = 'Moved';
 $_['Name']     = 'Name';
 $_['on']       = 'on';
-$_['off']      = 'off';     //## NT ## as of 3.5.19
+$_['off']      = 'off';
 $_['Password'] = 'Password';
 $_['Rename']   = 'Rename';
 $_['reset']    = 'Reset';
@@ -82,6 +82,7 @@ $_['Edit_View']    = 'Edit / View';
 $_['Wide_View']    = 'Wide View';
 $_['Normal_View']  = 'Normal View';
 $_['Word_Wrap']    = 'Word Wrap'; //## NT ## as of 3.5.19
+$_['Line_Wrap']    = 'Line Wrap'; //## NT ## as of 3.5.20
 $_['Upload_File']  = 'Upload File';
 $_['New_File']     = 'New File';
 $_['Ren_Move']     = 'Rename / Move';
