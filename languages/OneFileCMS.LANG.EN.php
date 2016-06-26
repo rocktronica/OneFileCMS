@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.5.20
+// OneFileCMS Language Settings v3.5.21
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -11,7 +11,7 @@ $_['LANG'] = 'EN';
 // Remember to slash-escape any single quotes that may be within the text:  \'
 // The back-slash itself may or may not also need to be escaped:  \\
 //
-// If present as a trailing comment, "## NT ##" means 'Need Translation'.
+// If present as a trailing comment, "## NT ##" means 'Needs Translation'.
 //
 // These first few settings control a few font and layout settings.
 // In some instances, some langauges may use significantly longer words or phrases than others.
@@ -21,7 +21,7 @@ $_['front_links_margin_L']   = '1.0em';
 $_['MCD_margin_R']           = '1.0em';   //[Move] [Copy] [Delete] buttons
 $_['button_font_size']       = '0.9em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
-$_['button_padding']         = '4px 4px 4px 4px'; //T R B L
+$_['button_padding']         = '4px 4px 4px 4px'; //T R B L  ,or,   V H   if only two values.
 $_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
@@ -71,37 +71,37 @@ $_['Upload']   = 'Upload';
 $_['Username'] = 'Username';
 $_['View']     = 'View';
 
-$_['Working']      = 'Working - please wait...';
-$_['Log_In']       = 'Log In';
-$_['Log_Out']      = 'Log Out';
-$_['Admin_Options'] = 'Administration Options';
-$_['Are_you_sure'] = 'Are you sure?';
-$_['View_Raw']     = 'View Raw'; //## NT ### as of 3.5.07
-$_['Open_View']    = 'Open/View in browser window';
-$_['Edit_View']    = 'Edit / View';
-$_['Wide_View']    = 'Wide View';
-$_['Normal_View']  = 'Normal View';
-$_['Word_Wrap']    = 'Word Wrap'; //## NT ## as of 3.5.19
-$_['Line_Wrap']    = 'Line Wrap'; //## NT ## as of 3.5.20
-$_['Upload_File']  = 'Upload File';
-$_['New_File']     = 'New File';
-$_['Ren_Move']     = 'Rename / Move';
-$_['Ren_Moved']    = 'Renamed / Moved';
-$_['folders_first'] = 'folders first'; //## NT ##
+$_['Working']         = 'Working - please wait...';
+$_['Log_In']          = 'Log In';
+$_['Log_Out']         = 'Log Out';
+$_['Admin_Options']   = 'Administration Options';
+$_['Are_you_sure']    = 'Are you sure?';
+$_['View_Raw']        = 'View Raw'; //## NT ### as of 3.5.07
+$_['Open_View']       = 'Open/View in browser window';
+$_['Edit_View']       = 'Edit / View';
+$_['Wide_View']       = 'Wide View';
+$_['Normal_View']     = 'Normal View';
+$_['Word_Wrap']       = 'Word Wrap'; //## NT ## as of 3.5.19
+$_['Line_Wrap']       = 'Line Wrap'; //## NT ## as of 3.5.20
+$_['Upload_File']     = 'Upload File';
+$_['New_File']        = 'New File';
+$_['Ren_Move']        = 'Rename / Move';
+$_['Ren_Moved']       = 'Renamed / Moved';
+$_['folders_first']   = 'folders first'; //## NT ##
 $_['folders_first_info'] = 'Sort folders first, but don\'t change primary sort.'; //## NT ##
-$_['New_Folder']   = 'New Folder';
-$_['Ren_Folder']   = 'Rename / Move Folder';
-$_['Submit']       = 'Submit Request';
-$_['Move_Files']   = 'Move File(s)';
-$_['Copy_Files']   = 'Copy File(s)';
-$_['Del_Files']    = 'Delete File(s)';
-$_['Selected_Files'] = 'Selected Folders and Files';
-$_['Select_All']   = 'Select All';
-$_['Clear_All']    = 'Clear All';
-$_['New_Location'] = 'New Location';
-$_['No_files']     = 'No files selected.';
-$_['Not_found']    = 'Not found';
-$_['Invalid_path'] = 'Invalid path';
+$_['New_Folder']      = 'New Folder';
+$_['Ren_Folder']      = 'Rename / Move Folder';
+$_['Submit']          = 'Submit Request';
+$_['Move_Files']      = 'Move File(s)';
+$_['Copy_Files']      = 'Copy File(s)';
+$_['Del_Files']       = 'Delete File(s)';
+$_['Selected_Files']  = 'Selected Folders and Files';
+$_['Select_All']      = 'Select All';
+$_['Clear_All']       = 'Clear All';
+$_['New_Location']    = 'New Location';
+$_['No_files']        = 'No files selected.';
+$_['Not_found']       = 'Not found';
+$_['Invalid_path']    = 'Invalid path';
 
 $_['verify_msg_01']     = 'Session expired.';
 $_['verify_msg_02']     = 'INVALID POST';

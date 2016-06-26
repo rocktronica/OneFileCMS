@@ -1,5 +1,17 @@
 # OneFileCMS Change Log
 
+### v3.5.21 (2016-06-26)
+
+- Some code cleanup & a little local js re-org. 
+- Some minor static & active css improvements.
+- Added some basic validation to a config value.
+
+### v3.5.20 (2016-06-21)
+
+- Fixed sporadic directory-won't-display issue.
+- Fixed wrapping & line-numbering issue when toggling between wrap on & wrap off.
+- Added line-numbers to read-only files also.
+
 ### v3.5.19 (2016-06-16)
 
 - Added line numbers to left of edit window.  A current side effect is wrapping is now break-word, instead of word-break.  That is, lines may wrap in the midddle of words, not just on white-space. 

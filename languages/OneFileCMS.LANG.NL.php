@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.5.20
+// OneFileCMS Language Settings v3.5.21
 
 $_['LANGUAGE'] = 'Nederlands (Dutch)';
 $_['LANG'] = 'NL';
@@ -11,7 +11,7 @@ $_['LANG'] = 'NL';
 // Remember to slash-escape any single quotes that may be within the text:  \'
 // The back-slash itself may or may not also need to be escaped:  \\
 //
-// If present as a trailing comment, "## NT ##" means 'Need Translation'.
+// If present as a trailing comment, "## NT ##" means 'Needs Translation'.
 //
 // These first few settings control a few font and layout settings.
 // In some instances, some langauges may use significantly longer words or phrases than others.
@@ -21,17 +21,17 @@ $_['front_links_margin_L']   = '0.4em';
 $_['MCD_margin_R']           = '1.0em';   //[Move] [Copy] [Delete] buttons
 $_['button_font_size']       = '0.8em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
-$_['button_padding']         = '4px 3px'; //T R B L
+$_['button_padding']         = '4px 3px'; //T R B L  ,or,   V H   if only two values.
 $_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '90px';    //Width of space for $_['Select_All']
 
 $_['HTML']    = 'HTML';
-$_['WYSIWYG'] = 'WYSIWYG';
+$_['WYSIWYG'] = 'WYSIWYG'; //## NT ##
 
 $_['Admin']    = 'Beheer';
-$_['bytes']    = 'bytes';
+$_['bytes']    = 'bytes';   //## NT ##
 $_['Cancel']   = 'Annuleren';
 $_['cancelled'] = 'geannuleerd';
 $_['Close']    = 'Sluiten';
@@ -52,7 +52,7 @@ $_['files']    = 'bestanden';
 $_['Folder']   = 'Map';
 $_['folders']  = 'mappen';
 $_['From']     = 'Van';
-$_['Hash']     = 'Hash';
+$_['Hash']     = 'Hash';    //## NT ##
 $_['Move']     = 'Verplaats';
 $_['Moved']    = 'Verplaatst';
 $_['Name']     = 'Naam';
@@ -71,37 +71,37 @@ $_['Upload']   = 'Upload';  //## NT ##
 $_['Username'] = 'Gebruikersnaam';
 $_['View']     = 'Uitzicht';
 
-$_['Working']      = 'Working - please wait...'; //## NT ##
-$_['Log_In']       = 'Inloggen';
-$_['Log_Out']      = 'Uitloggen';
-$_['Admin_Options'] = 'Opties voor beheer';
-$_['Are_you_sure'] = 'Weet u het zeker?';
-$_['View_Raw']     = 'View Raw'; //## NT ##
-$_['Open_View']    = 'Openen/Bekijken in browser venster';
-$_['Edit_View']    = 'Bewerken / weergeven';
-$_['Wide_View']    = 'Wijd Gezichtsveld';
-$_['Normal_View']  = 'Normaal Gezichtsveld';
-$_['Word_Wrap']    = 'Word Wrap'; //## NT ##
-$_['Line_Wrap']    = 'Line Wrap'; //## NT ##
-$_['Upload_File']  = 'Bestand Uploaden';
-$_['New_File']     = 'Nieuw Bestand';
-$_['Ren_Move']     = 'Hernoemen / Verplaatsen';
-$_['Ren_Moved']    = 'Hernoemend / Verplaatst';
-$_['folders_first'] = 'folders first'; //## NT ##
+$_['Working']         = 'Working - please wait...'; //## NT ##
+$_['Log_In']          = 'Inloggen';
+$_['Log_Out']         = 'Uitloggen';
+$_['Admin_Options']   = 'Opties voor beheer';
+$_['Are_you_sure']    = 'Weet u het zeker?';
+$_['View_Raw']        = 'View Raw'; //## NT ##
+$_['Open_View']       = 'Openen/Bekijken in browser venster';
+$_['Edit_View']       = 'Bewerken / weergeven';
+$_['Wide_View']       = 'Wijd Gezichtsveld';
+$_['Normal_View']     = 'Normaal Gezichtsveld';
+$_['Word_Wrap']       = 'Word Wrap'; //## NT ##
+$_['Line_Wrap']       = 'Line Wrap'; //## NT ##
+$_['Upload_File']     = 'Bestand Uploaden';
+$_['New_File']        = 'Nieuw Bestand';
+$_['Ren_Move']        = 'Hernoemen / Verplaatsen';
+$_['Ren_Moved']       = 'Hernoemend / Verplaatst';
+$_['folders_first']   = 'folders first'; //## NT ##
 $_['folders_first_info'] = 'Sort folders first, but don\'t change primary sort.'; //## NT ##
-$_['New_Folder']   = 'Nieuwe Map';
-$_['Ren_Folder']   = 'Hernoem / Verplaats Map';
-$_['Submit']       = 'Verzoek Indienen';
-$_['Move_Files']   = 'Verplaats Bestand(en)';
-$_['Copy_Files']   = 'Kopieër Bestand(en)';
-$_['Del_Files']    = 'Verwijder Bestand(en)';
-$_['Selected_Files'] = 'Geselecteerde Mappen en Bestanden';
-$_['Select_All']   = 'Selecteer Alles';
-$_['Clear_All']    = 'Verwijder Alles';
-$_['New_Location'] = 'Nieuwe Locatie';
-$_['No_files']     = 'Geen bestanden geselecteerd.';
-$_['Not_found']    = 'Niet gevonden';
-$_['Invalid_path'] = 'Invalid path'; //## NT ##
+$_['New_Folder']      = 'Nieuwe Map';
+$_['Ren_Folder']      = 'Hernoem / Verplaats Map';
+$_['Submit']          = 'Verzoek Indienen';
+$_['Move_Files']      = 'Verplaats Bestand(en)';
+$_['Copy_Files']      = 'Kopieër Bestand(en)';
+$_['Del_Files']       = 'Verwijder Bestand(en)';
+$_['Selected_Files']  = 'Geselecteerde Mappen en Bestanden';
+$_['Select_All']      = 'Selecteer Alles';
+$_['Clear_All']       = 'Verwijder Alles';
+$_['New_Location']    = 'Nieuwe Locatie';
+$_['No_files']        = 'Geen bestanden geselecteerd.';
+$_['Not_found']       = 'Niet gevonden';
+$_['Invalid_path']    = 'Invalid path'; //## NT ##
 
 $_['verify_msg_01']     = 'Sessie verlopen.';
 $_['verify_msg_02']     = 'ONGELDIGE POST';

@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.20';
+$OFCMS_version = '3.5.21';
 
 
 
@@ -10,7 +10,6 @@ $OFCMS_version = '3.5.20';
 //******************************************************************************
 //Some basic security & error log settings
 //
-//ob_start(); //Catch any early output. Closed prior to page output. Moved to top of file.
 ini_set('session.use_trans_sid', 0);    //make sure URL supplied SESSID's are not used
 ini_set('session.use_only_cookies', 1); //make sure URL supplied SESSID's are not used
 error_reporting(E_ALL & ~E_STRICT);     //(E_ALL &~ E_STRICT) for everything, 0 for none.
@@ -19,7 +18,7 @@ ini_set('log_errors'    , 'off');
 ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
 //
 //Determine good folder for session file. Default is /tmp/, which is not secure.
-//session_save_path('/home/content/username/tmp/'); //##### or:  ini_set('session.save_path', 'some_safe_path')
+//session_save_path('/home/content/username/tmp/'); //##### or:  ini_set('session.save_path', 'some/safe/path/')
 //******************************************************************************
 
 
@@ -103,9 +102,9 @@ $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.          C
 $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked.  Can be px, pt, em, or %.  Assumes px otherwise.
 
 $LINE_WRAP = "on"; //"on", or (anything else) = "off".  Default for edit page. Once on page, line-wrap can toggle on/off.
-$TAB_SIZE  = 8;    //Some browsers recognize a css tab-size. Some don't.  If your's doesn't, LEAVE AT 8.  (IE/Edge, as of mid-2016)
+$TAB_SIZE  = 8;    //Some browsers recognize a css tab-size. Some don't (IE/Edge, as of mid-2016).
 
-$MAX_EDIT_SIZE = 210000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
+$MAX_EDIT_SIZE = 200000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
 $MAX_VIEW_SIZE = 1000000; // If file > $MAX_EDIT_SIZE, don't even view in OneFileCMS.
                           // The default max view size is completely arbitrary. Basically, it was 2am, and seemed like a good idea at the time.
 
@@ -173,7 +172,7 @@ $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copi
 function System_Setup() {//*****************************************************
 
 global $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS, $LOGIN_DELAYED, 
-	$MAIN_WIDTH, $WIDE_VIEW_WIDTH, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $EXCLUDED_FILES, 
+	$MAIN_WIDTH, $WIDE_VIEW_WIDTH, $MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $EXCLUDED_FILES, $TAB_SIZE, 
 	$EDIT_FILES, $SHOW_FILES, $SHOW_IMGS, $FILE_TYPES, $FILE_CLASSES, 
 	$SHOWALLFILES, $ETYPES, $STYPES, $ITYPES, $FTYPES, $FCLASSES, $EXCLUDED_LIST, 
 	$LANGUAGE_FILE, $ACCESS_ROOT, $ACCESS_ROOT_len, $WYSIWYG_PLUGIN, $WYSIWYG_VALID, $WYSIWYG_PLUGIN_OS, 
@@ -278,6 +277,12 @@ $ACCESS_ROOT_len = mb_strlen($ACCESS_ROOT, $ACCESS_ROOT_enc);
 $MAIN_WIDTH      = validate_units($MAIN_WIDTH);
 $WIDE_VIEW_WIDTH = validate_units($WIDE_VIEW_WIDTH);
 
+
+//Just some basic validation.  The 80 is just a round number that seems reasonable.
+$TAB_SIZE = intval($TAB_SIZE);
+if (($TAB_SIZE < 1) || ($TAB_SIZE > 80)) { $TAB_SIZE = 8; }
+
+
 ini_set('session.gc_maxlifetime', $MAX_IDLE_TIME + 100); //in case the default is less.
 
 $VALID_PAGES = array("login","logout","admin","hash","changepw","changeun","index","edit","upload","uploaded","newfile","renamefile","copyfile","deletefile","deletefolder","newfolder","renamefolder","copyfolder","mcdaction", "phpinfo", "raw_view");
@@ -304,6 +309,12 @@ $DELAY_Expired_Reload  = 10000; //Delay from Session Expired to page load of log
 $MIN_DIR_ITEMS			  = 25; //Minimum number of directory items before "Working..." message is needed/displayed.
 
 
+//Validate wide_view cookie...
+if ( !isset($_COOKIE['wide_view']) || ($_COOKIE['wide_view'] !== "on") ) {
+	$_COOKIE['wide_view'] = "off";
+}
+
+
 //Used in hashit() and js_hash_scripts().  IE<9 is WAY slow, so keep it low.
 //For 200 iterations: (time on IE8) > (37 x time on FF). And the difference grows with the iterations.
 //If you change this, or any other aspect of either hashit() or js_hash_scripts(), do so while logged in.
@@ -316,11 +327,9 @@ $PRE_ITERATIONS = 1000;
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.5.20
-
+// OneFileCMS Language Settings v3.5.21
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
-
 // If no translation or value is desired for a particular setting, do not delete
 // the actual setting variable, just set it to an empty string.
 // For example:  $_['some_unused_setting'] = '';
@@ -333,22 +342,22 @@ $_['LANG'] = 'EN';
 // These first few settings control a few font and layout settings.
 // In some instances, some langauges may use significantly longer words or phrases than others.
 // So, a smaller font or less spacing may be desirable in those places to preserve page layout.
-$_['front_links_font_size']  = '1.0em';  //Buttons on Index page.
+$_['front_links_font_size']  = '1.0em';   //Buttons on Index page.
 $_['front_links_margin_L']   = '1.0em';
-$_['MCD_margin_R']           = '1.0em';  //[Move] [Copy] [Delete] buttons
-$_['button_font_size']       = '0.9em';  //Buttons on Edit page.
+$_['MCD_margin_R']           = '1.0em';   //[Move] [Copy] [Delete] buttons
+$_['button_font_size']       = '0.9em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
-$_['button_padding']         = '4px 4px 4px 4px'; //T R B L
-$_['image_info_font_size']   = '1em';    //show_img_msg_01  &  _02
-$_['image_info_pos']         = '';       //If 1 or true, moves the info down a line for more space.
-$_['select_all_label_size']  = '.84em';  //Font size of $_['Select_All']
-$_['select_all_label_width'] = '72px';   //Width of space for $_['Select_All']
+$_['button_padding']         = '4px 4px 4px 4px'; //T R B L  ,or,   V H   if only two values.
+$_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
+$_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
+$_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
+$_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All']
 $_['HTML']    = 'HTML';
 $_['WYSIWYG'] = 'WYSIWYG';
 $_['Admin']    = 'Admin';
 $_['bytes']    = 'bytes';
 $_['Cancel']   = 'Cancel';
-$_['cancelled'] = 'cancelled'; //## NT ## as of 3.5.07
+$_['cancelled'] = 'cancelled';
 $_['Close']    = 'Close';
 $_['Copy']     = 'Copy';
 $_['Copied']   = 'Copied';
@@ -361,7 +370,7 @@ $_['Edit']     = 'Edit';
 $_['Enter']    = 'Enter';
 $_['Error']    = 'Error';
 $_['errors']   = 'errors';
-$_['ext']      = '.ext';  //## NT ## filename[.ext]ension
+$_['ext']      = '.ext';    //## NT ## filename[.ext]ension
 $_['File']     = 'File';
 $_['files']    = 'files';
 $_['Folder']   = 'Folder';
@@ -372,50 +381,50 @@ $_['Move']     = 'Move';
 $_['Moved']    = 'Moved';
 $_['Name']     = 'Name';
 $_['on']       = 'on';
-$_['off']      = 'off';  //## NT ## as of 3.5.19
+$_['off']      = 'off';
 $_['Password'] = 'Password';
 $_['Rename']   = 'Rename';
 $_['reset']    = 'Reset';
 $_['save_1']   = 'Save';
 $_['save_2']   = 'SAVE CHANGES';
 $_['Size']     = 'Size';
-$_['Source']   = 'Source'; 
+$_['Source']   = 'Source';
 $_['successful'] = 'successful';
 $_['To']       = 'To';
 $_['Upload']   = 'Upload';
 $_['Username'] = 'Username';
 $_['View']     = 'View';
-$_['Working']  = 'Working - please wait...';
-$_['Log_In']         = 'Log In';
-$_['Log_Out']        = 'Log Out';
-$_['Admin_Options']  = 'Administration Options';
-$_['Are_you_sure']   = 'Are you sure?';
-$_['View_Raw']       = 'View Raw'; //## NT ### as of 3.5.07
-$_['Open_View']      = 'Open/View in browser window';
-$_['Edit_View']      = 'Edit / View';
-$_['Wide_View']      = 'Wide View';
-$_['Normal_View']    = 'Normal View';
-$_['Word_Wrap']	 	 = 'Word Wrap';	//## NT ## as of 3.5.19
-$_['Line_Wrap']	 	 = 'Line Wrap';	//## NT ## as of 3.5.20
-$_['Upload_File']    = 'Upload File';
-$_['New_File']       = 'New File';
-$_['Ren_Move']       = 'Rename / Move';
-$_['Ren_Moved']      = 'Renamed / Moved';
-$_['folders_first']  = 'folders first'; //## NT ##
+$_['Working']         = 'Working - please wait...';
+$_['Log_In']          = 'Log In';
+$_['Log_Out']         = 'Log Out';
+$_['Admin_Options']   = 'Administration Options';
+$_['Are_you_sure']    = 'Are you sure?';
+$_['View_Raw']        = 'View Raw'; //## NT ### as of 3.5.07
+$_['Open_View']       = 'Open/View in browser window';
+$_['Edit_View']       = 'Edit / View';
+$_['Wide_View']       = 'Wide View';
+$_['Normal_View']     = 'Normal View';
+$_['Word_Wrap']       = 'Word Wrap'; //## NT ## as of 3.5.19
+$_['Line_Wrap']       = 'Line Wrap'; //## NT ## as of 3.5.20
+$_['Upload_File']     = 'Upload File';
+$_['New_File']        = 'New File';
+$_['Ren_Move']        = 'Rename / Move';
+$_['Ren_Moved']       = 'Renamed / Moved';
+$_['folders_first']   = 'folders first'; //## NT ##
 $_['folders_first_info'] = 'Sort folders first, but don\'t change primary sort.'; //## NT ##
-$_['New_Folder']     = 'New Folder';
-$_['Ren_Folder']     = 'Rename / Move Folder';
-$_['Submit']         = 'Submit Request';
-$_['Move_Files']     = 'Move File(s)';
-$_['Copy_Files']     = 'Copy File(s)';
-$_['Del_Files']      = 'Delete File(s)';
-$_['Selected_Files'] = 'Selected Folders and Files';
-$_['Select_All']     = 'Select All';
-$_['Clear_All']      = 'Clear All';
-$_['New_Location']   = 'New Location';
-$_['No_files']       = 'No files selected.';
-$_['Not_found']      = 'Not found';
-$_['Invalid_path']   = 'Invalid path';
+$_['New_Folder']      = 'New Folder';
+$_['Ren_Folder']      = 'Rename / Move Folder';
+$_['Submit']          = 'Submit Request';
+$_['Move_Files']      = 'Move File(s)';
+$_['Copy_Files']      = 'Copy File(s)';
+$_['Del_Files']       = 'Delete File(s)';
+$_['Selected_Files']  = 'Selected Folders and Files';
+$_['Select_All']      = 'Select All';
+$_['Clear_All']       = 'Clear All';
+$_['New_Location']    = 'New Location';
+$_['No_files']        = 'No files selected.';
+$_['Not_found']       = 'Not found';
+$_['Invalid_path']    = 'Invalid path';
 $_['verify_msg_01']     = 'Session expired.';
 $_['verify_msg_02']     = 'INVALID POST';
 $_['get_get_msg_01']    = 'File does not exist:';
@@ -427,15 +436,15 @@ $_['ord_msg_02']        = 'Saving as';
 $_['rCopy_msg_01']      = 'A folder can not be copied into one of its own sub-folders.';
 $_['show_img_msg_01']   = 'Image shown at ~';
 $_['show_img_msg_02']   = '% of full size (W x H =';
-$_['hash_txt_01'] = 'The hashes generated by this page may be used to manually update $HASHWORD in OneFileCMS, or in an external config file.  In either case, make sure you remember the password used to generate the hash!';
-$_['hash_txt_06'] = 'Type your desired password in the input field above and hit Enter.';
-$_['hash_txt_07'] = 'The hash will be displayed in a yellow message box above that.';
-$_['hash_txt_08'] = 'Copy and paste the new hash to the $HASHWORD variable in the config section.';
-$_['hash_txt_09'] = 'Make sure to copy ALL of, and ONLY, the hash (no leading or trailing spaces etc).';
-$_['hash_txt_10'] = 'A double-click should select it...';
-$_['hash_txt_12'] = 'When ready, logout and login.';
-$_['pass_to_hash']   = 'Password to hash:';
-$_['Generate_Hash']  = 'Generate Hash';
+$_['hash_txt_01']   = 'The hashes generated by this page may be used to manually update $HASHWORD in OneFileCMS, or in an external config file.  In either case, make sure you remember the password used to generate the hash!';
+$_['hash_txt_06']   = 'Type your desired password in the input field above and hit Enter.';
+$_['hash_txt_07']   = 'The hash will be displayed in a yellow message box above that.';
+$_['hash_txt_08']   = 'Copy and paste the new hash to the $HASHWORD variable in the config section.';
+$_['hash_txt_09']   = 'Make sure to copy ALL of, and ONLY, the hash (no leading or trailing spaces etc).';
+$_['hash_txt_10']   = 'A double-click should select it...';
+$_['hash_txt_12']   = 'When ready, logout and login.';
+$_['pass_to_hash']  = 'Password to hash:';
+$_['Generate_Hash'] = 'Generate Hash';
 $_['login_txt_01']  = 'Username:';
 $_['login_txt_02']  = 'Password:';
 $_['login_msg_01a'] = 'There have been';
@@ -549,8 +558,8 @@ $_['change_pw_07'] = 'All fields are required.';
 $_['change_un_01'] = 'Username changed!';
 $_['change_un_02'] = 'Username NOT changed.';
 $_['update_failed'] = 'Update failed - could not save file.';
-$_['mcd_msg_01'] = 'file(s) and/or folder(s) moved.';   //#####
-$_['mcd_msg_02'] = 'file(s) and/or folder(s) copied.';  //#####
+$_['mcd_msg_01'] = 'file(s) and/or folder(s) moved.'; //#####
+$_['mcd_msg_02'] = 'file(s) and/or folder(s) copied.'; //#####
 $_['mcd_msg_03'] = 'file(s) and/or folder(s) deleted.'; //#####
 }//end Default_Language() //****************************************************
 
@@ -794,7 +803,7 @@ function Validate_params() {//**************************************************
 function Valid_Path($path, $gotoroot=true) {//**********************************
 	//$gotoroot: if true, return to index page of $ACCESS_ROOT.
 	global  $ipath, $ipath_OS, $filename, $param1, $param2, $param3, $ACCESS_ROOT, $ACCESS_ROOT_len, $MESSAGE;
-	
+
 	//Limit access to the folder $ACCESS_ROOT:
 	//$ACCESS_ROOT = some/root/path/
 	//$path        = some/root/path/...(or deeper)   : good
@@ -852,7 +861,7 @@ function Get_GET() {//**** Get URL passed parameters ***************************
 
 	//Initialize & validate $filename
 	if (isset($_GET["f"])) { $filename = $ipath.$_GET["f"]; } else { $filename = ""; }
-	
+
 	$filename_OS = Convert_encoding($filename);
 	if ( ($filename != "") && !is_file($filename_OS)  ) {
 		$MESSAGE .= $EX.'<b>'.hsc($_['get_get_msg_01']).'</b> ';
@@ -866,7 +875,7 @@ function Get_GET() {//**** Get URL passed parameters ***************************
 		$MESSAGE .= $EX.hsc($_['get_get_msg_02']).' <b>'.hsc($page).'</b><br>';
 		$page = "index";  //If invalid $_GET["p"]
 	}
-	
+
 	//Sanitize any message. Initialized on line 1 / top of this file.
 	if (isset($_GET["m"])) { $MESSAGE .= hsc($_GET["m"]); }
 }//end Get_GET() //*************************************************************
@@ -920,7 +929,7 @@ function Verify_Page_Conditions() {//*******************************************
 		$MESSAGE .= $EX.'<b> '.hsc($_['upload_error_01a']).' '.ini_get('post_max_size').'</b> '.hsc($_['upload_error_01b']).'<br>';
 		$page = "index";
 	}
-	
+
 	//[View Raw] file contents in a browser window (in plain text, NOT HTML).
 	if ($page == "raw_view"){
 		ob_start();
@@ -1029,7 +1038,7 @@ function Sort_Seperate($path, $full_list) {//***********************************
 		if (is_dir($fullpath_OS)) { $folders[$D++] = $item; }
 		else                      { $files[$F++]   = $item; }
 	}
-	
+
 	return array_merge($folders, $files);
 }//end Sort_Seperate() //*******************************************************
 
@@ -1258,7 +1267,7 @@ function show_image() {//*******************************************************
 	$SCALE = 1; $SCALE_W = 1; $SCALE_H = 1;
 	if ($img_info[$W] > $MAX_IMG_W) { $SCALE_W = ( $MAX_IMG_W/$img_info[$W] );}
 	if ($img_info[$H] > $MAX_IMG_H) { $SCALE_H = ( $MAX_IMG_H/$img_info[$H] );}
-	
+
 	//Set $SCALE to the more restrictive scale.
 	if   ( $SCALE_W > $SCALE_H ) { $SCALE = $SCALE_H; } //ex: if (.90 > .50)
 	else                         { $SCALE = $SCALE_W; } //If _H >= _W, or both are 1
@@ -1507,7 +1516,7 @@ function Hash_Page() {//********************************************************
 	<style>#message_box {font-family: courier; min-height: 3.1em;}</style>
 
 	<h2><?php echo hsc($_['Generate_Hash']) ?></h2>
-	
+
 	<form id="hash" name="hash" method="post" action="<?php echo $ONESCRIPT.$param1.$param3; ?>">
 		<?php echo $INPUT_NUONCE; ?>
 		<?php echo hsc($_['pass_to_hash']) ?>
@@ -1558,7 +1567,7 @@ function Change_PWUN_Page($pwun, $type, $page_title, $label_new, $label_confirm)
 ?>
 	<?php //preserve space for message_box even when there's no message. ?>
 	<style>#message_box {min-height: 2em;}</style>
-	
+
 	<h2><?php echo hsc($page_title) ?></h2>
 
 	<form id="change" method="post" action="<?php echo $ONESCRIPT.$param1.$param3; ?>">
@@ -1600,7 +1609,7 @@ function Change_PWUN_Page($pwun, $type, $page_title, $label_new, $label_confirm)
 //******************************************************************************
 function Update_config($search_for, $replace_with, $search_file, $backup_file) {
 	global  $_, $EX, $MESSAGE;
-	
+
 	$search_file_OS = Convert_encoding($search_file);
 	$backup_file_OS = Convert_encoding($backup_file);
 
@@ -1626,7 +1635,7 @@ function Update_config($search_for, $replace_with, $search_file, $backup_file) {
 
 	//This should not happen, but just in case...
 	if (!$found){ $MESSAGE .= $EX.' <b>'.hsc($_['Not_found']).': </b>'.hsc($search_for).'<br>'; return false; }
-	
+
 	copy($search_file_OS, $backup_file_OS); // Just in case...
 
 	$updated_contents = implode("\n", $search_lines);
@@ -1931,7 +1940,7 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][5] = $ext;
 		$DIRECTORY_COUNT++;
 	}//end foreach file
-	
+
 	return $DIRECTORY_COUNT;
 }//end Get_DIRECTORY_DATA() //**************************************************
 
@@ -1989,7 +1998,7 @@ function Index_Page_buttons_top($file_count) {//********************************
 		echo '<a id=b5 tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.$param1.'&amp;p=newfile">'  .$ICONS['file_new']  .hsc($_['New_File'])   .'</a>';
 		echo '<a id=b6 tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.$param1.'&amp;p=upload">'   .$ICONS['upload']    .hsc($_['Upload_File']).'</a>';
 	echo '</div>'; //end front_links
-	
+
 	echo '</div>'."\n"; //end index_page_buttons
 
 } //end Index_Page_buttons_top() //*********************************************
@@ -1999,7 +2008,7 @@ function Index_Page_buttons_top($file_count) {//********************************
  
 function Index_Page() {//*******************************************************
 	global  $ONESCRIPT, $ipath_OS, $param1;
-	
+
 	init_ICONS_js();
 
 	$raw_list = scandir('./'.$ipath_OS);  //Get current directory list  (unsorted)
@@ -2031,11 +2040,13 @@ function Edit_Page_buttons_top($text_editable,$file_ENC) {//********************
 
 	//[View Raw] button.
 	if ($text_editable) {
-		$view_raw_button = '<button type=button id=view_raw class=button>'.hsc('View Raw').'</button>';
+		$view_raw_button = '<button type=button id=view_raw class=button>'.hsc('View Raw')."</button>\n";
 	} else {$view_raw_button = '';}
 
-	//[Wide View] / [Normal View] button.
-	$wide_view_button = '<button type=button id=wide_view class=button>'.hsc($_['Wide_View']).'</button>';
+	//[Wide View] / [Normal View] button.  Label is what button will do, not an indicator the current state.
+	if ($_COOKIE['wide_view'] === "on") { $wv_label = hsc($_['Normal_View']); }
+	else 								{ $wv_label = hsc($_['Wide_View']); }
+	$wide_view_button = "<button type=button id=wide_view class=button value={$_COOKIE['wide_view']}>$wv_label</button>\n";
 
 	//[Edit WYSIWYG] / [Edit Source] button.
 	$WYSIWYG_button  = '';
@@ -2123,6 +2134,8 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 		}
 	}
 
+
+
 	$too_large_to_edit_message =
 		'<b>'.hsc($_['too_large_to_edit_01']).' '.number_format($MAX_EDIT_SIZE).' '.hsc($_['bytes']).'</b><br>'.
 		hsc($_['too_large_to_edit_02']).'<br>'.hsc($_['too_large_to_edit_03']).'<br>'.hsc($_['too_large_to_edit_04']);
@@ -2131,7 +2144,7 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 		'<b>'.hsc($_['too_large_to_view_01']).' '.number_format($MAX_VIEW_SIZE).' '.hsc($_['bytes']).'</b><br>'.
 		hsc($_['too_large_to_view_02']).'<br>'.hsc($_['too_large_to_view_03']).'<br>';
 
-	echo '<form id=edit_form name=edit_form method=post action="'.$ONESCRIPT.$param1.$param2.$param3.'">';
+	echo "\n".'<form id=edit_form name=edit_form method=post action="'.$ONESCRIPT.$param1.$param2.$param3.'">'."\n";
 		
 		echo $INPUT_NUONCE;
 		
@@ -2160,12 +2173,15 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 					//<input name=filename> is used only to signal an Edit_response().
 					echo '<input type=hidden name=filename value="'.rawurlencode($filename).'">';
 					
-					echo "<div id=wrapper_linenums_editor>";
-					echo 	"<div id=line_numbers tabindex='-1'><div id=line_1>1</div><div id=line_0></div></div>";
-					echo 	"<textarea $readonly id=file_editor class=tab_size name=contents cols=70 rows=25>$FILECONTENTS</textarea>\n";
+					echo "<div id=wrapper_linenums_editor>\n";
+					echo 	"<div id=line_numbers tabindex='-1'><div id=line_1>1</div><div id=line_0></div></div>\n";
+					echo 	"<textarea $readonly id=file_editor name=contents cols=70 rows=25>$FILECONTENTS</textarea>\n";
 					echo "</div>\n";
 					
-					$wrap_on_off = hsc($_['Line_Wrap']." ".$_['on']."/".$_['off']);
+					$wrap_on_off  = hsc($_['Line_Wrap'])." ";
+					$wrap_on_off .= "<span id=w_on>" .hsc($_['on']) ."</span>/";
+					$wrap_on_off .= "<span id=w_off>".hsc($_['off'])."</span>";
+					
 					echo "<button type=button class=button id=toggle_wrap name=toggle_wrap value=$LINE_WRAP>$wrap_on_off</button>";
 				}
 			}//end if/elseif...
@@ -2173,7 +2189,7 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 		}//end if non-image
 		
 		Edit_Page_buttons($text_editable, $too_large_to_edit);
-	echo '</form>';
+	echo "\n</form>\n";
 
 	Edit_Page_scripts();
 
@@ -2247,7 +2263,7 @@ function Edit_Page() {//********************************************************
 	echo '</h2>'."\n";
 
 	Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_view, $file_ENC);
-	
+
 	if ( in_array( $ext, $ITYPES) ) { show_image(); } //If image, show below the [Rename/Move] [Copy] [Delete] buttons
 
 	echo '<div class=clear></div>';
@@ -2267,7 +2283,7 @@ function Edit_response() {//***If on Edit page, and [Save] clicked *************
 	global $_, $EX, $MESSAGE, $filename, $filename_OS;
 
 	$contents    = $_POST['contents'];
-	
+
 	$contents = str_replace("\r\n", "\n", $contents); //Normalize EOL
 	$contents = str_replace("\r"  , "\n", $contents); //Normalize EOL
 
@@ -2301,7 +2317,7 @@ function Upload_Page() {//******************************************************
 	echo '<p>';
 	echo hsc($_['upload_txt_03']).' '.ini_get('upload_max_filesize').' '.hsc($_['upload_txt_01']).'<br>';
 	echo hsc($_['upload_txt_04']).' '.ini_get('post_max_size')      .' '.hsc($_['upload_txt_02']).'<br>';
-	
+
 	echo '<form enctype="multipart/form-data" action="'.$ONESCRIPT.$param1.'&amp;p=uploaded" method="post">';
 		echo $INPUT_NUONCE;
 		
@@ -2319,7 +2335,7 @@ function Upload_Page() {//******************************************************
 		}
 		echo '<p>';
 		Cancel_Submit_Buttons($_['Upload']);
-	echo '</form>';
+	echo "\n</form>\n";
 }//end Upload_Page() //*********************************************************
 
 
@@ -2385,7 +2401,7 @@ function New_Page($title, $new_f_or_f) {//**************************************
 		echo '<span class="mono"> '.hsc($INVALID_CHARS).'</span></p>';
 		echo '<input type="text" name="'.$new_f_or_f.'" id="'.$new_f_or_f.'" value=""><p>';
 		Cancel_Submit_Buttons($_['Create']);
-	echo '</form>';
+	echo "\n</form>\n";
 }//end New_Page() //************************************************************
 
 
@@ -2496,7 +2512,7 @@ function CRM_Page($action, $title, $action_id, $old_full_name) {//**************
 		
 		echo '('.hsc($_['CRM_txt_02']).')<p>';
 		Cancel_Submit_Buttons($action);
-	echo '</form>';
+	echo "\n</form>\n";
 }//end CRM_Page() //************************************************************
 
 
@@ -2673,7 +2689,7 @@ function MCD_Page($action, $page_title, $classes = '') {//**********************
 		}
 		
 		echo '</table>';
-	echo '</form>';
+	echo "\n</form>\n";
 }//end MCD_Page() //************************************************************
 
 
@@ -2685,7 +2701,7 @@ function MCD_response($action, $msg1, $success_msg = '') {//********************
 	$files      = $_POST['files']; //List of files to delete (path not included)
 	$errors     = 0; //number of failed moves, copies, or deletes
 	$successful = 0;
-	
+
 	$new_location = "";
 	if (isset($_POST['new_location'])) {
 		$new_location    =                  $_POST['new_location'];
@@ -2693,7 +2709,7 @@ function MCD_response($action, $msg1, $success_msg = '') {//********************
 	}
 
 	$show_message = 1; //1= show error msg only.
-	
+
 	if ( ($new_location != "") && !is_dir($new_location_OS)) {
 		$MESSAGE .= $EX.'<b>'.hsc($msg1.' '.$_['CRM_msg_01']).'</b><br>';
 		$MESSAGE .= '<span class="filename">'.hsc($_POST['new_location']).'</span><br>';
@@ -2719,7 +2735,7 @@ function MCD_response($action, $msg1, $success_msg = '') {//********************
 	}
 
 	if ($errors) {$MESSAGE .= $EX.' <b>'.$errors.' '.hsc($_['errors']).'.</b><br>';}
-	
+
 	$MESSAGE .= '<b>'.$successful.' '.hsc($success_msg).'</b><br>';
 
 	if ($action != 'rDel') {
@@ -2794,7 +2810,7 @@ function Respond_to_POST() {//**************************************************
 	global $_, $VALID_POST, $ipath, $page, $EX, $ACCESS_ROOT, $MESSAGE;
 
 	if (!$VALID_POST) { return; }
-	
+
 	//First, validate any $_POST'ed paths against $ACCESS_ROOT.
 	if (isset($_POST["old_full_name"]) && !Valid_Path($_POST["old_full_name"], false)) {
 		//unlikely, but just in case
@@ -2863,6 +2879,7 @@ ICONS['delete']  = '<?php echo $ICONS["delete"]  ?>';
 function common_scripts() {//***************************************************
 	global $_, $TO_WARNING, $MESSAGE, $page, $DELAY_Expired_Reload;
 ?>
+
 <script>
 var $MESSAGE = "";
 
@@ -3052,6 +3069,7 @@ function Display_Messages($msg, take_focus) {//***********************
 }//end Display_Messages() //******************************************
 
 </script>
+
 <?php
 }//end common_scripts() //******************************************************
 
@@ -3154,14 +3172,14 @@ document.onkeydown = function(event) { //*****************************
 	var jump = <?php echo $PAGEUPDOWN ?>;//# of rows to jump with Page Up/Page Down.
 	var highlight1 = "rgb(255,250,150)";
 	var highlight2 = "rgb(255,240,140)";
-	
+
 	//Get key pressed...
 	if (!event) {var event = window.event;} //for IE
 	var key = event.keyCode;
 
 	//Assign a few handy "constants": Arrow U/D/L/R, Page Up/Down, etc... 
 	var AU = 38, AD = 40, AL = 37, AR = 39, PU = 33, PD = 34; END = 35, HOME = 36, ESC = 27, TAB = 9, ENTER = 13;
-	
+
 	//Ignore any other key presses...
 	if ((key != AU) && (key != AD) && (key != AL) && (key != AR) && (key != PU) && (key != PD) && 
 		(key != HOME) && (key != END) && (key != ESC) && (key != TAB) && (key != ENTER)) { return }
@@ -3340,7 +3358,7 @@ document.onkeydown = function(event) { //*****************************
 	if (document.activeElement.type == "checkbox") {document.getElementById(ID).parentNode.style.backgroundColor = highlight2;}
 	if (ID == "select_all_ckbox")    {document.getElementById('select_all_label').style.backgroundColor = highlight1;}
 	if (ID == "folders_first_ckbox") {document.getElementById('folders_first_label').style.backgroundColor = highlight1;}
-	
+
 	//Prevent default browser scrolling via arrow & Page keys, so focus()'d element stays visible/in view port.
 	//(A few exceptions skip this via a return in the above  if/else's.)
 	if ( (ID != 'path_0') || ((ID == 'path_0') && (key == AD)) || ((ID == 'path_0') && (key == PD))) {
@@ -3401,7 +3419,7 @@ function Sort_Folders_First() {//*************************************
 	row = 0
 	for (D = 0; D < folders.length; D++) { DIRECTORY_DATA[row++] = folders[D]; }
 	for (F = 0; F < files.length;   F++) { DIRECTORY_DATA[row++] = files[F];   }
-	
+
 	SORT_folders_1st = true;
 
 }//end Sort_Folders_First() //****************************************
@@ -3414,7 +3432,7 @@ function sort_DIRECTORY(col, direction) {//***************************
 	if (DIRECTORY_DATA.length < 2) {return} //can't sort 1 or zero items.
 
 	//sort DIRECTORY_DATA[] by col and direction
-	
+
 	//col: 1 for "file name", 2 for filesize, 3 for timestamp, 5 for "ext"
 	//direction: 0 = desending, 1 = ascending, 2 = flip, 3 = flip only if new col != SORT_by
 
@@ -3675,104 +3693,41 @@ function Edit_Page_scripts() {//************************************************
 	global $_, $ONESCRIPT, $ONESCRIPT_file, $ipath, $param1, $param2, $filename, $LINE_WRAP,
 			$MAIN_WIDTH, $WIDE_VIEW_WIDTH, $current_view, $WYSIWYG_VALID, $EDIT_WYSIWYG, $TAB_SIZE;
 
-	//Determine edit_view width.
-	$current_view = $MAIN_WIDTH;
-	if ( isset($_COOKIE['edit_view']) ) {
-		if ( ($_COOKIE['edit_view'] == $MAIN_WIDTH) || ($_COOKIE['edit_view'] == $WIDE_VIEW_WIDTH) ) {
-			$current_view = $_COOKIE['edit_view'];
-		}
-	}
+	//Get current view width.
+	$current_view = $MAIN_WIDTH; //default
+	if ( $_COOKIE['wide_view'] === "on" ) { $current_view = $WIDE_VIEW_WIDTH; }
 
 	//For [Edit WYSIWYG/Source] button
-	$set_cookie = "document.cookie='edit_wysiwyg=".(!$EDIT_WYSIWYG*1)."';";
-	$WYSIWYG_onclick = "parent.location = onclick_params + 'edit'; ".$set_cookie;
+	$WYSIWYG_onclick  = "parent.location = onclick_params + 'edit'; ";
+	$WYSIWYG_onclick .= "document.cookie='edit_wysiwyg=".(!$EDIT_WYSIWYG*1)."';";
 
 	//For [Close] button
 	$close_params = $ONESCRIPT.$param1;
 	if ( $_SESSION['admin_page'] ) { $close_params .= '&p=admin'; } //If came from admin page, return there.
-
 ?>
+
+
 <script>
-var onclick_params = '<?php echo $ONESCRIPT.$param1.'&f='.rawurlencode(basename($filename)).'&p=' ?>';
-
-var Main_div		   = document.getElementById('main');
-var File_textarea      = document.getElementById('file_editor');
-var View_Raw_button    = document.getElementById('view_raw');
-var Wide_View_button   = document.getElementById('wide_view');
-var WYSIWYG_button	   = document.getElementById('edit_WYSIWYG');
-var Close_button       = document.getElementById('close1');
-var Save_File_button   = document.getElementById('save_file');
-var Reset_button       = document.getElementById('reset');
-var Rename_File_button = document.getElementById('renamefile_btn');
-var Copy_File_button   = document.getElementById('copyfile_btn');
-var Delete_File_button = document.getElementById('deletefile_btn');
-
-if (File_textarea) { var start_value = File_textarea.value; }
-
-var submitted  = false;
-var changed    = false;
-
-//[Close], and [Copy], should always be present on Edit Page.
-Close_button.onclick     = function () { parent.location = '<?php echo $close_params ?>'; }
-Close_button.focus();
-Copy_File_button.onclick = function () { parent.location = onclick_params + 'copyfile';   }
-
-Main_div.style.width = "<?php echo $current_view ?>"; //Set current width
-
-if ( Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>' ) {
-	Wide_View_button.innerHTML = '<?php echo hsc($_['Normal_View']) ?>';
+function Set_File_Textarea_Width() {
+	var Mw  =  parseInt(window.getComputedStyle(Main_div).getPropertyValue("width"));
+	var Mbr =  parseInt(window.getComputedStyle(Main_div).getPropertyValue("border-right-width"));
+	var Mbl =  parseInt(window.getComputedStyle(Main_div).getPropertyValue("border-left-width"));
+	var Lw  =  parseInt(window.getComputedStyle(Line_Numbers_div).getPropertyValue("width"));
+	var Lmr =  parseInt(window.getComputedStyle(Line_Numbers_div).getPropertyValue("margin-right"));
+	var Fml =  parseInt(window.getComputedStyle(File_textarea).getPropertyValue("margin-left"));
+	File_textarea.style.width = (Mw - Lw - Mbr - Mbl- Lmr - Fml) + "px";
 }
 
-//These elements do not exist if file is not editable, or maybe if in WYSIWYG mode.
-if (View_Raw_button)    { View_Raw_button.onclick 	 = function () {window.open(onclick_params + 'raw_view'); } }
-if (Wide_View_button)   { Wide_View_button.onclick 	 = function () {Wide_View();}    }
-if (Save_File_button)   { Save_File_button.onclick 	 = function () {submitted=true;} }
-if (WYSIWYG_button  )   { WYSIWYG_button.onclick 	 = function () {<?php echo $WYSIWYG_onclick ?>} }
-if (Rename_File_button) { Rename_File_button.onclick = function () {parent.location = onclick_params + 'renamefile';} }
-if (Delete_File_button) { Delete_File_button.onclick = function () {parent.location = onclick_params + 'deletefile';} }
-if (File_textarea)      { File_textarea.addEventListener("keyup", function(event) {Check_for_changes(event);}) }
-
-
-//Prevent form-submission on enter of the word-wrap radio buttons.
-//They are only used for changing word-wrap visually.
-var $edit_form = document.getElementById('edit_form');
-$edit_form.addEventListener( "submit", function(event) {Ignore_Submit(event)});
-
-
-
-function Ignore_Submit(event) {
-	if (!event) {var event = window.event;} //for IE
-	if (document.activeElement.type == "radio") {event.preventDefault();}
-}
-
-
-
-
-window.onbeforeunload = function() {
-	if ( changed && !submitted ) {
-		//FF4+ Ingores the supplied msg below & only uses a system msg for the prompt.
-		<?php //use addslashes(), not hsc(), because this is for a js alert() / confirm(), not HTML ?>
-		return "<?php echo addslashes($_['unload_unsaved']) ?>";
-	}
-}
-
-
-window.onunload = function() {
-	//without this, a browser back then forward would reload file with local/
-	// unsaved changes, but with a green b/g as tho that's the file's saved contents.
-	if (!submitted) {
-		File_textarea.value = start_value;
-		Reset_file_status_indicators();
-	}
-}
 
 
 
 function Correct_Word_Wrapping(text_area) {
 
-	//Correct word-wrapping and save cursor postion/selection
-	//after toggling between Wide/Normal views, and between Wrap on/off.
-	//(Doesn't always wrap consistantly or seem to use break-all.)
+	//Correct word-wrapping and save cursor postion/selection after toggling 
+	// between view modes (Wide/Normal or Wrap on/off).
+	//When width or wrap changed dynamically, the browser doesn't always wrap 
+	// correctly, or seem to use break-all.
+	//
 	//This is so line-numbers line-up correctly.
 
 	var tmp = text_area.value;
@@ -3786,27 +3741,58 @@ function Correct_Word_Wrapping(text_area) {
 
 
 
+
 function Wide_View() {
 
-	var main_width_default = '<?php echo $MAIN_WIDTH ?>';
+	var normal_view_width = '<?php echo $MAIN_WIDTH ?>';
+	var wide_view_width	  = '<?php echo $WIDE_VIEW_WIDTH ?>';
 
-	//Set view width
-	if (Main_div.style.width == '<?php echo $WIDE_VIEW_WIDTH ?>') {
-		Main_div.style.width       = main_width_default;
-		Wide_View_button.innerHTML = "<?php echo hsc($_['Wide_View'])?>";
-		document.cookie            = 'edit_view=' + main_width_default;
+	//Toggle view width
+	if (Wide_View_button.value == "on") {
+		Main_div.style.width       = normal_view_width;
+		Set_File_Textarea_Width();
+		Wide_View_button.innerHTML = "<?php echo hsc($_['Wide_View'])?>"; //Button label is what to do next click, not current state.
+		document.cookie            = 'wide_view=off';
+		Wide_View_button.value 	   = "off"
 	}else{
-		Main_div.style.width       = '<?php echo $WIDE_VIEW_WIDTH ?>';
+		Main_div.style.width       = wide_view_width;
+		Set_File_Textarea_Width();
 		Wide_View_button.innerHTML = '<?php echo hsc($_['Normal_View']) ?>';
-		document.cookie            = 'edit_view=<?php echo $WIDE_VIEW_WIDTH ?>';
+		document.cookie            = 'wide_view=on';
+		Wide_View_button.value 	   = "on"
 	}
 
+	Correct_Word_Wrapping(File_textarea);
+
+	Line_Numbers.Set_Line_Numbers();
+}
+
+
+
+
+function Toggle_Line_Wrap(on_off) {
+
+	if (on_off.value == "on") {
+		on_off.value  				 = "off"
+		document.cookie 			 = 'line_wrap=off'
+		File_textarea.style["white-space"] = "pre";
+		document.getElementById('w_on').style.textDecoration  = "none";
+		document.getElementById('w_off').style.textDecoration = "underline";
+	}
+	else {
+		on_off.value  				 = "on"
+		document.cookie				 = 'line_wrap=on'
+		File_textarea.style["white-space"] = "pre-wrap";
+		document.getElementById('w_on').style.textDecoration  = "underline";
+		document.getElementById('w_off').style.textDecoration = "none";
+	}
 
 	Correct_Word_Wrapping(File_textarea);
-	
-	Line_Numbers.Set_Line_Numbers();
 
-}// end Wide_View() 
+	Line_Numbers.Set_Line_Numbers();
+	
+}//end Toggle_Line_Wrap()
+
 
 
 
@@ -3820,26 +3806,12 @@ function Reset_file_status_indicators() {
 
 
 
-//With selStart & selEnd == 0, moves cursor to start of text field.
-function setSelRange(inputEl, selStart, selEnd) {
-	if (inputEl.setSelectionRange) {
-		inputEl.focus();
-		inputEl.setSelectionRange(selStart, selEnd);
-	} else if (inputEl.createTextRange) {
-		var range = inputEl.createTextRange();
-		range.collapse(true);
-		range.moveEnd('character', selEnd);
-		range.moveStart('character', selStart);
-		range.select();
-	}
-}
-
-
 
 function Check_for_changes(event){
 	if (!event) {var event = window.event;} //if IE
 	var keycode = event.keyCode? event.keyCode : event.charCode;
 	changed = (File_textarea.value != start_value);
+
 	if (changed){
 		document.getElementById('message_box').innerHTML = " "; //Must have a space, or it won't clear the msg.
 		File_textarea.style.backgroundColor    = "white";
@@ -3853,96 +3825,55 @@ function Check_for_changes(event){
 
 
 
+
 //Reset textarea value to when page was loaded.
 //Used by [Reset] button, and when page unloads (browser back, etc).
 //Needed becuase if the page is reloaded (ctl-r, or browser back/forward, etc.),
-//the text stays changed, but "changed" gets set to false, which looses warning.
+//the text stays changed, but var "changed" gets set to false, which looses warning.
+//
 function Reset_File() {
+
     <?php //use addslashes() because this is for a js alert() or confirm(), not HTML ?>
 	if (changed) { if ( !(confirm("<?php echo addslashes($_['confirm_reset']) ?>")) ) { return false; } }
+
 	File_textarea.value = start_value;
 	Reset_file_status_indicators();
-	setSelRange(File_textarea, 0, 0) //Move cursor to start of textarea.
+
+	File_textarea.selectionStart = 0;
+	File_textarea.selectionEnd = 0;
+
+	Line_Numbers.Set_Line_Numbers();
+
+	Close_button.focus();
+
+	//needed so textarea cursor selectionStart/End stay set to 0.  I don't known why. I wish I did...
+	return false;
 }
 
 
 
 
-function Line_Numbering(line_numbers_id, listing_id, line0_id, line1_id, toggle_wrap_id) {
-
-	var line_numbers = document.getElementById(line_numbers_id);
-	var listing 	 = document.getElementById(listing_id);
-	var line_zero    = document.getElementById(line0_id); //empty: used for char-width calc.
-	var line_one     = document.getElementById(line1_id); //<div>1</div> will contain the line numbers.
-	var toggle_wrap	 = document.getElementById(toggle_wrap_id);
-	var initial_wrap = "<?php echo $LINE_WRAP ?>";
-	var TAB_SIZE 	 = <?php echo $TAB_SIZE ?>;
-
-	var char_width     = (line_zero.offsetLeft - line_one.offsetLeft);
-	var padding_L 	   = parseInt(window.getComputedStyle(listing).getPropertyValue("padding-left"));
-	var padding_R 	   = parseInt(window.getComputedStyle(listing).getPropertyValue("padding-right"));
-
-	var Display_Width_Chars = function() {return Math.floor((listing.clientWidth - padding_L - padding_R) / char_width)};
-
-	line_zero.innerHTML = ""; //Just makin' sure. Only used for char-width calc.
-
-	line_numbers.style.height = listing.offsetHeight + "px";
+function Line_Numbering(wrapper_id, line_numbers_id, listing_id, line0_id, line1_id) {
 
 
-
-	if (listing.getAttribute('readonly') === null) {
-		//If not readonly (ie: editable)...
-		listing.addEventListener("keyup",   function(event){Set_Line_Numbers(event)});
-		listing.addEventListener("mouseup", function(event){Set_Line_Numbers(event)});
-		listing.addEventListener("paste",   function(event){Set_Line_Numbers(event)});
+	//***** functions ************************************************
+	
+	function Display_Width_Chars() {
+		return Math.floor((listing.clientWidth - padding_L - padding_R) / char_width)
 	}
-	
-	listing.addEventListener("scroll",  function(event){Set_Line_Numbers(event)});
-	
-	toggle_wrap.onclick = function() {Toggle_Line_Wrap(this);}
-
-
-
-	//Set default/page load condition, and also init's the line numbers...
-	//We're just setting the initial condition now, not actually toggling,
-	//so "pre-toggle" the indicator here as Toggle_Line_Wrap() will toggle it back...
-	if (initial_wrap === "off") {toggle_wrap.value = "on";} else {toggle_wrap.value = "off";}
-	Toggle_Line_Wrap(toggle_wrap);
-
-
-
-	function Toggle_Line_Wrap(on_off) {
-		
-		if (on_off.value == "on") {
-			on_off.value  				 = "off"
-			document.cookie 			 = 'line_wrap=off'
-			listing.style["white-space"] = "pre";
-		}
-		else {
-			on_off.value  				 = "on"
-			document.cookie				 = 'line_wrap=on'
-			listing.style["white-space"] = "pre-wrap";
-		}
-		
-		Correct_Word_Wrapping(listing);
-		
-		Set_Line_Numbers();
-		
-	}//end Toggle_Line_Wrap()
 
 
 
 	function Line_Count(str) {
-		
-		var line_count = 0;
 		var i = 0
+		var line_count = 0;
 		
 		for (i = 0; i < str.length; ++i) { 
-			if(str[i] == '\n') { line_count++; } //Line-endings are normalized to \n elsewhere in OFCMS. (server-side)
+			//Line-endings are normalized to \n elsewhere in OFCMS. (server-side)
+			if(str[i] == '\n') { line_count++; }
 		}
 		
 		line_count++;  //Last line doesn't have a new-line at the end.
-		
 		return line_count; 
 		
 	}//end Line_Count()
@@ -3950,24 +3881,21 @@ function Line_Numbering(line_numbers_id, listing_id, line0_id, line1_id, toggle_
 
 
 	function Effective_Line_Length(line, tab_size){
-		
 		var TAB = "\t";
 		var effective_length = 0;
 		var next_tab_stop    = 0;
 		
 		for (x = 0; x < line.length; x++) {
-			
-			effective_length++;  //At this point, this may include a tab char, but not any subsequent space to the next tab-stop.
-			
+			//At this point, this may include a tab char, but not any subsequent space(s) to the next tab-stop.
+			effective_length++;
 			if (effective_length > next_tab_stop) {next_tab_stop += tab_size;}
-			
 			if (line[x] == TAB) {effective_length = next_tab_stop;}  //adds the subsequent space to the next tab-stop.
 		}
 		
 		return effective_length;
 		
 	}//end Effective_Line_Length()
-	
+
 
 
 	function Create_Line_Numbers(){
@@ -3990,7 +3918,7 @@ function Line_Numbering(line_numbers_id, listing_id, line0_id, line1_id, toggle_
 			
 			effective_line_length = Effective_Line_Length(lines[cur_line], TAB_SIZE);
 			
-			if ((toggle_wrap.value == "on") && (effective_line_length > current_width)) {
+			if ((Toggle_Wrap.value == "on") && (effective_line_length > current_width)) {
 				
 				line_count_wrapped = Math.ceil(effective_line_length / current_width) - 1; //# of addtional lines after wrapped...
 				
@@ -4022,27 +3950,157 @@ function Line_Numbering(line_numbers_id, listing_id, line0_id, line1_id, toggle_
 		
 	}//end Set_Line_Numbers()
 
+	//*** end functions **********************************************
 
 
-	var LN = {};
-	LN.Effective_Line_Length = Effective_Line_Length;
-	LN.Create_Line_Numbers   = Create_Line_Numbers;
-	LN.Set_Line_Numbers		 = Set_Line_Numbers;
+
+	//*** common variables *******************************************
+
+	var wrapper		 = document.getElementById(wrapper_id);
+	var line_numbers = document.getElementById(line_numbers_id);
+	var listing 	 = document.getElementById(listing_id);
+	var line_zero    = document.getElementById(line0_id); //empty: used for char-width calc.
+	var line_one     = document.getElementById(line1_id); //<div>1</div> will contain the line numbers.
+
+	line_zero.innerHTML = ""; //Just makin' sure. It's only used for the char_width calc.
 	
+	var char_width     = (line_zero.offsetLeft - line_one.offsetLeft);
+	var padding_L 	   = parseInt(window.getComputedStyle(listing).getPropertyValue("padding-left"));
+	var padding_R 	   = parseInt(window.getComputedStyle(listing).getPropertyValue("padding-right"));
+
+
+	//Check for tabSize css support.  Default/standard size is 8.
+	var TAB_SIZE = 8;
+	
+	if ("tabSize" in document.body.style){
+		TAB_SIZE = <?php echo $TAB_SIZE ?>;
+		listing.style.tabSize = TAB_SIZE;
+	}
+	else if ("MozTabSize" in document.body.style) {
+		TAB_SIZE = <?php echo $TAB_SIZE ?>;
+		listing.style.MozTabSize = TAB_SIZE;
+	}
+	else if ("OTabSize" in document.body.style) {
+		TAB_SIZE = <?php echo $TAB_SIZE ?>;
+		listing.style.OTabSize = TAB_SIZE;
+	}
+
+	//*** end common variables ***************************************
+
+
+
+	//*** attach events **********************************************
+
+	if (listing.getAttribute('readonly') === null) {
+		//If not readonly (ie: editable)...
+		listing.addEventListener("keyup",   function(event){Set_Line_Numbers(event)});
+		listing.addEventListener("mouseup", function(event){Set_Line_Numbers(event)});
+		listing.addEventListener("paste",   function(event){Set_Line_Numbers(event)});
+	}
+
+	listing.addEventListener("scroll",  function(event){Set_Line_Numbers(event)});
+
+	//*** end attach events ******************************************
+
+
 	//Set initial cursor location to start of file, instead of end (the default).
 	listing.selectionStart = 0;
 	listing.selectionEnd = 0;
 
+
+	//Set_Line_Numbers() is also used by Wide_View() & Toggle_Line_Wrap().
+	//Toggle_Line_Wrap() will make the initial call to Set_Line_Numbers().
+	var LN = {};
+	LN.Set_Line_Numbers = Set_Line_Numbers;
+
 	return LN;
 
-}//end Line_Numbering() //***********************************
+}//end Line_Numbering() //********************************************
 
 
 
-Line_Numbers = Line_Numbering("line_numbers", "file_editor", "line_0", "line_1", "toggle_wrap");
 
+//***** Global variables *********************************************
+var Main_div		   = document.getElementById('main');
+var Ln_Editor_wrapper  = document.getElementById('wrapper_linenums_editor');
+var Line_Numbers_div   = document.getElementById('line_numbers');
+var File_textarea      = document.getElementById('file_editor');
+var View_Raw_button    = document.getElementById('view_raw');
+var Wide_View_button   = document.getElementById('wide_view');
+var WYSIWYG_button	   = document.getElementById('edit_WYSIWYG');
+var Close_button       = document.getElementById('close1');
+var Toggle_Wrap		   = document.getElementById('toggle_wrap');
+var Save_File_button   = document.getElementById('save_file');
+var Reset_button       = document.getElementById('reset');
+var Rename_File_button = document.getElementById('renamefile_btn');
+var Copy_File_button   = document.getElementById('copyfile_btn');
+var Delete_File_button = document.getElementById('deletefile_btn');
+
+var submitted  = false;
+var changed    = false;
+
+if (File_textarea) { var start_value = File_textarea.value; }
+
+var onclick_params = '<?php echo $ONESCRIPT.$param1.'&f='.rawurlencode(basename($filename)).'&p=' ?>';
+
+//Wide View / Normal View init...
+Main_div.style.width = "<?php echo $current_view ?>"; //Set current width
+//***** end Global variables *****************************************
+
+
+
+//***** Events assignments *******************************************
+//[Close], and [Copy], should always be present on Edit Page.
+Close_button.onclick     = function () { parent.location = '<?php echo $close_params ?>'; }
+Copy_File_button.onclick = function () { parent.location = onclick_params + 'copyfile';   }
+Toggle_Wrap.onclick 	 = function () {Toggle_Line_Wrap(this);}
+
+//These elements do not exist if file is not editable, or maybe if in WYSIWYG mode.
+if (View_Raw_button)    { View_Raw_button.onclick 	 = function () {window.open(onclick_params + 'raw_view'); } }
+if (Wide_View_button)   { Wide_View_button.onclick 	 = function () {Wide_View();}    }
+if (Save_File_button)   { Save_File_button.onclick 	 = function () {submitted=true;} }
+if (WYSIWYG_button  )   { WYSIWYG_button.onclick 	 = function () {<?php echo $WYSIWYG_onclick ?>} }
+if (Rename_File_button) { Rename_File_button.onclick = function () {parent.location = onclick_params + 'renamefile';} }
+if (Delete_File_button) { Delete_File_button.onclick = function () {parent.location = onclick_params + 'deletefile';} }
+if (File_textarea)      { File_textarea.addEventListener("keyup", function(event) {Check_for_changes(event);}) }
+
+
+window.onbeforeunload = function() {
+	if ( changed && !submitted ) {
+		//FF4+ Ingores the supplied msg below & only uses a system msg for the prompt.
+		<?php //use addslashes(), not hsc(), because this is for a js alert() / confirm(), not HTML ?>
+		return "<?php echo addslashes($_['unload_unsaved']) ?>";
+	}
+}
+
+
+window.onunload = function() {
+	//without this, a browser back then forward would reload file with local/
+	// unsaved changes, but with a green b/g as tho that's the file's saved contents.
+	if (!submitted) {
+		File_textarea.value = start_value;
+		Reset_file_status_indicators();
+	}
+}
+//***** end Events assignments ***************************************
+
+
+
+
+Set_File_Textarea_Width();
+
+Line_Numbers = Line_Numbering("wrapper_linenums_editor", "line_numbers", "file_editor", "line_0", "line_1");
+
+//Set default/page load condition, and also init's the line numbers...
+//We're just setting the initial condition now, not actually toggling,
+//so "pre-toggle" the indicator here as Toggle_Line_Wrap() will toggle it back...
+//
+if (Toggle_Wrap.value === "off") {Toggle_Wrap.value = "on";} else {Toggle_Wrap.value = "off";}
+Toggle_Line_Wrap(Toggle_Wrap);
 
 Reset_file_status_indicators();
+
+Close_button.focus();
 </script>
 <?php
 }//end Edit_Page_scripts() //***************************************************
@@ -4137,6 +4195,7 @@ function pre_validate_pwun() {
 	return true;
 }//end pre_validate_pwun()
 </script>
+
 <?php
 }//end pwun_event_scripts() //**************************************************
 
@@ -4152,6 +4211,7 @@ function js_hash_scripts() {//**************************************************
 //in transit. However, this does help to protect the user's plain-text p/w, which
 //may be used elsewhere.
 ?>
+
 <script>
 /* hex_sha256() (and directly associated functions)
  *
@@ -4178,6 +4238,7 @@ function hash($element_id) {
 	$input.value = $hash;
 }//end hash()
 </script>
+
 <?php
 }//end js_hash_scripts() //*****************************************************
 
@@ -4186,6 +4247,7 @@ function hash($element_id) {
 
 function style_sheet() {//******************************************************
 ?>
+
 <style>
 /* --- reset --- */
 * { border : 0; outline: 0; margin: 0; padding: 0;
@@ -4515,8 +4577,9 @@ a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
 }
 
 #line_numbers, #file_editor {
-	vertical-align	: top;
+	vertical-align  : top;
 	display			: inline-block;
+	height			: 40em;
 	white-space		: pre;
 	margin			: 0;
 	font			: normal .9em courier;
@@ -4532,69 +4595,38 @@ a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
 	overflow-y	: hidden;
 	overflow-x  : scroll;  /*This may be grayed out, but provides visual consistancy with #file_editor.*/
 	text-align	: right;
+	float		: left;  /*only needed to help eliminate whitespace between #line_numbers & #file_editor*/
 }
 
 #line_0, #line_1 {margin: 0; display: inline-block; }
 
-.tab_size {
-	tab-size     : 8;
-	-o-tab-size  : 8;
-	-moz-tab-size: 8;
-}
-
 #file_editor {
-	font  	  : .9em Courier;
-	border	  : 1px solid #777;
-	height	  : 40em;
-	width     : 96.6%;		/* compromise betweeen Normal and Wide views. May be dynamic someday. */
-	margin	  : 0 0 .7em 2px;
-	padding   : 1px 0 0 3px;
+	font  	   : .9em Courier;
+	border	   : 1px solid #777;
+	width      : 96%;		/* Dynamically set by Set_File_Textarea_Width(), base on Normal or Wide view. */
+	margin	   : 0 0 .7em 2px;
+	padding    : 1px 0 0 3px;
 	overflow   : scroll;
-	word-break : break-all;
 	word-wrap  : normal;
+	word-break : break-all;
 	white-space: pre-wrap;
 	resize     : none;
-	
-	color			: black; /* Default. May make themeable, along with background-color. */
-	
-	/* Set in Reset_file_status_indicators() and Check_for_changes() */
-	background-color: white;
+
+	color 			: black; /* Default. May make themeable, along with background-color. Someday... */
+	background-color: white; /* Set in Reset_file_status_indicators() and Check_for_changes() */
 	}
 
 
 #file_editor:focus { border-color: #000; }
+
+.tab_size {	tab-size: 8; -o-tab-size: 8; -moz-tab-size: 8;  }
+
 
 .file_meta	{ float: left; margin-top: .6em; font-size: .95em; color: #222; }
 
 #edit_notes { font-size: .8em; color: #222 ;margin-top: 1em; clear:both; }
 
 .notes      { margin-bottom: .4em; }
-
-
-#ww_options {
-	display: inline-block;
-	height : 28px;  
-	padding: 5px 6px 0 7px;
-	border: solid 1px #777;
-	color  : black;
-	font-size  : .9em;
-	font-family: sans-serif;
-	background-color: #EEE;
-} 
-
-#ww_options:hover {background-color: rgb(255,250,150); border-color: black;}
-
-#ww_options > label {
-	padding: 0px 3px 0px 0em;
-	margin-left: .3em;
-	font-weight: normal;
-	border : 1px solid #777;
-	border-radius: 3px;
-	background-color: #EEE;
-}
-
-#ww_options > label:hover  { background-color: #DDD; border-color: #333; cursor : pointer; }
-
 
 
 
@@ -4730,6 +4762,7 @@ input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 #path_header a:hover  { border-left : solid 1px #777; border-right: solid 1px #777; }
 #path_header a:focus  { border-left : solid 1px #777; border-right: solid 1px #777; }
 </style>
+
 <?php
 }//end style_sheet() //*********************************************************
 
@@ -4739,6 +4772,7 @@ input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 function Language_and_config_adjusted_styles() {//******************************
 	global $_, $MAIN_WIDTH, $MESSAGE, $page, $TAB_SIZE;
 ?>
+
 <style>
 #main { width: <?php echo $MAIN_WIDTH ?>; } /*Default 810px*/
 
@@ -4770,6 +4804,7 @@ function Language_and_config_adjusted_styles() {//******************************
 #select_all_label { font-size: <?php echo $_['select_all_label_size']?>; } /*Default .84em */
 #select_all_label { width: <?php echo $_['select_all_label_width']?>; }    /*Default 72px  */
 </style>
+
 <?php
 }//end Language_and_config_adjusted_styles() //*********************************
 
@@ -4848,7 +4883,6 @@ if ($_SESSION['valid']) {
 
 
 
-
 //******************************************************************************
 //Output page contents
 //******************************************************************************
@@ -4871,8 +4905,8 @@ echo '</head><body>';
 
 Error_reporting_status_and_early_output(0,0); //0,0 will only show early output.
 
-if ($_SESSION['valid']) { echo '<div id="main" >'; }
-else                    { echo '<div id="login_page">'; }
+if ($_SESSION['valid']) { echo '<div id=main >'; }
+else                    { echo '<div id=login_page>'; }
 
 
 Page_Header();
@@ -4902,13 +4936,13 @@ if ($_SESSION['valid']) {
 	}
 }//end footer
 
-echo '</div>'; //end main/login_page
+echo "\n</div>\n"; //end main/login_page
 echo "</body></html>\n";
 
 if ( ($page == "edit") && $WYSIWYG_VALID && $EDIT_WYSIWYG ) { include($WYSIWYG_PLUGIN_OS); }
 
 //Display any $MESSAGE's
-echo '<script>';
+echo "\n\n<script>\n";
 echo 'var $tabindex_xbox = '.$TABINDEX_XBOX.";\n"; //Used in Display_Messages()
 echo 'var $page = "'.$page.'";'."\n";
 echo '$MESSAGE += "'.addslashes($MESSAGE).'";'."\n"; //js version of $MESSAGE declared at top of common_scripts().

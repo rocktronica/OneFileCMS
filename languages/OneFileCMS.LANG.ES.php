@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.5.20
+// OneFileCMS Language Settings v3.5.21
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -11,7 +11,7 @@ $_['LANG'] = 'ES';
 // Remember to slash-escape any single quotes that may be within the text:  \'
 // The back-slash itself may or may not also need to be escaped:  \\
 //
-// If present as a trailing comment, "## NT ##" means 'Need Translation'.
+// If present as a trailing comment, "## NT ##" means 'Needs Translation'.
 //
 // These first few settings control a few font and layout settings.
 // In some instances, some langauges may use significantly longer words or phrases than others.
@@ -21,7 +21,7 @@ $_['front_links_margin_L']   = '0.5em';
 $_['MCD_margin_R']           = '1.0em';   //[Move] [Copy] [Delete] buttons
 $_['button_font_size']       = '0.9em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
-$_['button_padding']         = '4px 4px'; //T R B L
+$_['button_padding']         = '4px 4px'; //T R B L  ,or,   V H   if only two values.
 $_['image_info_font_size']   = '.95em';   //show_img_msg_01  &  _02
 $_['image_info_pos']         = ' ';       //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
@@ -31,7 +31,7 @@ $_['HTML']    = 'HTML';
 $_['WYSIWYG'] = 'WYSIWYG'; //## NT ##
 
 $_['Admin']    = 'Administrador';
-$_['bytes']    = 'bytes';
+$_['bytes']    = 'bytes';   //## NT ##
 $_['Cancel']   = 'Cancelar';
 $_['cancelled'] = 'cancelado';
 $_['Close']    = 'Cerrar';
@@ -44,7 +44,7 @@ $_['DELETE']   = 'ELIMINAR';
 $_['Deleted']  = 'Eliminado';
 $_['Edit']     = 'Editar';
 $_['Enter']    = 'Entrar';
-$_['Error']    = 'Error';
+$_['Error']    = 'Error';   //## NT ##
 $_['errors']   = 'errores';
 $_['ext']      = 'ext';
 $_['File']     = 'Archivo';
@@ -71,37 +71,37 @@ $_['Upload']   = 'Subir';
 $_['Username'] = 'Usuario';
 $_['View']     = 'Ver';
 
-$_['Working']      = 'Working - please wait...'; //## NT ##
-$_['Log_In']       = 'Iniciar Sesión';
-$_['Log_Out']      = 'Cerrar Sesión';
-$_['Admin_Options'] = 'Opciones de Administración';
-$_['Are_you_sure'] = '¿Estás seguro?';
-$_['View_Raw']     = 'View Raw'; //## NT ##
-$_['Open_View']    = 'Abrir/Ver en una ventana del navegador';
-$_['Edit_View']    = 'Editar / Ver Archivo';
-$_['Wide_View']    = 'Vista Ampliada';
-$_['Normal_View']  = 'Vista Normal';
-$_['Word_Wrap']    = 'Word Wrap'; //## NT ##
-$_['Line_Wrap']    = 'Line Wrap'; //## NT ##
-$_['Upload_File']  = 'Subir Archivo';
-$_['New_File']     = 'Archivo Nuevo';
-$_['Ren_Move']     = 'Renombrar / Mover';
-$_['Ren_Moved']    = 'Renombrado / Movido';
-$_['folders_first'] = 'folders first'; //## NT ##
+$_['Working']         = 'Working - please wait...'; //## NT ##
+$_['Log_In']          = 'Iniciar Sesión';
+$_['Log_Out']         = 'Cerrar Sesión';
+$_['Admin_Options']   = 'Opciones de Administración';
+$_['Are_you_sure']    = '¿Estás seguro?';
+$_['View_Raw']        = 'View Raw'; //## NT ##
+$_['Open_View']       = 'Abrir/Ver en una ventana del navegador';
+$_['Edit_View']       = 'Editar / Ver Archivo';
+$_['Wide_View']       = 'Vista Ampliada';
+$_['Normal_View']     = 'Vista Normal';
+$_['Word_Wrap']       = 'Word Wrap'; //## NT ##
+$_['Line_Wrap']       = 'Line Wrap'; //## NT ##
+$_['Upload_File']     = 'Subir Archivo';
+$_['New_File']        = 'Archivo Nuevo';
+$_['Ren_Move']        = 'Renombrar / Mover';
+$_['Ren_Moved']       = 'Renombrado / Movido';
+$_['folders_first']   = 'folders first'; //## NT ##
 $_['folders_first_info'] = 'Sort folders first, but don\'t change primary sort.'; //## NT ##
-$_['New_Folder']   = 'Carpeta Nueva';
-$_['Ren_Folder']   = 'Renombrar / Mover Carpeta';
-$_['Submit']       = 'Cargar';
-$_['Move_Files']   = 'Mover archivo(s)';
-$_['Copy_Files']   = 'Copiar archivo(s)';
-$_['Del_Files']    = 'Eliminar Archivo(s)';
-$_['Selected_Files'] = 'Seleccionar Archivos';
-$_['Select_All']   = 'Seleccionar Todos';
-$_['Clear_All']    = 'Limpiar Todos';
-$_['New_Location'] = 'Nueva Posición';
-$_['No_files']     = 'No se seleccionó ningún archivo.';
-$_['Not_found']    = 'No encontrado';
-$_['Invalid_path'] = 'Invalid path'; //## NT ##
+$_['New_Folder']      = 'Carpeta Nueva';
+$_['Ren_Folder']      = 'Renombrar / Mover Carpeta';
+$_['Submit']          = 'Cargar';
+$_['Move_Files']      = 'Mover archivo(s)';
+$_['Copy_Files']      = 'Copiar archivo(s)';
+$_['Del_Files']       = 'Eliminar Archivo(s)';
+$_['Selected_Files']  = 'Seleccionar Archivos';
+$_['Select_All']      = 'Seleccionar Todos';
+$_['Clear_All']       = 'Limpiar Todos';
+$_['New_Location']    = 'Nueva Posición';
+$_['No_files']        = 'No se seleccionó ningún archivo.';
+$_['Not_found']       = 'No encontrado';
+$_['Invalid_path']    = 'Invalid path'; //## NT ##
 
 $_['verify_msg_01']     = 'Sesión expirada.';
 $_['verify_msg_02']     = 'POST INVÁLIDO';

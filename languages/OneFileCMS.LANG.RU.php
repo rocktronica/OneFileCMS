@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.5.20
+// OneFileCMS Language Settings v3.5.21
 
 $_['LANGUAGE'] = 'Russian';
 $_['LANG'] = 'RU';
@@ -11,7 +11,7 @@ $_['LANG'] = 'RU';
 // Remember to slash-escape any single quotes that may be within the text:  \'
 // The back-slash itself may or may not also need to be escaped:  \\
 //
-// If present as a trailing comment, "## NT ##" means 'Need Translation'.
+// If present as a trailing comment, "## NT ##" means 'Needs Translation'.
 //
 // These first few settings control a few font and layout settings.
 // In some instances, some langauges may use significantly longer words or phrases than others.
@@ -21,14 +21,14 @@ $_['front_links_margin_L']   = '0.7em';
 $_['MCD_margin_R']           = '1.0em';   //[Move] [Copy] [Delete] buttons
 $_['button_font_size']       = '0.8em';   //Buttons on Edit page.
 $_['button_margin_L']        = '0.7em';
-$_['button_padding']         = '4px 5px'; //T R B L
+$_['button_padding']         = '4px 5px'; //T R B L  ,or,   V H   if only two values.
 $_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All']
 
 $_['HTML']    = 'HTML';
-$_['WYSIWYG'] = 'WYSIWYG';
+$_['WYSIWYG'] = 'WYSIWYG'; //## NT ##
 
 $_['Admin']    = 'Админка';
 $_['bytes']    = 'байт';
@@ -71,37 +71,37 @@ $_['Upload']   = 'Загрузить';
 $_['Username'] = 'Логин';
 $_['View']     = 'вид';
 
-$_['Working']      = 'Working - please wait...'; //## NT ##
-$_['Log_In']       = 'Войти';
-$_['Log_Out']      = 'Выйти';
-$_['Admin_Options'] = 'Настройки Администратора';
-$_['Are_you_sure'] = 'Вы уверены?';
-$_['View_Raw']     = 'View Raw'; //## NT ##
-$_['Open_View']    = 'Открыть/Открыть в окне браузера';
-$_['Edit_View']    = 'Ред. / Смотреть';
-$_['Wide_View']    = 'Широкий Обзор';
-$_['Normal_View']  = 'Нормальный Обзор';
-$_['Word_Wrap']    = 'Word Wrap'; //## NT ##
-$_['Line_Wrap']    = 'Line Wrap'; //## NT ##
-$_['Upload_File']  = 'Загрузить файл';
-$_['New_File']     = 'Новый файл';
-$_['Ren_Move']     = 'Переименовать / Переместить';
-$_['Ren_Moved']    = 'Переименованно / Перемещенно';
-$_['folders_first'] = 'folders first'; //## NT ##
+$_['Working']         = 'Working - please wait...'; //## NT ##
+$_['Log_In']          = 'Войти';
+$_['Log_Out']         = 'Выйти';
+$_['Admin_Options']   = 'Настройки Администратора';
+$_['Are_you_sure']    = 'Вы уверены?';
+$_['View_Raw']        = 'View Raw'; //## NT ##
+$_['Open_View']       = 'Открыть/Открыть в окне браузера';
+$_['Edit_View']       = 'Ред. / Смотреть';
+$_['Wide_View']       = 'Широкий Обзор';
+$_['Normal_View']     = 'Нормальный Обзор';
+$_['Word_Wrap']       = 'Word Wrap'; //## NT ##
+$_['Line_Wrap']       = 'Line Wrap'; //## NT ##
+$_['Upload_File']     = 'Загрузить файл';
+$_['New_File']        = 'Новый файл';
+$_['Ren_Move']        = 'Переименовать / Переместить';
+$_['Ren_Moved']       = 'Переименованно / Перемещенно';
+$_['folders_first']   = 'folders first'; //## NT ##
 $_['folders_first_info'] = 'Sort folders first, but don\'t change primary sort.'; //## NT ##
-$_['New_Folder']   = 'Новая папка';
-$_['Ren_Folder']   = 'Переименовать / Переместить папку';
-$_['Submit']       = 'Отправить изменения';
-$_['Move_Files']   = 'Переместить Файл(ы)';
-$_['Copy_Files']   = 'Копировать Файл(ы)';
-$_['Del_Files']    = 'Удалить Файл(ы)';
-$_['Selected_Files'] = 'Выбранные Папки и Файлы';
-$_['Select_All']   = 'Выбрать все';
-$_['Clear_All']    = 'Очистить всё';
-$_['New_Location'] = 'Новая локализация';
-$_['No_files']     = 'Нет выбранных файлов.';
-$_['Not_found']    = 'Не найдено';
-$_['Invalid_path'] = 'Invalid path'; //## NT ##
+$_['New_Folder']      = 'Новая папка';
+$_['Ren_Folder']      = 'Переименовать / Переместить папку';
+$_['Submit']          = 'Отправить изменения';
+$_['Move_Files']      = 'Переместить Файл(ы)';
+$_['Copy_Files']      = 'Копировать Файл(ы)';
+$_['Del_Files']       = 'Удалить Файл(ы)';
+$_['Selected_Files']  = 'Выбранные Папки и Файлы';
+$_['Select_All']      = 'Выбрать все';
+$_['Clear_All']       = 'Очистить всё';
+$_['New_Location']    = 'Новая локализация';
+$_['No_files']        = 'Нет выбранных файлов.';
+$_['Not_found']       = 'Не найдено';
+$_['Invalid_path']    = 'Invalid path'; //## NT ##
 
 $_['verify_msg_01']     = 'Сессия истекла.';
 $_['verify_msg_02']     = 'НЕВЕРНЫЙ ЗАПРОС';
