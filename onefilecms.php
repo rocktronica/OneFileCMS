@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.21';
+$OFCMS_version = '3.5.22';
 
 
 
@@ -18,7 +18,7 @@ ini_set('log_errors'    , 'off');
 ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
 //
 //Determine good folder for session file. Default is /tmp/, which is not secure.
-//session_save_path('/home/content/username/tmp/'); //##### or:  ini_set('session.save_path', 'some/safe/path/')
+//session_save_path('/home/content/username/tmp/'); // or:  ini_set('session.save_path', 'some/safe/path/')
 //******************************************************************************
 
 
@@ -101,7 +101,7 @@ $LOG_LOGINS    = true; //Keep log of login attempts.
 $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.          Can be px, pt, em, or %.  Assumes px otherwise.
 $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked.  Can be px, pt, em, or %.  Assumes px otherwise.
 
-$LINE_WRAP = "on"; //"on", or (anything else) = "off".  Default for edit page. Once on page, line-wrap can toggle on/off.
+$LINE_WRAP = "on"; //"on",  anything else = "off".  Default for edit page. Once on page, line-wrap can toggle on/off.
 $TAB_SIZE  = 8;    //Some browsers recognize a css tab-size. Some don't (IE/Edge, as of mid-2016).
 
 $MAX_EDIT_SIZE = 200000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
@@ -162,6 +162,7 @@ $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copi
 
 //Name of optional external config file.  Any settings it contains will supersede those above.
 //See the sample file in the OneFileCMS github repo for format example.
+//Basically, it is just a php file with a copy/paste of this configuration section.
 //$CONFIG_FILE = 'OneFileCMS.config.SAMPLE.php';
 
 //end CONFIGURABLE OPTIoNS *****************************************************
@@ -1839,6 +1840,9 @@ function Create_Table_for_Listing() {//*****************************************
 			<INPUT id=select_all_ckbox tabindex=<?php echo $TABINDEX++ ?> TYPE=checkbox NAME=select_all VALUE=select_all>
 		</div>
 	</th>
+	
+	<th style="font-family: courier">sogw</th>
+	
 	<th class=file_name>
 		<div id=ff_ckbox_div class=ckbox>
 			<INPUT tabindex=<?php echo $TABINDEX++?> TYPE=checkbox id=folders_first_ckbox NAME=folders_first VALUE=folders_first checked>
@@ -1856,12 +1860,13 @@ function Create_Table_for_Listing() {//*****************************************
 
 	<tr><?php // "../" directory entry ?>
 		<td colspan=4></td>
+		<td style="font-family: courier"></td>
 		<td>
 <?php		if ($ipath == $ACCESS_ROOT) {
-				echo '<a id=f0c4 tabindex='.$TABINDEX++.'>&nbsp;</a>';
+				echo '<a id=f0c5 tabindex='.$TABINDEX++.'>&nbsp;</a>';
 			}
 			else {
-				echo '<a id=f0c4 tabindex='.$TABINDEX++.' href="'.$ONEFILECMS.'?i='.$new_path.'">'.$ICONS['up_dir'].' <b>..</b> /</a>'; //#### '.$ICONS['up_dir'].'
+				echo '<a id=f0c5 tabindex='.$TABINDEX++.' href="'.$ONEFILECMS.'?i='.$new_path.'">'.$ICONS['up_dir'].' <b>..</b> /</a>'; //#### '.$ICONS['up_dir'].'
 			}
 ?>		</td>
 		<td></td>
@@ -1938,6 +1943,7 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][3] = $file_time_raw;
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][4] = $IS_OFCMS; //If = 1, Don't show ren, del, ckbox.
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][5] = $ext;
+		$DIRECTORY_DATA[$DIRECTORY_COUNT][6] = decoct(fileperms($filename_OS) & 07777);
 		$DIRECTORY_COUNT++;
 	}//end foreach file
 
@@ -1963,13 +1969,14 @@ function Send_directory_data_to_js() {//****************************************
 			$data_for_js .= ', ' .$DIRECTORY_DATA[$x][3];					// timestamp
 			$data_for_js .= ', ' .$DIRECTORY_DATA[$x][4];					// is_ofcms
 			$data_for_js .= ', "'.addslashes($DIRECTORY_DATA[$x][5]).'"';	// "ext"
+			$data_for_js .= ', ' .$DIRECTORY_DATA[$x][6];					// file permissions
 			$data_for_js .= "];\n";
 		}//end skip . & ..
 	}//end for x
 
 	$data_for_js .= "var DIRECTORY_ITEMS = DIRECTORY_DATA.length;\n";
 
-	$data_for_js .= "</script>\n";
+	$data_for_js .= "</script>\n\n";
 	echo $data_for_js;
 
 }//end Send_directory_data_to_js() {//******************************************
@@ -1984,12 +1991,9 @@ function Index_Page_buttons_top($file_count) {//********************************
 
 	echo '<div id=mcd_submit>'."\n";
 	if ($file_count > 0) {
-		$onclick_m = 'onclick="Confirm_Submit( \'move\');   "';
-		$onclick_c = 'onclick="Confirm_Submit( \'copy\');   "';
-		$onclick_d = 'onclick="Confirm_Submit( \'delete\' );"';
-		echo '<button id=b1 tabindex='.$TABINDEX++.' type=button '.$onclick_m.'>'.$ICONS['move'  ].hsc($_['Move']  )."</button\n>";
-		echo '<button id=b2 tabindex='.$TABINDEX++.' type=button '.$onclick_c.'>'.$ICONS['copy'  ].hsc($_['Copy']  )."</button\n>";
-		echo '<button id=b3 tabindex='.$TABINDEX++.' type=button '.$onclick_d.'>'.$ICONS['delete'].hsc($_['Delete'])."</button\n>";
+		echo '<button id=b1 tabindex='.$TABINDEX++.' type=button>'.$ICONS['move'  ].hsc($_['Move']  )."</button\n>";
+		echo '<button id=b2 tabindex='.$TABINDEX++.' type=button>'.$ICONS['copy'  ].hsc($_['Copy']  )."</button\n>";
+		echo '<button id=b3 tabindex='.$TABINDEX++.' type=button>'.$ICONS['delete'].hsc($_['Delete'])."</button\n>";
 	}
 	echo '</div>'."\n"; //end mcd_submit
 
@@ -2044,9 +2048,12 @@ function Edit_Page_buttons_top($text_editable,$file_ENC) {//********************
 	} else {$view_raw_button = '';}
 
 	//[Wide View] / [Normal View] button.  Label is what button will do, not an indicator the current state.
-	if ($_COOKIE['wide_view'] === "on") { $wv_label = hsc($_['Normal_View']); }
-	else 								{ $wv_label = hsc($_['Wide_View']); }
-	$wide_view_button = "<button type=button id=wide_view class=button value={$_COOKIE['wide_view']}>$wv_label</button>\n";
+	$wide_view_button = "";
+	if ($text_editable) { //#####  && !$EDIT_WYSIWYG  ??
+		if ($_COOKIE['wide_view'] === "on") { $wv_label = hsc($_['Normal_View']); }
+		else 								{ $wv_label = hsc($_['Wide_View']); }
+		$wide_view_button = "<button type=button id=wide_view class=button value={$_COOKIE['wide_view']}>$wv_label</button>\n";
+	}
 
 	//[Edit WYSIWYG] / [Edit Source] button.
 	$WYSIWYG_button  = '';
@@ -2853,7 +2860,7 @@ function init_ICONS_js() {//****************************************************
 	//Currently, only icons for dir listing are needed in js
 ?>
 <script>
-var ICONS = new Array();
+var ICONS = [];
 ICONS['bin']	 = '<?php echo $ICONS["bin"]	 ?>';
 ICONS['z']		 = '<?php echo $ICONS["z"]		 ?>';
 ICONS['img']	 = '<?php echo $ICONS["img"]	 ?>';
@@ -3080,7 +3087,10 @@ function Index_Page_events() {//************************************************
 	global $_, $PAGEUPDOWN, $EX;
 ?>
 <script>
-//onclick events
+var Move_Button			= document.getElementById('b1');
+var Copy_Button			= document.getElementById('b2');
+var Delete_Button		= document.getElementById('b3');
+
 var Select_All_ckbox	= document.getElementById('select_all_ckbox');
 var Header_Sorttype		= document.getElementById('header_sorttype');
 var Folders_First_Ckbox = document.getElementById('folders_first_ckbox');
@@ -3088,12 +3098,20 @@ var Header_Filename		= document.getElementById('header_filename');
 var Header_Filesize		= document.getElementById('header_filesize');
 var Header_Filedate		= document.getElementById('header_filedate');
 
-Select_All_ckbox.onclick	 = function () {Select_All();}
-Folders_First_Ckbox.onclick  = function () {Sort_and_Show(SORT_by, SORT_order); this.focus()}
+
+//These buttons aren't present if folder is empty...
+if (Move_Button)   { Move_Button.onclick   = function () {Confirm_Submit('move');}   }
+if (Copy_Button)   { Copy_Button.onclick   = function () {Confirm_Submit('copy');}   }
+if (Delete_Button) { Delete_Button.onclick = function () {Confirm_Submit('delete');} }
+
+//Always present...
+Select_All_ckbox.onclick = function () {Select_All();}
+Folders_First_Ckbox.onclick = function () {Sort_and_Show(SORT_by, SORT_order); this.focus();}
 Header_Filename.onclick  = function () {Sort_and_Show(1, FLIP_IF); this.focus(); return false;}
 Header_Filesize.onclick  = function () {Sort_and_Show(2, FLIP_IF); this.focus(); return false;}
 Header_Filedate.onclick  = function () {Sort_and_Show(3, FLIP_IF); this.focus(); return false;}
 Header_Sorttype.onclick	 = function () {Sort_and_Show(5, FLIP_IF); this.focus(); return false;}
+
 
 Header_Filename.focus();
 
@@ -3127,7 +3145,7 @@ function on_Tab_down(ID, FR,shifted) { //*****************************
 	//So, if current focus is ck_box, clear bg, else if we're heading there, set bg.
 	//Tab from L, Current ID will be "f<FR>c2"
 	//Tab from R: Current ID is "f<FR>"
-	var fFR   = "f" + FR + "c4" //Filename
+	var fFR   = "f" + FR + "c5" //Filename
 	var ckbox = "f" + FR + "c3" //[ ] Checkbox
 	var del   = "f" + FR + "c2" //(x) Delete
 
@@ -3186,8 +3204,9 @@ document.onkeydown = function(event) { //*****************************
 
 	//File Rows. For these events, "../" is 0, and files are indexed 1 to DIRECTORY_ITEMS.
 	var FROWS     = DIRECTORY_ITEMS;
-	var LAST_FILE = "f" + FROWS + "c4";
-	var FIRST_FILE = "f0c4";
+	var FILENAME_COL = 5;
+	var LAST_FILE = "f" + FROWS + "c" + FILENAME_COL;
+	var FIRST_FILE = "f0c" + FILENAME_COL;
 
 	//Get id of current focus (before this event). If focus is in file list, ID = 'fn', or 'fnn', etc.
 	var ID      = document.activeElement.id;
@@ -3293,31 +3312,31 @@ document.onkeydown = function(event) { //*****************************
 		if      (key == AU) {ID = "admin"}
 		else if (key == PU) {ID = "admin"}
 		else if (key == AD) {ID = "path_0"}
-		else if (key == PD) {ID = "f0c4"}
+		else if (key == PD) {ID = FIRST_FILE}
 	}
 	else if (ID == "X_box") {
 		if      (key == AU)   {ID = "path_0"}
 		else if (key == PU)   {ID = "logo"}
 		else if (key == AD)   {ID = button_row}
-		else if (key == PD)   {ID = "f0c4"}
+		else if (key == PD)   {ID = FIRST_FILE}
 	}
 	else if (x_focus == 'p') { //In path_header: webroot/current/path/
 		if      (key == AU)   {ID = "logo"}
 		else if (key == PU)   {ID = "logo"}
 		else if (key == AD)   {ID = button_row}
-		else if (key == PD)   {ID = "f0c4"}
+		else if (key == PD)   {ID = FIRST_FILE}
 	}
 	else if (x_focus == "b") { //[Move][Copy][Delete]  [New Folder][New File][Upload File]
 		if 		(key == AU) {ID = "path_0"		   }
 		else if (key == PU) {ID = "path_0"		   }
 		else if (key == AD) {ID = "header_filename"}
-		else if (key == PD) {ID = "f0c4"		   }
+		else if (key == PD) {ID = FIRST_FILE	   }
 	}
 	else if (focus_header) { //Table header row
 		if      (key == AU) {ID = button_row}
 		else if (key == PU) {ID = "path_0"}
-		else if	(key == AD) {ID = "f0c4"}
-		else if	(key == PD) {FR += jump; if (FR < FROWS) {ID = "f" + FR + "c4"} else {ID = LAST_FILE}}
+		else if	(key == AD) {ID = FIRST_FILE}
+		else if	(key == PD) {FR += jump; if (FR < FROWS) {ID = "f" + FR + "c" + FILENAME_COL} else {ID = LAST_FILE}}
 	}
 	else if ((FR == 0) && (FROWS == 0)) { //empty folder
 		if		(key == AU) {ID = "header_filename"}
@@ -3327,7 +3346,7 @@ document.onkeydown = function(event) { //*****************************
 	}
 	else if (FR == FROWS) { //Last row (FROWS is the number of files listed)
 		if		(key == AU) { FR--      ; if (FR >= 0) {ID = "f" + FR + "c" + FC} else {ID = "header_filename" } }
-		else if	(key == PU) { FR -= jump; if (FR >= 0) {ID = "f" + FR + "c" + FC} else {ID = "f0c4"} }
+		else if	(key == PU) { FR -= jump; if (FR >= 0) {ID = "f" + FR + "c" + FC} else {ID = FIRST_FILE} }
 		else if (key == AD) { ID = "admin" }
 		else if (key == PD) { ID = "admin" }
 	}
@@ -3338,8 +3357,8 @@ document.onkeydown = function(event) { //*****************************
 		else if (key == PD) {FR += jump; if (FR <= FROWS) {ID = "f" + FR + "c" + FC} else {ID = LAST_FILE;} }
 	}
 	else if (FR > 0){ //Middle rows...
-		if		(key == AU) { FR--      ; if (FR == 0) {FC=4} ID = "f" + FR + "c" + FC;	}
-		else if	(key == PU) { FR -= jump; if (FR >= 0)      { ID = "f" + FR + "c" + FC} else {ID = "f0c4"}	 }
+		if		(key == AU) { FR--      ; if (FR == 0) {FC=FILENAME_COL} ID = "f" + FR + "c" + FC;	}
+		else if	(key == PU) { FR -= jump; if (FR >= 0)      { ID = "f" + FR + "c" + FC} else {ID = FIRST_FILE}	 }
 		else if (key == AD) { FR++; 	  if (FR <= FROWS)  { ID = "f" + FR + "c" + FC} else {ID = "path_0"; } }
 		else if (key == PD) { FR += jump; if (FR <= FROWS)  { ID = "f" + FR + "c" + FC} else {ID = LAST_FILE;} }
 	}
@@ -3376,8 +3395,8 @@ function Index_Page_scripts() {//***********************************************
 	global $_, $ONESCRIPT, $param1, $ipath, $MESSAGE, $DELAY_Sort_and_Show_msgs, $MIN_DIR_ITEMS, $TABINDEX;
 ?>
 <script>
-//  DIRECTORY_DATA[x] = ("type", "file name", filesize, timestamp, is_ofcms, "ext")	
-var DIRECTORY_DATA	  = new Array();
+//  DIRECTORY_DATA[x] = ("type", "file name", filesize, timestamp, is_ofcms, "ext", permissions)
+var DIRECTORY_DATA	  = [];
 
 var ONESCRIPT	= "<?php echo $ONESCRIPT ?>";
 var PARAM1		= "<?php echo $param1 ?>";  //capitalized here as it is used as a constant.
@@ -3402,9 +3421,9 @@ function Sort_Folders_First() {//*************************************
 	//DIRECTORY_DATA[x] = ("type", "file name", filesize, timestamp, is_ofcms)	
 
 	var type = ""; //= row_data[0] = DIRECTORY_DATA[x][0]
-	var files   = new Array();
-	var folders = new Array();
-	var row_data = new Array();
+	var files    = [];
+	var folders  = [];
+	var row_data = [];
 	var F = D = row = 0;  //indexes
 
 	for (row = 0; row < DIRECTORY_DATA.length; row++) {;
@@ -3415,7 +3434,7 @@ function Sort_Folders_First() {//*************************************
 	}//end for
 
 	//Replace contents of DIRECTORY_DATA[] with a "merged" folders[] & files[].
-	DIRECTORY_DATA = new Array();
+	DIRECTORY_DATA = [];
 	row = 0
 	for (D = 0; D < folders.length; D++) { DIRECTORY_DATA[row++] = folders[D]; }
 	for (F = 0; F < files.length;   F++) { DIRECTORY_DATA[row++] = files[F];   }
@@ -3480,18 +3499,22 @@ function sort_DIRECTORY(col, direction) {//***************************
 function Init_Dir_table_rows(DIR_LIST) {//****************************
 
 	var row, cell, cells, tr, td;
+	
+	var last_cell = 8; // number of columns in directory listing.
 
 	for (row = 0; row < DIRECTORY_ITEMS; row++){
 		
 		//initialize <tr> with empty <td>'s
 		tr = DIR_LIST.insertRow(row);
-		for (cell = 0; cell < 7; cell++) {td = tr.insertCell(-1);}
+		for (cell = 0; cell < last_cell; cell++) {td = tr.insertCell(-1);}
 		cells = tr.cells;
 		
 		//assign css classes
-		cells[4].className = 'file_name';
-		cells[5].className = 'file_size meta_T';
-		cells[6].className = 'file_time meta_T';
+		var c = 4;
+		cells[c++].className = 'meta_T';	//file permissions
+		cells[c++].className = 'file_name';
+		cells[c++].className = 'file_size meta_T';
+		cells[c++].className = 'file_time meta_T';
 	}
 }//end Init_Dir_table_rows() {//**************************************
 
@@ -3528,14 +3551,16 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	}
 
 	//fill the <td>'s
+	var c=0;
 	cells = trow.cells;
-	cells[0].innerHTML = ren_mov;
-	cells[1].innerHTML = copy;
-	cells[2].innerHTML = del;
-	cells[3].innerHTML = checkbox;
-	cells[4].innerHTML = file_name;
-	cells[5].innerHTML = file_size;
-	cells[6].innerHTML = file_time;
+	cells[c++].innerHTML = ren_mov;
+	cells[c++].innerHTML = copy;
+	cells[c++].innerHTML = del;
+	cells[c++].innerHTML = checkbox;
+	cells[c++].innerHTML = DIRECTORY_DATA[row - 1][6];
+	cells[c++].innerHTML = file_name;
+	cells[c++].innerHTML = file_size;
+	cells[c++].innerHTML = file_time;
 
 }//end Assemble_Insert_row() //***************************************
 
@@ -3570,8 +3595,10 @@ function Build_Directory() {//****************************************
 			var file_size = format_number(filesize);
 		}
 		
+		var file_col = 5; //column of file names
+		
 		//For file, (TABINDEX + 4) to account for [m][c][d][x] which are added in Assemble_Insert_Row()
-		var file_name  = '<a id=f'+(row + 1)+'c'+4+ ' tabindex='+ (TABINDEX + 4) +' href="' + href  + '"'; 
+		var file_name  = '<a id=f'+(row + 1)+'c'+ file_col + ' tabindex='+ (TABINDEX + 4) +' href="' + href  + '"'; 
 			file_name += ' title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
 			file_name += ICONS[filetype] + '&nbsp;' + hsc(filename) + DS + '</a>';
 		var file_time  = FileTimeStamp(filetime, 1, 0, 0);
@@ -4053,7 +4080,7 @@ Main_div.style.width = "<?php echo $current_view ?>"; //Set current width
 //[Close], and [Copy], should always be present on Edit Page.
 Close_button.onclick     = function () { parent.location = '<?php echo $close_params ?>'; }
 Copy_File_button.onclick = function () { parent.location = onclick_params + 'copyfile';   }
-Toggle_Wrap.onclick 	 = function () {Toggle_Line_Wrap(this);}
+
 
 //These elements do not exist if file is not editable, or maybe if in WYSIWYG mode.
 if (View_Raw_button)    { View_Raw_button.onclick 	 = function () {window.open(onclick_params + 'raw_view'); } }
@@ -4063,6 +4090,7 @@ if (WYSIWYG_button  )   { WYSIWYG_button.onclick 	 = function () {<?php echo $WY
 if (Rename_File_button) { Rename_File_button.onclick = function () {parent.location = onclick_params + 'renamefile';} }
 if (Delete_File_button) { Delete_File_button.onclick = function () {parent.location = onclick_params + 'deletefile';} }
 if (File_textarea)      { File_textarea.addEventListener("keyup", function(event) {Check_for_changes(event);}) }
+if (Toggle_Wrap)		{ Toggle_Wrap.onclick 		 = function () {Toggle_Line_Wrap(this);} }
 
 
 window.onbeforeunload = function() {
@@ -4086,22 +4114,27 @@ window.onunload = function() {
 
 
 
+//***** A few function calls that only matter... 
+if (File_textarea) {
 
-Set_File_Textarea_Width();
+	Set_File_Textarea_Width();
 
-Line_Numbers = Line_Numbering("wrapper_linenums_editor", "line_numbers", "file_editor", "line_0", "line_1");
+	Line_Numbers = Line_Numbering("wrapper_linenums_editor", "line_numbers", "file_editor", "line_0", "line_1");
 
-//Set default/page load condition, and also init's the line numbers...
-//We're just setting the initial condition now, not actually toggling,
-//so "pre-toggle" the indicator here as Toggle_Line_Wrap() will toggle it back...
-//
-if (Toggle_Wrap.value === "off") {Toggle_Wrap.value = "on";} else {Toggle_Wrap.value = "off";}
-Toggle_Line_Wrap(Toggle_Wrap);
+	//Set default/page load condition, and also init's the line numbers...
+	//We're just setting the initial condition now, not actually toggling,
+	//so "pre-toggle" the indicator here as Toggle_Line_Wrap() will toggle it back...
+	//
+	if (Toggle_Wrap.value === "off") {Toggle_Wrap.value = "on";} else {Toggle_Wrap.value = "off";}
+	Toggle_Line_Wrap(Toggle_Wrap);
 
-Reset_file_status_indicators();
+	Reset_file_status_indicators();
+}
+
 
 Close_button.focus();
 </script>
+
 <?php
 }//end Edit_Page_scripts() //***************************************************
 
@@ -4117,6 +4150,7 @@ function pwun_event_scripts($form_id, $button_id, $pwun='') {//*****************
 		$hash_new_new = " hash('new1'); hash('new2');";
 	}//end if changing p/w --------------------------------------
 ?>
+
 <script>
 var $form          = document.getElementById('<?php echo $form_id ?>');
 var $submit_button = document.getElementById('<?php echo $button_id ?>');
@@ -4258,7 +4292,7 @@ function style_sheet() {//******************************************************
 
 /* --- general formatting --- */
 
-html { background: linear-gradient(170deg, white, rgb(50, 120,190)); background-attachment: fixed;}
+html { background: linear-gradient(170deg, white, rgb(50, 120, 250)); background-attachment: fixed;}
 
 body { height: 100%; font-size: 1em; font-family: sans-serif; overflow-y: scroll; }
 
@@ -4466,7 +4500,7 @@ th.file_name {min-width: 15em}
 .file_size { min-width:  6em; }
 .file_time { min-width: 10em; }
 
-.meta_T { padding: 0 .6em; text-align: right; font-family: courier; font-size: .9em; color: #222; }
+.meta_T { padding: 0 .5em; text-align: right; font: bold .9rem courier; color: #333} 
 
 #DIRECTORY_FOOTER {text-align: center; font-size: .9em; color: #333; padding: 3px 0 0 0; }
 
@@ -4891,7 +4925,7 @@ ob_start();
 header('Content-type: text/html; charset=UTF-8');
 ?>
 <!DOCTYPE html>
-<html><head>
+<html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="robots" content="noindex">
 <?php
@@ -4900,8 +4934,6 @@ echo '<title>'.hsc($MAIN_TITLE.' - '.Page_Title()).'</title>'."\n";
 Load_style_sheet();
 
 common_scripts();
-
-echo '</head><body>';
 
 Error_reporting_status_and_early_output(0,0); //0,0 will only show early output.
 
@@ -4937,7 +4969,7 @@ if ($_SESSION['valid']) {
 }//end footer
 
 echo "\n</div>\n"; //end main/login_page
-echo "</body></html>\n";
+echo "</html>\n";
 
 if ( ($page == "edit") && $WYSIWYG_VALID && $EDIT_WYSIWYG ) { include($WYSIWYG_PLUGIN_OS); }
 
@@ -4945,7 +4977,7 @@ if ( ($page == "edit") && $WYSIWYG_VALID && $EDIT_WYSIWYG ) { include($WYSIWYG_P
 echo "\n\n<script>\n";
 echo 'var $tabindex_xbox = '.$TABINDEX_XBOX.";\n"; //Used in Display_Messages()
 echo 'var $page = "'.$page.'";'."\n";
-echo '$MESSAGE += "'.addslashes($MESSAGE).'";'."\n"; //js version of $MESSAGE declared at top of common_scripts().
+echo '$MESSAGE += "'.addslashes($MESSAGE).'";'."\n"; //js version of $MESSAGE is declared at top of common_scripts().
 	    //Cause $MESSAGE's $X_box to take focus on these pages only.
 echo 'if (($page == "index") || ($page == "edit")) {take_focus = 1}'."\n";
 echo 'else										   {take_focus = 0}'."\n\n";
