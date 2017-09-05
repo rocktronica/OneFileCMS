@@ -1,8 +1,14 @@
 # OneFileCMS Change Log
 
+### v3.5.22 (2017-09-05)
+
+- Added file permissions to directory list.
+- A couple of minor bug-fixes.
+- Some minor code improvements.
+
 ### v3.5.21 (2016-06-26)
 
-- Some code cleanup & a little local js re-org. 
+- Some code cleanup & a little local js re-org.
 - Some minor static & active css improvements.
 - Added some basic validation to a config value.
 
