@@ -1,5 +1,10 @@
 # OneFileCMS Change Log
 
+### v3.5.23 (2017-09-08)
+
+- OneFileCMS is no longer restricted to just public_html.
+- Increased $MAX_EDIT_SIZE to 250000. (It could probably go higher.)
+
 ### v3.5.22 (2017-09-05)
 
 - Added file permissions to directory list.

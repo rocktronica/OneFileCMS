@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.22';
+$OFCMS_version = '3.5.23';
 
 
 
@@ -104,7 +104,7 @@ $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked.  C
 $LINE_WRAP = "on"; //"on",  anything else = "off".  Default for edit page. Once on page, line-wrap can toggle on/off.
 $TAB_SIZE  = 8;    //Some browsers recognize a css tab-size. Some don't (IE/Edge, as of mid-2016).
 
-$MAX_EDIT_SIZE = 200000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
+$MAX_EDIT_SIZE = 250000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
 $MAX_VIEW_SIZE = 1000000; // If file > $MAX_EDIT_SIZE, don't even view in OneFileCMS.
                           // The default max view size is completely arbitrary. Basically, it was 2am, and seemed like a good idea at the time.
 
@@ -136,9 +136,17 @@ $PAGEUPDOWN = 10; //Number of rows to jump using Page Up/Page Down keys on direc
 
 $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copies of OneFileCMS concurrently.
 
-//Restrict access to a particular folder.  Leave empty for access to entire website.
-// "some/path/" is relative to root of website (with no leading slash).
-//$ACCESS_ROOT = 'some/path/';
+//Optional: restrict access to a particular sub folder.
+//$ACCESS_ROOT = '/some/path';
+//If blank or invalid, default is $_SERVER['DOCUMENT_ROOT'].
+//$ACCESS_ROOT = '/home/user';
+
+
+//Optional: specify a default start path on login.
+//$DEFAULT_PATH = 'some/path/deeper/'
+//Must be a decendant of $ACCESS_ROOT.
+//If blank or invalid, defaults to $ACCESS_ROOT.
+//$DEFAULT_PATH = '/home/user/public_html';
 
 
 //URL of optional external style sheet.  Used as an href in <link ...>
@@ -148,22 +156,22 @@ $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copi
 
 //Notes for $LANGUAGE_FILE, $WYSIWYG_PLUGIN, and $CONFIG_FILE:
 //
-// Filename paths can be:
-//  1) Absolute to the filesystem:  "/some/path/from/system/root/somefile.php"  or
-//  2) Relative to root of website: "some/path/from/web/root/somefile.php"
+// Filename path examples:
+//  1) $SOME_FILE = "/some/path/from/system/root/somefile.php"	//Absolue to filesystem.
+//  2) $SOME_FILE = $_SERVER['DOCUMENT_ROOT']."/some/path/from/web/root/somefile.php" //Relative to root of web site.
 
 //Name of optional external language file.  If file is not found, the built-in defaults will be used.
-//$LANGUAGE_FILE = "OneFileCMS.LANG.EN.php";
+//$LANGUAGE_FILE = "/home/user/public_html/OneFileCMS.LANG.EN.php";
 
 //Init file for optional external wysiwyg editor.
 //Sample init files are availble in the "extras\" folder of the OneFileCMS repo, but the actual editors are not.
-//$WYSIWYG_PLUGIN = 'plugins/plugin-tinymce_init.php';
-//$WYSIWYG_PLUGIN = 'plugins/plugin-ckeditor_init.php';
+//$WYSIWYG_PLUGIN = '/home/user/public_html/plugins/plugin-tinymce_init.php';
+//$WYSIWYG_PLUGIN = '/home/user/public_html/plugins/plugin-ckeditor_init.php';
 
 //Name of optional external config file.  Any settings it contains will supersede those above.
 //See the sample file in the OneFileCMS github repo for format example.
 //Basically, it is just a php file with a copy/paste of this configuration section.
-//$CONFIG_FILE = 'OneFileCMS.config.SAMPLE.php';
+//$CONFIG_FILE = '/home/user/public_html/extras/OneFileCMS.config.SAMPLE.php';
 
 //end CONFIGURABLE OPTIoNS *****************************************************
 
@@ -180,7 +188,7 @@ global $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS, $LOGIN_DELAYED,
 	$INVALID_CHARS, $WHSPC_SLASH, $VALID_PAGES, $LOGIN_LOG_url, $LOGIN_LOG_file,
 	$ONESCRIPT,  $ONESCRIPT_file, $ONESCRIPT_backup, $ONESCRIPT_file_backup, 
 	$CONFIG_backup, $CONFIG_FILE, $CONFIG_FILE_backup, $VALID_CONFIG_FILE, 
-	$DOC_ROOT, $DOC_ROOT_OS, $WEB_ROOT, $WEBSITE, $PRE_ITERATIONS, $EX, $MESSAGE, $ENC_OS,
+	$DOC_ROOT, $WEBSITE, $PRE_ITERATIONS, $EX, $MESSAGE, $ENC_OS, $DEFAULT_PATH,
 	$DELAY_Expired_Reload, $DELAY_Sort_and_Show_msgs, $DELAY_Start_Countdown, $DELAY_final_messages, $MIN_DIR_ITEMS;
 
 //Requires PHP 5.1 or newer, due to changes in explode() (and maybe others).
@@ -200,22 +208,27 @@ if( PHP_VERSION_ID < PHP_VERSION_ID_REQUIRED ) {
 
 mb_detect_order("UTF-8, ASCII, Windows-1252, ISO-8859-1"); 
 
+
 //Get server's File System encoding.  Windows NTFS uses ISO-8859-1 / Windows-1252.
 //Needed when working with non-ascii filenames.
 if (php_uname("s") == 'Windows NT') {$ENC_OS = 'Windows-1252';}
 else								{$ENC_OS = 'UTF-8';}
 
-$DOC_ROOT = $_SERVER['DOCUMENT_ROOT'].'/'; //root folder of website.
-$DOC_ROOT_OS = Convert_encoding($DOC_ROOT);
 
 //Allow OneFileCMS.php to be started from any dir on the site.
 //This also effects the path in an include("path/somefile.php")
-chdir($DOC_ROOT); 
+chdir('/'); 
+
 
 $INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file & folder names.  Space deliminated.
 $WHSPC_SLASH = "\x00..\x20/";  //Whitespace & forward slash. For trimming file & folder name inputs.
 
-$WEB_ROOT  = basename($DOC_ROOT).'/'; //Used only for screen output - Non-url use.
+
+//$DOC_ROOT is normalized to always be (for ex:) "/server/doc/root/", instead of "C:/server/doc/root/" if on Windows.
+$ds_pos   = strpos($_SERVER['DOCUMENT_ROOT'], "/") * 1;
+$DOC_ROOT = substr($_SERVER['DOCUMENT_ROOT'], $ds_pos).'/';
+
+
 $WEBSITE   = $_SERVER['HTTP_HOST'].'/';
 
 $ONESCRIPT			   = URLencode_path($_SERVER['SCRIPT_NAME']);  //Used for URL's in HTML attributes
@@ -225,6 +238,26 @@ $ONESCRIPT_file_backup = $ONESCRIPT_file.'-BACKUP.txt';            //used for p/
 $LOGIN_ATTEMPTS		   = $ONESCRIPT_file.'.invalid_login_attempts';//Non-url file system use.
 $LOGIN_LOG_url		   = $ONESCRIPT.'-LOGIN.log';
 $LOGIN_LOG_file		   = $ONESCRIPT_file.'-LOGIN.log';
+
+
+//If specified, check for & load $LANGUAGE_FILE
+if (isset($LANGUAGE_FILE)) {
+	$LANGUAGE_FILE_OS = Convert_encoding($LANGUAGE_FILE);
+	
+	if (is_file($LANGUAGE_FILE_OS)) { include($LANGUAGE_FILE_OS); }  
+	else { $MESSAGE .= '<b>$LANGUAGE_FILE '.hsc($_['Not_found']).":</b> ".hsc($LANGUAGE_FILE)."<br>"; }
+	
+}
+
+
+//If specified, validate $WYSIWYG_PLUGIN. Actual include() is at end of OneFileCMS.
+$WYSIWYG_VALID = 0; //Default to invalid.
+if (isset($WYSIWYG_PLUGIN)) {
+	$WYSIWYG_PLUGIN_OS = Convert_encoding($WYSIWYG_PLUGIN); //Also used for include()
+
+	if (is_file($WYSIWYG_PLUGIN_OS)) { $WYSIWYG_VALID = 1; }
+	else { $MESSAGE .= '<b>$WYSIWYG_PLUGIN '.hsc($_['Not_found']).':</b> '.hsc($WYSIWYG_PLUGIN)."<br>"; }
+}
 
 
 //If specified & found, include $CONFIG_FILE.
@@ -238,41 +271,49 @@ if (isset($CONFIG_FILE)) {
 		$CONFIG_FILE_backup = $CONFIG_FILE.'-BACKUP.txt';                 //used for p/w & u/n updates.
 	}
 	else {
-		$MESSAGE .= $EX.'<b>$CONFIG_FILE '.hsc($_['Not_found']).':</b> '.$CONFIG_FILE.'<br>';
+		$MESSAGE .= $EX.'<b>$CONFIG_FILE '.hsc($_['Not_found']).':</b> '.hsc($CONFIG_FILE).'<br>';
 		$CONFIG_FILE = $CONFIG_FILE_OS = '';
 	}
 }
 
 
-//If specified, check for & load $LANGUAGE_FILE
-if (isset($LANGUAGE_FILE)) {
-	$LANGUAGE_FILE_OS = Convert_encoding($LANGUAGE_FILE);
-	if (is_file($LANGUAGE_FILE_OS)) {include($LANGUAGE_FILE_OS);}
-}
 
-
-//If specified, validate $WYSIWYG_PLUGIN. Actual include() is at end of OneFileCMS.
-$WYSIWYG_VALID = 0; //Default to invalid.
-if (isset($WYSIWYG_PLUGIN)) {
-	$WYSIWYG_PLUGIN_OS = Convert_encoding($WYSIWYG_PLUGIN); //Also used for include()
-	if (is_file($WYSIWYG_PLUGIN_OS)) { $WYSIWYG_VALID = 1; }
-}
-
-
-//If specified, clean up & validate $ACCESS_ROOT
-if (!isset($ACCESS_ROOT)) { $ACCESS_ROOT = ''; } //At least make sure it's set.
+//Clean up & validate $ACCESS_ROOT
+if (!isset($ACCESS_ROOT)) { $ACCESS_ROOT = $DOC_ROOT; } //Make sure it's set.
+$ACCESS_ROOT = trim($ACCESS_ROOT, ' /'); //Trim to '' or 'some/path'
+if ($ACCESS_ROOT != '') { $ACCESS_ROOT = $ACCESS_ROOT.'/'; }
 $ACCESS_ROOT_OS = Convert_encoding($ACCESS_ROOT);
 
-if (!is_dir($DOC_ROOT_OS.$ACCESS_ROOT_OS) || (Check_path($ACCESS_ROOT,1) === false) ) {
-	$MESSAGE .= __LINE__.$EX.'<b>$ACCESS_ROOT '.hsc($_['Invalid_path']).': </b>'.$ACCESS_ROOT.'<br>';
-	$ACCESS_ROOT = $ACCESS_ROOT_OS = '';
-}
-if ($ACCESS_ROOT != '') {
-	$ACCESS_ROOT = trim($ACCESS_ROOT, ' /').'/'; //make sure only a single trailing '/'
+if (!is_dir('/'.$ACCESS_ROOT_OS)) {
+	$MESSAGE .= $EX.'<b>$ACCESS_ROOT '.hsc($_['Invalid_path']).': </b>'.$ACCESS_ROOT.'<br>';
+	$ACCESS_ROOT	= $DOC_ROOT;
 	$ACCESS_ROOT_OS = Convert_encoding($ACCESS_ROOT);
 }
+
 $ACCESS_ROOT_enc = mb_detect_encoding($ACCESS_ROOT);
 $ACCESS_ROOT_len = mb_strlen($ACCESS_ROOT, $ACCESS_ROOT_enc);
+
+
+//Clean up & validate $DEFAULT_PATH
+//It must either be = $ACCESS_ROOT, or $ACCESS_ROOT."some/valid/path/"
+if (!isset($DEFAULT_PATH)) { $DEFAULT_PATH = $ACCESS_ROOT; } //Make sure it's set.
+$DEFAULT_PATH = trim($DEFAULT_PATH, ' /');  //Trim to 'some/path'
+if ($DEFAULT_PATH != '') {$DEFAULT_PATH .= '/'; } 
+$DEFAULT_PATH_OS = Convert_encoding($DEFAULT_PATH);
+
+//Verify that $DEFAULT_PATH is equal to, or is a decendant of, $ACCESS_ROOT.
+$needle        = realpath($ACCESS_ROOT);  //ex: /some/access/root
+$haystack      = realpath($DEFAULT_PATH); //ex: /some/access/root/some/default/path
+$needle_len    = strlen($needle);
+$valid_subpath = (substr($haystack, 0, $needle_len) === $needle);
+
+if (!is_dir('/'.$DEFAULT_PATH_OS) || !$valid_subpath) {
+	$MESSAGE .= $EX.'<b>'.$_['must_be_decendant'].'</b><br>';
+	$MESSAGE .= "\$DEFAULT_PATH = $DEFAULT_PATH<br>";
+	$MESSAGE .= "\$ACCESS_ROOT = $ACCESS_ROOT<br>";
+	$DEFAULT_PATH	 = $ACCESS_ROOT;
+	$DEFAULT_PATH_OS = Convert_encoding($DEFAULT_PATH);
+}
 
 
 $MAIN_WIDTH      = validate_units($MAIN_WIDTH);
@@ -328,7 +369,7 @@ $PRE_ITERATIONS = 1000;
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.5.21
+// OneFileCMS Language Settings v3.5.23  (Not always in sync with OFCMS version#, if no changes to displayed wording.)
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
 // If no translation or value is desired for a particular setting, do not delete
@@ -378,6 +419,7 @@ $_['Folder']   = 'Folder';
 $_['folders']  = 'folders';
 $_['From']     = 'From';
 $_['Hash']     = 'Hash';
+$_['Invalid']  = 'Invalid';		//## NT ## as of 3.5.23
 $_['Move']     = 'Move';
 $_['Moved']    = 'Moved';
 $_['Name']     = 'Name';
@@ -426,6 +468,7 @@ $_['New_Location']    = 'New Location';
 $_['No_files']        = 'No files selected.';
 $_['Not_found']       = 'Not found';
 $_['Invalid_path']    = 'Invalid path';
+$_['must_be_decendant'] = '$DEFAULT_PATH must be a decendant of, or equal to, $ACCESS_ROOT';	//## NT ## as of 3.5.23
 $_['verify_msg_01']     = 'Session expired.';
 $_['verify_msg_02']     = 'INVALID POST';
 $_['get_get_msg_01']    = 'File does not exist:';
@@ -533,6 +576,8 @@ $_['error_reporting_06'] = '(nothing, not even white-space, should have been out
 $_['admin_txt_00'] = 'Old Backup Found';
 $_['admin_txt_01'] = 'A backup file was created in case of an error during a username or password change. Therefore, it may contain old information and should be deleted if not needed. In any case, it will be automatically overwritten on the next password or username change.';
 $_['admin_txt_02'] = 'General Information';
+$_['admin_txt_03'] = 'Session Path'; //## NT ## as of 3.5.23
+$_['admin_txt_04'] = 'Connected to'; //## NT ## as of 3.5.23
 $_['admin_txt_14'] = 'For a small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep them secret, of course). Every little bit helps...';
 $_['admin_txt_16'] = 'OneFileCMS can not be used to edit itself directly.  However, you can make a copy and edit it.'; //## NT ## Changed wording in 3.5.07
 $_['pw_current'] = 'Current Password';
@@ -777,6 +822,20 @@ function undo_magic_quotes() {//************************************************
 
 
 
+function Set_IS_OFCMS($fullpath_filename) {//***********************************
+	//Used to restrict edit/del/etc. on active copy of OneFileCMS.
+	global $MESSAGE, $DOC_ROOT;
+	
+	$is_ofcms = 0;
+	$ofcms = ltrim($DOC_ROOT, '/').trim($_SERVER['SCRIPT_NAME'], '/');
+	if ($fullpath_filename == $ofcms) { $is_ofcms = true; }
+	
+	return $is_ofcms;
+}//end Set_IS_OFCMS() //********************************************************
+
+
+
+
 function Validate_params() {//**************************************************
 	global $_, $ipath, $filename, $page, $param1, $param2, $param3, $IS_OFCMS, $EX, $MESSAGE;
 
@@ -793,8 +852,7 @@ function Validate_params() {//**************************************************
 	if ($page == ""    ) { $param3 = ""; } else { $param3 = '&amp;p='.$page; }
 
 	//Used to restrict edit/del/etc. on active copy of OneFileCMS.
-	$IS_OFCMS = 0;
-	if ($filename == trim($_SERVER['SCRIPT_NAME'], '/')) { $IS_OFCMS = true; }
+	$IS_OFCMS = Set_IS_OFCMS($filename);
 
 }//end Validate_params() //*****************************************************
 
@@ -817,6 +875,7 @@ function Valid_Path($path, $gotoroot=true) {//**********************************
 
 	$good_path = false;
 
+
 	if (isset($_SESSION['admin_page']) && $_SESSION['admin_page']) {
 		//Permit Admin actions: changing p/w, u/n, viewing OneFile...
 		$ACCESS_ROOT == '';
@@ -824,6 +883,7 @@ function Valid_Path($path, $gotoroot=true) {//**********************************
 	}
 	elseif ( $path_len <  $ACCESS_ROOT_len ) { $good_path = false; }
 	else                                     { $good_path = ($path_root == $ACCESS_ROOT); }
+
 
 	if (!$good_path && $gotoroot) {
 		$ipath    = $ACCESS_ROOT;
@@ -844,21 +904,28 @@ function Valid_Path($path, $gotoroot=true) {//**********************************
 
 
 function Get_GET() {//**** Get URL passed parameters ***************************
-	global $_, $ipath, $ipath_OS, $filename, $filename_OS, $page, $VALID_PAGES, $EX, $MESSAGE;
+	global $_, $ipath, $ipath_OS, $filename, $filename_OS, $page, $VALID_PAGES, $EX, $MESSAGE, $DEFAULT_PATH;
 	// i=some/path/,  f=somefile.xyz,          p=somepage,  m=somemessage
 	// $ipath = i  ,  $filename = $ipath.f  ,  $page = p ,  $MESSAGE
 	//   (NOTE: in some functions $filename = just the file's name, ie: $_GET['f'], with no path/)
-	//#####  (Normalize $filename program-wide??)
+	//#####  (Normalize $filename usage program-wide??)
 	// Perform initial, basic, validation.
 	// Get_GET() should not be called unless $_SESSION['valid'] == 1 (or true)
 
+
 	//Initialize & validate $ipath
-	$ipath = $ipath_OS = "";
 	if (isset($_GET["i"])) {
 		$ipath = Check_path($_GET["i"],1);
 		$ipath_OS = Convert_encoding($ipath);
-		if ( $ipath === false || !is_dir($ipath_OS)) { $ipath = $ipath_OS = ''; }
+		if ( $ipath === false || !is_dir($ipath_OS)) {
+			$ipath = $DEFAULT_PATH;
+		}
 	}
+	else {
+		$ipath = $DEFAULT_PATH;
+	}
+	$ipath_OS = Convert_encoding($ipath);
+
 
 	//Initialize & validate $filename
 	if (isset($_GET["f"])) { $filename = $ipath.$_GET["f"]; } else { $filename = ""; }
@@ -870,12 +937,14 @@ function Get_GET() {//**** Get URL passed parameters ***************************
 		$filename = $filename_OS = "";
 	}
 
+
 	//Initialize & validate $page
 	if (isset($_GET["p"])) { $page = $_GET["p"]; } else { $page = "index"; }
 	if (!in_array($page, $VALID_PAGES)) {
 		$MESSAGE .= $EX.hsc($_['get_get_msg_02']).' <b>'.hsc($page).'</b><br>';
 		$page = "index";  //If invalid $_GET["p"]
 	}
+
 
 	//Sanitize any message. Initialized on line 1 / top of this file.
 	if (isset($_GET["m"])) { $MESSAGE .= hsc($_GET["m"]); }
@@ -906,7 +975,7 @@ function Verify_Page_Conditions() {//*******************************************
 		Logout();
 		$MESSAGE .= hsc($_['logout_msg']);
 	}
-	//Don't load rename or delete folder pages at webroot.
+	//Don't load rename or delete folder pages at webroot. //##### is this still needed?
 	elseif ( ($page == "deletefolder" || $page == "renamefolder") && ($ipath == "") ) {
 		$page = "index";
 	}
@@ -1175,29 +1244,34 @@ function rDel($path) {//********************************************************
 function Current_Path_Header() {//**********************************************
  	// Current path. ie: webroot/current/path/
 	// Each level is a link to that level.
-	global $ONESCRIPT, $ipath, $WEB_ROOT, $ACCESS_ROOT, $ACCESS_ROOT_len, $TABINDEX, $MESSAGE;
+	global $ONESCRIPT, $ipath, $ACCESS_ROOT, $ACCESS_ROOT_len, $TABINDEX, $MESSAGE;
 
 	$unaccessable    = '';
-	$_1st_accessable = trim($WEB_ROOT, ' /');
+	$_1st_accessable = '';
 	$remaining_path  = trim(mb_substr($ipath, $ACCESS_ROOT_len), ' /');	
 
 	if ($ACCESS_ROOT != '') {
 		$unaccessable    = dirname($ACCESS_ROOT);
 		$_1st_accessable = basename($ACCESS_ROOT);
 		
-		if ($unaccessable == '.') { $unaccessable = $WEB_ROOT; }
-		else { $unaccessable = $WEB_ROOT.dirname($ACCESS_ROOT).'/'; }
+		if ($unaccessable == '.') { $unaccessable = '/'; }
+		else { $unaccessable = '/'.dirname($ACCESS_ROOT).'/'; }
 		$unaccessable = '&nbsp;'.hsc(trim(str_replace('/', ' / ',$unaccessable)));
 	}
 
 	echo '<h2 id="path_header">';
 		//Root (or $ACCESS_ROOT) folder of web site.
 		$p1 = '?i='.URLencode_path($ACCESS_ROOT);
-		echo $unaccessable.'<a id=path_0 tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.$p1.'" class="path">'.hsc($_1st_accessable).'</a>/';
-		$x=0; //need here for focus() in case at webroot.
-
+		
+		if ($_1st_accessable == "") {
+			echo '<a id=path_0 tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.$p1.'" class="path"> /</a>';
+		} else {
+			echo $unaccessable.'<a id=path_0 tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.$p1.'" class="path">'.hsc($_1st_accessable).'</a>/';
+		}
+		
 		if ($remaining_path != "" ) { //if not at root, show the rest
 			$path_levels  = explode("/",trim($remaining_path,'/') );
+			
 			$levels = count($path_levels); //If levels=3, indexes = 0, 1, 2  etc...
 			$current_path = "";
 			
@@ -1215,13 +1289,13 @@ function Current_Path_Header() {//**********************************************
 
 
 function Page_Header() {//******************************************************
-	global  $_, $DOC_ROOT, $ONESCRIPT, $page, $WEBSITE, $MAIN_TITLE, $OFCMS_version, $FAVICON, $TABINDEX, $MESSAGE;
+	global  $_, $ONESCRIPT, $page, $WEBSITE, $MAIN_TITLE, $OFCMS_version, $FAVICON, $TABINDEX, $MESSAGE;
 
 	$TABINDEX = 1; //Initial tabindex
 
 	$favicon_img = '';
-	if (file_exists($DOC_ROOT.trim($FAVICON,'/'))) {
-		$favicon_img =  '<img src="/'.URLencode_path($FAVICON).'" alt="">';
+	if (file_exists($_SERVER['DOCUMENT_ROOT'].trim($FAVICON,' /'))) {
+		;//$favicon_img =  '<img src="/'.URLencode_path($FAVICON).'" alt="">';
 	}
 
 	echo '<div id="header">';
@@ -1415,11 +1489,13 @@ function Init_ICONS() {//*******************************************************
 
 
 function List_File($file, $file_url) {//****************************************
-	global $_, $ONESCRIPT, $ICONS;
+	global $_, $DOC_ROOT, $ONESCRIPT, $ICONS, $MESSAGE;
 
 	$file_OS = Convert_encoding($file);
 	clearstatcache ();
-	$href = $ONESCRIPT.'?i='.dir_name(trim($file_url,'/')).'&amp;f='.basename($file_url);
+	$ipath = trim($DOC_ROOT,'/').dir_name($file_url);
+
+	$href = $ONESCRIPT.'?i='.$ipath.'&amp;f='.basename($file_url);
 	$edit_link = '<a href="'.$href.'&amp;p=edit'.'" id="old_backup">'.hsc(basename($file)).'</a>';
 ?>
 	<tr>
@@ -1469,7 +1545,7 @@ function List_Backups_and_Logs() {//********************************************
 
 
 function Admin_Page() {//*******************************************************
-	global $_, $ONESCRIPT, $ipath, $filename, $param1, $param2, $MAIN_TITLE;
+	global $_, $DOC_ROOT, $ONESCRIPT, $ipath, $filename, $param1, $param2, $MAIN_TITLE, $MESSAGE;
 
 	// Restore/Preserve $ipath prior to admin page in case OneFileCMS is edited (which would change $ipath).
 	if   ( $_SESSION['admin_page'] ) { $ipath  = $_SESSION['admin_ipath'];
@@ -1482,7 +1558,8 @@ function Admin_Page() {//*******************************************************
 	if ($filename != "") { $params = $param2.'&amp;p=edit'; }
 
 	$button_attribs = '<button type="button" class="button" onclick="parent.location =\''.$ONESCRIPT;
-	$edit_params = '?i='.dir_name($ONESCRIPT).'&amp;f='.basename($ONESCRIPT).'&amp;p=edit';
+	$ofcms_ipath = trim($DOC_ROOT,'/').dir_name($ONESCRIPT);
+	$edit_params = '?i='.$ofcms_ipath.'&amp;f='.basename($ONESCRIPT).'&amp;p=edit';
 
 	echo '<h2>'.hsc($_['Admin_Options']).'</h2>';
 
@@ -1497,6 +1574,12 @@ function Admin_Page() {//*******************************************************
 	echo '<div class="info">';
 
 	List_Backups_and_Logs();
+
+	echo '<p><b>'.hsc($_['admin_txt_03']).': </b>';
+	echo '<span class="meta_T meta_T2">'.session_save_path()."</span><br>\n";
+
+	echo '<p><b>'.hsc($_['admin_txt_04']).': </b>';
+	echo '<span class="meta_T meta_T2">'.php_uname('n')."</span><hr>\n";
 
 	echo '<p><b>'.hsc($_['admin_txt_02']).'</b>';
 	echo '<p>'   .hsc($_['admin_txt_16']);
@@ -1816,12 +1899,11 @@ function Login_response() {//***************************************************
 
 
 function Create_Table_for_Listing() {//*****************************************
-	global$_, $ONEFILECMS, $ipath, $ipath_OS, $DOC_ROOT_OS, $ICONS, $TABINDEX, $ACCESS_ROOT;
+	global $_, $ONEFILECMS, $ipath, $ipath_OS, $ICONS, $TABINDEX, $ACCESS_ROOT;
 
 	//Header row: | Select All|[ ]|[X](folders first)      Name      (ext) |   Size   |    Date    |
 
 	$new_path = URLencode_path(dir_name($ipath)); //for "../" entry in dir list.
-	$new_path_OS = $DOC_ROOT_OS.dir_name($ipath_OS);//.dir_name($ipath_OS);
 
 	//<input hidden> is a dummy input to make sure files[] is always an array for Select_All() & Confirm_Ready().
 ?>
@@ -1866,7 +1948,7 @@ function Create_Table_for_Listing() {//*****************************************
 				echo '<a id=f0c5 tabindex='.$TABINDEX++.'>&nbsp;</a>';
 			}
 			else {
-				echo '<a id=f0c5 tabindex='.$TABINDEX++.' href="'.$ONEFILECMS.'?i='.$new_path.'">'.$ICONS['up_dir'].' <b>..</b> /</a>'; //#### '.$ICONS['up_dir'].'
+				echo '<a id=f0c5 tabindex='.$TABINDEX++.' href="'.$ONEFILECMS.'?i='.$new_path.'">'.$ICONS['up_dir'].' <b>..</b> /</a>';
 			}
 ?>		</td>
 		<td></td>
@@ -1875,7 +1957,7 @@ function Create_Table_for_Listing() {//*****************************************
 
 	<?php //Directory & footer content will be inserted later. ?>
 	<tbody id=DIRECTORY_LISTING></tbody>
-	<tr><td id=DIRECTORY_FOOTER colspan=7></td></tr>
+	<tr><td id=DIRECTORY_FOOTER colspan=8></td></tr>
 	</table>
 <?php
 }//Create_Table_for_Listing() //************************************************
@@ -1919,8 +2001,7 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 		}
 			
 		//Used to hide rename & delete options for active copy of OneFileCMS.
-		$IS_OFCMS = 0;
-		if ( $ipath.$filename == trim($_SERVER['SCRIPT_NAME'], '/') ) { $IS_OFCMS = 1; }
+		$is_ofcms = Set_IS_OFCMS($ipath.$filename); //#####
 		
 		//Set icon type based on if dir, or file type ($ext).
 		if (is_dir($filename_OS)) { $type = 'dir'; }
@@ -1941,7 +2022,7 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][1] = $filename;
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][2] = $file_size_raw;
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][3] = $file_time_raw;
-		$DIRECTORY_DATA[$DIRECTORY_COUNT][4] = $IS_OFCMS; //If = 1, Don't show ren, del, ckbox.
+		$DIRECTORY_DATA[$DIRECTORY_COUNT][4] = $is_ofcms; //If = 1, Don't show ren, del, ckbox.
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][5] = $ext;
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][6] = decoct(fileperms($filename_OS) & 07777);
 		$DIRECTORY_COUNT++;
@@ -2235,7 +2316,7 @@ function Edit_Page() {//********************************************************
 
 	$filename_parts = explode(".", mb_strtolower($filename));
 	$ext = end($filename_parts);
-
+	
 	//Determine if a text editable file type
 	if ( in_array($ext, $ETYPES) ) { $text_editable = TRUE;  }
 	else                           { $text_editable = FALSE; }
@@ -2461,16 +2542,17 @@ function New_response($post, $isfile) {//***************************************
 
 
 function Set_Input_width() {//**************************************************
-	global $_, $WEB_ROOT, $MAIN_WIDTH, $ACCESS_ROOT;
+	global $_, $MAIN_WIDTH, $ACCESS_ROOT;
 
-	// (width of <input type=text>) = $MAIN_WIDTH - (Width of <label>) - (width of <span>$WEB_ROOT</span>)
+	// Adjust (shorten) <input> width based on width of $ACCESS_ROOT
+	// (width of <input type=text>) = $MAIN_WIDTH - (Width of <label>) - (width of <span> / </span>)
 	// $MAIN_WIDTH: Set in config section, may be in em, px, pt, or %. Ignoring % for now.
 	// Width of 1 character = .625em = 10px = 7.5pt  (1em = 16px = 12pt)
 
 	$main_units  = mb_substr($MAIN_WIDTH, -2);
 	$main_width  = $MAIN_WIDTH * 1;
 
-	$root_width  = mb_strlen($WEB_ROOT.$ACCESS_ROOT);
+	$root_width  = mb_strlen('/'.$ACCESS_ROOT);
 	$label_width = mb_strlen($_['New_Location']);
 
 	//convert to em
@@ -2493,7 +2575,7 @@ function Set_Input_width() {//**************************************************
 function CRM_Page($action, $title, $action_id, $old_full_name) {//*******************
 	//$action    = 'Copy' or 'Rename'.
 	//$action_id = 'copy_file' or 'rename_file'
-	global $_, $WEB_ROOT, $ipath, $param1, $filename, $FORM_COMMON, $ACCESS_ROOT, $ACCESS_PATH;
+	global $_, $ipath, $param1, $filename, $FORM_COMMON, $ACCESS_ROOT, $ACCESS_PATH, $MESSAGE;
 
 	$new_full_name = $old_full_name; //default
 
@@ -2514,7 +2596,7 @@ function CRM_Page($action, $title, $action_id, $old_full_name) {//**************
 		echo '<input type=text name=new_name id=new_name value="'.hsc(basename($new_full_name)).'"><br>';
 		
 		echo '<label>'.hsc($_['New_Location']).':</label>';
-		echo '<span class="web_root">'.hsc($WEB_ROOT.$ACCESS_ROOT).'</span>';
+		echo '<span class="web_root">'.hsc('/'.$ACCESS_ROOT).'</span>';
 		echo '<input type=text name=new_location id=new_location value="'.hsc($ACCESS_PATH).'"><br>';
 		
 		echo '('.hsc($_['CRM_txt_02']).')<p>';
@@ -2616,7 +2698,7 @@ function Delete_response($target, $show_message=3) {//**************************
 
 	if ($target == "") { return 0; } //Prevent accidental delete of entire website.
 
-	$target = Check_path($target,$show_message); //Make sure $target is within $WEB_ROOT
+	$target = Check_path($target,$show_message);
 	$target = trim($target,'/');
 	$page = "index"; //Return to index
 
@@ -2655,7 +2737,7 @@ function Delete_response($target, $show_message=3) {//**************************
  
 function MCD_Page($action, $page_title, $classes = '') {//**********************
 	//$action = mcd_mov or mcd_cpy or mcd_del
-	global $_,  $WEB_ROOT, $ONESCRIPT, $ipath, $ipath_OS, $param1, $filename, $page,
+	global $_, $ONESCRIPT, $ipath, $ipath_OS, $param1, $filename, $page,
 			$ICONS, $ACCESS_ROOT, $ACCESS_PATH, $INPUT_NUONCE, $MESSAGE;
 
 	//Prep for a single file or folder
@@ -2675,7 +2757,7 @@ function MCD_Page($action, $page_title, $classes = '') {//**********************
 		
 		if ( ($_POST['mcdaction'] == 'copy') || ($_POST['mcdaction'] == 'move') ) {
 			echo '<label>'.hsc($_['New_Location']).':</label>';
-			echo '<span class="web_root">'.hsc($WEB_ROOT.$ACCESS_ROOT).'</span>';
+			echo '<span class="web_root">'.hsc('/'.$ACCESS_ROOT).'</span>';
 			echo '<input type=text   name=new_location  id=new_location value="'.hsc($ACCESS_PATH).'">';
 			echo '<p>('.hsc($_['CRM_txt_02']).')</p>';
 		}
@@ -4500,7 +4582,8 @@ th.file_name {min-width: 15em}
 .file_size { min-width:  6em; }
 .file_time { min-width: 10em; }
 
-.meta_T { padding: 0 .5em; text-align: right; font: bold .9rem courier; color: #333} 
+.meta_T  { padding: 0 .5em; text-align: right; font: bold .9rem courier; color: #333}
+.meta_T2 { border: solid 1px black; background-color: white; font-size: 1rem; }
 
 #DIRECTORY_FOOTER {text-align: center; font-size: .9em; color: #333; padding: 3px 0 0 0; }
 
