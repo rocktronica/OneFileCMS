@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.5.23';
+$OFCMS_version = '3.6';
 
 
 
@@ -285,7 +285,7 @@ if ($ACCESS_ROOT != '') { $ACCESS_ROOT = $ACCESS_ROOT.'/'; }
 $ACCESS_ROOT_OS = Convert_encoding($ACCESS_ROOT);
 
 if (!is_dir('/'.$ACCESS_ROOT_OS)) {
-	$MESSAGE .= $EX.'<b>$ACCESS_ROOT '.hsc($_['Invalid_path']).': </b>'.$ACCESS_ROOT.'<br>';
+	$MESSAGE .= $EX.'<b>$ACCESS_ROOT '.hsc($_['Invalid']).":</b> $ACCESS_ROOT<br>";
 	$ACCESS_ROOT	= $DOC_ROOT;
 	$ACCESS_ROOT_OS = Convert_encoding($ACCESS_ROOT);
 }
@@ -307,10 +307,15 @@ $haystack      = realpath($DEFAULT_PATH); //ex: /some/access/root/some/default/p
 $needle_len    = strlen($needle);
 $valid_subpath = (substr($haystack, 0, $needle_len) === $needle);
 
-if (!is_dir('/'.$DEFAULT_PATH_OS) || !$valid_subpath) {
+if (!is_dir('/'.$DEFAULT_PATH_OS)) {
+	$MESSAGE .= $EX.'<b>$DEFAULT_PATH '.$_['Invalid'].":</b> $DEFAULT_PATH<br>";
+	$DEFAULT_PATH	 = $ACCESS_ROOT;
+	$DEFAULT_PATH_OS = Convert_encoding($DEFAULT_PATH);
+} 
+else if (!$valid_subpath) {
 	$MESSAGE .= $EX.'<b>'.$_['must_be_decendant'].'</b><br>';
-	$MESSAGE .= "\$DEFAULT_PATH = $DEFAULT_PATH<br>";
 	$MESSAGE .= "\$ACCESS_ROOT = $ACCESS_ROOT<br>";
+	$MESSAGE .= "\$DEFAULT_PATH = $DEFAULT_PATH<br>";
 	$DEFAULT_PATH	 = $ACCESS_ROOT;
 	$DEFAULT_PATH_OS = Convert_encoding($DEFAULT_PATH);
 }
@@ -917,9 +922,9 @@ function Get_GET() {//**** Get URL passed parameters ***************************
 	if (isset($_GET["i"])) {
 		$ipath = Check_path($_GET["i"],1);
 		$ipath_OS = Convert_encoding($ipath);
-		if ( $ipath === false || !is_dir($ipath_OS)) {
-			$ipath = $DEFAULT_PATH;
-		}
+		
+		if 		( $ipath === "") 						  {;} //root, aka '/', is valid.
+		else if ( $ipath === false || !is_dir($ipath_OS)) { $ipath = $DEFAULT_PATH;	} //not root & not valid
 	}
 	else {
 		$ipath = $DEFAULT_PATH;
@@ -1325,7 +1330,7 @@ function Cancel_Submit_Buttons($submit_label) {//*******************************
 	<button type="button" class="button" id="cancel" onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
 		<?php echo hsc($_['Cancel']) ?></button>
 	<button type="submit" class="button" id="submitty" style="margin-left: 1em;"><?php echo hsc($submit_label);?></button>
-	<script>document.getElementById("cancel").focus();</script>
+	<script>E("cancel").focus();</script>
 <?php
 }//end Cancel_Submit_Buttons() //***********************************************
 
@@ -1586,7 +1591,7 @@ function Admin_Page() {//*******************************************************
 	echo '<p>'.hsc($_['admin_txt_14']);
 	echo '</div>'; //end class=info
 
-	echo '<script>document.getElementById("close").focus();</script>';
+	echo '<script>E("close").focus();</script>';
 }//end Admin_Page() //**********************************************************
 
 
@@ -1606,7 +1611,7 @@ function Hash_Page() {//********************************************************
 		<?php echo hsc($_['pass_to_hash']) ?>
 		<input type="text" name="whattohash" id="whattohash" value="<?php echo hsc($_POST['whattohash']) ?>">
 		<p><?php Cancel_Submit_Buttons($_['Generate_Hash']) ?>
-		<script>document.getElementById('whattohash').focus()</script>
+		<script>E('whattohash').focus()</script>
 	</form>
 
 	<div class="info">
@@ -1672,7 +1677,7 @@ function Change_PWUN_Page($pwun, $type, $page_title, $label_new, $label_confirm)
 			onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
 		<input type="button" class="button"    id="submitty" value="<?php echo hsc($_['Submit']) ?>" style="margin-left: 1em;">
 		
-		<script>document.getElementById('password').focus()</script>
+		<script>E('password').focus()</script>
 	</form>
 
 	<div class="info">
@@ -1823,7 +1828,7 @@ function Login_Page() {//*******************************************************
 		<input name="password" type="password" id="password">
 		<input type="button"  class="button"   id="login" value="<?php echo hsc($_['Enter']) ?>">
 	</form>
-	<script>document.getElementById('username').focus();</script>
+	<script>E('username').focus();</script>
 <?php
 	//Note: The "login" button above must NOT be of type="submit", NOR have an id="submit", or the event_scripts won't work.
 	pwun_event_scripts('login_form', 'login');
@@ -2001,7 +2006,7 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 		}
 			
 		//Used to hide rename & delete options for active copy of OneFileCMS.
-		$is_ofcms = Set_IS_OFCMS($ipath.$filename); //#####
+		$is_ofcms = Set_IS_OFCMS($ipath.$filename);
 		
 		//Set icon type based on if dir, or file type ($ext).
 		if (is_dir($filename_OS)) { $type = 'dir'; }
@@ -2965,11 +2970,14 @@ ICONS['delete']  = '<?php echo $ICONS["delete"]  ?>';
 
 
 
-function common_scripts() {//***************************************************
+function Common_Scripts() {//***************************************************
 	global $_, $TO_WARNING, $MESSAGE, $page, $DELAY_Expired_Reload;
 ?>
 
 <script>
+var D = document;
+function E(id) { return document.getElementById(id); }
+
 var $MESSAGE = "";
 
 
@@ -3042,12 +3050,12 @@ function format_number(number, sep) {//*******************************
 
 //********************************************************************
 function Countdown(count, End_Time, Timer_ID, Action){
-	var Timer        = document.getElementById(Timer_ID);
+	var Timer        = E(Timer_ID);
 	var Current_Time = Math.round(new Date().getTime()/1000); //js uses milliseconds
 	    count        = End_Time - Current_Time;
 	var params = count + ', "' + End_Time + '", "' + Timer_ID + '", "' + Action + '"';
 
-	var $msg_box = document.getElementById('message_box');
+	var $msg_box = E('message_box');
 
 	Timer.innerHTML = FormatTime(count);
 
@@ -3058,7 +3066,7 @@ function Countdown(count, End_Time, Timer_ID, Action){
 		$msg_box.innerHTML  = timeout_warning;
 		setTimeout('Start_Countdown(' + count + ',"timer2","")',25);
 		
-		var Timer2 = document.getElementById('timer2');
+		var Timer2 = E('timer2');
 		Timer.style.color           = Timer2.style.color           = "red";
 		Timer.style.fontWeight      = Timer2.style.fontWeight      = "900";
 		Timer.style.backgroundColor = Timer2.style.backgroundColor = "white";
@@ -3144,13 +3152,13 @@ function Display_Messages($msg, take_focus) {//***********************
 
 	var $X_box		 = '<button tabindex=' + $tabindex_xbox + ' type=button id=X_box>&times;</button>';
 	var $msg_div	 = '<div class=message_box_contents>' + $msg + '</div>';
-	var $msg_box     = document.getElementById("message_box");
-	var $new_focus	 = document.getElementById(new_focus)
+	var $msg_box     = E("message_box");
+	var $new_focus	 = E(new_focus)
 
 	if ($msg == '') { $msg_box.innerHTML = ' '; } //innerHTML must be given a space or $msg_box won't clear.
 	else {
 		$msg_box.innerHTML = $X_box + $msg_div;
-		var $X_box_btn	 = document.getElementById('X_box');
+		var $X_box_btn	 = E('X_box');
 		if (take_focus) {$X_box_btn.focus();}
 		$X_box_btn.onclick = function () { $msg_box.innerHTML = " "; $new_focus.focus();}
 	}
@@ -3160,7 +3168,7 @@ function Display_Messages($msg, take_focus) {//***********************
 </script>
 
 <?php
-}//end common_scripts() //******************************************************
+}//end Common_Scripts() //******************************************************
 
 
 
@@ -3169,16 +3177,16 @@ function Index_Page_events() {//************************************************
 	global $_, $PAGEUPDOWN, $EX;
 ?>
 <script>
-var Move_Button			= document.getElementById('b1');
-var Copy_Button			= document.getElementById('b2');
-var Delete_Button		= document.getElementById('b3');
+var Move_Button			= E('b1');
+var Copy_Button			= E('b2');
+var Delete_Button		= E('b3');
 
-var Select_All_ckbox	= document.getElementById('select_all_ckbox');
-var Header_Sorttype		= document.getElementById('header_sorttype');
-var Folders_First_Ckbox = document.getElementById('folders_first_ckbox');
-var Header_Filename		= document.getElementById('header_filename');
-var Header_Filesize		= document.getElementById('header_filesize');
-var Header_Filedate		= document.getElementById('header_filedate');
+var Select_All_ckbox	= E('select_all_ckbox');
+var Header_Sorttype		= E('header_sorttype');
+var Folders_First_Ckbox = E('folders_first_ckbox');
+var Header_Filename		= E('header_filename');
+var Header_Filesize		= E('header_filesize');
+var Header_Filedate		= E('header_filedate');
 
 
 //These buttons aren't present if folder is empty...
@@ -3206,18 +3214,18 @@ document.onmousedown = function (event) { //************************
 	//Clear parent div of a checkbox
 	var ID = document.activeElement.id;
 	if (document.activeElement.type == 'checkbox') {
-		document.getElementById(ID).parentNode.style.backgroundColor = "";
+		E(ID).parentNode.style.backgroundColor = "";
 	}
 
 	//Clear labels...  (don't check, just clear 'em)
-	document.getElementById('select_all_label').style.backgroundColor = "";
-	document.getElementById('folders_first_label').style.backgroundColor = "";
+	E('select_all_label').style.backgroundColor = "";
+	E('folders_first_label').style.backgroundColor = "";
 
 }//end onmousedown() //***********************************************
 
 
 
-function on_Tab_down(ID, FR,shifted) { //*****************************
+function on_Tab_down(ID, FR, shifted) { //****************************
 	//Handle the background colors of checkboxes' parent <div>'s & <label>'s.
 	//(checkboxes generally don't have "background colors" as far as css goes...)
 	//Current checkbox already cleared by onkeydown().
@@ -3228,10 +3236,11 @@ function on_Tab_down(ID, FR,shifted) { //*****************************
 	//Tab from L, Current ID will be "f<FR>c2"
 	//Tab from R: Current ID is "f<FR>"
 	var fFR   = "f" + FR + "c5" //Filename
+	var perms = "f" + FR + "c4" //permisions
 	var ckbox = "f" + FR + "c3" //[ ] Checkbox
 	var del   = "f" + FR + "c2" //(x) Delete
 
-	var ck_box = document.getElementById(ckbox);
+	var ck_box = E(ckbox);
 	var highlight1 = "rgb(255,250,150)";
 	var highlight2 = "rgb(255,240,140)";
 
@@ -3239,26 +3248,26 @@ function on_Tab_down(ID, FR,shifted) { //*****************************
 		if      (ID == ckbox) { ck_box.parentNode.style.backgroundColor = "";}
 		else if (ID == del  ) { ck_box.parentNode.style.backgroundColor = highlight2; }
 		else if (ID == "b6" ) { //[New Folder]
-			document.getElementById('select_all_ckbox').parentNode.style.backgroundColor = highlight1;
-			document.getElementById('select_all_label').style.backgroundColor = highlight1;
+			E('select_all_ckbox').parentNode.style.backgroundColor = highlight1;
+			E('select_all_label').style.backgroundColor = highlight1;
 		}
 		else if (ID == "select_all_ckbox" ) {
-			document.getElementById('select_all_label').style.backgroundColor = "";
-			document.getElementById('folders_first_ckbox').parentNode.style.backgroundColor = highlight1;
-			document.getElementById('folders_first_label').style.backgroundColor = highlight1;
+			E('select_all_label').style.backgroundColor = "";
+			E('folders_first_ckbox').parentNode.style.backgroundColor = highlight1;
+			E('folders_first_label').style.backgroundColor = highlight1;
 		}
 	}
 	else if (shifted)  { //Shift-Tab
 		if       (ID == ckbox){ ck_box.parentNode.style.backgroundColor = "";}
-		else if ((ID == fFR) && (FR > 0) ) { ck_box.parentNode.style.backgroundColor = highlight2; }
+		else if ((ID == perms) && (FR > 0) ) { ck_box.parentNode.style.backgroundColor = highlight2; }
 		else if  (ID == "header_filename")  {
-			document.getElementById('folders_first_ckbox').parentNode.style.backgroundColor = highlight1;
-			document.getElementById('folders_first_label').style.backgroundColor = highlight1;
+			E('folders_first_ckbox').parentNode.style.backgroundColor = highlight1;
+			E('folders_first_label').style.backgroundColor = highlight1;
 		}
 		else if (ID == "folders_first_ckbox") {
-			document.getElementById('folders_first_label').style.backgroundColor = "";
-			document.getElementById('select_all_ckbox').parentNode.style.backgroundColor = highlight1;
-			document.getElementById('select_all_label').style.backgroundColor = highlight1;
+			E('folders_first_label').style.backgroundColor = "";
+			E('select_all_ckbox').parentNode.style.backgroundColor = highlight1;
+			E('select_all_label').style.backgroundColor = highlight1;
 		}
 	}
 }//end on_Tab_down() { //*********************************************
@@ -3266,7 +3275,7 @@ function on_Tab_down(ID, FR,shifted) { //*****************************
 
 
 
-document.onkeydown = function(event) { //*****************************
+E("main").onkeydown = function(event) { //*****************************
 	//Control cursor keys to navigate index page. (Arrows, Page, Home, End)
 
 	var jump = <?php echo $PAGEUPDOWN ?>;//# of rows to jump with Page Up/Page Down.
@@ -3304,15 +3313,15 @@ document.onkeydown = function(event) { //*****************************
 		
 		//If current ID/element is checkbox, clear bgcolor of parent div (ckboxes don't have background colors).
 		var is_ckbox = (document.activeElement.type == "checkbox");
-		if (is_ckbox) {document.getElementById(ID).parentNode.style.backgroundColor = ""; }
+		if (is_ckbox) {E(ID).parentNode.style.backgroundColor = ""; }
 		
 		//Always clear these labels (simply losing focus() of their child checkboxes won't).
-		document.getElementById('select_all_label').style.backgroundColor = "";
-		document.getElementById('folders_first_label').style.backgroundColor = "";
+		E('select_all_label').style.backgroundColor = "";
+		E('folders_first_label').style.backgroundColor = "";
 	}
 
 	//If no files in current folder, [Move][Copy][Delete] won't exist (id's b1 b2 b3). Use [New Folder] (id="b4").
-	if (document.getElementById("b2")) {var button_row = "b2"} else {var button_row = "b4"}
+	if (E("b2")) {var button_row = "b2"} else {var button_row = "b4"}
 
 	//Indicate if current focus is on one of the elements of the table header row. (true / false)
 	//Select All[ ] | [x](folders first) Name  (.ext) | Size |  Date  |
@@ -3360,7 +3369,7 @@ document.onkeydown = function(event) { //*****************************
 			Sort_and_Show(SORT_by, SORT_order);
 		}
 		else if (FC == 3) {  //Is focus on a checkbox next to a file name?
-			document.getElementById(ID).checked = !document.getElementById(ID).checked;
+			E(ID).checked = !E(ID).checked;
 		}
 		
 		return;
@@ -3369,7 +3378,7 @@ document.onkeydown = function(event) { //*****************************
 		on_Tab_down(ID, FR, event.shiftKey);
 		return;
 	}
-	else if (key == ESC)  { document.activeElement.blur();    return; }
+	else if (key == ESC)  { document.activeElement.blur();   return; }
 	else if (key == END)  { if (ID != LAST_FILE ) {ID = LAST_FILE; } }
 	else if (key == HOME) {	if (ID != FIRST_FILE) {ID = FIRST_FILE;} }
 	else if (key == AL) {
@@ -3453,12 +3462,12 @@ document.onkeydown = function(event) { //*****************************
 		return;
 	}
 
-	document.getElementById(ID).focus();
+	E(ID).focus();
 
 	//If new ID/element is checkbox, set bgcolor of parent div & it's label (ckboxes don't have background colors).
-	if (document.activeElement.type == "checkbox") {document.getElementById(ID).parentNode.style.backgroundColor = highlight2;}
-	if (ID == "select_all_ckbox")    {document.getElementById('select_all_label').style.backgroundColor = highlight1;}
-	if (ID == "folders_first_ckbox") {document.getElementById('folders_first_label').style.backgroundColor = highlight1;}
+	if (document.activeElement.type == "checkbox") {E(ID).parentNode.style.backgroundColor = highlight2;}
+	if (ID == "select_all_ckbox")    {E('select_all_label').style.backgroundColor = highlight1;}
+	if (ID == "folders_first_ckbox") {E('folders_first_label').style.backgroundColor = highlight1;}
 
 	//Prevent default browser scrolling via arrow & Page keys, so focus()'d element stays visible/in view port.
 	//(A few exceptions skip this via a return in the above  if/else's.)
@@ -3550,7 +3559,7 @@ function sort_DIRECTORY(col, direction) {//***************************
 	if ((col != SORT_by) && (direction != FLIP)) { direction = ASCENDING; SORT_by = col; } 
 
 	//Get status of [x](folders first) checkbox
-	var folders_first_checked = document.getElementById('folders_first_ckbox').checked;
+	var folders_first_checked = E('folders_first_ckbox').checked;
 
 	//If '[x](folders first)' is now checked, but was previously unchecked,
 	//no need to re-sort by col, just sort by folders. Otherwise, first resort by column.
@@ -3593,7 +3602,7 @@ function Init_Dir_table_rows(DIR_LIST) {//****************************
 		
 		//assign css classes
 		var c = 4;
-		cells[c++].className = 'meta_T';	//file permissions
+		cells[c++].className = 'meta_T perms';  //file permissions
 		cells[c++].className = 'file_name';
 		cells[c++].className = 'file_size meta_T';
 		cells[c++].className = 'file_time meta_T';
@@ -3612,24 +3621,34 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	row++;
 
 	//[Move] [Copy] [Delete]  [x]
-	var ren_mov  = copy = del = checkbox = '';
+	var ren_mov  = copy = del = checkbox = perms = cells = '';
 
 	//Assemble [move] [copy] [delete] [x]   ([copy] is always available)
 	//The empty <a>'s are to accommodate keyboard nav via onkeydown() in Index_Page_events()...
 	if (!IS_OFCMS) {
-		ren_mov  = '<a id=f' + row + 'c0 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=rename' + f_or_f + '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
-	} else {
+		ren_mov  = '<a id=f' + row + 'c0 tabindex='+ (TABINDEX++) +' class=MCD href="';
+		ren_mov += href + '&amp;p=rename' + f_or_f + '" ';
+		ren_mov += 'title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
+	}
+	else {
 		ren_mov  = '<a id=f' + row + 'c0 tabindex='+ (TABINDEX++) +'>&nbsp;</a>'
 	}
 
-	copy         = '<a id=f' + row + 'c1 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=copy'   + f_or_f + '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
+	copy  = '<a id=f' + row + 'c1 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=copy'   + f_or_f;
+	copy += '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
 
 	if (!IS_OFCMS) {
-		del      = '<a id=f' + row + 'c2 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=delete' + f_or_f + '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
-		checkbox = '<div class=ckbox><INPUT id=f' + row + 'c3 tabindex='+ (TABINDEX++) +' TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
-	} else {
+		del       = '<a id=f' + row + 'c2 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=delete' + f_or_f;
+		del		 += '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
+		checkbox  = '<div class=ckbox><INPUT id=f' + row + 'c3 tabindex='+ (TABINDEX++);
+		checkbox += ' TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
+		perms	  = '<input id=f' + row + 'c4 class=perms tabindex=' + (TABINDEX++) ;
+		perms	 += ' value="' + DIRECTORY_DATA[row - 1][6]+ '" maxlength=4 readonly>'; //##### readonly for now
+	}
+	else {
 		del      = '<a id=f' + row + 'c2 tabindex='+ (TABINDEX++) +'>&nbsp;</a>'
 		checkbox = '<a id=f' + row + 'c3 tabindex='+ (TABINDEX++) +'>&nbsp;</a>'
+		perms	 = '<a id=f' + row + 'c4 tabindex='+ (TABINDEX++) +'>' + DIRECTORY_DATA[row - 1][6] + '</a>'
 	}
 
 	//fill the <td>'s
@@ -3639,7 +3658,7 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	cells[c++].innerHTML = copy;
 	cells[c++].innerHTML = del;
 	cells[c++].innerHTML = checkbox;
-	cells[c++].innerHTML = DIRECTORY_DATA[row - 1][6];
+	cells[c++].innerHTML = perms;
 	cells[c++].innerHTML = file_name;
 	cells[c++].innerHTML = file_size;
 	cells[c++].innerHTML = file_time;
@@ -3653,7 +3672,7 @@ function Build_Directory() {//****************************************
 
 	TABINDEX    = <?php echo $TABINDEX ?>;  //Rest TABINDEX
 
-	var DIR_LIST = document.getElementById("DIRECTORY_LISTING");
+	var DIR_LIST = E("DIRECTORY_LISTING");
 
 	if (DIR_LIST.rows.length < 1) {Init_Dir_table_rows(DIR_LIST);}
 
@@ -3679,8 +3698,8 @@ function Build_Directory() {//****************************************
 		
 		var file_col = 5; //column of file names
 		
-		//For file, (TABINDEX + 4) to account for [m][c][d][x] which are added in Assemble_Insert_Row()
-		var file_name  = '<a id=f'+(row + 1)+'c'+ file_col + ' tabindex='+ (TABINDEX + 4) +' href="' + href  + '"'; 
+		//For file, (TABINDEX + 5) to account for [m][c][d][x][perms] which are added in Assemble_Insert_Row()
+		var file_name  = '<a id=f'+(row + 1)+'c'+ file_col + ' tabindex='+ (TABINDEX + 5) +' href="' + href  + '"'; 
 			file_name += ' title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
 			file_name += ICONS[filetype] + '&nbsp;' + hsc(filename) + DS + '</a>';
 		var file_time  = FileTimeStamp(filetime, 1, 0, 0);
@@ -3738,7 +3757,7 @@ function Sort_and_Show(col, direction) {//****************************
 	setTimeout( function () {
 		sort_DIRECTORY(col, direction); //Sort DIRECTORY_DATA
 		Build_Directory();
-		document.getElementById('DIRECTORY_FOOTER').innerHTML = Directory_Summary();
+		E('DIRECTORY_FOOTER').innerHTML = Directory_Summary();
 		Display_Messages('');
 	}, DELAY);
 
@@ -3751,7 +3770,7 @@ function Select_All() {//********************************************
 
 	//Does not work in IE if the variable name is spelled the same as the Element Id
 	//So, prefix with a dollar sign (a valid character in JS for variable names).
-	$select_all_label = document.getElementById('select_all_label');
+	$select_all_label = E('select_all_label');
 
 	var files = document.mcdselect.elements['files[]'];
 	var last  = files.length; //number of files
@@ -3885,15 +3904,15 @@ function Toggle_Line_Wrap(on_off) {
 		on_off.value  				 = "off"
 		document.cookie 			 = 'line_wrap=off'
 		File_textarea.style["white-space"] = "pre";
-		document.getElementById('w_on').style.textDecoration  = "none";
-		document.getElementById('w_off').style.textDecoration = "underline";
+		E('w_on').style.textDecoration  = "none";
+		E('w_off').style.textDecoration = "underline";
 	}
 	else {
 		on_off.value  				 = "on"
 		document.cookie				 = 'line_wrap=on'
 		File_textarea.style["white-space"] = "pre-wrap";
-		document.getElementById('w_on').style.textDecoration  = "underline";
-		document.getElementById('w_off').style.textDecoration = "none";
+		E('w_on').style.textDecoration  = "underline";
+		E('w_off').style.textDecoration = "none";
 	}
 
 	Correct_Word_Wrapping(File_textarea);
@@ -3922,7 +3941,7 @@ function Check_for_changes(event){
 	changed = (File_textarea.value != start_value);
 
 	if (changed){
-		document.getElementById('message_box').innerHTML = " "; //Must have a space, or it won't clear the msg.
+		E('message_box').innerHTML = " "; //Must have a space, or it won't clear the msg.
 		File_textarea.style.backgroundColor    = "white";
 		Save_File_button.style.borderColor	   = "#F33";
 		Save_File_button.innerHTML			   = "<?php echo hsc($_['save_2'])?>";
@@ -4065,11 +4084,11 @@ function Line_Numbering(wrapper_id, line_numbers_id, listing_id, line0_id, line1
 
 	//*** common variables *******************************************
 
-	var wrapper		 = document.getElementById(wrapper_id);
-	var line_numbers = document.getElementById(line_numbers_id);
-	var listing 	 = document.getElementById(listing_id);
-	var line_zero    = document.getElementById(line0_id); //empty: used for char-width calc.
-	var line_one     = document.getElementById(line1_id); //<div>1</div> will contain the line numbers.
+	var wrapper		 = E(wrapper_id);
+	var line_numbers = E(line_numbers_id);
+	var listing 	 = E(listing_id);
+	var line_zero    = E(line0_id); //empty: used for char-width calc.
+	var line_one     = E(line1_id); //<div>1</div> will contain the line numbers.
 
 	line_zero.innerHTML = ""; //Just makin' sure. It's only used for the char_width calc.
 	
@@ -4130,20 +4149,20 @@ function Line_Numbering(wrapper_id, line_numbers_id, listing_id, line0_id, line1
 
 
 //***** Global variables *********************************************
-var Main_div		   = document.getElementById('main');
-var Ln_Editor_wrapper  = document.getElementById('wrapper_linenums_editor');
-var Line_Numbers_div   = document.getElementById('line_numbers');
-var File_textarea      = document.getElementById('file_editor');
-var View_Raw_button    = document.getElementById('view_raw');
-var Wide_View_button   = document.getElementById('wide_view');
-var WYSIWYG_button	   = document.getElementById('edit_WYSIWYG');
-var Close_button       = document.getElementById('close1');
-var Toggle_Wrap		   = document.getElementById('toggle_wrap');
-var Save_File_button   = document.getElementById('save_file');
-var Reset_button       = document.getElementById('reset');
-var Rename_File_button = document.getElementById('renamefile_btn');
-var Copy_File_button   = document.getElementById('copyfile_btn');
-var Delete_File_button = document.getElementById('deletefile_btn');
+var Main_div		   = E('main');
+var Ln_Editor_wrapper  = E('wrapper_linenums_editor');
+var Line_Numbers_div   = E('line_numbers');
+var File_textarea      = E('file_editor');
+var View_Raw_button    = E('view_raw');
+var Wide_View_button   = E('wide_view');
+var WYSIWYG_button	   = E('edit_WYSIWYG');
+var Close_button       = E('close1');
+var Toggle_Wrap		   = E('toggle_wrap');
+var Save_File_button   = E('save_file');
+var Reset_button       = E('reset');
+var Rename_File_button = E('renamefile_btn');
+var Copy_File_button   = E('copyfile_btn');
+var Delete_File_button = E('deletefile_btn');
 
 var submitted  = false;
 var changed    = false;
@@ -4234,9 +4253,9 @@ function pwun_event_scripts($form_id, $button_id, $pwun='') {//*****************
 ?>
 
 <script>
-var $form          = document.getElementById('<?php echo $form_id ?>');
-var $submit_button = document.getElementById('<?php echo $button_id ?>');
-var $pwun_msg_box   = document.getElementById('message_box');
+var $form          = E('<?php echo $form_id ?>');
+var $submit_button = E('<?php echo $button_id ?>');
+var $pwun_msg_box   = E('message_box');
 var $thispage      = false; //Used to ignore keyup if keydown started on prior page.
 var $submitdown    = false; //Used in document.mouseup event
 
@@ -4283,18 +4302,18 @@ document.onmouseup = function(event) {
 
 
 function pre_validate_pwun() {
-	var $pw = document.getElementById('password');
+	var $pw = E('password');
 
 	var $username = $pw;
 	var $new1 	  = $pw;
 	var $new2 	  = $pw;
 
-	if (document.getElementById('username')){
-		$username = document.getElementById('username');
+	if (E('username')){
+		$username = E('username');
 	}
-	if (document.getElementById('new1')){
-		$new1 = document.getElementById('new1');
-		$new2 = document.getElementById('new2');
+	if (E('new1')){
+		$new1 = E('new1');
+		$new2 = E('new2');
 	}
 
 
@@ -4345,8 +4364,8 @@ var hexcase=0;function hex_sha256(a){return rstr2hex(rstr_sha256(str2rstr_utf8(a
 <script>
 //OneFileCMS wrapper function for using the hex_sha256() functions
 function hash($element_id) {
-	var $input = document.getElementById($element_id);
-	var $hash = trim($input.value); //trim() defined in common_scripts()
+	var $input = E($element_id);
+	var $hash = trim($input.value); //trim() defined in Common_Scripts()
 	var $SALT = '<?php echo $SALT ?>';
 	var $PRE_ITERATIONS = <?php echo $PRE_ITERATIONS ?>; //$PRE_ITERATIONS also used in hashit()
 	if ($hash.length < 1) {$input.value = $hash; return;} //Don't hash nothing.
@@ -4584,6 +4603,19 @@ th.file_name {min-width: 15em}
 
 .meta_T  { padding: 0 .5em; text-align: right; font: bold .9rem courier; color: #333}
 .meta_T2 { border: solid 1px black; background-color: white; font-size: 1rem; }
+
+input.perms {
+	display: inline-block;
+	width: 2.4rem;
+	padding: 2px 2px;
+	border: solid 1px transparent;
+	background-color: transparent;
+	text-align: right;
+}
+
+/* //##### remove/normalize bg color assignment once permissions are editable. ##### */
+input.perms:focus { border: solid 1px transparent; background-color: #DDD }
+td.perms { padding: 0; }
 
 #DIRECTORY_FOOTER {text-align: center; font-size: .9em; color: #333; padding: 3px 0 0 0; }
 
@@ -5016,7 +5048,7 @@ echo '<title>'.hsc($MAIN_TITLE.' - '.Page_Title()).'</title>'."\n";
 
 Load_style_sheet();
 
-common_scripts();
+Common_Scripts();
 
 Error_reporting_status_and_early_output(0,0); //0,0 will only show early output.
 
@@ -5052,7 +5084,7 @@ if ($_SESSION['valid']) {
 }//end footer
 
 echo "\n</div>\n"; //end main/login_page
-echo "</html>\n";
+echo "</html>\n";  //***********************************************************
 
 if ( ($page == "edit") && $WYSIWYG_VALID && $EDIT_WYSIWYG ) { include($WYSIWYG_PLUGIN_OS); }
 
@@ -5060,7 +5092,7 @@ if ( ($page == "edit") && $WYSIWYG_VALID && $EDIT_WYSIWYG ) { include($WYSIWYG_P
 echo "\n\n<script>\n";
 echo 'var $tabindex_xbox = '.$TABINDEX_XBOX.";\n"; //Used in Display_Messages()
 echo 'var $page = "'.$page.'";'."\n";
-echo '$MESSAGE += "'.addslashes($MESSAGE).'";'."\n"; //js version of $MESSAGE is declared at top of common_scripts().
+echo '$MESSAGE += "'.addslashes($MESSAGE).'";'."\n"; //js version of $MESSAGE is declared at top of Common_Scripts().
 	    //Cause $MESSAGE's $X_box to take focus on these pages only.
 echo 'if (($page == "index") || ($page == "edit")) {take_focus = 1}'."\n";
 echo 'else										   {take_focus = 0}'."\n\n";
@@ -5079,9 +5111,10 @@ echo "</script>\n\n";
 if ($_SESSION['valid']) { echo Timeout_Timer($MAX_IDLE_TIME, 'timer0', 'LOGOUT'); }
 if ($page == 'edit')    { echo Timeout_Timer($MAX_IDLE_TIME, 'timer1', 'LOGOUT'); }
 if ($LOGIN_DELAYED > 0) { echo Timeout_Timer($LOGIN_DELAYED, 'timer0', ''); }
-//##### END OF FILE ############################################################
 
 //##### Header (UTF-8) for [View Raw] incorrect or not getting sent??
 //##### If file has non-ascii characters, browers display in ISO-8859-1/Windows-1252,
 //##### Except IE, which asks to download the file...
 //##### When browsers manually set to UTF-8, files display fine.
+
+//##### END OF FILE ############################################################
