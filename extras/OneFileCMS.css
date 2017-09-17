@@ -1,18 +1,23 @@
 ﻿/*******************************************************************************
-Sample, OPTIONAL, external style sheet for OneFileCMS v3.5.17
+Sample, OPTIONAL, external style sheet for OneFileCMS v3.6
+
+This is just a copy of the primary <style></style> section in OneFileCMS
 *******************************************************************************/
 
 /* --- reset --- */
 * { border : 0; outline: 0; margin: 0; padding: 0;
     font-family: inherit; font-weight: inherit; font-style : inherit;
-    font-size  : 100%; vertical-align: baseline; outline: none; }
+    font-size  : 100%; vertical-align: baseline; box-sizing: border-box; }
 
+:before, :after { box-sizing: border-box; } /*not currently used anywhere, but you never know...*/
 
 /* --- general formatting --- */
 
-html { background: linear-gradient(170deg, white, rgb(50, 120,190)); background-attachment: fixed;}
+html { background: linear-gradient(170deg, white, rgb(50, 120, 250)); background-attachment: fixed;}
 
-body { height: 100%; font-size: 1em; font-family: sans-serif; } 
+body { height: 100%; font-size: 1em; font-family: sans-serif; overflow-y: scroll; }
+
+svg { position: relative; top: 2px; }
 
 p, table, ol { margin-bottom: .6em;}
 
@@ -37,6 +42,7 @@ pre { background: white; border: 1px solid #777; padding: .2em; margin: 0; }
 input[type="text"]     { width: 100%; border: 1px solid #777; padding: 1px 1px 1px 0; font : 1em Courier; }
 input[type="password"] { width: 100%; border: 1px solid #777; padding: 0   1px 0   0; }
 input[type="file"]     { width: 100%; border: 1px solid #777; background-color: white; margin: 0; }
+input[type="radio"]    { margin: 0 1px 2px 3px; vertical-align: middle; cursor : pointer; }
 
 input[readonly]        { color: #333; background-color: #EEE; }
 input[disabled]        { color: #555; background-color: #EEE; }
@@ -47,9 +53,13 @@ input:hover  { background-color: rgb(255,250,150); }
 /*-- Must be after input:focus, as it alters border --*/
 input[type="checkbox"] { cursor: pointer; border: none;}
 
+button, .button {border-radius: 5px;}
+
 button:hover  { background-color: rgb(255,250,150); border-color: #333;}
 button:focus  { background-color: rgb(255,250,150); border-color: #333;}
 button:active { background-color: rgb(245,245,50);  border-color: #333;}
+
+button:active, .button:active{ position:relative; top :1px; left:1px; }
 
 /* --- layout --- */
 
@@ -85,26 +95,20 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 	}
 
 
-#message_box { border: none; margin: .5em 0 0 0; padding: 0; min-height: 1.88em;}
+#message_box { border: none; margin: .5em 0 .5em 0; padding: 0; min-height: 1.88em;}
 
 .message_box_contents { border: 1px solid gray; padding: 3px 2px 2px 4px; background: #FFF000; }
 
-#message_box #message_left {
-	float  : left;
-	margin : 0;
-	padding: 0;
-	border : none;
-	font-weight : 900;
-	}
+#message_box #message_left {float: left; margin: 0; padding: 0; border: none; font-weight: 900; }
 
 #message_box  #X_box {
 	display: block;
 	float  : right;
 	margin : 0;
-	padding: 0 2px 0 3px;
+	padding: 0px 0px 0 1px;
 	border : 1px solid gray;
-	font   : 16pt courier;
-	line-height: 18px;
+	font-size  : 20px;
+	line-height: 16px;
 	background : #EEE;
 	}
 
@@ -117,7 +121,7 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 
 /* ------ INDEX Page ------ */
 
-#index_page_buttons     { margin: 0 0 0 0; }
+#index_page_buttons     { margin: 0; }
 #index_page_buttons div { display: inline-block; vertical-align: bottom; }
 
 
@@ -139,12 +143,12 @@ button:active { background-color: rgb(245,245,50);  border-color: #333;}
 /*** Directory list file select boxes ***/
 /*ckbox is assigned to <div>'s etc that contain <input type=checkbox>*/
 .ckbox        {padding: 4px 4px 2px 4px; display: inline-block;}
-.ckbox:hover  {background-color: rgb(255,240,100);} 
+.ckbox:hover  {background-color: rgb(255,240,140);} 
 .ckbox:active {background-color: rgb(245,245, 50);}
 
 /* Slightly darker colors for [m][c][d] file options since they are small & less noticable*/
-.MCD:hover  {background-color: rgb(255,240,100);}
-.MCD:focus  {background-color: rgb(250,240,100);}
+.MCD:hover  {background-color: rgb(255,240,140);}
+.MCD:focus  {background-color: rgb(255,240,140);}
 .MCD:active {background-color: rgb(245,245, 50);}
 
 
@@ -214,10 +218,24 @@ th.file_name {min-width: 15em}
 #header_sorttype:focus {border-color: silver;}
 
 .file_name { max-width: 26em; }
-.file_size { min-width:  6em; padding-left: 10px; }
-.file_time { min-width: 10em; padding-left: 10px; }
+.file_size { min-width:  6em; }
+.file_time { min-width: 10em; }
 
-.meta_T { padding-right: 4px; text-align: right; font-family: courier; font-size: .9em; color: #222; }
+.meta_T  { padding: 0 .5em; text-align: right; font: bold .9rem courier; color: #333}
+.meta_T2 { border: solid 1px black; background-color: white; font-size: 1rem; }
+
+input.perms {
+	display: inline-block;
+	width: 2.4rem;
+	padding: 2px 2px;
+	border: solid 1px transparent;
+	background-color: transparent;
+	text-align: right;
+}
+
+/* //##### remove/normalize bg color assignment once permissions are editable. ##### */
+input.perms:focus { border: solid 1px transparent; background-color: #DDD }
+td.perms { padding: 0; }
 
 #DIRECTORY_FOOTER {text-align: center; font-size: .9em; color: #333; padding: 3px 0 0 0; }
 
@@ -226,15 +244,16 @@ th.file_name {min-width: 15em}
 .front_links { float: right; }
  
 .front_links a {
-	display: inline-block;
-	margin-top  : .2em;
+	display		: inline-block;
 	border      : 1px solid #777;
 	font-size   : 1em;  /*Adjusted by langauge files*/
 	margin-left : 1em;  /*Adjusted by langauge files*/
 	padding     : 3px 5px 2px 4px; /*TRBL*/
 	background-color: #EEE;
+	border-radius: 5px;
 	}
 
+.front_links svg { position: relative; top: 1px; margin-right: 5px; }
 
 /*These must go after .front_links and other style that affect <a> tags*/
 a { border: 1px solid transparent; text-decoration: none; }
@@ -245,20 +264,20 @@ a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
 
 /*** [Move] [Copy] [Delete] ***/
 
-#mcd_submit { margin: 0; height: 1.8em; }
+#mcd_submit { margin: 0; }
 
 #mcd_submit button {
-	height   : 1.55em;
+	height   : 1.75em;
 	cursor   : pointer;
 	border   : 1px solid #777;
-	padding  : 0px 4px 0px 3px; /*TRBL*/
-	margin-top  :  .5em;  /* Helps align bottoms with New & Upload buttons */
-	margin-left : 0.0em;  /* no longer needs adjusted by langauge files */
+	padding  : 0px 3px 0px 2px; /*TRBL*/
 	margin-right: 1.0em;  /* Adjusted by language files */
 	font-size: .9em;
 	color    : rgb(100,45,0);
 	background-color: #EEE;
 	}
+
+#mcd_submit svg { margin-right: 5px; }
 
 #mcd_submit button:focus  { border: 1px solid #333; background-color: rgb(255,250,150); }
 #mcd_submit button:hover  { border: 1px solid #333; background-color: rgb(255,250,150); }
@@ -316,21 +335,70 @@ a:active { border: 1px solid #333; background-color: rgb(245,245,50);  }
 
 .view_file { font: .9em Courier; background-color: #F8F8F8; }
 
+
+
+#wrapper_linenums_editor {
+	vertical-align	: top;
+	white-space		: nowrap;
+	padding			: 0px;
+	border			: none;
+	width		 	: 100%;
+}
+
+#line_numbers, #file_editor {
+	vertical-align  : top;
+	display			: inline-block;
+	height			: 40em;
+	white-space		: pre;
+	margin			: 0;
+	font			: normal .9em courier;
+}
+
+
+#line_numbers {
+	min-width	: 3.1em;  /* Must be wider than scroll-bar left-right arrows, or no scrollbar appears. */
+	padding		: 1px .3em 0 .2em;
+	border		: 1px solid #777;
+	background	: #ccc;
+	color		: #444;
+	overflow-y	: hidden;
+	overflow-x  : scroll;  /*This may be grayed out, but provides visual consistancy with #file_editor.*/
+	text-align	: right;
+	float		: left;  /*only needed to help eliminate whitespace between #line_numbers & #file_editor*/
+}
+
+#line_0, #line_1 {margin: 0; display: inline-block; }
+
 #file_editor {
-	border: 1px solid #999;
-	font  : .9em Courier;
-	margin: 0 0 .7em 0;
-	width : 99.8%;
-	height: 32em;
+	font  	   : .9em Courier;
+	border	   : 1px solid #777;
+	width      : 96%;		/* Dynamically set by Set_File_Textarea_Width(), base on Normal or Wide view. */
+	margin	   : 0 0 .7em 2px;
+	padding    : 1px 0 0 3px;
+	overflow   : scroll;
+	word-wrap  : normal;
+	word-break : break-all;
+	white-space: pre-wrap;
+	resize     : none;
+
+	color 			: black; /* Default. May make themeable, along with background-color. Someday... */
+	background-color: white; /* Set in Reset_file_status_indicators() and Check_for_changes() */
 	}
 
-#file_editor:focus { border: 1px solid #000; }
+
+#file_editor:focus { border-color: #000; }
+
+.tab_size {	tab-size: 8; -o-tab-size: 8; -moz-tab-size: 8;  }
+
 
 .file_meta	{ float: left; margin-top: .6em; font-size: .95em; color: #222; }
 
 #edit_notes { font-size: .8em; color: #222 ;margin-top: 1em; clear:both; }
 
 .notes      { margin-bottom: .4em; }
+
+
+
 
 
 /* --- log in --- */
@@ -413,7 +481,7 @@ hr { /*-- -- -- -- -- -- --*/
 
 .timer {border: 1px solid #eee; padding: 3px .5em 4px .5em;}
 
-.timeout {float:right; font-size: .95em; color: #111;}
+.timeout {float:right; font-size: .95em; color: #111; padding-right: .3em;}
 
 .edit_btns_top {margin: .2em 0 .5em 0;}
 
@@ -425,13 +493,11 @@ hr { /*-- -- -- -- -- -- --*/
 
 .edit_btns_bottom {float: right;}
 .edit_btns_bottom .button { margin-left: .7em; } /*Adjusted by langauge files*/
-.edit_btns_bottom .RCD { padding-left: 5px; padding-right: 6px; }
-.edit_btns_bottom svg  { padding : 0 4px 0 0; }
 
 input[type="text"]#new_name {width  : 50%; margin-bottom: .2em;}
 #new_location {border-left: none;}
 
-#del_backup   { margin: 0; padding: 2px 5px}
+#del_backup   { margin: 0; padding: 2px 5px; border: 1px solid transparent;}
 
 /*** For old IE only: text "icons" for Rename, Copy, and Delete ***/
 .RCD1  {font: 900 7pt arial; padding: 0px 3px 0px 3px; margin: 0px; float: left}

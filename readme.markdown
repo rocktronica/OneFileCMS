@@ -7,9 +7,9 @@ OneFileCMS is a simple CMS (Content Management System) contained entirely in a s
 With basic editing, upload, and file managing functions, OneFileCMS can maintain an entire website completely in-browser without any external programs.
 
 ### Main screen:
-![OneFileCMS](http://self-evident.github.com/OneFileCMS/images/OFCMS_screenshot.03.png)
+![OneFileCMS](http://self-evident.github.com/OneFileCMS/images/OneFileCMS_screenshot_04.png)
 
-### Edit screen:
+###Edit screen:
 ![OneFileCMS](http://self-evident.github.com/OneFileCMS/images/OFCMS_screenshot_edit.02.png)
 
 --------------------------------------------------------------------------------
@@ -34,13 +34,13 @@ With basic editing, upload, and file managing functions, OneFileCMS can maintain
 ## <a name=features></a>Features
  
 - All the basic file management features like renaming, moving, copying, deleting, and uploading.
-- A basic text editor with line numbers.
 - Sort directory listings by file name, extension, size, or date.
 - Keyboard navigation of directory list. (Arrows, Page Up/Down, Home, End)
+- A basic text editor with line numbers.
 - A WYSIWYG editor may be added as a plugin.
 - A login delay after too many invalid login attempts.
 - Adjustable idle time before auto-logout.
-- Easily modifiable & re-brandable.
+- Easily modifiable.
 - Multi-language support.
 - Lots more...
 - <del>Possibly</del> The easiest installation process ever!

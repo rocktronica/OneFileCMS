@@ -1,9 +1,15 @@
 # OneFileCMS Change Log
 
+### v3.6 (2017-09-17)
+
+- Fixed a minor bug in $ACCESS\_ROOT.
+- Did some prep work for editing of file permissions. Not yet editable.
+
+
 ### v3.5.23 (2017-09-08)
 
 - OneFileCMS is no longer restricted to just public_html.
-- Increased $MAX_EDIT_SIZE to 250000. (It could probably go higher.)
+- Increased $MAX\_EDIT\_SIZE to 250000. (It could probably go higher.)
 
 ### v3.5.22 (2017-09-05)
 
