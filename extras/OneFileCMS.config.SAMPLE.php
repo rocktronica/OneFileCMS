@@ -1,6 +1,6 @@
 <?php 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
-// v3.5.23
+// v3.6.02
 // Sample external config file - this file is OPTIONAL.
 //
 // Basically, what follows is just a copy & paste of the OneFileCMS CONFIGURABLE INFO section.
@@ -10,8 +10,8 @@
 $MAIN_TITLE = "OneFileCMS";
 
 $USERNAME = "username";
-$HASHWORD = "18350bc2181858e679605434735b1c2db6e7e4bb72b50a6d93d9ad1362f3e1c2";
-//$HASHWORD = "18350bc2181858e679605434735b1c2db6e7e4bb72b50a6d93d9ad1362f3e1c2"; //"password" with $PRE_ITERATIONS = 1000
+$HASHWORD = "5ccc11367dc9fc18822100df2149464a64c8992fc0de9cce2a7a451360491650";
+//$HASHWORD = "5ccc11367dc9fc18822100df2149464a64c8992fc0de9cce2a7a451360491650"; //"password" with $PRE_ITERATIONS = 10000
 $SALT     = 'somerandomsalt';
 
 $MAX_ATTEMPTS  = 3;    //Max failed login attempts before LOGIN_DELAY starts.
@@ -58,7 +58,7 @@ $PAGEUPDOWN = 10; //Number of rows to jump using Page Up/Page Down keys on direc
 
 $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copies of OneFileCMS concurrently.
 
-//Optional: restrict access to a particular sub folder.
+//Optional: restrict access to a particular sub folder from root.
 //$ACCESS_ROOT = '/some/path';
 //If blank or invalid, default is $_SERVER['DOCUMENT_ROOT'].
 //$ACCESS_ROOT = '/home/user';

@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-Sample, OPTIONAL, external style sheet for OneFileCMS v3.6
+Sample, OPTIONAL, external style sheet for OneFileCMS v3.6.02
 
 This is just a copy of the primary <style></style> section in OneFileCMS
 *******************************************************************************/
@@ -39,8 +39,8 @@ label { font-size : 1em; font-weight: bold; }
 
 pre { background: white; border: 1px solid #777; padding: .2em; margin: 0; }
 
-input[type="text"]     { width: 100%; border: 1px solid #777; padding: 1px 1px 1px 0; font : 1em Courier; }
-input[type="password"] { width: 100%; border: 1px solid #777; padding: 0   1px 0   0; }
+input[type="text"]     { width: 100%; border: 1px solid #777; padding: 1px; font : 1em Courier; }
+input[type="password"] { width: 100%; border: 1px solid #777; padding: 1px 1px 0px 1px; }
 input[type="file"]     { width: 100%; border: 1px solid #777; background-color: white; margin: 0; }
 input[type="radio"]    { margin: 0 1px 2px 3px; vertical-align: middle; cursor : pointer; }
 

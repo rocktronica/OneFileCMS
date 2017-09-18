@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.6.01';
+$OFCMS_version = '3.6.02';
 
 
 
@@ -17,8 +17,16 @@ ini_set('display_errors', 'on');
 ini_set('log_errors'    , 'off');
 ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
 //
-//Determine good folder for session file. Default is /tmp/, which is not secure.
-//session_save_path('/home/content/username/tmp/'); // or:  ini_set('session.save_path', 'some/safe/path/')
+//Determine good folder for session file. Default is /tmp/, or /var/lib/php5/, or similar, which may not be secure.
+//session_save_path('/home/username/tmp/'); // or:  ini_set('session.save_path', 'some/safe/path/')
+
+$user_tmp_path = '/home/'.get_current_user().'/tmp/';
+
+if (is_dir($user_tmp_path)) {							//check for a user based tmp directory.
+	session_save_path($user_tmp_path);
+} else {
+	$MESSAGE .= '<span class="filename">'.__LINE__.') session_save_path: &nbsp; <b>"'.ini_get('session.save_path').'"</b></span><br>'; //##### 
+}
 //******************************************************************************
 
 
@@ -88,8 +96,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 $MAIN_TITLE = "OneFileCMS";
 
 $USERNAME = "username";
-$HASHWORD = "18350bc2181858e679605434735b1c2db6e7e4bb72b50a6d93d9ad1362f3e1c2";
-//$HASHWORD = "18350bc2181858e679605434735b1c2db6e7e4bb72b50a6d93d9ad1362f3e1c2"; //"password" with $PRE_ITERATIONS = 1000
+$HASHWORD = "5ccc11367dc9fc18822100df2149464a64c8992fc0de9cce2a7a451360491650";
+//$HASHWORD = "5ccc11367dc9fc18822100df2149464a64c8992fc0de9cce2a7a451360491650"; //"password" with $PRE_ITERATIONS = 10000
 $SALT     = 'somerandomsalt';
 
 $MAX_ATTEMPTS  = 3;    //Max failed login attempts before LOGIN_DELAY starts.
@@ -136,7 +144,7 @@ $PAGEUPDOWN = 10; //Number of rows to jump using Page Up/Page Down keys on direc
 
 $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copies of OneFileCMS concurrently.
 
-//Optional: restrict access to a particular sub folder.
+//Optional: restrict access to a particular sub folder from root.
 //$ACCESS_ROOT = '/some/path';
 //If blank or invalid, default is $_SERVER['DOCUMENT_ROOT'].
 //$ACCESS_ROOT = '/home/user';
@@ -366,7 +374,7 @@ if ( !isset($_COOKIE['wide_view']) || ($_COOKIE['wide_view'] !== "on") ) {
 //For 200 iterations: (time on IE8) > (37 x time on FF). And the difference grows with the iterations.
 //If you change this, or any other aspect of either hashit() or js_hash_scripts(), do so while logged in.
 //Then, manually update your password as instructed on the Admin/Generate Hash page.
-$PRE_ITERATIONS = 1000;
+$PRE_ITERATIONS = 10000;
 }//end  System_Setup() //*******************************************************
 
 
@@ -374,9 +382,11 @@ $PRE_ITERATIONS = 1000;
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.5.23  (Not always in sync with OFCMS version#, if no changes to displayed wording.)
+// OneFileCMS Language Settings v3.6.02  (Not always in sync with OFCMS version#, if no changes to displayed wording.)
+
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
+
 // If no translation or value is desired for a particular setting, do not delete
 // the actual setting variable, just set it to an empty string.
 // For example:  $_['some_unused_setting'] = '';
@@ -399,81 +409,85 @@ $_['image_info_font_size']   = '1em';     //show_img_msg_01  &  _02
 $_['image_info_pos']         = '';        //If 1 or true, moves the info down a line for more space.
 $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All']
+
 $_['HTML']    = 'HTML';
 $_['WYSIWYG'] = 'WYSIWYG';
-$_['Admin']    = 'Admin';
-$_['bytes']    = 'bytes';
-$_['Cancel']   = 'Cancel';
-$_['cancelled'] = 'cancelled';
-$_['Close']    = 'Close';
-$_['Copy']     = 'Copy';
-$_['Copied']   = 'Copied';
-$_['Create']   = 'Create';
-$_['Date']     = 'Date';
-$_['Delete']   = 'Delete';
-$_['DELETE']   = 'DELETE';
-$_['Deleted']  = 'Deleted';
-$_['Edit']     = 'Edit';
-$_['Enter']    = 'Enter';
-$_['Error']    = 'Error';
-$_['errors']   = 'errors';
-$_['ext']      = '.ext';    //## NT ## filename[.ext]ension
-$_['File']     = 'File';
-$_['files']    = 'files';
-$_['Folder']   = 'Folder';
-$_['folders']  = 'folders';
-$_['From']     = 'From';
-$_['Hash']     = 'Hash';
-$_['Invalid']  = 'Invalid';		//## NT ## as of 3.5.23
-$_['Move']     = 'Move';
-$_['Moved']    = 'Moved';
-$_['Name']     = 'Name';
-$_['on']       = 'on';
-$_['off']      = 'off';
-$_['Password'] = 'Password';
-$_['Rename']   = 'Rename';
-$_['reset']    = 'Reset';
-$_['save_1']   = 'Save';
-$_['save_2']   = 'SAVE CHANGES';
-$_['Size']     = 'Size';
-$_['Source']   = 'Source';
+
+$_['Admin']      = 'Admin';
+$_['bytes']      = 'bytes';
+$_['Cancel']     = 'Cancel';
+$_['cancelled']  = 'cancelled';
+$_['Close']      = 'Close';
+$_['Copy']       = 'Copy';
+$_['Copied']     = 'Copied';
+$_['Create']     = 'Create';
+$_['Date']       = 'Date';
+$_['Delete']     = 'Delete';
+$_['DELETE']     = 'DELETE';
+$_['Deleted']    = 'Deleted';
+$_['Edit']       = 'Edit';
+$_['Enter']      = 'Enter';
+$_['Error']      = 'Error';
+$_['errors']     = 'errors';
+$_['ext']        = '.ext';    //## NT ## filename[.ext]ension
+$_['File']       = 'File';
+$_['files']      = 'files';
+$_['Folder']     = 'Folder';
+$_['folders']    = 'folders';
+$_['From']       = 'From';
+$_['Hash']       = 'Hash';
+$_['Invalid']    = 'Invalid'; //## NT ## as of 3.5.23
+$_['Move']       = 'Move';
+$_['Moved']      = 'Moved';
+$_['Name']       = 'Name';
+$_['on']         = 'on';
+$_['off']        = 'off';
+$_['Password']   = 'Password';
+$_['Rename']     = 'Rename';
+$_['reset']      = 'Reset';
+$_['save_1']     = 'Save';
+$_['save_2']     = 'SAVE CHANGES';
+$_['Size']       = 'Size';
+$_['Source']     = 'Source';
 $_['successful'] = 'successful';
-$_['To']       = 'To';
-$_['Upload']   = 'Upload';
-$_['Username'] = 'Username';
-$_['View']     = 'View';
-$_['Working']         = 'Working - please wait...';
-$_['Log_In']          = 'Log In';
-$_['Log_Out']         = 'Log Out';
-$_['Admin_Options']   = 'Administration Options';
-$_['Are_you_sure']    = 'Are you sure?';
-$_['View_Raw']        = 'View Raw'; //## NT ### as of 3.5.07
-$_['Open_View']       = 'Open/View in browser window';
-$_['Edit_View']       = 'Edit / View';
-$_['Wide_View']       = 'Wide View';
-$_['Normal_View']     = 'Normal View';
-$_['Word_Wrap']       = 'Word Wrap'; //## NT ## as of 3.5.19
-$_['Line_Wrap']       = 'Line Wrap'; //## NT ## as of 3.5.20
-$_['Upload_File']     = 'Upload File';
-$_['New_File']        = 'New File';
-$_['Ren_Move']        = 'Rename / Move';
-$_['Ren_Moved']       = 'Renamed / Moved';
-$_['folders_first']   = 'folders first'; //## NT ##
+$_['To']         = 'To';
+$_['Upload']     = 'Upload';
+$_['Username']   = 'Username';
+$_['View']       = 'View';
+$_['Working']    = 'Working - please wait...';
+
+$_['Log_In']             = 'Log In';
+$_['Log_Out']            = 'Log Out';
+$_['Admin_Options']      = 'Administration Options';
+$_['Are_you_sure']       = 'Are you sure?';
+$_['View_Raw']           = 'View Raw'; //## NT ### as of 3.5.07
+$_['Open_View']          = 'Open/View in browser window';
+$_['Edit_View']          = 'Edit / View';
+$_['Wide_View']          = 'Wide View';
+$_['Normal_View']        = 'Normal View';
+$_['Word_Wrap']          = 'Word Wrap'; //## NT ## as of 3.5.19
+$_['Line_Wrap']          = 'Line Wrap'; //## NT ## as of 3.5.20
+$_['Upload_File']        = 'Upload File';
+$_['New_File']           = 'New File';
+$_['Ren_Move']           = 'Rename / Move';
+$_['Ren_Moved']          = 'Renamed / Moved';
+$_['folders_first']      = 'folders first'; //## NT ##
 $_['folders_first_info'] = 'Sort folders first, but don\'t change primary sort.'; //## NT ##
-$_['New_Folder']      = 'New Folder';
-$_['Ren_Folder']      = 'Rename / Move Folder';
-$_['Submit']          = 'Submit Request';
-$_['Move_Files']      = 'Move File(s)';
-$_['Copy_Files']      = 'Copy File(s)';
-$_['Del_Files']       = 'Delete File(s)';
-$_['Selected_Files']  = 'Selected Folders and Files';
-$_['Select_All']      = 'Select All';
-$_['Clear_All']       = 'Clear All';
-$_['New_Location']    = 'New Location';
-$_['No_files']        = 'No files selected.';
-$_['Not_found']       = 'Not found';
-$_['Invalid_path']    = 'Invalid path';
-$_['must_be_decendant'] = '$DEFAULT_PATH must be a decendant of, or equal to, $ACCESS_ROOT';	//## NT ## as of 3.5.23
+$_['New_Folder']         = 'New Folder';
+$_['Ren_Folder']         = 'Rename / Move Folder';
+$_['Submit']             = 'Submit Request';
+$_['Move_Files']         = 'Move File(s)';
+$_['Copy_Files']         = 'Copy File(s)';
+$_['Del_Files']          = 'Delete File(s)';
+$_['Selected_Files']     = 'Selected Folders and Files';
+$_['Select_All']         = 'Select All';
+$_['Clear_All']          = 'Clear All';
+$_['New_Location']       = 'New Location';
+$_['No_files']           = 'No files selected.';
+$_['Not_found']          = 'Not found';
+$_['Invalid_path']       = 'Invalid path';
+$_['must_be_decendant']  = '$DEFAULT_PATH must be a decendant of, or equal to, $ACCESS_ROOT'; //## NT ## as of 3.5.23
+
 $_['verify_msg_01']     = 'Session expired.';
 $_['verify_msg_02']     = 'INVALID POST';
 $_['get_get_msg_01']    = 'File does not exist:';
@@ -485,6 +499,7 @@ $_['ord_msg_02']        = 'Saving as';
 $_['rCopy_msg_01']      = 'A folder can not be copied into one of its own sub-folders.';
 $_['show_img_msg_01']   = 'Image shown at ~';
 $_['show_img_msg_02']   = '% of full size (W x H =';
+
 $_['hash_txt_01']   = 'The hashes generated by this page may be used to manually update $HASHWORD in OneFileCMS, or in an external config file.  In either case, make sure you remember the password used to generate the hash!';
 $_['hash_txt_06']   = 'Type your desired password in the input field above and hit Enter.';
 $_['hash_txt_07']   = 'The hash will be displayed in a yellow message box above that.';
@@ -494,18 +509,19 @@ $_['hash_txt_10']   = 'A double-click should select it...';
 $_['hash_txt_12']   = 'When ready, logout and login.';
 $_['pass_to_hash']  = 'Password to hash:';
 $_['Generate_Hash'] = 'Generate Hash';
-$_['login_txt_01']  = 'Username:';
-$_['login_txt_02']  = 'Password:';
+
 $_['login_msg_01a'] = 'There have been';
 $_['login_msg_01b'] = 'invalid login attempts.';
 $_['login_msg_02a'] = 'Please wait';
 $_['login_msg_02b'] = 'seconds to try again.';
 $_['login_msg_03']  = 'INVALID LOGIN ATTEMPT #';
+
 $_['edit_note_00']  = 'NOTES:';
 $_['edit_note_01a'] = 'Remember- ';
 $_['edit_note_01b'] = 'is';
 $_['edit_note_02']  = 'So save changes before the clock runs out, or the changes will be lost!';
 $_['edit_note_03']  = 'With some browsers, such as Chrome, if you click the browser [Back] then browser [Forward], the file state may not be accurate. To correct, click the browser\'s [Reload].';
+
 $_['edit_h2_1']   = 'Viewing:';
 $_['edit_h2_2']   = 'Editing:';
 $_['edit_txt_00'] = 'Edit disabled.'; //## NT ## as of 3.5.07
@@ -513,6 +529,7 @@ $_['edit_txt_01'] = 'Non-text or unkown file type. Edit disabled.';
 $_['edit_txt_02'] = 'File possibly contains an invalid character. Edit and view disabled.';
 $_['edit_txt_03'] = 'htmlspecialchars() returned an empty string from what may be an otherwise valid file.';
 $_['edit_txt_04'] = 'This behavior can be inconsistant from version to version of php.';
+
 $_['too_large_to_edit_01'] = 'Edit disabled. Filesize >';
 $_['too_large_to_edit_02'] = 'Some browsers (ie: IE) bog down or become unstable while editing a large file in an HTML <textarea>.';
 $_['too_large_to_edit_03'] = 'Adjust $MAX_EDIT_SIZE in the configuration section of OneFileCMS as needed.';
@@ -521,11 +538,14 @@ $_['too_large_to_view_01'] = 'View disabled. Filesize >';
 $_['too_large_to_view_02'] = 'Click [View Raw] to view the raw/"plain text" file contents in a seperate browser window.'; //** NT ** changed wording as of 3.5.07
 $_['too_large_to_view_03'] = 'Adjust $MAX_VIEW_SIZE in the configuration section of OneFileCMS as needed.';
 $_['too_large_to_view_04'] = '(The default value for $MAX_VIEW_SIZE is completely arbitrary, and may be adjusted as desired.)';
+
 $_['meta_txt_01'] = 'Filesize:';
 $_['meta_txt_03'] = 'Updated:';
+
 $_['edit_msg_01'] = 'File saved:';
 $_['edit_msg_02'] = 'bytes written.';
 $_['edit_msg_03'] = 'There was an error saving file.';
+
 $_['upload_txt_03'] = 'Maximum size of each file:';
 $_['upload_txt_01'] = '(php.ini: upload_max_filesize)';
 $_['upload_txt_04'] = 'Maximum total upload size:';
@@ -533,6 +553,7 @@ $_['upload_txt_02'] = '(php.ini: post_max_size)';
 $_['upload_txt_05'] = 'For uploaded files that already exist: ';
 $_['upload_txt_06'] = 'Rename (to filename.ext.001 etc...)';
 $_['upload_txt_07'] = 'Overwrite';
+
 $_['upload_err_01'] = 'Error 1: File too large. From php.ini:';
 $_['upload_err_02'] = 'Error 2: File too large. (Exceeds MAX_FILE_SIZE HTML form element)';
 $_['upload_err_03'] = 'Error 3: The uploaded file was only partially uploaded.';
@@ -541,14 +562,17 @@ $_['upload_err_05'] = 'Error 5:';
 $_['upload_err_06'] = 'Error 6: Missing a temporary folder.';
 $_['upload_err_07'] = 'Error 7: Failed to write file to disk.';
 $_['upload_err_08'] = 'Error 8: A PHP extension stopped the file upload.';
+
 $_['upload_error_01a'] = 'Upload Error. Total POST data (mostly filesize) exceeded post_max_size =';
 $_['upload_error_01b'] = '(from php.ini)';
+
 $_['upload_msg_02'] = 'Destination folder invalid:';
 $_['upload_msg_03'] = 'Upload cancelled.';
 $_['upload_msg_04'] = 'Uploading:';
 $_['upload_msg_05'] = 'Upload successful!';
 $_['upload_msg_06'] = 'Upload failed:';
 $_['upload_msg_07'] = 'A pre-existing file was overwritten.';
+
 $_['new_file_txt_01'] = 'File or Folder will be created in the current folder.';
 $_['new_file_txt_02'] = 'Some invalid characters are:';
 $_['new_file_msg_01'] = 'File or folder not created:';
@@ -556,12 +580,14 @@ $_['new_file_msg_02'] = 'Name contains an invalid character:';
 $_['new_file_msg_04'] = 'File or folder already exists:';
 $_['new_file_msg_05'] = 'Created file:';
 $_['new_file_msg_07'] = 'Created folder:';
+
 $_['CRM_txt_02'] = 'The new location must already exist.';
 $_['CRM_txt_04'] = 'New Name';
 $_['CRM_msg_01'] = 'Error - new parent location does not exist:';
 $_['CRM_msg_02'] = 'Error - source file does not exist:';
 $_['CRM_msg_03'] = 'Error - new file or folder already exists:';
 $_['CRM_msg_05'] = 'Error during';
+
 $_['delete_msg_03']   = 'Delete error:';
 $_['session_warning'] = 'Warning: Session timeout soon!';
 $_['session_expired'] = 'SESSION EXPIRED';
@@ -572,12 +598,14 @@ $_['logout_msg']      = 'You have successfully logged out.';
 $_['edit_caution_01'] = 'CAUTION'; //##### No longer used as of 3.5.07
 $_['edit_caution_02'] = 'You are viewing the active copy of OneFileCMS.'; //## NT ## changed wording 3.5.07
 $_['time_out_txt']    = 'Session time out in:';
+
 $_['error_reporting_01'] = 'Display errors is';
 $_['error_reporting_02'] = 'Log errors is';
 $_['error_reporting_03'] = 'Error reporting is set to';
 $_['error_reporting_04'] = 'Showing error types';
 $_['error_reporting_05'] = 'Unexpected early output';
 $_['error_reporting_06'] = '(nothing, not even white-space, should have been output yet)';
+
 $_['admin_txt_00'] = 'Old Backup Found';
 $_['admin_txt_01'] = 'A backup file was created in case of an error during a username or password change. Therefore, it may contain old information and should be deleted if not needed. In any case, it will be automatically overwritten on the next password or username change.';
 $_['admin_txt_02'] = 'General Information';
@@ -585,13 +613,16 @@ $_['admin_txt_03'] = 'Session Path'; //## NT ## as of 3.5.23
 $_['admin_txt_04'] = 'Connected to'; //## NT ## as of 3.5.23
 $_['admin_txt_14'] = 'For a small improvement to security, change the default salt and/or method used by OneFileCMS to hash the password (and keep them secret, of course). Every little bit helps...';
 $_['admin_txt_16'] = 'OneFileCMS can not be used to edit itself directly.  However, you can make a copy and edit it.'; //## NT ## Changed wording in 3.5.07
+
 $_['pw_current'] = 'Current Password';
 $_['pw_change']  = 'Change Password';
 $_['pw_new']     = 'New Password';
 $_['pw_confirm'] = 'Confirm New Password';
+
 $_['un_change']  = 'Change Username';
 $_['un_new']     = 'New Username';
 $_['un_confirm'] = 'Confirm New Username';
+
 $_['pw_txt_02'] = 'Password / Username rules:';
 $_['pw_txt_04'] = 'Case-sensitive: "A" =/= "a"';
 $_['pw_txt_06'] = 'Must contain at least one non-space character.';
@@ -599,6 +630,7 @@ $_['pw_txt_08'] = 'May contain spaces in the middle. Ex: "This is a password or 
 $_['pw_txt_10'] = 'Leading and trailing spaces are ignored.';
 $_['pw_txt_12'] = 'In recording the change, only one file is updated: either the active copy of OneFileCMS, or - if specified, an external configuration file.';
 $_['pw_txt_14'] = 'If an incorrect current password is entered, you will be logged out, but you may log back in.';
+
 $_['change_pw_01'] = 'Password changed!';
 $_['change_pw_02'] = 'Password NOT changed.';
 $_['change_pw_03'] = 'Incorrect current password. Login to try again.';
@@ -606,12 +638,15 @@ $_['change_pw_04'] = '"New" and "Confirm New" values do not match.';
 $_['change_pw_05'] = 'Updating';
 $_['change_pw_06'] = 'external config file';
 $_['change_pw_07'] = 'All fields are required.';
+
 $_['change_un_01'] = 'Username changed!';
 $_['change_un_02'] = 'Username NOT changed.';
+
 $_['update_failed'] = 'Update failed - could not save file.';
-$_['mcd_msg_01'] = 'file(s) and/or folder(s) moved.'; //#####
-$_['mcd_msg_02'] = 'file(s) and/or folder(s) copied.'; //#####
-$_['mcd_msg_03'] = 'file(s) and/or folder(s) deleted.'; //#####
+
+$_['mcd_msg_01'] = 'file(s) and/or folder(s) moved.';
+$_['mcd_msg_02'] = 'file(s) and/or folder(s) copied.';
+$_['mcd_msg_03'] = 'file(s) and/or folder(s) deleted.';
 }//end Default_Language() //****************************************************
 
 
@@ -1830,9 +1865,9 @@ function Login_Page() {//*******************************************************
 
 	<h2><?php echo hsc($_['Log_In']) ?></h2>
 	<form method="post" id="login_form" name="login_form" action="<?php echo $ONESCRIPT; ?>">
-		<label for ="username"><?php echo hsc($_['login_txt_01']) ?></label>
+		<label for ="username"><?php echo hsc($_['Username']) ?>:</label>
 		<input name="username" type="text"     id="username">
-		<label for ="password"><?php echo hsc($_['login_txt_02']) ?></label>
+		<label for ="password"><?php echo hsc($_['Password']) ?>:</label>
 		<input name="password" type="password" id="password">
 		<input type="button"  class="button"   id="login" value="<?php echo hsc($_['Enter']) ?>">
 	</form>
@@ -3351,7 +3386,7 @@ E("main").onkeydown = function(event) { //*****************************
 		var tag_count    = all_tags.length;
 		var tabindex_IDs = []; //Array of ID's of all tags with a tabindex, indexed by tabindex.
 		
-		//Create array of the ID's of all tags with a tabindex. (All tabable elements should have a tabindex set.)
+		//Create array of the ID's of all tags with a tabindex. (All tab-able elements should have a tabindex set.)
 		for (var x = 0; x < tag_count; x++) {
 			var ti = all_tags[x].tabIndex;
 			if (ti > 0) { tabindex_IDs[ti] = all_tags[x].id; }
@@ -3629,6 +3664,10 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	//While DIRECTORY_DATA, and the table rows created to list the data, are indexed from 0 (zero),
 	//the id's of files in the directory list are indexed from 1 (f1, f2...), as "../" is listed first with id=f0 (f-zero).
 	//The id's are used in Index_Page_events() "cursor" control.
+	//Note: Number of tab-able items per row affects both the (TABINDEX + 5) offset near end of Build_Directory(),
+	//		and the $TABINDEX calculation for the [Admin] link in footer.
+	//		There are currently 6 tab-able items per (file) row:  [m] [c] [d] [x] [sogw]   [file name]
+	//		[m][c][d][x][sogw] tabindexes are set below.  [filename]'s tabinex is set in Build_Directory().
 	row++;
 
 	//[Move] [Copy] [Delete]  [x]
@@ -3709,7 +3748,7 @@ function Build_Directory() {//****************************************
 		
 		var file_col = 5; //column of file names
 		
-		//For file, (TABINDEX + 5) to account for [m][c][d][x][perms] which are added in Assemble_Insert_Row()
+		//The (TABINDEX + 5) accounts for the [m][c][d][x][perms] links which are added in Assemble_Insert_Row().
 		var file_name  = '<a id=f'+(row + 1)+'c'+ file_col + ' tabindex='+ (TABINDEX + 5) +' href="' + href  + '"'; 
 			file_name += ' title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
 			file_name += ICONS[filetype] + '&nbsp;' + hsc(filename) + DS + '</a>';
@@ -4380,7 +4419,7 @@ function hash($element_id) {
 	var $SALT = '<?php echo $SALT ?>';
 	var $PRE_ITERATIONS = <?php echo $PRE_ITERATIONS ?>; //$PRE_ITERATIONS also used in hashit()
 	if ($hash.length < 1) {$input.value = $hash; return;} //Don't hash nothing.
-	for ( $x=0; $x < $PRE_ITERATIONS; $x++ ) { $hash = hex_sha256($hash + $SALT); } ;
+	for ( $x=0; $x < $PRE_ITERATIONS; $x++ ) { $hash = hex_sha256($hash + $SALT); }
 	$input.value = $hash;
 }//end hash()
 </script>
@@ -4430,8 +4469,8 @@ label { font-size : 1em; font-weight: bold; }
 
 pre { background: white; border: 1px solid #777; padding: .2em; margin: 0; }
 
-input[type="text"]     { width: 100%; border: 1px solid #777; padding: 1px 1px 1px 0; font : 1em Courier; }
-input[type="password"] { width: 100%; border: 1px solid #777; padding: 0   1px 0   0; }
+input[type="text"]     { width: 100%; border: 1px solid #777; padding: 1px; font : 1em Courier; }
+input[type="password"] { width: 100%; border: 1px solid #777; padding: 1px 1px 0px 1px; }
 input[type="file"]     { width: 100%; border: 1px solid #777; background-color: white; margin: 0; }
 input[type="radio"]    { margin: 0 1px 2px 3px; vertical-align: middle; cursor : pointer; }
 
@@ -5083,10 +5122,12 @@ if ($_SESSION['valid']) {
 	echo "<span id=timer0  class='timer timeout'></span>";
 	echo "<span class=timeout>".hsc($_['time_out_txt'])."</span>";
 
-	//Adjust tabindex to account for [m][c][d][x] and file names in directory list.
-	//(Directory list created via js, so $TAB_INDEX is also passed to, and handled by, js at that point.)
-	if (isset($DIRECTORY_COUNT)) {$TAB_INDEX = "tabindex=".($TABINDEX + ($DIRECTORY_COUNT * 5));}
-	else                         {$TAB_INDEX = ""; }
+	//Adjust $TABINDEX to account for contents of directory list (created by Assemble_Insert_row()).
+	//Directory list is created client-side by js, so tabindex is incremented by the js at that point.
+	//Each row in directory list (with a filename) has 6 tab-able/focusable items:
+	//	[m] [c] [d] [x] [sogw]   [file name]
+	if (isset($DIRECTORY_COUNT)) { $TAB_INDEX = "tabindex=".($TABINDEX + ($DIRECTORY_COUNT * 6)); }
+	else 						 { $TAB_INDEX = ""; }
 
 	//Admin link
 	if ( ($_SESSION['admin_page'] === false) ) {

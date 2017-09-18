@@ -1,5 +1,11 @@
 # OneFileCMS Change Log
 
+### v3.6.02 (2017-09-18)
+
+- Fixed a minor bug with tabindex on directory listing page.
+- Increased default $PRE\_ITERATIONS from 1000 to 10000. Had kept low as IE8 was slow.
+- Now attempts to set a session\_save\_path() based on username. (default is /tmp, or /var/lib/php5/, etc)
+
 ### v3.6.01 (2017-09-18)
 
 - Fixed a couple of minor display bugs.
