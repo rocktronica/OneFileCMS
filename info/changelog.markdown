@@ -1,5 +1,9 @@
 # OneFileCMS Change Log
 
+### v3.6.01 (2017-09-18)
+
+- Fixed a couple of minor display bugs.
+
 ### v3.6 (2017-09-17)
 
 - Fixed a minor bug in $ACCESS\_ROOT.

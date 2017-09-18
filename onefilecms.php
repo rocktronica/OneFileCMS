@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.6';
+$OFCMS_version = '3.6.01';
 
 
 
@@ -1298,22 +1298,30 @@ function Page_Header() {//******************************************************
 
 	$TABINDEX = 1; //Initial tabindex
 
+	$FAVICON = trim($FAVICON,' /');
+
 	$favicon_img = '';
-	if (file_exists($_SERVER['DOCUMENT_ROOT'].trim($FAVICON,' /'))) {
-		;//$favicon_img =  '<img src="/'.URLencode_path($FAVICON).'" alt="">';
+	if (file_exists($_SERVER['DOCUMENT_ROOT']."/".$FAVICON)) {
+		$favicon_img =  '<img src="/'.URLencode_path($FAVICON).'" alt="[favicon]">';
 	}
 
 	echo '<div id="header">';
 		echo '<a href="'.$ONESCRIPT.'" id="logo" tabindex='.$TABINDEX++.'>'.hsc($MAIN_TITLE).'</a> '.$OFCMS_version.' ';
 		
 		$on_php = '('.hsc($_['on']).'&nbsp;php&nbsp;'.phpversion().')';
-		if ($_SESSION["valid"]) { $on_php = '<a id=on_php tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.'?p=phpinfo'.'" target=_blank>'.$on_php.'</a>';}
+		if ($_SESSION["valid"]) {
+			$on_php = '<a id=on_php tabindex='.($TABINDEX++).' href="'.$ONESCRIPT.'?p=phpinfo'.'" target=_blank>'.$on_php.'</a>';
+		}
 		echo $on_php;
 		
 		echo '<div class="nav">';
-			echo '<b><a id=website href="/" tabindex='.$TABINDEX++.' target="_blank">'.$favicon_img.' '.hsc($WEBSITE).'</a></b>';
-			if ($page != "login") {	echo ' | <a id=logout tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.'?p=logout">'.hsc($_['Log_Out']).'</a>'; }
+			echo '<b><a id=website href="/" tabindex='.$TABINDEX++.' target="_blank">';
+			echo $favicon_img.' '.hsc($WEBSITE).'</a></b>';
+			if ($page != "login") {
+				echo ' | <a id=logout tabindex='.$TABINDEX++.' href="'.$ONESCRIPT.'?p=logout">'.hsc($_['Log_Out']).'</a>';
+			}
 		echo '</div><div class=clear></div>';
+		
 	echo '</div>';//<!-- end header -->
 }//end Page_Header() //*********************************************************
 
@@ -1337,7 +1345,7 @@ function Cancel_Submit_Buttons($submit_label) {//*******************************
 
 
 
-function show_image() {//*******************************************************
+function Show_Image($url) {//***************************************************
 	global $_, $filename, $MAX_IMG_W, $MAX_IMG_H;
 
 	$IMG = $filename;
@@ -1359,9 +1367,9 @@ function show_image() {//*******************************************************
 	echo hsc($_['show_img_msg_01']).round($SCALE*100).
 		 hsc($_['show_img_msg_02']).' '.$img_info[0].' x '.$img_info[1].').</p>';
 	echo '<div class=clear></div>'."\n";
-	echo '<a  href="/'.URLencode_path($IMG).'" target="_blank">'."\n";
-	echo '<img src="/'.URLencode_path($IMG).'" width="'.($img_info[$W] * $SCALE).'"></a>'."\n";
-}//end show_image() //**********************************************************
+	echo '<a  href="'.URLencode_path($url).'" target="_blank">'."\n";
+	echo '<img src="'.URLencode_path($url).'" width="'.($img_info[$W] * $SCALE).'"></a>'."\n";
+}//end Show_Image() //**********************************************************
 
 
 
@@ -2317,12 +2325,15 @@ function Edit_Page_Notes() {//**************************************************
 
 function Edit_Page() {//********************************************************
 	global $_, $filename, $filename_OS, $FILECONTENTS, $ETYPES, $ITYPES, $EX, $MESSAGE, $page,
-			$MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $WYSIWYG_VALID, $IS_OFCMS;
+			$MAX_EDIT_SIZE, $MAX_VIEW_SIZE, $WYSIWYG_VALID, $IS_OFCMS, $DOC_ROOT;
 
+	//Get "path/filename" relative to root of website (instead of filesystem).
+	$len_doc_root = strlen(trim($DOC_ROOT,'/'));
+	$filename1 = substr($filename,$len_doc_root);
+
+	//Determine if a text editable file type
 	$filename_parts = explode(".", mb_strtolower($filename));
 	$ext = end($filename_parts);
-	
-	//Determine if a text editable file type
 	if ( in_array($ext, $ETYPES) ) { $text_editable = TRUE;  }
 	else                           { $text_editable = FALSE; }
 
@@ -2351,13 +2362,13 @@ function Edit_Page() {//********************************************************
 	else									  					 { $header2 = hsc($_['edit_h2_1']); }
 
 	echo '<h2 id="edit_header">'.$header2.' ';
-	echo '<a class="h2_filename" href="/'.URLencode_path($filename).'" target="_blank" title="'.hsc($_['Open_View']).'">';
+	echo '<a class="h2_filename" href="'.URLencode_path($filename1).'" target="_blank" title="'.hsc($_['Open_View']).'">';
 	echo hsc(basename($filename)).'</a>';
 	echo '</h2>'."\n";
 
 	Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_view, $file_ENC);
 
-	if ( in_array( $ext, $ITYPES) ) { show_image(); } //If image, show below the [Rename/Move] [Copy] [Delete] buttons
+	if ( in_array( $ext, $ITYPES) ) { Show_Image($filename1); } //If image, show below the [Rename/Move] [Copy] [Delete] buttons
 
 	echo '<div class=clear></div>';
 
