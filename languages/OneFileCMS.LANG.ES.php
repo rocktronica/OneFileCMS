@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.6.02
+// OneFileCMS Language Settings v3.6.03
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -145,7 +145,7 @@ $_['edit_txt_00'] = 'Edit disabled.'; //## NT ##
 $_['edit_txt_01'] = 'No texto o tipo de archivo desconocido. Edición deshabilitada.';
 $_['edit_txt_02'] = 'El archivo posiblemente contiene un caracter desconocido. Edición deshabilitada.';
 $_['edit_txt_03'] = 'htmlspecialchars() devolvió una cadena vacía de lo que debería ser un archivo válido.';
-$_['edit_txt_04'] = 'Este comportamiento puede ser inconsistente de versión a versión de PHP.';
+$_['edit_txt_05'] = 'El archivo es de sólo lectura.';
 
 $_['too_large_to_edit_01'] = 'Edición deshabilita. Tamaño >';
 $_['too_large_to_edit_02'] = 'Algunos navegadores (por ej.: IE) se vuelven inestables cuando se edita un texto largo dentro de un <textarea>.';

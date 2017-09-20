@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.6.02';
+$OFCMS_version = '3.6.03';
 
 
 
@@ -25,7 +25,7 @@ $user_tmp_path = '/home/'.get_current_user().'/tmp/';
 if (is_dir($user_tmp_path)) {							//check for a user based tmp directory.
 	session_save_path($user_tmp_path);
 } else {
-	$MESSAGE .= '<span class="filename">'.__LINE__.') session_save_path: &nbsp; <b>"'.ini_get('session.save_path').'"</b></span><br>'; //##### 
+	$MESSAGE .= '<span class="filename">'.__LINE__.') session_save_path: &nbsp; <b>"'.ini_get('session.save_path').'"</b></span><br>';
 }
 //******************************************************************************
 
@@ -382,7 +382,7 @@ $PRE_ITERATIONS = 10000;
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.6.02  (Not always in sync with OFCMS version#, if no changes to displayed wording.)
+// OneFileCMS Language Settings v3.6.03  (Not always in sync with OFCMS version#, if no changes to displayed wording.)
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -529,6 +529,7 @@ $_['edit_txt_01'] = 'Non-text or unkown file type. Edit disabled.';
 $_['edit_txt_02'] = 'File possibly contains an invalid character. Edit and view disabled.';
 $_['edit_txt_03'] = 'htmlspecialchars() returned an empty string from what may be an otherwise valid file.';
 $_['edit_txt_04'] = 'This behavior can be inconsistant from version to version of php.';
+$_['edit_txt_05'] = 'File is readonly.'; //## NT ## as of 3.6.03
 
 $_['too_large_to_edit_01'] = 'Edit disabled. Filesize >';
 $_['too_large_to_edit_02'] = 'Some browsers (ie: IE) bog down or become unstable while editing a large file in an HTML <textarea>.';
@@ -2225,8 +2226,8 @@ function Edit_Page_buttons_top($text_editable,$file_ENC) {//********************
 
 
 
-function Edit_Page_buttons($text_editable, $too_large_to_edit) {//**************
-	global $_, $MESSAGE, $ICONS, $MAX_IDLE_TIME, $IS_OFCMS, $WYSIWYG_VALID, $EDIT_WYSIWYG;
+function Edit_Page_buttons($text_editable, $too_large_to_edit, $writable) {//***
+	global $_, $MESSAGE, $ICONS, $MAX_IDLE_TIME, $IS_OFCMS, $WYSIWYG_VALID, $EDIT_WYSIWYG, $filename_OS;
 
 	//Using ckeditor WYSIWYG editor, <input type=reset> button doesn't work. (I don't know why.)
 	$reset_button = '<input type=reset  id="reset" class=button value="'.hsc($_['reset']).'" onclick="return Reset_File();">';
@@ -2234,7 +2235,7 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) {//**************
 
 	echo '<div class="edit_btns_bottom">';
 		
-		if ($text_editable && !$too_large_to_edit && !$IS_OFCMS) { //Show save & reset only if editable file
+		if ($text_editable && !$too_large_to_edit && !$IS_OFCMS && $writable) { //Show save & reset only if editable file
 			echo '<span id=timer1  class="timer"></span>';
 			echo '<button type="submit" class="button" id="save_file">'.hsc($_['save_1']).'</button>'; //Submit Button
 			echo $reset_button;
@@ -2246,9 +2247,9 @@ function Edit_Page_buttons($text_editable, $too_large_to_edit) {//**************
 		}//end RCD_button() //****************************************
 		
 		//Don't show [Rename] or [Delete] if viewing OneFileCMS itself.
-		if (!$IS_OFCMS)      { RCD_button('renamefile', 'ren_mov', $_['Ren_Move']); }
-		/*Always show Copy*/ { RCD_button('copyfile'  , 'copy'   , $_['Copy']); }
-		if (!$IS_OFCMS)      { RCD_button('deletefile', 'delete' , $_['Delete']); }
+		if (!$IS_OFCMS && $writable) { RCD_button('renamefile', 'ren_mov', $_['Ren_Move']); }
+		/***  Always show Copy  ***/ { RCD_button('copyfile'  , 'copy'   , $_['Copy']); }
+		if (!$IS_OFCMS && $writable) { RCD_button('deletefile', 'delete' , $_['Delete']); }
 		
 	echo '</div>';
 
@@ -2270,8 +2271,6 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 		}
 	}
 
-
-
 	$too_large_to_edit_message =
 		'<b>'.hsc($_['too_large_to_edit_01']).' '.number_format($MAX_EDIT_SIZE).' '.hsc($_['bytes']).'</b><br>'.
 		hsc($_['too_large_to_edit_02']).'<br>'.hsc($_['too_large_to_edit_03']).'<br>'.hsc($_['too_large_to_edit_04']);
@@ -2279,6 +2278,11 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 	$too_large_to_view_message =
 		'<b>'.hsc($_['too_large_to_view_01']).' '.number_format($MAX_VIEW_SIZE).' '.hsc($_['bytes']).'</b><br>'.
 		hsc($_['too_large_to_view_02']).'<br>'.hsc($_['too_large_to_view_03']).'<br>';
+
+	$writable = (fileperms($filename_OS) & 0200)/0200;
+	$file_perms = decoct(fileperms($filename_OS) & 07777);
+
+	if (!$writable) { $MESSAGE .= $file_perms." : ".$_['edit_txt_05']." ".$_['edit_txt_00']."<br>"; }
 
 	echo "\n".'<form id=edit_form name=edit_form method=post action="'.$ONESCRIPT.$param1.$param2.$param3.'">'."\n";
 		
@@ -2296,11 +2300,11 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 				echo '<p class="message_box_contents">'.$too_large_to_view_message.'</p>';
 			} else {
 				
-				if ($IS_OFCMS || $too_large_to_edit) {$readonly = "readonly";} else {$readonly = "";}
+				if ($IS_OFCMS || $too_large_to_edit || !$writable) {$readonly = "readonly";} else {$readonly = "";}
 				
 				if ( $too_large_to_edit ) { $MESSAGE .= $too_large_to_edit_message; }
 				
-				if ($bad_chars){ //Show message: may be a bad character in file
+				if ($bad_chars){ //Show message: possible bad character in file
 					echo '<pre class="edit_disabled">'.$EX.hsc($_['edit_txt_02']).'<br>';
 					echo hsc($_['edit_txt_03']).'<br>';
 					echo hsc($_['edit_txt_04']).'<br></pre>'."\n";
@@ -2324,12 +2328,12 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 			
 		}//end if non-image
 		
-		Edit_Page_buttons($text_editable, $too_large_to_edit);
+		Edit_Page_buttons($text_editable, $too_large_to_edit, $writable);
 	echo "\n</form>\n";
 
 	Edit_Page_scripts();
 
-	if ( !$IS_OFCMS && $text_editable && !$too_large_to_edit && !$bad_chars ) {Edit_Page_Notes();}
+	if ( !$IS_OFCMS && $text_editable && !$too_large_to_edit && !$bad_chars && $writable) {Edit_Page_Notes();}
 }//end Edit_Page_form() //******************************************************
 
 
@@ -3285,7 +3289,7 @@ function on_Tab_down(ID, FR, shifted) { //****************************
 	var perms = "f" + FR + "c4" //permisions
 	var ckbox = "f" + FR + "c3" //[ ] Checkbox
 	var del   = "f" + FR + "c2" //(x) Delete
-
+	
 	var ck_box = E(ckbox);
 	var highlight1 = "rgb(255,250,150)";
 	var highlight2 = "rgb(255,240,140)";
@@ -3339,7 +3343,7 @@ E("main").onkeydown = function(event) { //*****************************
 	if ((key != AU) && (key != AD) && (key != AL) && (key != AR) && (key != PU) && (key != PD) && 
 		(key != HOME) && (key != END) && (key != ESC) && (key != TAB) && (key != ENTER)) { return }
 
-	//File Rows. For these events, "../" is 0, and files are indexed 1 to DIRECTORY_ITEMS.
+	//File Rows. For these events, "../" is 0, and files are indexed from 1 to DIRECTORY_ITEMS.
 	var FROWS     = DIRECTORY_ITEMS;
 	var FILENAME_COL = 5;
 	var LAST_FILE = "f" + FROWS + "c" + FILENAME_COL;
@@ -3553,6 +3557,35 @@ var SORT_folders_1st = true;  // Initially set to true. false = did not consider
 
 
 
+function Octal_Input_Only(e) { //*************************************
+	//Restrict input to digits & a few special keys.
+
+	//##### This function works on desktops, but inhibits number inputs on android / Samsung Galaxy S III mini. //#####
+	//##### return;
+
+	function Stop_Prop(event) { event.stopPropagation() }
+
+	//Normalize the event (e) codes...
+	if (!e) {var e = window.event;} //for IE
+	var e_code = e.which || e.keyCode || e.charCode;
+
+	//Allow:
+	if (e.ctrlKey || e.altKey) 				{ Stop_Prop(e); return; } //control & alt keys
+	if ((e_code == 8) || (e_code ==  13))   { Stop_Prop(e); return; } //backspace, enter
+	if ((e_code >=  35) && (e_code <=  37) || (e_code == 39)) { Stop_Prop(e); return; } //end, home, <- -> arrows
+	if ((e_code >=  45) && (e_code <=  55)) { Stop_Prop(e); return; } //insert, delete, keyboard top row numbers 0-7
+	if ((e_code >=  96) && (e_code <= 103)) { Stop_Prop(e); return; } //keypad numbers 0-7
+	
+	//Prevent everything else, except tab
+	if (e_code != 9) { //tab
+		e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+		return false;
+	}
+}//end Octal_Input_Only() //******************************************
+
+
+
+
 function Sort_Folders_First() {//*************************************
 
 	//DIRECTORY_DATA[x] = ("type", "file name", filesize, timestamp, is_ofcms)	
@@ -3664,54 +3697,80 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	//While DIRECTORY_DATA, and the table rows created to list the data, are indexed from 0 (zero),
 	//the id's of files in the directory list are indexed from 1 (f1, f2...), as "../" is listed first with id=f0 (f-zero).
 	//The id's are used in Index_Page_events() "cursor" control.
-	//Note: Number of tab-able items per row affects both the (TABINDEX + 5) offset near end of Build_Directory(),
-	//		and the $TABINDEX calculation for the [Admin] link in footer.
-	//		There are currently 6 tab-able items per (file) row:  [m] [c] [d] [x] [sogw]   [file name]
+	//Note: Number of tab-able items per row affects the (TABINDEX + 5) offset near end of Build_Directory(),
+	//		the $TABINDEX calculation for the [Admin] link in page footer, and on_Tab_down().
+	//		There are currently 6 tab-able items per (file) row:  [m] [c] [d] [x] [sogw] [file name]
 	//		[m][c][d][x][sogw] tabindexes are set below.  [filename]'s tabinex is set in Build_Directory().
+	
 	row++;
 
-	//[Move] [Copy] [Delete]  [x]
+	//[Move] [Copy] [Delete] [x] [perms]
 	var ren_mov  = copy = del = checkbox = perms = cells = '';
 
-	//Assemble [move] [copy] [delete] [x]   ([copy] is always available)
+	var ren_id   = 'f' + row + 'c0';
+	var copy_id  = 'f' + row + 'c1';
+	var del_id	 = 'f' + row + 'c2';
+	var ckbox_id = 'f' + row + 'c3';
+	var perms_id = 'f' + row + 'c4';
+
+	var sogw = DIRECTORY_DATA[row - 1][6] + ""; //File permissions (suid sgid sticky)(owner)(group)(world)
+	sogw = parseInt(sogw,8);
+	var writable = (sogw & 0o200)/0o0200;  //Only check file owner write bit.
+
+	//Assemble [move] [copy] [delete] [x] [perms]  ([copy] & [perms] are always available)
+	//[move], [delete], and [x] are not available for OFCMS or readonly files.
 	//The empty <a>'s are to accommodate keyboard nav via onkeydown() in Index_Page_events()...
-	if (!IS_OFCMS) {
-		ren_mov  = '<a id=f' + row + 'c0 tabindex='+ (TABINDEX++) +' class=MCD href="';
+
+	if (IS_OFCMS || !writable) { //[Move] not available
+		ren_mov  = '<a id=' + ren_id + ' tabindex='+ (TABINDEX++) +'>&nbsp;</a>'
+	}
+	else {
+		ren_mov  = '<a id=' + ren_id + ' tabindex='+ (TABINDEX++) +' class=MCD href="';
 		ren_mov += href + '&amp;p=rename' + f_or_f + '" ';
 		ren_mov += 'title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
 	}
-	else {
-		ren_mov  = '<a id=f' + row + 'c0 tabindex='+ (TABINDEX++) +'>&nbsp;</a>'
-	}
 
-	copy  = '<a id=f' + row + 'c1 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=copy'   + f_or_f;
+	copy  = '<a id=' + copy_id + ' tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=copy'   + f_or_f;
 	copy += '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
 
-	if (!IS_OFCMS) {
-		del       = '<a id=f' + row + 'c2 tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=delete' + f_or_f;
-		del		 += '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
-		checkbox  = '<div class=ckbox><INPUT id=f' + row + 'c3 tabindex='+ (TABINDEX++);
-		checkbox += ' TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
-		perms	  = '<input id=f' + row + 'c4 class=perms tabindex=' + (TABINDEX++) ;
-		perms	 += ' value="' + DIRECTORY_DATA[row - 1][6]+ '" maxlength=4 readonly>'; //##### readonly for now
+	if (IS_OFCMS || !writable) { //[delete] & [checkbox] are not available
+		del      = '<a id=' + del_id + '   tabindex='+ (TABINDEX++) +'>&nbsp;</a>'
+		checkbox = '<a id=' + ckbox_id + ' tabindex='+ (TABINDEX++) +'>&nbsp;</a>'
 	}
 	else {
-		del      = '<a id=f' + row + 'c2 tabindex='+ (TABINDEX++) +'>&nbsp;</a>'
-		checkbox = '<a id=f' + row + 'c3 tabindex='+ (TABINDEX++) +'>&nbsp;</a>'
-		perms	 = '<a id=f' + row + 'c4 tabindex='+ (TABINDEX++) +'>' + DIRECTORY_DATA[row - 1][6] + '</a>'
+		del       = '<a id=' + del_id + ' tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=delete' + f_or_f;
+		del		 += '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
+		checkbox  = '<div class=ckbox><INPUT id=' + ckbox_id + ' tabindex='+ (TABINDEX++);
+		checkbox += ' TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
 	}
 
+	perms  = '<input id=' + perms_id + ' class=perms tabindex=' + (TABINDEX++) ;
+	perms += ' value="' + DIRECTORY_DATA[row - 1][6]+ '" maxlength=4 readonly>'; //##### readonly for now
+
+
 	//fill the <td>'s
-	var c=0;
 	cells = trow.cells;
-	cells[c++].innerHTML = ren_mov;
-	cells[c++].innerHTML = copy;
-	cells[c++].innerHTML = del;
-	cells[c++].innerHTML = checkbox;
-	cells[c++].innerHTML = perms;
-	cells[c++].innerHTML = file_name;
-	cells[c++].innerHTML = file_size;
-	cells[c++].innerHTML = file_time;
+	cells[0].innerHTML = ren_mov;
+	cells[1].innerHTML = copy;
+	cells[2].innerHTML = del;
+	cells[3].innerHTML = checkbox;
+	cells[4].innerHTML = perms;
+	cells[5].innerHTML = file_name;
+	cells[6].innerHTML = file_size;
+	cells[7].innerHTML = file_time;
+
+
+	E(ckbox_id).onblur    = function() { E(ckbox_id).parentNode.style.backgroundColor = ""; }
+	E(perms_id).onfocus   = function(event) { this.prior_value = this.value; }
+	E(perms_id).onkeydown = function(event) { Octal_Input_Only(event); } //##### Not actually used yet as still readonly above.
+	E(perms_id).onchange  = function(event) {
+		
+		this.value = this.prior_value; //##### Will be used in future if there's an input error.
+		return; //##### just not yet...
+		
+		//##### NEED LANGUAGE $_[] values...
+		Display_Messages('Permissions updated: ' + this.value + ' for "' + filename + '"');
+	}
 
 }//end Assemble_Insert_row() //***************************************
 
@@ -5105,7 +5164,6 @@ Error_reporting_status_and_early_output(0,0); //0,0 will only show early output.
 if ($_SESSION['valid']) { echo '<div id=main >'; }
 else                    { echo '<div id=login_page>'; }
 
-
 Page_Header();
 
 if ($_SESSION['valid'] && $Show_Path) { Current_Path_Header(); }
@@ -5137,6 +5195,9 @@ if ($_SESSION['valid']) {
 
 echo "\n</div>\n"; //end main/login_page
 echo "</html>\n";  //***********************************************************
+
+
+
 
 if ( ($page == "edit") && $WYSIWYG_VALID && $EDIT_WYSIWYG ) { include($WYSIWYG_PLUGIN_OS); }
 

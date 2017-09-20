@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.6.02
+// OneFileCMS Language Settings v3.6.03
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -145,7 +145,7 @@ $_['edit_txt_00'] = 'Edit disabled.'; //## NT ## as of 3.5.07
 $_['edit_txt_01'] = 'Non-text or unkown file type. Edit disabled.';
 $_['edit_txt_02'] = 'File possibly contains an invalid character. Edit and view disabled.';
 $_['edit_txt_03'] = 'htmlspecialchars() returned an empty string from what may be an otherwise valid file.';
-$_['edit_txt_04'] = 'This behavior can be inconsistant from version to version of php.';
+$_['edit_txt_05'] = 'File is readonly.'; //## NT ## as of 3.6.03
 
 $_['too_large_to_edit_01'] = 'Edit disabled. Filesize >';
 $_['too_large_to_edit_02'] = 'Some browsers (ie: IE) bog down or become unstable while editing a large file in an HTML <textarea>.';
@@ -264,3 +264,4 @@ $_['update_failed'] = 'Update failed - could not save file.';
 $_['mcd_msg_01'] = 'file(s) and/or folder(s) moved.';
 $_['mcd_msg_02'] = 'file(s) and/or folder(s) copied.';
 $_['mcd_msg_03'] = 'file(s) and/or folder(s) deleted.';
+

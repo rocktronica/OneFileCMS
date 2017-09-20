@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.6.02
+// OneFileCMS Language Settings v3.6.03
 
 $_['LANGUAGE'] = 'Deutsch';
 $_['LANG'] = 'DE';
@@ -145,7 +145,7 @@ $_['edit_txt_00'] = 'Edit disabled.'; //## NT ##
 $_['edit_txt_01'] = 'Unbekannter Dateityp oder keine Textdatei. Bearbeitungsmöglichkeit ausgeschalten.';
 $_['edit_txt_02'] = 'Die Datei enthält möglicherweise ungültige Zeichen. Der Bearbeitungs- und Betrachtungsmodus wurde gesperrt.';
 $_['edit_txt_03'] = 'htmlspecialchars() gab eine leere Zeichenkette zurück.';
-$_['edit_txt_04'] = 'Das Verhalten kann je nach verwendeter PHP-Version unterschiedlich sein.';
+$_['edit_txt_05'] = 'Datei ist readonly.';
 
 $_['too_large_to_edit_01'] = 'Bearbeiten deaktiviert. Dateigröße >';
 $_['too_large_to_edit_02'] = 'Einige Browser (wie zum Beispiel der Internet Explorer) bleiben stecken oder werden instabil, sobald größere Textmengen in einer HTML <textarea> bearbeitet werden.';

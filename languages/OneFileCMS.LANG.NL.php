@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.6.02
+// OneFileCMS Language Settings v3.6.03
 
 $_['LANGUAGE'] = 'Nederlands (Dutch)';
 $_['LANG'] = 'NL';
@@ -145,7 +145,7 @@ $_['edit_txt_00'] = 'Edit disabled.'; //## NT ##
 $_['edit_txt_01'] = 'Non-tekst of onbekend bestandstype. Bewerken uitgeschakeld.';
 $_['edit_txt_02'] = 'Bestand bevat mogelijk een ongeldig teken. Bewerken en weergeven uitgeschakeld.';
 $_['edit_txt_03'] = 'htmlspecialchars() heeft een lege string teruggegeven van wat normaalgesproken een valide bestand is.';
-$_['edit_txt_04'] = 'Dit gedrag kan per versie van PHP verschillen.';
+$_['edit_txt_05'] = 'Bestand is alleen-lezen.';
 
 $_['too_large_to_edit_01'] = 'Bewerken uitgeschakeld. Bestandsgrootte >';
 $_['too_large_to_edit_02'] = 'Sommige browsers (bijv. Internet Explorer) lopen vast of worden onstabiel bij het bewerken van een groot bestand in een <textarea>.';
