@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.6.03';
+$OFCMS_version = '3.6.04';
 
 
 
@@ -529,7 +529,7 @@ $_['edit_txt_01'] = 'Non-text or unkown file type. Edit disabled.';
 $_['edit_txt_02'] = 'File possibly contains an invalid character. Edit and view disabled.';
 $_['edit_txt_03'] = 'htmlspecialchars() returned an empty string from what may be an otherwise valid file.';
 $_['edit_txt_04'] = 'This behavior can be inconsistant from version to version of php.';
-$_['edit_txt_05'] = 'File is readonly.'; //## NT ## as of 3.6.03
+$_['edit_txt_05'] = 'File is readonly.';
 
 $_['too_large_to_edit_01'] = 'Edit disabled. Filesize >';
 $_['too_large_to_edit_02'] = 'Some browsers (ie: IE) bog down or become unstable while editing a large file in an HTML <textarea>.';
@@ -1972,7 +1972,7 @@ function Create_Table_for_Listing() {//*****************************************
 		</div>
 	</th>
 	
-	<th style="font-family: courier">sogw</th>
+	<th style="font-family: courier">sogw</th>  <!-- //##### move css to style sheet -->
 	
 	<th class=file_name>
 		<div id=ff_ckbox_div class=ckbox>
@@ -3231,13 +3231,7 @@ var Move_Button			= E('b1');
 var Copy_Button			= E('b2');
 var Delete_Button		= E('b3');
 
-var Select_All_ckbox	= E('select_all_ckbox');
-var Header_Sorttype		= E('header_sorttype');
-var Folders_First_Ckbox = E('folders_first_ckbox');
-var Header_Filename		= E('header_filename');
-var Header_Filesize		= E('header_filesize');
-var Header_Filedate		= E('header_filedate');
-
+var highlight1 = "rgb(255,250,150)";
 
 //These buttons aren't present if folder is empty...
 if (Move_Button)   { Move_Button.onclick   = function () {Confirm_Submit('move');}   }
@@ -3245,83 +3239,40 @@ if (Copy_Button)   { Copy_Button.onclick   = function () {Confirm_Submit('copy')
 if (Delete_Button) { Delete_Button.onclick = function () {Confirm_Submit('delete');} }
 
 //Always present...
-Select_All_ckbox.onclick = function () {Select_All();}
-Folders_First_Ckbox.onclick = function () {Sort_and_Show(SORT_by, SORT_order); this.focus();}
-Header_Filename.onclick  = function () {Sort_and_Show(1, FLIP_IF); this.focus(); return false;}
-Header_Filesize.onclick  = function () {Sort_and_Show(2, FLIP_IF); this.focus(); return false;}
-Header_Filedate.onclick  = function () {Sort_and_Show(3, FLIP_IF); this.focus(); return false;}
-Header_Sorttype.onclick	 = function () {Sort_and_Show(5, FLIP_IF); this.focus(); return false;}
+E('select_all_ckbox').onclick = function () {Select_All();}
 
 
-Header_Filename.focus();
-
-
-
-document.onmousedown = function (event) { //************************
-	//Mouse clicks may remove focus from focused elements, including checkboxes, 
-	//but do not clear the manual "highlight" of the parent div's & label's of checkbox's
-
-	//Clear parent div of a checkbox
-	var ID = document.activeElement.id;
-	if (document.activeElement.type == 'checkbox') {
-		E(ID).parentNode.style.backgroundColor = "";
-	}
-
-	//Clear labels...  (don't check, just clear 'em)
+E('select_all_ckbox').onfocus = function() {
+	E('select_all_ckbox').parentNode.style.backgroundColor = highlight1;
+	E('select_all_label').style.backgroundColor = highlight1;
+}
+E('select_all_ckbox').onblur = function() {
+	E('select_all_ckbox').parentNode.style.backgroundColor = "";
 	E('select_all_label').style.backgroundColor = "";
+}
+
+
+E('folders_first_ckbox').onfocus = function() {
+	E('folders_first_ckbox').parentNode.style.backgroundColor = highlight1;
+	E('folders_first_label').style.backgroundColor = highlight1;
+}
+
+E('folders_first_ckbox').onblur = function() {
+	E('folders_first_ckbox').parentNode.style.backgroundColor = "";
 	E('folders_first_label').style.backgroundColor = "";
-
-}//end onmousedown() //***********************************************
-
+}
 
 
-function on_Tab_down(ID, FR, shifted) { //****************************
-	//Handle the background colors of checkboxes' parent <div>'s & <label>'s.
-	//(checkboxes generally don't have "background colors" as far as css goes...)
-	//Current checkbox already cleared by onkeydown().
 
-	//Prep for Tab key...
-	//Default tab action occurrs on keyUP, so "new" location is not known by onkeydown().
-	//So, if current focus is ck_box, clear bg, else if we're heading there, set bg.
-	//Tab from L, Current ID will be "f<FR>c2"
-	//Tab from R: Current ID is "f<FR>"
-	var fFR   = "f" + FR + "c5" //Filename
-	var perms = "f" + FR + "c4" //permisions
-	var ckbox = "f" + FR + "c3" //[ ] Checkbox
-	var del   = "f" + FR + "c2" //(x) Delete
-	
-	var ck_box = E(ckbox);
-	var highlight1 = "rgb(255,250,150)";
-	var highlight2 = "rgb(255,240,140)";
+E('folders_first_ckbox').onclick = function () {Sort_and_Show(SORT_by, SORT_order); this.focus();}
 
-	if      (!shifted)  { //just Tab
-		if      (ID == ckbox) { ck_box.parentNode.style.backgroundColor = "";}
-		else if (ID == del  ) { ck_box.parentNode.style.backgroundColor = highlight2; }
-		else if (ID == "b6" ) { //[New Folder]
-			E('select_all_ckbox').parentNode.style.backgroundColor = highlight1;
-			E('select_all_label').style.backgroundColor = highlight1;
-		}
-		else if (ID == "select_all_ckbox" ) {
-			E('select_all_label').style.backgroundColor = "";
-			E('folders_first_ckbox').parentNode.style.backgroundColor = highlight1;
-			E('folders_first_label').style.backgroundColor = highlight1;
-		}
-	}
-	else if (shifted)  { //Shift-Tab
-		if       (ID == ckbox){ ck_box.parentNode.style.backgroundColor = "";}
-		else if ((ID == perms) && (FR > 0) ) { ck_box.parentNode.style.backgroundColor = highlight2; }
-		else if  (ID == "header_filename")  {
-			E('folders_first_ckbox').parentNode.style.backgroundColor = highlight1;
-			E('folders_first_label').style.backgroundColor = highlight1;
-		}
-		else if (ID == "folders_first_ckbox") {
-			E('folders_first_label').style.backgroundColor = "";
-			E('select_all_ckbox').parentNode.style.backgroundColor = highlight1;
-			E('select_all_label').style.backgroundColor = highlight1;
-		}
-	}
-}//end on_Tab_down() { //*********************************************
+E('header_filename').onclick = function () {Sort_and_Show(1, FLIP_IF); this.focus(); return false;}
+E('header_filesize').onclick = function () {Sort_and_Show(2, FLIP_IF); this.focus(); return false;}
+E('header_filedate').onclick = function () {Sort_and_Show(3, FLIP_IF); this.focus(); return false;}
+E('header_sorttype').onclick = function () {Sort_and_Show(5, FLIP_IF); this.focus(); return false;}
 
+
+E('header_filename').focus();
 
 
 
@@ -3359,16 +3310,6 @@ E("main").onkeydown = function(event) { //*****************************
 	var FR = parseInt(ID.substr(1));      if (isNaN(FR) || (x_focus != "f")) {FR = -1;} //If not in file list...
 	var FC = parseInt(ID.split('c')[1]);  if (isNaN(FC)) {FC = -1;}
 
-	if(key != ENTER) { //(ignore if ENTER since focus doesn't change.)
-		
-		//If current ID/element is checkbox, clear bgcolor of parent div (ckboxes don't have background colors).
-		var is_ckbox = (document.activeElement.type == "checkbox");
-		if (is_ckbox) {E(ID).parentNode.style.backgroundColor = ""; }
-		
-		//Always clear these labels (simply losing focus() of their child checkboxes won't).
-		E('select_all_label').style.backgroundColor = "";
-		E('folders_first_label').style.backgroundColor = "";
-	}
 
 	//If no files in current folder, [Move][Copy][Delete] won't exist (id's b1 b2 b3). Use [New Folder] (id="b4").
 	if (E("b2")) {var button_row = "b2"} else {var button_row = "b4"}
@@ -3424,10 +3365,7 @@ E("main").onkeydown = function(event) { //*****************************
 		
 		return;
 	}
-	else if (key == TAB)  {
-		on_Tab_down(ID, FR, event.shiftKey);
-		return;
-	}
+	else if (key == TAB)  { return; }
 	else if (key == ESC)  { document.activeElement.blur();   return; }
 	else if (key == END)  { if (ID != LAST_FILE ) {ID = LAST_FILE; } }
 	else if (key == HOME) {	if (ID != FIRST_FILE) {ID = FIRST_FILE;} }
@@ -3514,11 +3452,6 @@ E("main").onkeydown = function(event) { //*****************************
 
 	E(ID).focus();
 
-	//If new ID/element is checkbox, set bgcolor of parent div & it's label (ckboxes don't have background colors).
-	if (document.activeElement.type == "checkbox") {E(ID).parentNode.style.backgroundColor = highlight2;}
-	if (ID == "select_all_ckbox")    {E('select_all_label').style.backgroundColor = highlight1;}
-	if (ID == "folders_first_ckbox") {E('folders_first_label').style.backgroundColor = highlight1;}
-
 	//Prevent default browser scrolling via arrow & Page keys, so focus()'d element stays visible/in view port.
 	//(A few exceptions skip this via a return in the above  if/else's.)
 	if ( (ID != 'path_0') || ((ID == 'path_0') && (key == AD)) || ((ID == 'path_0') && (key == PD))) {
@@ -3561,7 +3494,8 @@ function Octal_Input_Only(e) { //*************************************
 	//Restrict input to digits & a few special keys.
 
 	//##### This function works on desktops, but inhibits number inputs on android / Samsung Galaxy S III mini. //#####
-	//##### return;
+	//##### 
+	return; //##### Not actually needed yet... (as of 3.6.03)
 
 	function Stop_Prop(event) { event.stopPropagation() }
 
@@ -3632,7 +3566,7 @@ function sort_DIRECTORY(col, direction) {//***************************
 	if (typeof direction === 'undefined') { direction = ASCENDING }
 
 	//Filename ckboxes are cleared automatically on a resort, in Assemble_Insert_row(), so this needs cleared also.
-	Select_All_ckbox.checked = false;
+	E('select_all_ckbox').checked = false;
 
 	//If new sort column, sort ascending. (FLIP overides, but is not currently used.)
 	if ((col != SORT_by) && (direction != FLIP)) { direction = ASCENDING; SORT_by = col; } 
@@ -3698,7 +3632,7 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	//the id's of files in the directory list are indexed from 1 (f1, f2...), as "../" is listed first with id=f0 (f-zero).
 	//The id's are used in Index_Page_events() "cursor" control.
 	//Note: Number of tab-able items per row affects the (TABINDEX + 5) offset near end of Build_Directory(),
-	//		the $TABINDEX calculation for the [Admin] link in page footer, and on_Tab_down().
+	//		and the $TABINDEX calculation for the [Admin] link in page footer.
 	//		There are currently 6 tab-able items per (file) row:  [m] [c] [d] [x] [sogw] [file name]
 	//		[m][c][d][x][sogw] tabindexes are set below.  [filename]'s tabinex is set in Build_Directory().
 	
@@ -3759,13 +3693,15 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	cells[6].innerHTML = file_size;
 	cells[7].innerHTML = file_time;
 
-
+	//##### Abstract out bgcolors.  IE: add/remove a class instead of setting/clearing value directly. ##############
+	E(ckbox_id).onfocus   = function() { E(ckbox_id).parentNode.style.backgroundColor = "rgb(255,240,140)"; }
 	E(ckbox_id).onblur    = function() { E(ckbox_id).parentNode.style.backgroundColor = ""; }
+
 	E(perms_id).onfocus   = function(event) { this.prior_value = this.value; }
 	E(perms_id).onkeydown = function(event) { Octal_Input_Only(event); } //##### Not actually used yet as still readonly above.
 	E(perms_id).onchange  = function(event) {
-		
-		this.value = this.prior_value; //##### Will be used in future if there's an input error.
+
+		this.value = this.prior_value; //##### Will be used in future if there's an input error.		
 		return; //##### just not yet...
 		
 		//##### NEED LANGUAGE $_[] values...
