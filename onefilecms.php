@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.6.04';
+$OFCMS_version = '3.6.05';
 
 
 
@@ -734,6 +734,7 @@ function Verify_IDLE_POST_etc() {//*********************************************
 	$_SESSION['last_active_time'] = time();
 
 	//If POSTing, verify...
+	//##### NEED TO ACTUALLY CHECK IF HTTP POST (VS GET), THEN ALWAYS CHECK FOR NUONCE. #####
 	if ( isset($_POST['nuonce']) ) {
 		if ( $_POST['nuonce'] == $_SESSION['nuonce'] ) {
 			$VALID_POST = 1;
@@ -2149,7 +2150,7 @@ function Index_Page() {//*******************************************************
 	$file_count = Get_DIRECTORY_DATA($raw_list);
 
 	//<form> to contain directory, including buttons at top.
-	echo '<form method="post" name="mcdselect" action="'.$ONESCRIPT.$param1.'&amp;p=mcdaction">';
+	echo '<form method="post" id="mcdselect" action="'.$ONESCRIPT.$param1.'&amp;p=mcdaction">';
 	echo '<input type="hidden" name="mcdaction" value="">'; //along with $page, affects response
 
 	Index_Page_buttons_top($file_count);
@@ -2944,7 +2945,7 @@ function Load_Selected_Page() {//***********************************************
 		if ($_POST['mcdaction'] == 'copy')  { MCD_Page('mcd_cpy', $_['Copy_Files']); }
 		if ($_POST['mcdaction'] == 'delete'){ MCD_Page('mcd_del', $_['Del_Files'], 'verify_del'); }
 	}
-	else                             { Index_Page();          } //default if valid session.
+	else /* default if session valid */ { Index_Page(); }
 }//end Load_Selected_Page() //**************************************************
 
 
@@ -3025,7 +3026,6 @@ function Common_Scripts() {//***************************************************
 ?>
 
 <script>
-var D = document;
 function E(id) { return document.getElementById(id); }
 
 var $MESSAGE = "";
@@ -3037,12 +3037,14 @@ function pad(num){ if ( num < 10 ){ num = "0" + num; }; return num; }
 
 function hsc(text) {//************************************************
 	//A basic htmlspecialchars()
+
+	text = text.replace(/&/g, "&amp;");
+	text = text.replace(/</g, "&lt;");
+	text = text.replace(/>/g, "&gt;");
+	text = text.replace(/"/g, "&quot;");
+	text = text.replace(/'/g, "&#039;");
+
 	return text
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
 }//end hsc() //*******************************************************
 
 
@@ -3233,6 +3235,8 @@ var Delete_Button		= E('b3');
 
 var highlight1 = "rgb(255,250,150)";
 
+E('header_filename').focus();
+
 //These buttons aren't present if folder is empty...
 if (Move_Button)   { Move_Button.onclick   = function () {Confirm_Submit('move');}   }
 if (Copy_Button)   { Copy_Button.onclick   = function () {Confirm_Submit('copy');}   }
@@ -3270,10 +3274,6 @@ E('header_filename').onclick = function () {Sort_and_Show(1, FLIP_IF); this.focu
 E('header_filesize').onclick = function () {Sort_and_Show(2, FLIP_IF); this.focus(); return false;}
 E('header_filedate').onclick = function () {Sort_and_Show(3, FLIP_IF); this.focus(); return false;}
 E('header_sorttype').onclick = function () {Sort_and_Show(5, FLIP_IF); this.focus(); return false;}
-
-
-E('header_filename').focus();
-
 
 
 E("main").onkeydown = function(event) { //*****************************
@@ -3352,23 +3352,32 @@ E("main").onkeydown = function(event) { //*****************************
 	if (key == ENTER) {	
 		
 		if (ID == "select_all_ckbox") {
-			document.mcdselect.select_all.checked = !document.mcdselect.select_all.checked
+			E('mcdselect').select_all.checked = !E('mcdselect').select_all.checked
 			Select_All();
 		}
 		else if (ID == "folders_first_ckbox") {
-			document.mcdselect.folders_first_ckbox.checked = !document.mcdselect.folders_first_ckbox.checked;
+			E('folders_first_ckbox').checked = !E('folders_first_ckbox').checked;
 			Sort_and_Show(SORT_by, SORT_order);
 		}
 		else if (FC == 3) {  //Is focus on a checkbox next to a file name?
 			E(ID).checked = !E(ID).checked;
 		}
+
+		//Prevent the hair-pulling "implicit submit on enter" that only occurs sometimes.
+		//Specifically, here, if there's only one item in the current dir, and if focus is on a checkbox,
+		// and enter is pressed (to check/uncheck via this onkeydown event), then the form would also submit.
+		//Not any more! HAHAHA!
+		//But, allow "enter" on <button>'s & <a>'s ([Move], [Copy], [Delete], and  [M][C][D] & [file names])
+		//
+		var has_focus = document.activeElement;
+		if ((has_focus.tagName != 'A') && (has_focus.tagName != 'BUTTON')) { event.preventDefault(); }
 		
 		return;
 	}
 	else if (key == TAB)  { return; }
 	else if (key == ESC)  { document.activeElement.blur();   return; }
-	else if (key == END)  { if (ID != LAST_FILE ) {ID = LAST_FILE; } }
-	else if (key == HOME) {	if (ID != FIRST_FILE) {ID = FIRST_FILE;} }
+	else if (key == END)  { ID = LAST_FILE;  }
+	else if (key == HOME) {	ID = FIRST_FILE; } 
 	else if (key == AL) {
 		//Find first tab-able element to the left (usually just (focus_tabindex - 1))
 		for (var new_index = (focus_tabindex - 1); new_index > 0; new_index--) {
@@ -3422,6 +3431,12 @@ E("main").onkeydown = function(event) { //*****************************
 		else if	(key == PU) {ID = "path_0"}
 		else if (key == AD) {ID = "admin";}
 		else if (key == PD) {ID = "admin";}
+	}
+	else if ((FROWS == 1) && (FR == 1)) {
+		if		(key == AU) { ID = FIRST_FILE; }
+		else if	(key == PU) { FR -= jump; if (FR >= 0) {ID = "f" + FR + "c" + FC} else {ID = FIRST_FILE} }
+		else if (key == AD) { ID = "admin" }
+		else if (key == PD) { ID = "admin" }
 	}
 	else if (FR == FROWS) { //Last row (FROWS is the number of files listed)
 		if		(key == AU) { FR--      ; if (FR >= 0) {ID = "f" + FR + "c" + FC} else {ID = "header_filename" } }
@@ -3486,36 +3501,6 @@ var FLIP_IF		= 3; //Flip only if new column selected.
 var SORT_by		     = '1';   // Sort key (column) from DIRECTORY_DATA[x][key].
 var SORT_order       = true;  // Default to "normal" sort orders (ascending). Set to false for reverse (descending).
 var SORT_folders_1st = true;  // Initially set to true. false = did not consider folders during prior sort.
-
-
-
-
-function Octal_Input_Only(e) { //*************************************
-	//Restrict input to digits & a few special keys.
-
-	//##### This function works on desktops, but inhibits number inputs on android / Samsung Galaxy S III mini. //#####
-	//##### 
-	return; //##### Not actually needed yet... (as of 3.6.03)
-
-	function Stop_Prop(event) { event.stopPropagation() }
-
-	//Normalize the event (e) codes...
-	if (!e) {var e = window.event;} //for IE
-	var e_code = e.which || e.keyCode || e.charCode;
-
-	//Allow:
-	if (e.ctrlKey || e.altKey) 				{ Stop_Prop(e); return; } //control & alt keys
-	if ((e_code == 8) || (e_code ==  13))   { Stop_Prop(e); return; } //backspace, enter
-	if ((e_code >=  35) && (e_code <=  37) || (e_code == 39)) { Stop_Prop(e); return; } //end, home, <- -> arrows
-	if ((e_code >=  45) && (e_code <=  55)) { Stop_Prop(e); return; } //insert, delete, keyboard top row numbers 0-7
-	if ((e_code >=  96) && (e_code <= 103)) { Stop_Prop(e); return; } //keypad numbers 0-7
-	
-	//Prevent everything else, except tab
-	if (e_code != 9) { //tab
-		e.preventDefault ? e.preventDefault() : (e.returnValue = false);
-		return false;
-	}
-}//end Octal_Input_Only() //******************************************
 
 
 
@@ -3635,7 +3620,7 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	//		and the $TABINDEX calculation for the [Admin] link in page footer.
 	//		There are currently 6 tab-able items per (file) row:  [m] [c] [d] [x] [sogw] [file name]
 	//		[m][c][d][x][sogw] tabindexes are set below.  [filename]'s tabinex is set in Build_Directory().
-	
+
 	row++;
 
 	//[Move] [Copy] [Delete] [x] [perms]
@@ -3679,7 +3664,7 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	}
 
 	perms  = '<input id=' + perms_id + ' class=perms tabindex=' + (TABINDEX++) ;
-	perms += ' value="' + DIRECTORY_DATA[row - 1][6]+ '" maxlength=4 readonly>'; //##### readonly for now
+	perms += ' value="' + DIRECTORY_DATA[row - 1][6]+ '" maxlength=4 readonly>';
 
 
 	//fill the <td>'s
@@ -3698,7 +3683,7 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	E(ckbox_id).onblur    = function() { E(ckbox_id).parentNode.style.backgroundColor = ""; }
 
 	E(perms_id).onfocus   = function(event) { this.prior_value = this.value; }
-	E(perms_id).onkeydown = function(event) { Octal_Input_Only(event); } //##### Not actually used yet as still readonly above.
+	E(perms_id).onkeydown = function(event) { ; } //##### Not actually used yet as still readonly above.
 	E(perms_id).onchange  = function(event) {
 
 		this.value = this.prior_value; //##### Will be used in future if there's an input error.		
@@ -3817,9 +3802,9 @@ function Select_All() {//********************************************
 	//So, prefix with a dollar sign (a valid character in JS for variable names).
 	$select_all_label = E('select_all_label');
 
-	var files = document.mcdselect.elements['files[]'];
+	var files = E('mcdselect').elements['files[]'];
 	var last  = files.length; //number of files
-	var select_all = document.mcdselect.select_all;
+	var select_all = E('mcdselect').select_all;
 
 	if (select_all.checked) {
 		$select_all_label.innerHTML = '<?php echo hsc($_['Clear_All']) ?>';
@@ -3836,12 +3821,12 @@ function Select_All() {//********************************************
 
 function Confirm_Submit(action) {//***********************************
 
-	var files = document.mcdselect.elements['files[]'];
+	var files = E('mcdselect').elements['files[]'];
 	var last  = files.length;   //number of files
 	var no_files = true;
 	var f_msg    = "<?php echo hsc($_['No_files']) ?>";	
 
-	document.mcdselect.mcdaction.value = action; 
+	E('mcdselect').mcdaction.value = action; 
 
 	//Confirm at least one file is checked
 	for (var x = 0; x < last ; x++) {
@@ -3851,7 +3836,7 @@ function Confirm_Submit(action) {//***********************************
 	//Don't submit form if no files are checked.
 	if ( no_files ) { Display_Messages(f_msg, 1); return false; }
 
-	document.mcdselect.submit(); //submit form.
+	E('mcdselect').submit(); //submit form.
 }//end Confirm_Submit() //********************************************
 
 </script>

@@ -1,5 +1,22 @@
 # OneFileCMS Change Log
 
+### v3.6.05 (2017-09-24)
+
+- Fixed a couple bugs in keyboard navigation when there's only one item in current diretory.
+ (Couldn't "arrow up" when in the file row [M][C][D][x][perms] [Filename])
+ (It was submitting on enter when on checkboxes.)
+
+### v3.6.04 (2017-09-20)
+
+- A _little_ bit of code improvement/cleanup - using onfocus/blur in lieu of the prior scatter gun approach.
+
+
+### v3.6.03 (2017-09-20)
+
+- Removed Rename/Delete/Edit options for readonly files.
+  (previously would simple have generated an error.)
+- Some more prep work for eventual option to edit file perms.
+
 ### v3.6.02 (2017-09-18)
 
 - Fixed a minor bug with tabindex on directory listing page.
