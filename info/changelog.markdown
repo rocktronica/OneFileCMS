@@ -1,5 +1,9 @@
 # OneFileCMS Change Log
 
+### v3.6.06 (2017-09-27)
+
+- Added ability to edit file permissions.
+
 ### v3.6.05 (2017-09-24)
 
 - Fixed a couple bugs in keyboard navigation when there's only one item in current diretory.

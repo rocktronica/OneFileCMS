@@ -2,9 +2,9 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.6.05';
+$OFCMS_version = '3.6.06';
 
-
+//If language values changed, don't forget the Language Settings version.
 
 
 //******************************************************************************
@@ -382,7 +382,7 @@ $PRE_ITERATIONS = 10000;
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.6.03  (Not always in sync with OFCMS version#, if no changes to displayed wording.)
+// OneFileCMS Language Settings v3.6.0x  (Not always in sync with OFCMS version#, if no changes to displayed wording.)
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -454,7 +454,6 @@ $_['To']         = 'To';
 $_['Upload']     = 'Upload';
 $_['Username']   = 'Username';
 $_['View']       = 'View';
-$_['Working']    = 'Working - please wait...';
 
 $_['Log_In']             = 'Log In';
 $_['Log_Out']            = 'Log Out';
@@ -487,6 +486,8 @@ $_['No_files']           = 'No files selected.';
 $_['Not_found']          = 'Not found';
 $_['Invalid_path']       = 'Invalid path';
 $_['must_be_decendant']  = '$DEFAULT_PATH must be a decendant of, or equal to, $ACCESS_ROOT'; //## NT ## as of 3.5.23
+$_['Update_failed']      = 'Update failed';
+$_['Working']            = 'Working - please wait...';
 
 $_['verify_msg_01']     = 'Session expired.';
 $_['verify_msg_02']     = 'INVALID POST';
@@ -642,8 +643,6 @@ $_['change_pw_07'] = 'All fields are required.';
 
 $_['change_un_01'] = 'Username changed!';
 $_['change_un_02'] = 'Username NOT changed.';
-
-$_['update_failed'] = 'Update failed - could not save file.';
 
 $_['mcd_msg_01'] = 'file(s) and/or folder(s) moved.';
 $_['mcd_msg_02'] = 'file(s) and/or folder(s) copied.';
@@ -911,10 +910,8 @@ function Valid_Path($path, $gotoroot=true) {//**********************************
 	//$path        = some/root/                      : bad
 	//$path        = some/other/path/                : bad
 
-	$path_len     = mb_strlen($path);
-
-	$path_root    = mb_substr($path, 0, $ACCESS_ROOT_len);
-
+	$path_len  = mb_strlen($path);
+	$path_root = mb_substr($path, 0, $ACCESS_ROOT_len);
 	$good_path = false;
 
 
@@ -925,7 +922,6 @@ function Valid_Path($path, $gotoroot=true) {//**********************************
 	}
 	elseif ( $path_len <  $ACCESS_ROOT_len ) { $good_path = false; }
 	else                                     { $good_path = ($path_root == $ACCESS_ROOT); }
-
 
 	if (!$good_path && $gotoroot) {
 		$ipath    = $ACCESS_ROOT;
@@ -1424,8 +1420,8 @@ function Timeout_Timer($COUNT, $ID, $ACTION="") {//*****************************
 function Init_Macros() {//**** ($varibale="some reusable chunk of code")********
 	global 	$_, $ONESCRIPT, $param1, $param2, $INPUT_NUONCE, $FORM_COMMON, $PWUN_RULES;
 
-	$INPUT_NUONCE = '<input type="hidden" name="nuonce" value="'.$_SESSION['nuonce'].'">'."\n";
-	$FORM_COMMON = '<form method="post" action="'.$ONESCRIPT.$param1.$param2.'">'.$INPUT_NUONCE."\n";
+	$INPUT_NUONCE = '<input type="hidden" id="nuonce" name="nuonce" value="'.$_SESSION['nuonce'].'">'."\n";
+	$FORM_COMMON = '<form method="post" action="'.$ONESCRIPT.$param1.$param2.'">'."\n".$INPUT_NUONCE."\n";
 
 	$PWUN_RULES  = '<p>'.hsc($_['pw_txt_02']);
 	$PWUN_RULES	.= '<ol><li>'.hsc($_['pw_txt_04']).'<li>'.hsc($_['pw_txt_06']);
@@ -1739,7 +1735,7 @@ function Change_PWUN_Page($pwun, $type, $page_title, $label_new, $label_confirm)
 
 
 
- 
+
 //******************************************************************************
 function Update_config($search_for, $replace_with, $search_file, $backup_file) {
 	global  $_, $EX, $MESSAGE;
@@ -1775,7 +1771,7 @@ function Update_config($search_for, $replace_with, $search_file, $backup_file) {
 	$updated_contents = implode("\n", $search_lines);
 
 	if (file_put_contents($search_file_OS, $updated_contents, LOCK_EX) === false) {
-		$MESSAGE .= $EX.'<b>'.hsc($_['update_failed']).'</b><br>';
+		$MESSAGE .= $EX.'<b>'.hsc($_['Update_failed']).'</b><br>';
 		return false;
 	}else {return true;}
 }//end Update_config() //*******************************************************
@@ -2067,7 +2063,7 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 		$file_time_raw = filemtime($filename_OS);
 			
 		//Store data
-		$DIRECTORY_DATA[$DIRECTORY_COUNT] = array('', '', 0, 0, 0, '');
+		$DIRECTORY_DATA[$DIRECTORY_COUNT] = array('', '', 0, 0, 0, '', '');
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][0] = $type;  //used to determine icon & f_or_f
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][1] = $filename;
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][2] = $file_size_raw;
@@ -2142,7 +2138,7 @@ function Index_Page_buttons_top($file_count) {//********************************
 
  
 function Index_Page() {//*******************************************************
-	global  $ONESCRIPT, $ipath_OS, $param1;
+	global  $ONESCRIPT, $ipath_OS, $param1, $INPUT_NUONCE;
 
 	init_ICONS_js();
 
@@ -2152,6 +2148,7 @@ function Index_Page() {//*******************************************************
 	//<form> to contain directory, including buttons at top.
 	echo '<form method="post" id="mcdselect" action="'.$ONESCRIPT.$param1.'&amp;p=mcdaction">';
 	echo '<input type="hidden" name="mcdaction" value="">'; //along with $page, affects response
+	echo $INPUT_NUONCE; //Needed for file permission updates.
 
 	Index_Page_buttons_top($file_count);
 
@@ -2895,6 +2892,67 @@ function MCD_response($action, $msg1, $success_msg = '') {//********************
 
 
 
+function Update_File_Permissions() { //*****************************************
+	//Validate new_perms & update.
+	//$_POST['new_perms'] must be an octal value with 3 or 4 digits (0-7) only.
+	global $_, $ACCESS_ROOT, $ACCESS_ROOT_len, $MESSAGE;
+	
+	$new_perms   = trim($_POST['new_perms']);
+	$len         = strlen($new_perms);
+	$errors      = 0;
+	$ipath		 = $_POST['ipath'];
+	$ipath_OS	 = Convert_encoding($ipath);
+	$filename	 = $_POST['perms_filename'];
+	$filename_OS = Convert_encoding($ipath.$filename); //Full path/filename
+
+	//Verify that each digit is octal (0-7), and that $new_perms is only 3 or 4 digits in length.
+	$digit = "";
+	for ($p = 0; $p < $len; $p++) {
+		$digit = substr($new_perms, $p, 1);
+		if (($digit < '0') || ($digit > '7')) {
+			$errors++ ; break;
+		}
+	}
+	if (($len < 3) || ($len > 4)) {
+		$errors++;
+	}
+	//##### 													//##### Needs language $_[]
+	if ($errors) { $MESSAGE .= $_['Invalid'].": [$new_perms]. Must be exactly 3 or 4 octal digits (0-7)"; }
+
+	//Validate path & filename.
+	if (!Valid_Path($ipath_OS, false)) { $MESSAGE = $_['Invalid_path'].". \n"; }
+	if (!file_exists($filename_OS))    { $MESSAGE .= $_['get_get_msg_01']."\n "; }
+
+	if (!$errors) { 
+		//Update the file permissions...
+		$chmod = chmod($filename_OS, octdec($new_perms));
+		if (!$chmod) {
+			$errors++;
+			$MESSAGE .= "<b>".$_['Update_failed'].":</b> <span class=mono>";
+			$MESSAGE .= "chmod(\"$filename_OS\", octdec($new_perms))</span>";
+		}
+	}
+	clearstatcache ();
+	$new_perms = decoct((fileperms($filename_OS) & 07777)); //May not actually be new, if update failed.
+
+	if ($errors == 0) {
+		$MESSAGE .= "<b>".hsc($_['meta_txt_03'])."</b> ";
+		$MESSAGE .= "<span class=mono> <b>[".hsc($new_perms)."]</b> ".hsc($filename)."</span><br>";
+	}
+
+	$new_perms_response = "";
+	$new_perms_response['new_perms'] 	  = $new_perms;
+	$new_perms_response['perms_filename'] = $ipath.$filename;
+	$new_perms_response['nuonce']		  = $_SESSION['nuonce'];
+	$new_perms_response['early_output']   = hsc(ob_get_clean()); //Should always be empty unless error or trouble-shooting.
+	$new_perms_response['errors']		  = $errors."";
+	$new_perms_response['MESSAGE']		  = $MESSAGE;
+	echo json_encode($new_perms_response);
+}//end Update_File_Permissions() //*********************************************
+
+
+
+
 function Page_Title() {//***<title>Page_Title()</title>*************************
 	global $_, $page;
 
@@ -2954,6 +3012,8 @@ function Load_Selected_Page() {//***********************************************
 function Respond_to_POST() {//**************************************************
 	global $_, $VALID_POST, $ipath, $page, $EX, $ACCESS_ROOT, $MESSAGE;
 
+	// $_POST['key']'s must all be unique, or order of if/elseif's below becomes significant.
+
 	if (!$VALID_POST) { return; }
 
 	//First, validate any $_POST'ed paths against $ACCESS_ROOT.
@@ -2984,6 +3044,7 @@ function Respond_to_POST() {//**************************************************
 	elseif (isset($_POST['rename_file']  )) { CRM_response('rename', $_['Ren_Move']);}
 	elseif (isset($_POST['copy_file']    )) { CRM_response('rCopy' , $_['Copy']   );}
 	elseif (isset($_FILES['upload_file']['name']))  { Upload_response(); }
+	elseif (isset($_POST['new_perms']    )) { Update_File_Permissions(); } //die()'s after return from Resopnd_to_POST().
 
 	//If Changed p/w, u/n, or other Admin Page action, make sure to not return to a folder outside of $ACCESS_ROOT.
 	Valid_Path($ipath, true);
@@ -3226,7 +3287,7 @@ function Display_Messages($msg, take_focus) {//***********************
 
 
 function Index_Page_events() {//************************************************
-	global $_, $PAGEUPDOWN, $EX;
+	global $_, $ONESCRIPT, $ipath, $PAGEUPDOWN, $EX;
 ?>
 <script>
 var Move_Button			= E('b1');
@@ -3266,14 +3327,13 @@ E('folders_first_ckbox').onblur = function() {
 	E('folders_first_label').style.backgroundColor = "";
 }
 
-
-
 E('folders_first_ckbox').onclick = function () {Sort_and_Show(SORT_by, SORT_order); this.focus();}
 
 E('header_filename').onclick = function () {Sort_and_Show(1, FLIP_IF); this.focus(); return false;}
 E('header_filesize').onclick = function () {Sort_and_Show(2, FLIP_IF); this.focus(); return false;}
 E('header_filedate').onclick = function () {Sort_and_Show(3, FLIP_IF); this.focus(); return false;}
 E('header_sorttype').onclick = function () {Sort_and_Show(5, FLIP_IF); this.focus(); return false;}
+
 
 
 E("main").onkeydown = function(event) { //*****************************
@@ -3362,16 +3422,15 @@ E("main").onkeydown = function(event) { //*****************************
 		else if (FC == 3) {  //Is focus on a checkbox next to a file name?
 			E(ID).checked = !E(ID).checked;
 		}
-
-		//Prevent the hair-pulling "implicit submit on enter" that only occurs sometimes.
-		//Specifically, here, if there's only one item in the current dir, and if focus is on a checkbox,
-		// and enter is pressed (to check/uncheck via this onkeydown event), then the form would also submit.
-		//Not any more! HAHAHA!
-		//But, allow "enter" on <button>'s & <a>'s ([Move], [Copy], [Delete], and  [M][C][D] & [file names])
+		
+		// Prevent the hair-pulling "implicit submit on enter" that only occurs sometimes.
+		// Specifically, at least here, if there's only one item in the current directory,
+		// and if focus is on an <input>, and enter is pressed, then the form would also submit.  
+		// Not any more, as that behaviour is NOT wanted, expected, or intuitive.
+		// But, allow "enter" on <button>'s & <a>'s ([Move], [Copy], [Delete], and  [M][C][D] & [file names])
 		//
 		var has_focus = document.activeElement;
-		if ((has_focus.tagName != 'A') && (has_focus.tagName != 'BUTTON')) { event.preventDefault(); }
-		
+		if (has_focus.tagName == 'INPUT') { event.preventDefault(); }
 		return;
 	}
 	else if (key == TAB)  { return; }
@@ -3400,7 +3459,7 @@ E("main").onkeydown = function(event) { //*****************************
 		if      (key == AU) {ID = "admin"}
 		else if (key == PU) {ID = "admin"}
 		else if (key == AD) {ID = "path_0"}
-		else if (key == PD) {ID = FIRST_FILE}
+		else if (key == PD) {ID = "path_0"}
 	}
 	else if (ID == "X_box") {
 		if      (key == AU)   {ID = "path_0"}
@@ -3472,7 +3531,211 @@ E("main").onkeydown = function(event) { //*****************************
 	if ( (ID != 'path_0') || ((ID == 'path_0') && (key == AD)) || ((ID == 'path_0') && (key == PD))) {
 		if (event.preventDefault) { event.preventDefault() } else { event.returnValue = false }
 	}
-}//end onkeydown() //*************************************************
+}//end E("main").onkeydown() //***************************************
+
+
+
+
+function Perms_onkeydown(event, $perms) {//***************************
+
+	//Get key pressed...
+	if (!event) {var event = window.event;} //for IE
+	var key = event.keyCode;
+
+	var TAB = 9, ENTER = 13, ESC = 27;
+
+	if (key == ENTER)  { //Toggle readonly state of permissions.
+		$perms.value = $perms.value.trim();
+		$perms.readOnly = !$perms.readOnly;
+		if ($perms.readOnly) {
+			Display_Messages("");
+			$perms.style.backgroundColor = "";  //##### Remove .class instead?
+			$perms.style.boxShadow = "";		//##### Remove .class instead? 
+			
+			//onchange doesn't seem to occur until looses focus, which ENTER doesn't do.
+			if ($perms.value != $perms.prior_value) { $perms.onchange(); }
+		}
+		else {
+			Enable_Edit_Perms($perms);
+		}
+		
+		event.preventDefault();
+		return false;
+	}//end ENTER
+
+	if ($perms.readOnly) { return; }
+
+	event.stopPropagation();
+
+	//if ESC or TAB, cancel any changes, & return to readonly.
+	if ((key == 27) || (key == TAB)) {
+		$perms.value = $perms.prior_value;
+		Display_Messages("");
+		$perms.readOnly = true;
+		$perms.style.backgroundColor = "";	//##### Remove .class instead?
+		$perms.style.boxShadow = "";		//##### Remove .class instead?
+	}//end ESC or TAB
+
+	Octal_Input_Only(event);
+
+	return true; //false would .preventDefault(), which is not wanted here (TAB's).
+
+}//end Perms_onkeydown() {//******************************************
+
+
+
+
+function Directory_Events($ckbox, $perms, $file, filename) {//********
+
+	//##### add/remove a class instead of setting/clearing value directly? ##############
+	$ckbox.onfocus   = function() { $ckbox.parentNode.style.backgroundColor = "rgb(255,240,140)"; }
+	$ckbox.onblur    = function() { $ckbox.parentNode.style.backgroundColor = ""; }
+
+	$perms.onblur	 = function(event) {
+		$perms.readOnly = true;
+		$perms.style.backgroundColor = "";	//##### Remove .class instead?
+		$perms.style.boxShadow = "";		//##### Remove .class instead?
+	}
+
+	$perms.onfocus   = function(event) {
+ 		var deselect = function() { $perms.setSelectionRange(0, 0); }
+		setTimeout(deselect, 1);
+		$perms.prior_value = $perms.value;
+	}
+
+	$perms.onkeydown = function(event) { return Perms_onkeydown(event, $perms); }
+
+	$perms.onchange  = function(event) { Validate_and_Post($perms, filename); }
+
+	$perms.onclick   = function(event) { Enable_Edit_Perms($perms); }
+
+}//end Directory_Events() {//*****************************************
+
+
+
+
+function Validate_and_Post($perms, filename) { //*********************
+
+	$perms.value = $perms.value.trim();
+	
+	//$perms.onchange sometimes fires when there isn't any. Usually by $perms.onblur, 
+	//after perms already updated by a $perms.onchange(), in Perms_onkeydown(), after [Enter].
+	if ($perms.value == $perms.prior_value) { return };
+
+	//Verify that each digit is octal (0-7), and that $perms is only 3 or 4 digits in length.
+	var octal = /^[0-7]{3,4}$/;
+	var valid =  octal.test($perms.value);
+
+	if (!valid) {
+		var msg  = "<b>" + hsc("<?php echo $_['Invalid'] ?>: [" + $perms.value + "].") + "</b>";
+		    msg += hsc(" Permissions must be exactly 3 or 4 octal digits (0-7).");  		//##### Needs language $_[]; //#####
+		$perms.value = $perms.prior_value;
+		Display_Messages(msg);
+		return false;
+	}
+
+	$perms.prior_value = $perms.value;
+	Post_New_File_Perms($perms, filename);
+
+	return true;
+}//end Validate_and_Post() //*****************************************
+
+
+
+
+function Enable_Edit_Perms($perms) {//********************************
+
+	//##### NEED LANGUAGE $_[] values #####################################################
+	var msg = "Press [Enter] to save changes. Press [Esc] or [Tab] to cancel.";
+
+	Display_Messages(msg);
+	$perms.readOnly = false;
+	$perms.setSelectionRange(0, 0); //Just for consistency.
+	$perms.style.backgroundColor = "rgb(255,240,140)";	//##### Add .class instead?
+	$perms.style.boxShadow = "0 0 10px 2px #F44";		//##### Add .class instead?
+}//end Enable_Edit_Perms() {//****************************************
+
+
+
+
+function Octal_Input_Only(event) { //*********************************
+	//Restrict input to digits & a few special keys.
+
+	//##### This function works with keyboards, but may inhibit number inputs on 
+	//##### touchscreens / android / Samsung Galaxy S III mini / etc.  I don't know.
+	//##### return;
+
+	function Stop_Prop(event) { event.stopImmediatePropagation() }
+
+	//Normalize the event codes...
+	if (!event) {var event = window.event;} //for IE
+	var key = event.which || event.keyCode || event.charCode;
+
+	//Allow:
+	if ((key >=  96) && (key <= 103)) { Stop_Prop(event); return; } //keypad numbers 0-7
+	if ((key >=  45) && (key <=  55)) { Stop_Prop(event); return; } //insert, delete, keyboard top row numbers 0-7
+	if ((key ==  37) || (key ==  39)) { Stop_Prop(event); return; } //arrows  <- ->
+	if ((key ==  35) || (key ==  36)) { Stop_Prop(event); return; } //end, home
+	if ((key ==   8) || (key ==  13)) { Stop_Prop(event); return; } //backspace, enter
+	if (event.ctrlKey     || (key ==   9)) { Stop_Prop(event); return; } //control & tab keys
+
+	event.preventDefault();
+	return false;
+
+}//end Octal_Input_Only() //******************************************
+
+
+
+
+function Perms_Update_Response(request, $perms) { //******************
+
+	//##### Need to also handle non-200 response cases... ##### ###########
+
+	if ((request.readyState != 4) || (request.status != 200)) { return; }
+
+	var update_response = JSON.parse(request.responseText);
+
+	$perms.value = update_response.new_perms.trim();
+	$perms.prior_value = $perms.value;
+
+	var msg = update_response.MESSAGE;
+
+	//Should always be blank unless troubleshooting, or an error server side.
+	if (update_response.early_output != "") { msg += "<hr>" + hsc(update_response.early_output); }
+
+	//#####	msg += "<hr>" + hsc(request.responseText); //For trouble-shooting...
+
+	E('nuonce').value = update_response.nuonce; //For the next post...
+
+	Display_Messages(msg);
+
+}//end Perms_Update_Response() //*************************************
+
+
+
+
+function Post_New_File_Perms($perms, filename) { //*******************
+	//key input restricted to 0-7 client-side, and validated both client & server-side.
+
+	Display_Messages("<?php echo $_['Working'] ?>");
+
+	var request_update = new XMLHttpRequest();
+
+	request_update.onreadystatechange = function() { Perms_Update_Response(this, $perms); }
+
+	request_update.open("POST", "<?php echo $ONESCRIPT ?>", true);
+
+	request_update.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+	var post_data  = "new_perms=" + $perms.value;
+		post_data += "&ipath=<?php echo $ipath ?>";
+	    post_data += "&perms_filename=" + filename;
+		post_data += "&nuonce=" + E('nuonce').value;  //Needed to confirm $VALID_POST
+
+	request_update.send(post_data );
+
+}//end Post_New_File_Perms() //***************************************
+
 </script>
 <?php
 }//end Index_Page_events() //***************************************************
@@ -3631,6 +3894,7 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	var del_id	 = 'f' + row + 'c2';
 	var ckbox_id = 'f' + row + 'c3';
 	var perms_id = 'f' + row + 'c4';
+	var file_id  = 'f' + row + 'c5';
 
 	var sogw = DIRECTORY_DATA[row - 1][6] + ""; //File permissions (suid sgid sticky)(owner)(group)(world)
 	sogw = parseInt(sogw,8);
@@ -3678,20 +3942,7 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	cells[6].innerHTML = file_size;
 	cells[7].innerHTML = file_time;
 
-	//##### Abstract out bgcolors.  IE: add/remove a class instead of setting/clearing value directly. ##############
-	E(ckbox_id).onfocus   = function() { E(ckbox_id).parentNode.style.backgroundColor = "rgb(255,240,140)"; }
-	E(ckbox_id).onblur    = function() { E(ckbox_id).parentNode.style.backgroundColor = ""; }
-
-	E(perms_id).onfocus   = function(event) { this.prior_value = this.value; }
-	E(perms_id).onkeydown = function(event) { ; } //##### Not actually used yet as still readonly above.
-	E(perms_id).onchange  = function(event) {
-
-		this.value = this.prior_value; //##### Will be used in future if there's an input error.		
-		return; //##### just not yet...
-		
-		//##### NEED LANGUAGE $_[] values...
-		Display_Messages('Permissions updated: ' + this.value + ' for "' + filename + '"');
-	}
+	Directory_Events(E(ckbox_id), E(perms_id), E(file_id), filename);
 
 }//end Assemble_Insert_row() //***************************************
 
@@ -4639,12 +4890,9 @@ input.perms {
 	width: 2.4rem;
 	padding: 2px 2px;
 	border: solid 1px transparent;
-	background-color: transparent;
 	text-align: right;
 }
 
-/* //##### remove/normalize bg color assignment once permissions are editable. ##### */
-input.perms:focus { border: solid 1px transparent; background-color: #DDD }
 td.perms { padding: 0; }
 
 #DIRECTORY_FOOTER {text-align: center; font-size: .9em; color: #333; padding: 3px 0 0 0; }
@@ -5047,6 +5295,8 @@ if ($_SESSION['valid']) {
 	Respond_to_POST();
 
 	Verify_Page_Conditions(); //Must come after Respond_to_POST()
+
+	if (isset($_POST['new_perms'])) { die(); } //die() here just for clarity.
 
 	Update_Recent_Pages();
 
