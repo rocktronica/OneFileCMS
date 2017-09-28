@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.6.03
+// OneFileCMS Language Settings v3.6.06
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -28,7 +28,7 @@ $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All']
 
 $_['HTML']    = 'HTML';
-$_['WYSIWYG'] = 'WYSIWYG';
+$_['WYSIWYG'] = 'WYSIWYG'; //...
 
 $_['Admin']      = 'Admin';
 $_['bytes']      = 'bytes';
@@ -56,7 +56,7 @@ $_['Hash']       = 'Hash';
 $_['Invalid']    = 'Invalid'; //## NT ## as of 3.5.23
 $_['Move']       = 'Move';
 $_['Moved']      = 'Moved';
-$_['Name']       = 'Name';
+$_['Name']       = 'Name';    //...
 $_['on']         = 'on';
 $_['off']        = 'off';
 $_['Password']   = 'Password';
@@ -65,13 +65,12 @@ $_['reset']      = 'Reset';
 $_['save_1']     = 'Save';
 $_['save_2']     = 'SAVE CHANGES';
 $_['Size']       = 'Size';
-$_['Source']     = 'Source';
+$_['Source']     = 'Source';  //## NT ##
 $_['successful'] = 'successful';
 $_['To']         = 'To';
 $_['Upload']     = 'Upload';
 $_['Username']   = 'Username';
 $_['View']       = 'View';
-$_['Working']    = 'Working - please wait...';
 
 $_['Log_In']             = 'Log In';
 $_['Log_Out']            = 'Log Out';
@@ -102,8 +101,13 @@ $_['Clear_All']          = 'Clear All';
 $_['New_Location']       = 'New Location';
 $_['No_files']           = 'No files selected.';
 $_['Not_found']          = 'Not found';
-$_['Invalid_path']       = 'Invalid path';
+$_['Invalid_path']       = 'Invalid path'; //## NT ##
 $_['must_be_decendant']  = '$DEFAULT_PATH must be a decendant of, or equal to, $ACCESS_ROOT'; //## NT ## as of 3.5.23
+$_['Update_failed']      = 'Update failed.';
+$_['Working']            = 'Working - please wait...'; //## NT ##
+$_['Enter_to_edit']      = '[Enter] to edit';
+$_['Press_Enter']        = 'Press [Enter] to save changes. Press [Esc] or [Tab] to cancel.';
+$_['Permissions_msg_1']  = 'Permissions must be exactly 3 or 4 octal digits (0-7)';
 
 $_['verify_msg_01']     = 'Session expired.';
 $_['verify_msg_02']     = 'INVALID POST';
@@ -145,7 +149,8 @@ $_['edit_txt_00'] = 'Edit disabled.'; //## NT ## as of 3.5.07
 $_['edit_txt_01'] = 'Non-text or unkown file type. Edit disabled.';
 $_['edit_txt_02'] = 'File possibly contains an invalid character. Edit and view disabled.';
 $_['edit_txt_03'] = 'htmlspecialchars() returned an empty string from what may be an otherwise valid file.';
-$_['edit_txt_05'] = 'File is readonly.'; //## NT ## as of 3.6.03
+$_['edit_txt_04'] = 'This behavior can be inconsistant from version to version of php.';
+$_['edit_txt_05'] = 'File is readonly.';
 
 $_['too_large_to_edit_01'] = 'Edit disabled. Filesize >';
 $_['too_large_to_edit_02'] = 'Some browsers (ie: IE) bog down or become unstable while editing a large file in an HTML <textarea>.';
@@ -212,16 +217,16 @@ $_['unload_unsaved']  = ' Unsaved changes will be lost!';
 $_['confirm_reset']   = 'Reset file and loose unsaved changes?';
 $_['OFCMS_requires']  = 'OneFileCMS requires PHP';
 $_['logout_msg']      = 'You have successfully logged out.';
-$_['edit_caution_01'] = 'CAUTION'; //##### No longer used as of 3.5.07
+$_['edit_caution_01'] = 'CAUTION';
 $_['edit_caution_02'] = 'You are viewing the active copy of OneFileCMS.'; //## NT ## changed wording 3.5.07
 $_['time_out_txt']    = 'Session time out in:';
 
-$_['error_reporting_01'] = 'Display errors is';
-$_['error_reporting_02'] = 'Log errors is';
-$_['error_reporting_03'] = 'Error reporting is set to';
-$_['error_reporting_04'] = 'Showing error types';
-$_['error_reporting_05'] = 'Unexpected early output';
-$_['error_reporting_06'] = '(nothing, not even white-space, should have been output yet)';
+$_['error_reporting_01'] = 'Display errors is'; //## NT ##
+$_['error_reporting_02'] = 'Log errors is'; //## NT ##
+$_['error_reporting_03'] = 'Error reporting is set to'; //## NT ##
+$_['error_reporting_04'] = 'Showing error types'; //## NT ##
+$_['error_reporting_05'] = 'Unexpected early output'; //## NT ##
+$_['error_reporting_06'] = '(nothing, not even white-space, should have been output yet)'; //## NT ##
 
 $_['admin_txt_00'] = 'Old Backup Found';
 $_['admin_txt_01'] = 'A backup file was created in case of an error during a username or password change. Therefore, it may contain old information and should be deleted if not needed. In any case, it will be automatically overwritten on the next password or username change.';
@@ -254,12 +259,10 @@ $_['change_pw_03'] = 'Incorrect current password. Login to try again.';
 $_['change_pw_04'] = '"New" and "Confirm New" values do not match.';
 $_['change_pw_05'] = 'Updating';
 $_['change_pw_06'] = 'external config file';
-$_['change_pw_07'] = 'All fields are required.';
+$_['change_pw_07'] = 'All fields are required.'; //## NT ##
 
 $_['change_un_01'] = 'Username changed!';
 $_['change_un_02'] = 'Username NOT changed.';
-
-$_['update_failed'] = 'Update failed - could not save file.';
 
 $_['mcd_msg_01'] = 'file(s) and/or folder(s) moved.';
 $_['mcd_msg_02'] = 'file(s) and/or folder(s) copied.';

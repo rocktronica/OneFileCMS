@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.6.03
+// OneFileCMS Language Settings v3.6.06
 
 $_['LANGUAGE'] = 'Russian';
 $_['LANG'] = 'RU';
@@ -71,7 +71,6 @@ $_['To']         = 'В';
 $_['Upload']     = 'Загрузить';
 $_['Username']   = 'Логин';
 $_['View']       = 'вид';
-$_['Working']    = 'Working - please wait...'; //## NT ##
 
 $_['Log_In']             = 'Войти';
 $_['Log_Out']            = 'Выйти';
@@ -104,6 +103,11 @@ $_['No_files']           = 'Нет выбранных файлов.';
 $_['Not_found']          = 'Не найдено';
 $_['Invalid_path']       = 'Invalid path'; //## NT ##
 $_['must_be_decendant']  = '$DEFAULT_PATH must be a decendant of, or equal to, $ACCESS_ROOT'; //## NT ##
+$_['Update_failed']      = 'Update failed.'; //## NT ##
+$_['Working']            = 'Working - please wait...'; //## NT ##
+$_['Enter_to_edit']      = '[Enter] to edit'; //## NT ##
+$_['Press_Enter']        = 'Press [Enter] to save changes. Press [Esc] or [Tab] to cancel.'; //## NT ##
+$_['Permissions_msg_1']  = 'Permissions must be exactly 3 or 4 octal digits (0-7)'; //## NT ##
 
 $_['verify_msg_01']     = 'Сессия истекла.';
 $_['verify_msg_02']     = 'НЕВЕРНЫЙ ЗАПРОС';
@@ -145,6 +149,7 @@ $_['edit_txt_00'] = 'Edit disabled.'; //## NT ##
 $_['edit_txt_01'] = 'Неизвестный текст или неизвестный тип файла. Редактирование невозможно.';
 $_['edit_txt_02'] = 'Возможно файл содержит недопустимый символ. Редактирование и Просмотр невозможны.';
 $_['edit_txt_03'] = 'htmlspecialchars() возвращает к предыдущим обновлениям файла.';
+$_['edit_txt_04'] = 'Это поведение зависит от версии вашего PHP.';
 $_['edit_txt_05'] = 'Файл только для чтения.';
 
 $_['too_large_to_edit_01'] = 'Редактирование невозожно. Размер файла >';
@@ -258,8 +263,6 @@ $_['change_pw_07'] = 'All fields are required.'; //## NT ##
 
 $_['change_un_01'] = 'Логин изменён!';
 $_['change_un_02'] = 'Логин НЕ изменён.';
-
-$_['update_failed'] = 'Обновление не удалось - файл не сохранился.';
 
 $_['mcd_msg_01'] = 'файлы перемещаются.';
 $_['mcd_msg_02'] = 'файлы копируются.';

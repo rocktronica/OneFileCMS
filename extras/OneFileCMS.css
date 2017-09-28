@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-Sample, OPTIONAL, external style sheet for OneFileCMS v3.6.02
+Sample, OPTIONAL, external style sheet, as of OneFileCMS v3.6.06
 
 This is just a copy of the primary <style></style> section in OneFileCMS
 *******************************************************************************/
@@ -118,6 +118,9 @@ button:active, .button:active{ position:relative; top :1px; left:1px; }
 
 .filename { font-family: courier; }
 
+#submitty { margin-left: 1em; }
+#hr_bottom { border-color: white; }
+
 
 /* ------ INDEX Page ------ */
 
@@ -184,7 +187,7 @@ table.index_T {
 	font-size: .95em;
 	border         : 1px solid #777;
 	border-collapse: collapse;
-	margin: .5em 0 0 0;
+	margin: .5em 0 .5em 0;
 	background-color: #FFF;
 	}
 
@@ -233,7 +236,6 @@ input.perms {
 	text-align: right;
 }
 
-/* //##### remove/normalize bg color assignment once permissions are editable. ##### */
 input.perms:focus { border: solid 1px transparent; background-color: #DDD }
 td.perms { padding: 0; }
 

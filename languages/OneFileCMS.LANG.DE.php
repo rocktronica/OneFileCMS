@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.6.03
+// OneFileCMS Language Settings v3.6.06
 
 $_['LANGUAGE'] = 'Deutsch';
 $_['LANG'] = 'DE';
@@ -71,7 +71,6 @@ $_['To']         = 'Auf';
 $_['Upload']     = 'Heraufladen';
 $_['Username']   = 'Benutzername';
 $_['View']       = 'Aussicht';
-$_['Working']    = 'Working - please wait...'; //## NT ##
 
 $_['Log_In']             = 'Anmelden';
 $_['Log_Out']            = 'Abmelden';
@@ -104,6 +103,11 @@ $_['No_files']           = 'Keine Dateien ausgewählt.';
 $_['Not_found']          = 'Nicht gefunden';
 $_['Invalid_path']       = 'Invalid path'; //## NT ##
 $_['must_be_decendant']  = '$DEFAULT_PATH must be a decendant of, or equal to, $ACCESS_ROOT'; //## NT ##
+$_['Update_failed']      = 'Update failed.'; //## NT ##
+$_['Working']            = 'Working - please wait...'; //## NT ##
+$_['Enter_to_edit']      = '[Enter] to edit'; //## NT ##
+$_['Press_Enter']        = 'Press [Enter] to save changes. Press [Esc] or [Tab] to cancel.'; //## NT ##
+$_['Permissions_msg_1']  = 'Permissions must be exactly 3 or 4 octal digits (0-7)'; //## NT ##
 
 $_['verify_msg_01']     = 'Sitzung abgelaufen.';
 $_['verify_msg_02']     = 'UNGÜLTIGE DATENSENDUNG';
@@ -145,6 +149,7 @@ $_['edit_txt_00'] = 'Edit disabled.'; //## NT ##
 $_['edit_txt_01'] = 'Unbekannter Dateityp oder keine Textdatei. Bearbeitungsmöglichkeit ausgeschalten.';
 $_['edit_txt_02'] = 'Die Datei enthält möglicherweise ungültige Zeichen. Der Bearbeitungs- und Betrachtungsmodus wurde gesperrt.';
 $_['edit_txt_03'] = 'htmlspecialchars() gab eine leere Zeichenkette zurück.';
+$_['edit_txt_04'] = 'Das Verhalten kann je nach verwendeter PHP-Version unterschiedlich sein.';
 $_['edit_txt_05'] = 'Datei ist readonly.';
 
 $_['too_large_to_edit_01'] = 'Bearbeiten deaktiviert. Dateigröße >';
@@ -213,7 +218,7 @@ $_['confirm_reset']   = 'Soll der Inhalt der Datei zurückgesetzt werden (Änder
 $_['OFCMS_requires']  = 'OneFileCMS erfordert PHP';
 $_['logout_msg']      = 'Sie wurden erfolgreich abgemeldet.';
 $_['edit_caution_01'] = 'ACHTUNG ';
-$_['edit_caution_02'] = ' Sie bearbeiten gerade die aktive Version von OneFileCMS - Sichern Sie den Code und seien Sie vorsichtig !!';
+$_['edit_caution_02'] = ' Sie bearbeiten gerade die aktive Version von OneFileCMS.';
 $_['time_out_txt']    = 'Automatischer Sitzungsstopp in:';
 
 $_['error_reporting_01'] = 'Anzeigen von Fehlern ist';
@@ -227,7 +232,7 @@ $_['admin_txt_00'] = 'Alte Sicherung gefunden';
 $_['admin_txt_01'] = 'Diese Datei wurde erstellt, da es während der Änderung des Passwortes oder des Benutzernamens zu einem Fehler gekommen ist. Diese Datei enthält somit eventuell veraltete Informationen und kann gelöscht werden, sofern sie nicht weiter von Ihnen benötigt wird.';
 $_['admin_txt_02'] = 'Allgemeine Information';
 $_['admin_txt_03'] = 'Session Path'; //## NT ##
-$_['admin_txt_04'] = 'Current Session File (changes every page load)';
+$_['admin_txt_04'] = 'Connected to'; //## NT ##
 $_['admin_txt_14'] = 'Eine weitere, kleine Sicherheitsvorkehrung wäre, das Salz oder die Methode für die Streuwertgenerierung von OneFileCMS zu ändern.';
 $_['admin_txt_16'] = 'Sie können auch OneFileCMS selbst bearbeiten.  Legen Sie aber sicherheitshalber eine Kopie an, falls es zu einem unerwünschten Schreibfehler kommt...';
 
@@ -258,8 +263,6 @@ $_['change_pw_07'] = 'All fields are required.'; //## NT ##
 
 $_['change_un_01'] = 'Benutzername wurde geändert!';
 $_['change_un_02'] = 'Benutzername wurde nicht geändert.';
-
-$_['update_failed'] = 'Aktualisierung fehlgeschlagen - die Datei konnte nicht gespeichert werden.';
 
 $_['mcd_msg_01'] = 'Dateien verschoben.';
 $_['mcd_msg_02'] = 'Dateien kopiert.';
