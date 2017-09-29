@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.6.06';
+$OFCMS_version = '3.6.07';
 
 //If language values changed, don't forget the Language Settings version.
 
@@ -382,7 +382,7 @@ $PRE_ITERATIONS = 10000;
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.6.0x  (Not always in sync with OFCMS version#, if no changes to displayed wording.)
+// OneFileCMS Language Settings v3.6.07  (Not always in sync with OFCMS version#, if no changes to displayed wording.)
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -411,7 +411,7 @@ $_['select_all_label_size']  = '.84em';   //Font size of $_['Select_All']
 $_['select_all_label_width'] = '72px';    //Width of space for $_['Select_All']
 
 $_['HTML']    = 'HTML';
-$_['WYSIWYG'] = 'WYSIWYG';
+$_['WYSIWYG'] = 'WYSIWYG'; //...
 
 $_['Admin']      = 'Admin';
 $_['bytes']      = 'bytes';
@@ -439,7 +439,7 @@ $_['Hash']       = 'Hash';
 $_['Invalid']    = 'Invalid'; //## NT ## as of 3.5.23
 $_['Move']       = 'Move';
 $_['Moved']      = 'Moved';
-$_['Name']       = 'Name';
+$_['Name']       = 'Name';   //...
 $_['on']         = 'on';
 $_['off']        = 'off';
 $_['Password']   = 'Password';
@@ -448,7 +448,7 @@ $_['reset']      = 'Reset';
 $_['save_1']     = 'Save';
 $_['save_2']     = 'SAVE CHANGES';
 $_['Size']       = 'Size';
-$_['Source']     = 'Source';
+$_['Source']     = 'Source'; //## NT ##
 $_['successful'] = 'successful';
 $_['To']         = 'To';
 $_['Upload']     = 'Upload';
@@ -484,11 +484,14 @@ $_['Clear_All']          = 'Clear All';
 $_['New_Location']       = 'New Location';
 $_['No_files']           = 'No files selected.';
 $_['Not_found']          = 'Not found';
-$_['Invalid_path']       = 'Invalid path';
+$_['Invalid_path']       = 'Invalid path'; //## NT ##
 $_['must_be_decendant']  = '$DEFAULT_PATH must be a decendant of, or equal to, $ACCESS_ROOT'; //## NT ## as of 3.5.23
 $_['Update_failed']      = 'Update failed';
-$_['Working']            = 'Working - please wait...';
+$_['Working']            = 'Working - please wait...'; //## NT ##
 
+$_['Enter_to_edit']		= '[Enter] to edit'; //## NT ## as of 3.6.07
+$_['Press_Enter']       = 'Press [Enter] to save changes. Press [Esc] or [Tab] to cancel.'; //## NT ## as of 3.6.07
+$_['Permissions_msg_1'] = 'Permissions must be exactly 3 or 4 octal digits (0-7)';  //## NT ## as of 3.6.07
 $_['verify_msg_01']     = 'Session expired.';
 $_['verify_msg_02']     = 'INVALID POST';
 $_['get_get_msg_01']    = 'File does not exist:';
@@ -597,7 +600,7 @@ $_['unload_unsaved']  = ' Unsaved changes will be lost!';
 $_['confirm_reset']   = 'Reset file and loose unsaved changes?';
 $_['OFCMS_requires']  = 'OneFileCMS requires PHP';
 $_['logout_msg']      = 'You have successfully logged out.';
-$_['edit_caution_01'] = 'CAUTION'; //##### No longer used as of 3.5.07
+$_['edit_caution_01'] = 'CAUTION';
 $_['edit_caution_02'] = 'You are viewing the active copy of OneFileCMS.'; //## NT ## changed wording 3.5.07
 $_['time_out_txt']    = 'Session time out in:';
 
@@ -1370,7 +1373,7 @@ function Cancel_Submit_Buttons($submit_label) {//*******************************
 	<p>
 	<button type="button" class="button" id="cancel" onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
 		<?php echo hsc($_['Cancel']) ?></button>
-	<button type="submit" class="button" id="submitty" style="margin-left: 1em;"><?php echo hsc($submit_label);?></button>
+	<button type="submit" class="button" id="submitty"><?php echo hsc($submit_label);?></button>
 	<script>E("cancel").focus();</script>
 <?php
 }//end Cancel_Submit_Buttons() //***********************************************
@@ -1580,7 +1583,7 @@ function List_Backups_and_Logs() {//********************************************
 		echo '</table>';
 		
 		if ($backup_found) {
-			echo '<p style="margin-top: .5em"><b>'.hsc($_['admin_txt_00']).'</b></p>';
+			echo '<p><b>'.hsc($_['admin_txt_00']).'</b></p>';
 			echo '<p>'.hsc($_['admin_txt_01']);
 		}
 		echo '<hr>';
@@ -1716,7 +1719,7 @@ function Change_PWUN_Page($pwun, $type, $page_title, $label_new, $label_confirm)
 		
 		<p><input type="button" class="button" id="cancel" value="<?php echo hsc($_['Cancel']) ?>"
 			onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
-		<input type="button" class="button"    id="submitty" value="<?php echo hsc($_['Submit']) ?>" style="margin-left: 1em;">
+		<input type="button" class="button"    id="submitty" value="<?php echo hsc($_['Submit']) ?>">
 		
 		<script>E('password').focus()</script>
 	</form>
@@ -1969,7 +1972,7 @@ function Create_Table_for_Listing() {//*****************************************
 		</div>
 	</th>
 	
-	<th style="font-family: courier">sogw</th>  <!-- //##### move css to style sheet -->
+	<th class=mono>sogw</th>
 	
 	<th class=file_name>
 		<div id=ff_ckbox_div class=ckbox>
@@ -1987,8 +1990,7 @@ function Create_Table_for_Listing() {//*****************************************
 	</tr>
 
 	<tr><?php // "../" directory entry ?>
-		<td colspan=4></td>
-		<td style="font-family: courier"></td>
+		<td colspan=5 id=header_msg></td>
 		<td>
 <?php		if ($ipath == $ACCESS_ROOT) {
 				echo '<a id=f0c5 tabindex='.$TABINDEX++.'>&nbsp;</a>';
@@ -2892,52 +2894,72 @@ function MCD_response($action, $msg1, $success_msg = '') {//********************
 
 
 
-function Update_File_Permissions() { //*****************************************
+function Format_Perms($perms_oct) {//*******************************************
+	//$pemrs_oct is a 3 or 4 digit octal string (7777).
+
+    //file                 file   | s s s | owner | group | world  
+    //permissions         t y p e | u g t | r w x | r w x | r w x
+	//                    
+    //bits        | 0 0 1 | 4 2 1 | 4 2 1 | 4 2 1 | 4 2 1 | 4 2 1
+	//octal             1     7       7       7       7       7
+	//
+    //bits                  8 4 2 1 | 8 4 2 1 | 8 4 2 1 | 8 4 2 1
+	//hex                      F         F         F         F
+
+	$ugt = ['---', '--t', '-g-', '-gt', 'u--', 'u-t', 'ug-', 'ugt']; //SetUid SetGid sTicky
+	$rwx = ['---', '--x', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'];
+
+	if (strlen($perms_oct) > 3) { $ugidsticky = substr($perms_oct, -4, 1); }
+	else 						{ $ugidsticky = 0; }
+	$owner = substr($perms_oct, -3, 1);
+	$group = substr($perms_oct, -2, 1);
+	$world = substr($perms_oct, -1, 1);
+	
+	return "[$perms_oct][".$ugt[$ugidsticky]." ".$rwx[$owner]." ".$rwx[$group]." ".$rwx[$world]."]";
+
+}//end Format_Perms() {//*******************************************************
+
+
+
+
+function Update_File_Permissions() {//******************************************
 	//Validate new_perms & update.
 	//$_POST['new_perms'] must be an octal value with 3 or 4 digits (0-7) only.
-	global $_, $ACCESS_ROOT, $ACCESS_ROOT_len, $MESSAGE;
+	global $_, $MESSAGE;
 	
 	$new_perms   = trim($_POST['new_perms']);
 	$len         = strlen($new_perms);
-	$errors      = 0;
+	$errors      = 0; //No errrors
 	$ipath		 = $_POST['ipath'];
 	$ipath_OS	 = Convert_encoding($ipath);
 	$filename	 = $_POST['perms_filename'];
 	$filename_OS = Convert_encoding($ipath.$filename); //Full path/filename
 
 	//Verify that each digit is octal (0-7), and that $new_perms is only 3 or 4 digits in length.
-	$digit = "";
-	for ($p = 0; $p < $len; $p++) {
-		$digit = substr($new_perms, $p, 1);
-		if (($digit < '0') || ($digit > '7')) {
-			$errors++ ; break;
-		}
-	}
-	if (($len < 3) || ($len > 4)) {
-		$errors++;
-	}
-	//##### 													//##### Needs language $_[]
-	if ($errors) { $MESSAGE .= $_['Invalid'].": [$new_perms]. Must be exactly 3 or 4 octal digits (0-7)"; }
+	if (preg_match("/^[0-7]{3,4}$/", $new_perms) != 1) { $errors++; }
 
-	//Validate path & filename.
-	if (!Valid_Path($ipath_OS, false)) { $MESSAGE = $_['Invalid_path'].". \n"; }
-	if (!file_exists($filename_OS))    { $MESSAGE .= $_['get_get_msg_01']."\n "; }
+	if ($errors > 0) { $MESSAGE .= "<b>".$_['Invalid'].": [$new_perms]</b> ".$_['Permissions_msg_1']."."; }
 
-	if (!$errors) { 
+	//Validate path & filename. Valid_Path() required to prevent access outside $ACCESS_ROOT.
+	if (!Valid_Path($ipath_OS, false)) {  $errors++; $MESSAGE .= $_['Invalid_path'].". \n"; }
+	if (!file_exists($filename_OS))    {  $errors++; $MESSAGE .= $_['get_get_msg_01']."\n "; }
+
+	if ($errors == 0) { 
 		//Update the file permissions...
-		$chmod = chmod($filename_OS, octdec($new_perms));
-		if (!$chmod) {
+		if (!chmod($filename_OS, octdec($new_perms))) {
 			$errors++;
-			$MESSAGE .= "<b>".$_['Update_failed'].":</b> <span class=mono>";
-			$MESSAGE .= "chmod(\"$filename_OS\", octdec($new_perms))</span>";
+			$MESSAGE .= "<b>".$_['Update_failed'].":</b> <span ";
+			$MESSAGE .= "class=mono>chmod(\"$filename_OS\", octdec($new_perms))</span>";
 		}
 	}
 	clearstatcache ();
 	$new_perms = decoct((fileperms($filename_OS) & 07777)); //May not actually be new, if update failed.
+	$new_perms = str_pad($new_perms, 3, "0", STR_PAD_LEFT); //Always at least three digits:  000
+
 
 	if ($errors == 0) {
 		$MESSAGE .= "<b>".hsc($_['meta_txt_03'])."</b> ";
-		$MESSAGE .= "<span class=mono> <b>[".hsc($new_perms)."]</b> ".hsc($filename)."</span><br>";
+		$MESSAGE .= "<span class=mono> <b>".Format_Perms($new_perms)."</b> ".hsc($filename)."</span><br>";
 	}
 
 	$new_perms_response = "";
@@ -3536,7 +3558,7 @@ E("main").onkeydown = function(event) { //*****************************
 
 
 
-function Perms_onkeydown(event, $perms) {//***************************
+function Perms_onkeydown(event, $perms, filename) {//*****************
 
 	//Get key pressed...
 	if (!event) {var event = window.event;} //for IE
@@ -3549,11 +3571,9 @@ function Perms_onkeydown(event, $perms) {//***************************
 		$perms.readOnly = !$perms.readOnly;
 		if ($perms.readOnly) {
 			Display_Messages("");
-			$perms.style.backgroundColor = "";  //##### Remove .class instead?
-			$perms.style.boxShadow = "";		//##### Remove .class instead? 
+			$perms.classList.remove("edit_perms");
 			
-			//onchange doesn't seem to occur until looses focus, which ENTER doesn't do.
-			if ($perms.value != $perms.prior_value) { $perms.onchange(); }
+			if ($perms.value != $perms.prior_value) { Validate_and_Post($perms, filename); }
 		}
 		else {
 			Enable_Edit_Perms($perms);
@@ -3567,14 +3587,8 @@ function Perms_onkeydown(event, $perms) {//***************************
 
 	event.stopPropagation();
 
-	//if ESC or TAB, cancel any changes, & return to readonly.
-	if ((key == 27) || (key == TAB)) {
-		$perms.value = $perms.prior_value;
-		Display_Messages("");
-		$perms.readOnly = true;
-		$perms.style.backgroundColor = "";	//##### Remove .class instead?
-		$perms.style.boxShadow = "";		//##### Remove .class instead?
-	}//end ESC or TAB
+	//if ESC or TAB...
+	if ((key == 27) || (key == TAB)) { Cancel_Perm_Changes($perms) }
 
 	Octal_Input_Only(event);
 
@@ -3585,17 +3599,22 @@ function Perms_onkeydown(event, $perms) {//***************************
 
 
 
+function Cancel_Perm_Changes($perms) {//******************************
+		$perms.value = $perms.prior_value;
+		$perms.readOnly = true;
+		$perms.classList.remove("edit_perms");
+		Display_Messages("");
+}//end Cancel_Perm_Changes() {//**************************************
+
+
+
+
 function Directory_Events($ckbox, $perms, $file, filename) {//********
 
-	//##### add/remove a class instead of setting/clearing value directly? ##############
-	$ckbox.onfocus   = function() { $ckbox.parentNode.style.backgroundColor = "rgb(255,240,140)"; }
-	$ckbox.onblur    = function() { $ckbox.parentNode.style.backgroundColor = ""; }
+	$ckbox.onfocus   = function() { this.parentNode.classList.add("ckbox_parent");    }
+	$ckbox.onblur    = function() { this.parentNode.classList.remove("ckbox_parent"); }
 
-	$perms.onblur	 = function(event) {
-		$perms.readOnly = true;
-		$perms.style.backgroundColor = "";	//##### Remove .class instead?
-		$perms.style.boxShadow = "";		//##### Remove .class instead?
-	}
+	$perms.onblur	 = function(event) { Cancel_Perm_Changes($perms) }
 
 	$perms.onfocus   = function(event) {
  		var deselect = function() { $perms.setSelectionRange(0, 0); }
@@ -3603,9 +3622,7 @@ function Directory_Events($ckbox, $perms, $file, filename) {//********
 		$perms.prior_value = $perms.value;
 	}
 
-	$perms.onkeydown = function(event) { return Perms_onkeydown(event, $perms); }
-
-	$perms.onchange  = function(event) { Validate_and_Post($perms, filename); }
+	$perms.onkeydown = function(event) { return Perms_onkeydown(event, $perms, filename); }
 
 	$perms.onclick   = function(event) { Enable_Edit_Perms($perms); }
 
@@ -3618,23 +3635,20 @@ function Validate_and_Post($perms, filename) { //*********************
 
 	$perms.value = $perms.value.trim();
 	
-	//$perms.onchange sometimes fires when there isn't any. Usually by $perms.onblur, 
-	//after perms already updated by a $perms.onchange(), in Perms_onkeydown(), after [Enter].
 	if ($perms.value == $perms.prior_value) { return };
 
 	//Verify that each digit is octal (0-7), and that $perms is only 3 or 4 digits in length.
 	var octal = /^[0-7]{3,4}$/;
-	var valid =  octal.test($perms.value);
+	var valid =  octal.test($perms.value); 
 
 	if (!valid) {
-		var msg  = "<b>" + hsc("<?php echo $_['Invalid'] ?>: [" + $perms.value + "].") + "</b>";
-		    msg += hsc(" Permissions must be exactly 3 or 4 octal digits (0-7).");  		//##### Needs language $_[]; //#####
+		var msg  = "<b>" + hsc("<?php echo $_['Invalid'] ?>: [" + $perms.value + "]") + "</b> ";
+		    msg += hsc("<?php echo $_['Permissions_msg_1'] ?>.");
 		$perms.value = $perms.prior_value;
 		Display_Messages(msg);
 		return false;
 	}
 
-	$perms.prior_value = $perms.value;
 	Post_New_File_Perms($perms, filename);
 
 	return true;
@@ -3645,14 +3659,14 @@ function Validate_and_Post($perms, filename) { //*********************
 
 function Enable_Edit_Perms($perms) {//********************************
 
-	//##### NEED LANGUAGE $_[] values #####################################################
-	var msg = "Press [Enter] to save changes. Press [Esc] or [Tab] to cancel.";
+	var msg = hsc(" <?php echo $_['Press_Enter'] ?>");
 
 	Display_Messages(msg);
 	$perms.readOnly = false;
 	$perms.setSelectionRange(0, 0); //Just for consistency.
-	$perms.style.backgroundColor = "rgb(255,240,140)";	//##### Add .class instead?
-	$perms.style.boxShadow = "0 0 10px 2px #F44";		//##### Add .class instead?
+
+	$perms.classList.add("edit_perms");
+
 }//end Enable_Edit_Perms() {//****************************************
 
 
@@ -3661,9 +3675,8 @@ function Enable_Edit_Perms($perms) {//********************************
 function Octal_Input_Only(event) { //*********************************
 	//Restrict input to digits & a few special keys.
 
-	//##### This function works with keyboards, but may inhibit number inputs on 
-	//##### touchscreens / android / Samsung Galaxy S III mini / etc.  I don't know.
-	//##### return;
+	//This function works with keyboards, but not touchscreens etc.
+	//However, total input is validated on enter anyway, regardless of device.
 
 	function Stop_Prop(event) { event.stopImmediatePropagation() }
 
@@ -3874,6 +3887,46 @@ function Init_Dir_table_rows(DIR_LIST) {//****************************
 
 
 //********************************************************************
+function Insert_mov_del_ckbox(IS_OFCMS, row, cells, writable, href, f_or_f, filename, tabindex) {
+
+	//Assemble [mov], [del], & [x]
+	//[mov], [del], and [x] are not available for OFCMS or readonly files.
+	//([copy] & [perms] are always available)
+	//The empty <a>'s are to accommodate keyboard nav via onkeydown() in Index_Page_events()...
+
+	var ren_id   = 'f' + row + 'c0';
+	var del_id	 = 'f' + row + 'c2';
+	var ckbox_id = 'f' + row + 'c3';
+
+	var mov = del = ckbox = '';
+
+	if (IS_OFCMS || !writable) {
+		//Used when file is read only, or IS_OFCMS.  (These options are unavailable.)
+		mov   = '<a id=' + ren_id   + ' tabindex='+ (tabindex + 0) +'>&nbsp;</a>'
+		del   = '<a id=' + del_id   + ' tabindex='+ (tabindex + 2) +'>&nbsp;</a>'
+		ckbox = '<a id=' + ckbox_id + ' tabindex='+ (tabindex + 3) +'>&nbsp;</a>'
+	}
+	else {
+		//Used when file is writable.
+		mov    = '<a id=' + ren_id + ' tabindex='+ (tabindex + 0) +' class=MCD href="' + href + '&amp;p=rename' + f_or_f;
+		mov   += '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
+		del    = '<a id=' + del_id + ' tabindex='+ (tabindex + 2) +' class=MCD href="' + href + '&amp;p=delete' + f_or_f;
+		del   += '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
+		ckbox  = '<div class=ckbox><INPUT id=' + ckbox_id + ' tabindex='+ (tabindex + 3);
+		ckbox += ' TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
+	}
+
+	//fill the <td>'s
+	cells[0].innerHTML = mov;
+	cells[2].innerHTML = del;
+	cells[3].innerHTML = ckbox;
+
+}//end Insert_mov_del_ckbox() {//*************************************
+
+
+
+
+//********************************************************************
 function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_name, file_size, file_time){
 
 	//While DIRECTORY_DATA, and the table rows created to list the data, are indexed from 0 (zero),
@@ -3887,56 +3940,33 @@ function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_n
 	row++;
 
 	//[Move] [Copy] [Delete] [x] [perms]
-	var ren_mov  = copy = del = checkbox = perms = cells = '';
+	var ren_mov  = copy = del = checkbox = perms = '';
+	var cells = trow.cells;
 
-	var ren_id   = 'f' + row + 'c0';
 	var copy_id  = 'f' + row + 'c1';
-	var del_id	 = 'f' + row + 'c2';
 	var ckbox_id = 'f' + row + 'c3';
 	var perms_id = 'f' + row + 'c4';
 	var file_id  = 'f' + row + 'c5';
 
 	var sogw = DIRECTORY_DATA[row - 1][6] + ""; //File permissions (suid sgid sticky)(owner)(group)(world)
 	sogw = parseInt(sogw,8);
-	var writable = (sogw & 0o200)/0o0200;  //Only check file owner write bit.
+	var writable = (sogw & 0o200)/0o200;  //Only check file owner write bit.
 
-	//Assemble [move] [copy] [delete] [x] [perms]  ([copy] & [perms] are always available)
-	//[move], [delete], and [x] are not available for OFCMS or readonly files.
-	//The empty <a>'s are to accommodate keyboard nav via onkeydown() in Index_Page_events()...
+	//[mov], [del], & [x] are only available when while is writable.
+	Insert_mov_del_ckbox(IS_OFCMS, row, cells, writable, href, f_or_f, filename, TABINDEX);
 
-	if (IS_OFCMS || !writable) { //[Move] not available
-		ren_mov  = '<a id=' + ren_id + ' tabindex='+ (TABINDEX++) +'>&nbsp;</a>'
-	}
-	else {
-		ren_mov  = '<a id=' + ren_id + ' tabindex='+ (TABINDEX++) +' class=MCD href="';
-		ren_mov += href + '&amp;p=rename' + f_or_f + '" ';
-		ren_mov += 'title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
-	}
-
-	copy  = '<a id=' + copy_id + ' tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=copy'   + f_or_f;
+	//[copy] & [perms] are always available.
+	copy  = '<a id=' + copy_id + ' tabindex='+ (TABINDEX + 1) +' class=MCD href="' + href + '&amp;p=copy'   + f_or_f;
 	copy += '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
 
-	if (IS_OFCMS || !writable) { //[delete] & [checkbox] are not available
-		del      = '<a id=' + del_id + '   tabindex='+ (TABINDEX++) +'>&nbsp;</a>'
-		checkbox = '<a id=' + ckbox_id + ' tabindex='+ (TABINDEX++) +'>&nbsp;</a>'
-	}
-	else {
-		del       = '<a id=' + del_id + ' tabindex='+ (TABINDEX++) +' class=MCD href="' + href + '&amp;p=delete' + f_or_f;
-		del		 += '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
-		checkbox  = '<div class=ckbox><INPUT id=' + ckbox_id + ' tabindex='+ (TABINDEX++);
-		checkbox += ' TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
-	}
-
-	perms  = '<input id=' + perms_id + ' class=perms tabindex=' + (TABINDEX++) ;
+	perms  = '<input id=' + perms_id + ' class=perms tabindex=' + (TABINDEX + 4) ;
 	perms += ' value="' + DIRECTORY_DATA[row - 1][6]+ '" maxlength=4 readonly>';
 
+	TABINDEX = TABINDEX + 5;
 
 	//fill the <td>'s
-	cells = trow.cells;
-	cells[0].innerHTML = ren_mov;
+	//( 0, 2, & 3 are filled in Insert_mov_del_ckbox() )
 	cells[1].innerHTML = copy;
-	cells[2].innerHTML = del;
-	cells[3].innerHTML = checkbox;
 	cells[4].innerHTML = perms;
 	cells[5].innerHTML = file_name;
 	cells[6].innerHTML = file_size;
@@ -4089,6 +4119,37 @@ function Confirm_Submit(action) {//***********************************
 
 	E('mcdselect').submit(); //submit form.
 }//end Confirm_Submit() //********************************************
+
+
+
+
+function Format_Perms(perms_oct) {//**********************************
+	//##### Not used yet. Had grand ideas, but now not sure...
+	//returns [7777][ugt rwx rwx rwx]
+
+	//$pemrs_oct is a 3 or 4 digit octal string (7777).
+	
+    //file                 file   | s s s | owner | group | world  
+    //permissions         t y p e | u g t | r w x | r w x | r w x
+	//                    
+    //bits        | 0 0 1 | 4 2 1 | 4 2 1 | 4 2 1 | 4 2 1 | 4 2 1
+	//octal             1     7       7       7       7       7
+	//
+    //bits                  8 4 2 1 | 8 4 2 1 | 8 4 2 1 | 8 4 2 1
+	//hex                      F         F         F         F
+
+	var ugt = ['---', '--t', '-g-', '-gt', 'u--', 'u-t', 'ug-', 'ugt']; //setUid setGid sTicky
+	var rwx = ['---', '--x', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'];
+
+	if ((perms_oct.length * 1) > 3) { var ugidsticky = perms_oct.substr(-4, 1); }
+	else							{ var ugidsticky = 0; }
+	var owner = perms_oct.substr(-3, 1);
+	var group = perms_oct.substr(-2, 1);
+	var world = perms_oct.substr(-1, 1);
+	
+	return "[" + perms_oct + "][" + ugt[ugidsticky] + " " + rwx[owner] + " " + rwx[group] + " " + rwx[world] + "]";
+
+}//end Format_Perms() {//*********************************************
 
 </script>
 
@@ -4756,7 +4817,7 @@ button:active, .button:active{ position:relative; top :1px; left:1px; }
 	}
 
 
-#message_box { border: none; margin: .5em 0 .5em 0; padding: 0; min-height: 1.88em;}
+#message_box { border: none; margin: .2em 0 .1em 0; padding: 0; min-height: 3em; }
 
 .message_box_contents { border: 1px solid gray; padding: 3px 2px 2px 4px; background: #FFF000; }
 
@@ -4778,6 +4839,9 @@ button:active, .button:active{ position:relative; top :1px; left:1px; }
 #message_box  #X_box:active {background-color: rgb(245,245,50); }
 
 .filename { font-family: courier; }
+
+#submitty { margin-left: 1em; }
+#hr_bottom { border-color: white; }
 
 
 /* ------ INDEX Page ------ */
@@ -4845,13 +4909,13 @@ table.index_T {
 	font-size: .95em;
 	border         : 1px solid #777;
 	border-collapse: collapse;
-	margin: .5em 0 0 0;
+	margin: .5em 0 .5em 0;
 	background-color: #FFF;
 	}
 
 table.index_T tr:hover {border: 1px solid #777; background-color: #EEE}
 table.index_T th { border: 1px inset silver; vertical-align: middle; text-align: center; padding: 0 ;}
-table.index_T td { border: 1px inset silver; vertical-align: middle;}
+table.index_T td { border: 1px inset silver; vertical-align: middle; white-space: nowrap; }
 table.index_T th:hover { background-color: white;}
 
 .index_T td a {	display: block; border: none; padding: 2px 4px 2px 4px; overflow : hidden; }
@@ -4890,10 +4954,19 @@ input.perms {
 	width: 2.4rem;
 	padding: 2px 2px;
 	border: solid 1px transparent;
+	background-color: transparent;
 	text-align: right;
 }
 
+
 td.perms { padding: 0; }
+
+input.perms.edit_perms { background-color: rgb(255,240,140); box-shadow: 0 0 10px 2px #F44; }
+
+.perms:focus { border: solid 1px transparent; background-color: #DDD }
+
+.ckbox.ckbox_parent { background-color: rgb(255,240,140); }
+
 
 #DIRECTORY_FOOTER {text-align: center; font-size: .9em; color: #333; padding: 3px 0 0 0; }
 
@@ -5347,7 +5420,7 @@ Load_Selected_Page();
 //footer...
 if ($_SESSION['valid']) {
 	//Countdown timer
-	echo "<hr style='border-color: white;'>\n";
+	echo "<hr id=hr_bottom>\n";
 	echo "<span id=timer0  class='timer timeout'></span>";
 	echo "<span class=timeout>".hsc($_['time_out_txt'])."</span>";
 

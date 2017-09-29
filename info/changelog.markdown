@@ -1,5 +1,10 @@
 # OneFileCMS Change Log
 
+### v3.6.07 (2017-09-29)
+
+- Mostly some code improvements.
+- And some css...
+
 ### v3.6.06 (2017-09-27)
 
 - Added ability to edit file permissions.
