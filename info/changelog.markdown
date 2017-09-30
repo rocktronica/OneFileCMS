@@ -1,5 +1,12 @@
 # OneFileCMS Change Log
 
+### v3.6.07 (2017-09-30)
+
+- Fixed minor issue where if perms changed, new value not always displayed.
+- A bit of restructure/refactor of perm & Assemble_Insert_Row() related functions.
+- "(on php 5.x.x)" version, and link to phpinfo, now only shows on Admin page.
+- Andd some css...
+
 ### v3.6.07 (2017-09-29)
 
 - Mostly some code improvements.

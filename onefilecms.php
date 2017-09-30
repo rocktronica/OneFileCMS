@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.6.07';
+$OFCMS_version = '3.6.08';
 
 //If language values changed, don't forget the Language Settings version.
 
@@ -1344,8 +1344,9 @@ function Page_Header() {//******************************************************
 	echo '<div id="header">';
 		echo '<a href="'.$ONESCRIPT.'" id="logo" tabindex='.$TABINDEX++.'>'.hsc($MAIN_TITLE).'</a> '.$OFCMS_version.' ';
 		
-		$on_php = '('.hsc($_['on']).'&nbsp;php&nbsp;'.phpversion().')';
-		if ($_SESSION["valid"]) {
+		$on_php = '';
+		if ($page == "admin") {
+			$on_php = '('.hsc($_['on']).'&nbsp;php&nbsp;'.phpversion().')';
 			$on_php = '<a id=on_php tabindex='.($TABINDEX++).' href="'.$ONESCRIPT.'?p=phpinfo'.'" target=_blank>'.$on_php.'</a>';
 		}
 		echo $on_php;
@@ -3316,7 +3317,6 @@ var Move_Button			= E('b1');
 var Copy_Button			= E('b2');
 var Delete_Button		= E('b3');
 
-var highlight1 = "rgb(255,250,150)";
 
 E('header_filename').focus();
 
@@ -3329,24 +3329,24 @@ if (Delete_Button) { Delete_Button.onclick = function () {Confirm_Submit('delete
 E('select_all_ckbox').onclick = function () {Select_All();}
 
 
-E('select_all_ckbox').onfocus = function() {
-	E('select_all_ckbox').parentNode.style.backgroundColor = highlight1;
-	E('select_all_label').style.backgroundColor = highlight1;
+E('select_all_ckbox').onfocus = function() {  //ckbox_label_focus
+	this.parentNode.classList.add("ckbox_label_focus");
+	E('select_all_label').classList.add("ckbox_label_focus");
 }
 E('select_all_ckbox').onblur = function() {
-	E('select_all_ckbox').parentNode.style.backgroundColor = "";
-	E('select_all_label').style.backgroundColor = "";
+	this.parentNode.classList.remove("ckbox_label_focus");
+	E('select_all_label').classList.remove("ckbox_label_focus");
 }
 
 
 E('folders_first_ckbox').onfocus = function() {
-	E('folders_first_ckbox').parentNode.style.backgroundColor = highlight1;
-	E('folders_first_label').style.backgroundColor = highlight1;
+	this.parentNode.classList.add("ckbox_label_focus");
+	E('folders_first_label').classList.add("ckbox_label_focus");
 }
 
 E('folders_first_ckbox').onblur = function() {
-	E('folders_first_ckbox').parentNode.style.backgroundColor = "";
-	E('folders_first_label').style.backgroundColor = "";
+	this.parentNode.classList.remove("ckbox_label_focus");
+	E('folders_first_label').classList.remove("ckbox_label_focus");
 }
 
 E('folders_first_ckbox').onclick = function () {Sort_and_Show(SORT_by, SORT_order); this.focus();}
@@ -3362,8 +3362,6 @@ E("main").onkeydown = function(event) { //*****************************
 	//Control cursor keys to navigate index page. (Arrows, Page, Home, End)
 
 	var jump = <?php echo $PAGEUPDOWN ?>;//# of rows to jump with Page Up/Page Down.
-	var highlight1 = "rgb(255,250,150)";
-	var highlight2 = "rgb(255,240,140)";
 
 	//Get key pressed...
 	if (!event) {var event = window.event;} //for IE
@@ -3611,8 +3609,9 @@ function Cancel_Perm_Changes($perms) {//******************************
 
 function Directory_Events($ckbox, $perms, $file, filename) {//********
 
-	$ckbox.onfocus   = function() { this.parentNode.classList.add("ckbox_parent");    }
-	$ckbox.onblur    = function() { this.parentNode.classList.remove("ckbox_parent"); }
+	//If $ckbox events changed, also change in Insert_mdx()
+	$ckbox.onfocus   = function() { this.parentNode.classList.add("ckbox_parent_focus");    }
+	$ckbox.onblur    = function() { this.parentNode.classList.remove("ckbox_parent_focus"); }
 
 	$perms.onblur	 = function(event) { Cancel_Perm_Changes($perms) }
 
@@ -3660,11 +3659,9 @@ function Validate_and_Post($perms, filename) { //*********************
 function Enable_Edit_Perms($perms) {//********************************
 
 	var msg = hsc(" <?php echo $_['Press_Enter'] ?>");
-
 	Display_Messages(msg);
 	$perms.readOnly = false;
 	$perms.setSelectionRange(0, 0); //Just for consistency.
-
 	$perms.classList.add("edit_perms");
 
 }//end Enable_Edit_Perms() {//****************************************
@@ -3676,7 +3673,7 @@ function Octal_Input_Only(event) { //*********************************
 	//Restrict input to digits & a few special keys.
 
 	//This function works with keyboards, but not touchscreens etc.
-	//However, total input is validated on enter anyway, regardless of device.
+	//However, total input is validated on [Enter] anyway, regardless of device.
 
 	function Stop_Prop(event) { event.stopImmediatePropagation() }
 
@@ -3709,6 +3706,7 @@ function Perms_Update_Response(request, $perms) { //******************
 	var update_response = JSON.parse(request.responseText);
 
 	$perms.value = update_response.new_perms.trim();
+
 	$perms.prior_value = $perms.value;
 
 	var msg = update_response.MESSAGE;
@@ -3719,6 +3717,14 @@ function Perms_Update_Response(request, $perms) { //******************
 	//#####	msg += "<hr>" + hsc(request.responseText); //For trouble-shooting...
 
 	E('nuonce').value = update_response.nuonce; //For the next post...
+
+	var frow = $perms.id.split('c')[0].substr(1); //id = "fNNcN", frow = the NN after the "f"
+	var drow = frow - 1; //See frow & drow notes in Assemble_Insert_row()
+
+	DIRECTORY_DATA[drow][6] = $perms.value;
+
+	var cells = E("DIRECTORY_LISTING").rows[drow].cells;
+	Insert_mdx(drow, cells); //Show/Hide [M]    [D][X]   file options
 
 	Display_Messages(msg);
 
@@ -3778,7 +3784,12 @@ var SORT_by		     = '1';   // Sort key (column) from DIRECTORY_DATA[x][key].
 var SORT_order       = true;  // Default to "normal" sort orders (ascending). Set to false for reverse (descending).
 var SORT_folders_1st = true;  // Initially set to true. false = did not consider folders during prior sort.
 
-
+//Used to either show or hide [Mov][Del]  [X] options depending on if file is readonly or not.
+//Made 2D & set in Assemble_mdx().
+//Need to be global as used Insert_mdx(), which is called from two other functions.
+var MOV_rw = []; //Move/Rename
+var DEL_rw = []; //Delete
+var CBX_rw = []; //checkbox
 
 
 function Sort_Folders_First() {//*************************************
@@ -3861,20 +3872,19 @@ function sort_DIRECTORY(col, direction) {//***************************
 
 
 
-function Init_Dir_table_rows(DIR_LIST) {//****************************
-
-	var row, cell, cells, tr, td;
+function Init_Dir_table_rows() {//************************************
+	//initialize <tr>'s with empty <td>'s
+	
+	var drow, cell, cells, tr, td;
 	
 	var last_cell = 8; // number of columns in directory listing.
 
-	for (row = 0; row < DIRECTORY_ITEMS; row++){
-		
-		//initialize <tr> with empty <td>'s
-		tr = DIR_LIST.insertRow(row);
-		for (cell = 0; cell < last_cell; cell++) {td = tr.insertCell(-1);}
+	for (drow = 0; drow < DIRECTORY_ITEMS; drow++){
+		tr = E("DIRECTORY_LISTING").insertRow(-1); //-1 adds row after last row.
+		for (cell = 0; cell < last_cell; cell++) { td = tr.insertCell(-1); }
 		cells = tr.cells;
 		
-		//assign css classes
+		//assign classes
 		var c = 4;
 		cells[c++].className = 'meta_T perms';  //file permissions
 		cells[c++].className = 'file_name';
@@ -3887,85 +3897,112 @@ function Init_Dir_table_rows(DIR_LIST) {//****************************
 
 
 //********************************************************************
-function Insert_mov_del_ckbox(IS_OFCMS, row, cells, writable, href, f_or_f, filename, tabindex) {
+function Assemble_mdx(drow, cells, href, f_or_f, filename, tabindex) {
 
-	//Assemble [mov], [del], & [x]
+	//Assemble [mov], [del], & [x](checkbox)
 	//[mov], [del], and [x] are not available for OFCMS or readonly files.
 	//([copy] & [perms] are always available)
 	//The empty <a>'s are to accommodate keyboard nav via onkeydown() in Index_Page_events()...
 
-	var ren_id   = 'f' + row + 'c0';
-	var del_id	 = 'f' + row + 'c2';
-	var ckbox_id = 'f' + row + 'c3';
+	var frow = drow + 1;
 
-	var mov = del = ckbox = '';
+	var ren_id   = 'f' + frow + 'c0';
+	var del_id	 = 'f' + frow + 'c2';
+	var ckbox_id = 'f' + frow + 'c3';
 
-	if (IS_OFCMS || !writable) {
-		//Used when file is read only, or IS_OFCMS.  (These options are unavailable.)
-		mov   = '<a id=' + ren_id   + ' tabindex='+ (tabindex + 0) +'>&nbsp;</a>'
-		del   = '<a id=' + del_id   + ' tabindex='+ (tabindex + 2) +'>&nbsp;</a>'
-		ckbox = '<a id=' + ckbox_id + ' tabindex='+ (tabindex + 3) +'>&nbsp;</a>'
-	}
-	else {
-		//Used when file is writable.
-		mov    = '<a id=' + ren_id + ' tabindex='+ (tabindex + 0) +' class=MCD href="' + href + '&amp;p=rename' + f_or_f;
-		mov   += '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
-		del    = '<a id=' + del_id + ' tabindex='+ (tabindex + 2) +' class=MCD href="' + href + '&amp;p=delete' + f_or_f;
-		del   += '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
-		ckbox  = '<div class=ckbox><INPUT id=' + ckbox_id + ' tabindex='+ (tabindex + 3);
-		ckbox += ' TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
-	}
+	var IS_OFCMS = DIRECTORY_DATA[drow][4]; 
+	var sogw = parseInt(DIRECTORY_DATA[drow][6] + "",8); //File permissions (suid sgid sticky)(owner)(group)(world)
+	var read_write = (((sogw & 0o200)/0o200) && !IS_OFCMS) * 1 ;  //Check file owner write bit, or if IS_OFCMS.
 
-	//fill the <td>'s
-	cells[0].innerHTML = mov;
-	cells[2].innerHTML = del;
-	cells[3].innerHTML = ckbox;
+	//Store both verions of these options for each file.
+	//[0] empty placeholder <a> (needed for keyboard nav), & [1] actual working option.
+	MOV_rw[frow] = [];
+	DEL_rw[frow] = [];
+	CBX_rw[frow] = [];
 
-}//end Insert_mov_del_ckbox() {//*************************************
+	//Used when file is read only, or IS_OFCMS.  ([M], [D], & [X],  are unavailable.)
+	MOV_rw[frow][0] = '<a id=' + ren_id   + ' tabindex='+ (tabindex + 0) +'>&nbsp;</a>';
+	DEL_rw[frow][0] = '<a id=' + del_id   + ' tabindex='+ (tabindex + 2) +'>&nbsp;</a>';
+	CBX_rw[frow][0] = '<a id=' + ckbox_id + ' tabindex='+ (tabindex + 3) +'>&nbsp;</a>';
+
+	//Used when file is read_write.
+	MOV_rw[frow][1]  = '<a id=' + ren_id + ' tabindex='+ (tabindex + 0) +' class=MCD href="' + href + '&amp;p=rename' + f_or_f;
+	MOV_rw[frow][1] += '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
+	DEL_rw[frow][1]  = '<a id=' + del_id + ' tabindex='+ (tabindex + 2) +' class=MCD href="' + href + '&amp;p=delete' + f_or_f;
+	DEL_rw[frow][1] += '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
+	CBX_rw[frow][1]  = '<div class=ckbox><INPUT id=' + ckbox_id + ' tabindex='+ (tabindex + 3);
+	CBX_rw[frow][1] += ' TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
+
+}//end Assemble_mdx() {//*********************************************
+
+
+
+
+function Insert_mdx(drow, cells) {//**********************************
+
+	var IS_OFCMS = DIRECTORY_DATA[drow][4]; 
+	var sogw = parseInt(DIRECTORY_DATA[drow][6] + "",8); //File permissions (suid sgid sticky)(owner)(group)(world)
+	var read_write = (((sogw & 0o200)/0o200) && !IS_OFCMS) * 1 ;  //Check file owner write bit, or if IS_OFCMS.
+	
+	var frow = drow + 1;
+
+	//MOV_rw, DEL_rw, & CBX_rw, are globals, with values set in Assemble_mdx()
+	cells[0].innerHTML = MOV_rw[frow][read_write];
+	cells[2].innerHTML = DEL_rw[frow][read_write];
+	cells[3].innerHTML = CBX_rw[frow][read_write];
+
+	//Re-assign checkbox events. (Initially assigned in Directory_Events()).
+	$ckbox = E('f' + frow + 'c' + 3);
+	$ckbox.onfocus   = function() { this.parentNode.classList.add("ckbox_parent_focus");    }
+	$ckbox.onblur    = function() { this.parentNode.classList.remove("ckbox_parent_focus"); }
+
+}//end Insert_mdx() {//***********************************************
 
 
 
 
 //********************************************************************
-function Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_name, file_size, file_time){
+function Assemble_Insert_row(drow, href, filename, file_name, file_time){
+
+	//The number of tab-able items per row affects the (TABINDEX + 5) offset near end of Build_Directory(),
+	//and the $TABINDEX calculation for the [Admin] link in page footer.
+	//There are currently 6 tab-able items per (file) row:  [m] [c] [d] [x] [sogw] [file name]
+	//[m][c][d][x][sogw] tabindexes are set below.  [filename]'s tabinex is set in Build_Directory().
+
+	var cells = E("DIRECTORY_LISTING").rows[drow].cells; //Must come before the row++ a little later in this function.
+
+	var filetype = DIRECTORY_DATA[drow][0];
+	var filesize = DIRECTORY_DATA[drow][2];
+
+	//folder or file?
+	if (filetype == "dir") { var f_or_f = 'folder';	var file_size = ''; }
+	else 				   { var f_or_f = 'file';   var file_size = format_number(filesize); }
 
 	//While DIRECTORY_DATA, and the table rows created to list the data, are indexed from 0 (zero),
 	//the id's of files in the directory list are indexed from 1 (f1, f2...), as "../" is listed first with id=f0 (f-zero).
 	//The id's are used in Index_Page_events() "cursor" control.
-	//Note: Number of tab-able items per row affects the (TABINDEX + 5) offset near end of Build_Directory(),
-	//		and the $TABINDEX calculation for the [Admin] link in page footer.
-	//		There are currently 6 tab-able items per (file) row:  [m] [c] [d] [x] [sogw] [file name]
-	//		[m][c][d][x][sogw] tabindexes are set below.  [filename]'s tabinex is set in Build_Directory().
+	var frow = drow + 1;
 
-	row++;
+	var copy, perms;
 
-	//[Move] [Copy] [Delete] [x] [perms]
-	var ren_mov  = copy = del = checkbox = perms = '';
-	var cells = trow.cells;
-
-	var copy_id  = 'f' + row + 'c1';
-	var ckbox_id = 'f' + row + 'c3';
-	var perms_id = 'f' + row + 'c4';
-	var file_id  = 'f' + row + 'c5';
-
-	var sogw = DIRECTORY_DATA[row - 1][6] + ""; //File permissions (suid sgid sticky)(owner)(group)(world)
-	sogw = parseInt(sogw,8);
-	var writable = (sogw & 0o200)/0o200;  //Only check file owner write bit.
-
-	//[mov], [del], & [x] are only available when while is writable.
-	Insert_mov_del_ckbox(IS_OFCMS, row, cells, writable, href, f_or_f, filename, TABINDEX);
+	var copy_id  = 'f' + frow + 'c1';
+	var ckbox_id = 'f' + frow + 'c3';
+	var perms_id = 'f' + frow + 'c4';
+	var file_id  = 'f' + frow + 'c5';
 
 	//[copy] & [perms] are always available.
 	copy  = '<a id=' + copy_id + ' tabindex='+ (TABINDEX + 1) +' class=MCD href="' + href + '&amp;p=copy'   + f_or_f;
 	copy += '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
 
-	perms  = '<input id=' + perms_id + ' class=perms tabindex=' + (TABINDEX + 4) ;
-	perms += ' value="' + DIRECTORY_DATA[row - 1][6]+ '" maxlength=4 readonly>';
+	perms  = '<input id=' + perms_id + ' tabindex=' + (TABINDEX + 4) + ' class=perms';
+	perms += ' value="' + DIRECTORY_DATA[drow][6]+ '" maxlength=4 readonly>';
 
+	//Assemble & Insert contents for cells[0], [2], & [3]  ([Mov], [Del], [ckbox])
+	Assemble_mdx(drow, cells, href, f_or_f, filename, TABINDEX);
+	Insert_mdx(drow, cells);
 	TABINDEX = TABINDEX + 5;
 
-	//fill the <td>'s
-	//( 0, 2, & 3 are filled in Insert_mov_del_ckbox() )
+	//Insert contents for the remaining cells...
 	cells[1].innerHTML = copy;
 	cells[4].innerHTML = perms;
 	cells[5].innerHTML = file_name;
@@ -3983,10 +4020,10 @@ function Build_Directory() {//****************************************
 
 	TABINDEX    = <?php echo $TABINDEX ?>;  //Rest TABINDEX
 
-	var DIR_LIST = E("DIRECTORY_LISTING");
+	//Has the directory table been init'd yet?
+	if (E("DIRECTORY_LISTING").rows.length < 1)	{ Init_Dir_table_rows(E("DIRECTORY_LISTING")); }
 
-	if (DIR_LIST.rows.length < 1) {Init_Dir_table_rows(DIR_LIST);}
-
+	//Fill 'er up!
 	for (var row = 0; row < DIRECTORY_ITEMS; row++) {
 		
 		var filetype = DIRECTORY_DATA[row][0];
@@ -3997,14 +4034,10 @@ function Build_Directory() {//****************************************
 		//folder or file?
 		if (filetype == "dir"){
 			var DS        = ' /';
-			var f_or_f    = 'folder';
 			var href      = ONESCRIPT + PARAM1 + encodeURIComponent(filename);
-			var file_size = '';
 		} else {
 			var DS        = '';
-			var f_or_f    = 'file';
 			var href      = ONESCRIPT + PARAM1 + '&amp;f=' + encodeURIComponent(filename) + '&amp;p=edit';
-			var file_size = format_number(filesize);
 		}
 		
 		var file_col = 5; //column of file names
@@ -4015,10 +4048,8 @@ function Build_Directory() {//****************************************
 			file_name += ICONS[filetype] + '&nbsp;' + hsc(filename) + DS + '</a>';
 		var file_time  = FileTimeStamp(filetime, 1, 0, 0);
 		
-		var IS_OFCMS = DIRECTORY_DATA[row][4];
-		var trow = DIR_LIST.rows[row];
+		Assemble_Insert_row(row, href, filename, file_name, file_time);
 		
-		Assemble_Insert_row(IS_OFCMS, row, trow, href, f_or_f, filename, file_name, file_size, file_time);
 		TABINDEX++; //To accuont for file_name above
 	}//end for (row...
 }//end Build_Directory() //*******************************************
@@ -4864,17 +4895,49 @@ button:active, .button:active{ position:relative; top :1px; left:1px; }
 #select_all_label:hover  { background-color: rgb(255,250,150); }
 #select_all_label:active { background-color: rgb(245,245, 50); }
 
+label.ckbox_label_focus { background-color: rgb(255,250,150) }
+.ckbox.ckbox_label_focus { background-color: rgb(255,250,150) }
+
 
 /*** Directory list file select boxes ***/
-/*ckbox is assigned to <div>'s etc that contain <input type=checkbox>*/
-.ckbox        {padding: 4px 4px 2px 4px; display: inline-block;}
+/*ckbox is assigned to <div> that contain <input type=checkbox>*/
+.ckbox        {padding: 3px 3px 1px 3px; display: inline-block; border: solid 1px transparent; }
 .ckbox:hover  {background-color: rgb(255,240,140);} 
 .ckbox:active {background-color: rgb(245,245, 50);}
 
+.ckbox.ckbox_parent_focus { background-color: rgb(255,235,90); border: solid 1px rgb(220,190,0); }
+
+
 /* Slightly darker colors for [m][c][d] file options since they are small & less noticable*/
-.MCD:hover  {background-color: rgb(255,240,140);}
-.MCD:focus  {background-color: rgb(255,240,140);}
-.MCD:active {background-color: rgb(245,245, 50);}
+.index_T a.MCD:hover  {background-color: rgb(255,240,140);}
+.index_T a.MCD:focus  {background-color: rgb(255,240,140);}
+.index_T a.MCD:active {background-color: rgb(245,245, 50);}
+
+.index_T a.MCD       { border: solid 1px transparent; }
+.index_T a.MCD:focus { border: solid 1px rgb(220,190,0); }
+
+
+input.perms {
+	display: inline-block;
+	width: 2.4rem;
+	padding: 2px 2px;
+	border: solid 1px transparent;
+	background-color: transparent;
+	text-align: right;
+}
+
+
+td.perms { padding: 0; }
+
+input.perms {height: 1.42rem;}
+
+input.perms.edit_perms { background-color: rgb(255,240,140); box-shadow: 0 0 10px 2px #F44; }
+
+.perms:focus { border: solid 1px rgb(190,160,0); background-color: #EEE }
+
+.perms:hover { cursor : pointer; }
+
+
 
 
 /*** [x] (folders first) ***/
@@ -4918,7 +4981,7 @@ table.index_T th { border: 1px inset silver; vertical-align: middle; text-align:
 table.index_T td { border: 1px inset silver; vertical-align: middle; white-space: nowrap; }
 table.index_T th:hover { background-color: white;}
 
-.index_T td a {	display: block; border: none; padding: 2px 4px 2px 4px; overflow : hidden; }
+.index_T td a {	display: block; height: 1.42rem; border: none; padding: 2px 4px 2px 4px; overflow : hidden; }
 .index_T th a { padding: 1px 0 1px 0; border-width: 0px;}
 
 th.file_name {min-width: 15em}
@@ -4948,24 +5011,6 @@ th.file_name {min-width: 15em}
 
 .meta_T  { padding: 0 .5em; text-align: right; font: bold .9rem courier; color: #333}
 .meta_T2 { border: solid 1px black; background-color: white; font-size: 1rem; }
-
-input.perms {
-	display: inline-block;
-	width: 2.4rem;
-	padding: 2px 2px;
-	border: solid 1px transparent;
-	background-color: transparent;
-	text-align: right;
-}
-
-
-td.perms { padding: 0; }
-
-input.perms.edit_perms { background-color: rgb(255,240,140); box-shadow: 0 0 10px 2px #F44; }
-
-.perms:focus { border: solid 1px transparent; background-color: #DDD }
-
-.ckbox.ckbox_parent { background-color: rgb(255,240,140); }
 
 
 #DIRECTORY_FOOTER {text-align: center; font-size: .9em; color: #333; padding: 3px 0 0 0; }

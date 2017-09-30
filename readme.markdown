@@ -6,10 +6,10 @@ OneFileCMS is a simple CMS (Content Management System) contained entirely in a s
 
 With basic editing, upload, and file managing functions, OneFileCMS can maintain an entire website completely in-browser without any external programs.
 
-### Main screen:
+### File Manager:
 ![OneFileCMS](http://self-evident.github.com/OneFileCMS/images/OFCMS_screenshot.04.png)
 
-### Edit screen:
+### Text Editor:
 ![OneFileCMS](http://self-evident.github.com/OneFileCMS/images/OFCMS_screenshot_edit.02.png)
 
 --------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ OneFileCMS can be easily configured to work with [TinyMCE](http://tinymce.moxiec
 
   These issues, of course, are not unique to OneFileCMS - as they will exist in any CMS that permits unrestricted file editing & uploads.
 
-- If your website's connection is not encrypted (doesn't use SSL/TLS), passwords & usernames will be sent in clear text* during login.  However, this is true of any login system that's over an unencrypted connection.  
+- As with any website, if your website's connection is not encrypted (doesn't use SSL/TLS), passwords & usernames will be sent in clear text* during login. 
   *As of version 3.4.15, a client-side hash of the user's "plain-text" password is sent to the server.  So, while this client-side hash is still a "plain-text" password as far as the server is concerned, the user's actual raw password is protected from immediate exposure.
 
 --------------------------------------------------------------------------------
