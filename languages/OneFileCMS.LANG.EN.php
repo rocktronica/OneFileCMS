@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.6.06
+// OneFileCMS Language Settings v3.6.08
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -103,11 +103,11 @@ $_['No_files']           = 'No files selected.';
 $_['Not_found']          = 'Not found';
 $_['Invalid_path']       = 'Invalid path'; //## NT ##
 $_['must_be_decendant']  = '$DEFAULT_PATH must be a decendant of, or equal to, $ACCESS_ROOT'; //## NT ## as of 3.5.23
-$_['Update_failed']      = 'Update failed.';
+$_['Update_failed']      = 'Update failed';
 $_['Working']            = 'Working - please wait...'; //## NT ##
-$_['Enter_to_edit']      = '[Enter] to edit';
-$_['Press_Enter']        = 'Press [Enter] to save changes. Press [Esc] or [Tab] to cancel.';
-$_['Permissions_msg_1']  = 'Permissions must be exactly 3 or 4 octal digits (0-7)';
+$_['Enter_to_edit']      = '[Enter] to edit'; //## NT ## as of 3.6.07
+$_['Press_Enter']        = 'Press [Enter] to save changes. Press [Esc] or [Tab] to cancel.'; //## NT ## as of 3.6.07
+$_['Permissions_msg_1']  = 'Permissions must be exactly 3 or 4 octal digits (0-7)'; //## NT ## as of 3.6.07
 
 $_['verify_msg_01']     = 'Session expired.';
 $_['verify_msg_02']     = 'INVALID POST';

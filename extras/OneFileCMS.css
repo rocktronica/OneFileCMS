@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-Sample, OPTIONAL, external style sheet, as of OneFileCMS v3.6.06
+Sample, OPTIONAL, external style sheet, as of OneFileCMS v3.6.08
 
 This is just a copy of the primary <style></style> section in OneFileCMS
 *******************************************************************************/
@@ -95,7 +95,7 @@ button:active, .button:active{ position:relative; top :1px; left:1px; }
 	}
 
 
-#message_box { border: none; margin: .5em 0 .5em 0; padding: 0; min-height: 1.88em;}
+#message_box { border: none; margin: .2em 0 .1em 0; padding: 0; min-height: 3em; }
 
 .message_box_contents { border: 1px solid gray; padding: 3px 2px 2px 4px; background: #FFF000; }
 
@@ -142,17 +142,49 @@ button:active, .button:active{ position:relative; top :1px; left:1px; }
 #select_all_label:hover  { background-color: rgb(255,250,150); }
 #select_all_label:active { background-color: rgb(245,245, 50); }
 
+label.ckbox_label_focus { background-color: rgb(255,250,150) }
+.ckbox.ckbox_label_focus { background-color: rgb(255,250,150) }
+
 
 /*** Directory list file select boxes ***/
-/*ckbox is assigned to <div>'s etc that contain <input type=checkbox>*/
-.ckbox        {padding: 4px 4px 2px 4px; display: inline-block;}
+/*ckbox is assigned to <div> that contain <input type=checkbox>*/
+.ckbox        {padding: 3px 3px 1px 3px; display: inline-block; border: solid 1px transparent; }
 .ckbox:hover  {background-color: rgb(255,240,140);} 
 .ckbox:active {background-color: rgb(245,245, 50);}
 
+.ckbox.ckbox_parent_focus { background-color: rgb(255,235,90); border: solid 1px rgb(220,190,0); }
+
+
 /* Slightly darker colors for [m][c][d] file options since they are small & less noticable*/
-.MCD:hover  {background-color: rgb(255,240,140);}
-.MCD:focus  {background-color: rgb(255,240,140);}
-.MCD:active {background-color: rgb(245,245, 50);}
+.index_T a.MCD:hover  {background-color: rgb(255,240,140);}
+.index_T a.MCD:focus  {background-color: rgb(255,240,140);}
+.index_T a.MCD:active {background-color: rgb(245,245, 50);}
+
+.index_T a.MCD       { border: solid 1px transparent; }
+.index_T a.MCD:focus { border: solid 1px rgb(220,190,0); }
+
+
+input.perms {
+	display: inline-block;
+	width: 2.4rem;
+	padding: 2px 2px;
+	border: solid 1px transparent;
+	background-color: transparent;
+	text-align: right;
+}
+
+
+td.perms { padding: 0; }
+
+input.perms {height: 1.42rem;}
+
+input.perms.edit_perms { background-color: rgb(255,240,140); box-shadow: 0 0 10px 2px #F44; }
+
+.perms:focus { border: solid 1px rgb(190,160,0); background-color: #EEE }
+
+.perms:hover { cursor : pointer; }
+
+
 
 
 /*** [x] (folders first) ***/
@@ -193,10 +225,10 @@ table.index_T {
 
 table.index_T tr:hover {border: 1px solid #777; background-color: #EEE}
 table.index_T th { border: 1px inset silver; vertical-align: middle; text-align: center; padding: 0 ;}
-table.index_T td { border: 1px inset silver; vertical-align: middle;}
+table.index_T td { border: 1px inset silver; vertical-align: middle; white-space: nowrap; }
 table.index_T th:hover { background-color: white;}
 
-.index_T td a {	display: block; border: none; padding: 2px 4px 2px 4px; overflow : hidden; }
+.index_T td a {	display: block; height: 1.42rem; border: none; padding: 2px 4px 2px 4px; overflow : hidden; }
 .index_T th a { padding: 1px 0 1px 0; border-width: 0px;}
 
 th.file_name {min-width: 15em}
@@ -227,17 +259,6 @@ th.file_name {min-width: 15em}
 .meta_T  { padding: 0 .5em; text-align: right; font: bold .9rem courier; color: #333}
 .meta_T2 { border: solid 1px black; background-color: white; font-size: 1rem; }
 
-input.perms {
-	display: inline-block;
-	width: 2.4rem;
-	padding: 2px 2px;
-	border: solid 1px transparent;
-	background-color: transparent;
-	text-align: right;
-}
-
-input.perms:focus { border: solid 1px transparent; background-color: #DDD }
-td.perms { padding: 0; }
 
 #DIRECTORY_FOOTER {text-align: center; font-size: .9em; color: #333; padding: 3px 0 0 0; }
 

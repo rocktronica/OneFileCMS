@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.6.06
+// OneFileCMS Language Settings v3.6.08
 
 $_['LANGUAGE'] = 'Russian';
 $_['LANG'] = 'RU';
@@ -103,7 +103,7 @@ $_['No_files']           = 'Нет выбранных файлов.';
 $_['Not_found']          = 'Не найдено';
 $_['Invalid_path']       = 'Invalid path'; //## NT ##
 $_['must_be_decendant']  = '$DEFAULT_PATH must be a decendant of, or equal to, $ACCESS_ROOT'; //## NT ##
-$_['Update_failed']      = 'Update failed.'; //## NT ##
+$_['Update_failed']      = 'Update failed'; //## NT ##
 $_['Working']            = 'Working - please wait...'; //## NT ##
 $_['Enter_to_edit']      = '[Enter] to edit'; //## NT ##
 $_['Press_Enter']        = 'Press [Enter] to save changes. Press [Esc] or [Tab] to cancel.'; //## NT ##
