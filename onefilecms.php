@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.6.08';
+$OFCMS_version = '3.6.09';
 
 //If language values changed, don't forget the Language Settings version.
 
@@ -214,7 +214,7 @@ if( PHP_VERSION_ID < PHP_VERSION_ID_REQUIRED ) {
 }
 
 
-mb_detect_order("UTF-8, ASCII, Windows-1252, ISO-8859-1"); 
+mb_detect_order("UTF-8, ASCII, Windows-1252, ISO-8859-1");
 
 
 //Get server's File System encoding.  Windows NTFS uses ISO-8859-1 / Windows-1252.
@@ -382,7 +382,7 @@ $PRE_ITERATIONS = 10000;
 
 function Default_Language() { // ***********************************************
 	global $_;
-// OneFileCMS Language Settings v3.6.07  (Not always in sync with OFCMS version#, if no changes to displayed wording.)
+// OneFileCMS Language Settings v3.6.09  (Not always in sync with OFCMS version#, if no changes to displayed wording.)
 
 $_['LANGUAGE'] = 'English';
 $_['LANG'] = 'EN';
@@ -435,13 +435,15 @@ $_['files']      = 'files';
 $_['Folder']     = 'Folder';
 $_['folders']    = 'folders';
 $_['From']       = 'From';
+$_['Group']      = 'Group';  //## NT ## as of 3.6.09
 $_['Hash']       = 'Hash';
 $_['Invalid']    = 'Invalid'; //## NT ## as of 3.5.23
 $_['Move']       = 'Move';
 $_['Moved']      = 'Moved';
 $_['Name']       = 'Name';   //...
-$_['on']         = 'on';
 $_['off']        = 'off';
+$_['on']         = 'on';
+$_['Owner']      = 'Owner';  //## NT ## as of 3.6.09
 $_['Password']   = 'Password';
 $_['Rename']     = 'Rename';
 $_['reset']      = 'Reset';
@@ -737,6 +739,8 @@ function Verify_IDLE_POST_etc() {//*********************************************
 
 	//If POSTing, verify...
 	//##### NEED TO ACTUALLY CHECK IF HTTP POST (VS GET), THEN ALWAYS CHECK FOR NUONCE. #####
+	//##### I think nuonce is now used on every page, so one should ALWAYS be sent with EVERY request.
+	//##### So, if a nuonce is not present on a post - ignore the request & set $MESSAGE..
 	if ( isset($_POST['nuonce']) ) {
 		if ( $_POST['nuonce'] == $_SESSION['nuonce'] ) {
 			$VALID_POST = 1;
@@ -1413,8 +1417,12 @@ function Show_Image($url) {//***************************************************
 
 function Timeout_Timer($COUNT, $ID, $ACTION="") {//*****************************
 	global $DELAY_Start_Countdown;
-
-	return '<script>setTimeout(\'Start_Countdown('.$COUNT.',"'.$ID.'","'.$ACTION.'")\','.$DELAY_Start_Countdown.');</script>';
+	
+	//These represent strings that need to be "quoted".
+	$ID     = '"'.$ID.'"';
+	$ACTION = '"'.$ACTION.'"';
+	
+	return "<script>setTimeout('Start_Countdown($COUNT, $ID, $ACTION)', $DELAY_Start_Countdown);</script>\n";
 
 }//end Timeout_Timer() //*******************************************************
 
@@ -1542,7 +1550,7 @@ function List_File($file, $file_url) {//****************************************
 	global $_, $DOC_ROOT, $ONESCRIPT, $ICONS, $MESSAGE;
 
 	$file_OS = Convert_encoding($file);
-	clearstatcache ();
+	clearstatcache();
 	$ipath = trim($DOC_ROOT,'/').dir_name($file_url);
 
 	$href = $ONESCRIPT.'?i='.$ipath.'&amp;f='.basename($file_url);
@@ -1571,7 +1579,7 @@ function List_Backups_and_Logs() {//********************************************
 	$ONESCRIPT_file_backup_OS = Convert_encoding($ONESCRIPT_file_backup);
 	$LOGIN_LOG_file_OS		  = Convert_encoding($LOGIN_LOG_file);
 
-	clearstatcache ();
+	clearstatcache();
 	$backup_found = $log_found = false;
 	if (is_file($ONESCRIPT_file_backup_OS) || is_file($CONFIG_FILE_backup_OS) ) { $backup_found = true; }
 	if (is_file($LOGIN_LOG_file_OS)) { $log_found = true; }
@@ -1955,6 +1963,18 @@ function Create_Table_for_Listing() {//*****************************************
 
 	$new_path = URLencode_path(dir_name($ipath)); //for "../" entry in dir list.
 
+	$file_owner_header = $file_group_header = "";
+	if (function_exists('posix_getpwuid')) { 
+		$file_owner_header = $_['Owner'];
+		$file_group_header = $_['Group'];
+	}
+
+	$ti = $TABINDEX + 6;
+	if ($ipath == $ACCESS_ROOT)
+		{ $file_0 = "<a id=f0c5 tabindex=$ti>&nbsp;</a>"; }
+	else
+		{ $file_0 = "<a id=f0c5 tabindex=$ti href='$ONEFILECMS?i=$new_path'>{$ICONS['up_dir']} <b>..</b> /</a>"; }
+
 	//<input hidden> is a dummy input to make sure files[] is always an array for Select_All() & Confirm_Ready().
 ?>
 	<INPUT TYPE=hidden NAME="files[]" VALUE="">
@@ -1969,7 +1989,7 @@ function Create_Table_for_Listing() {//*****************************************
 	<tr>
 	<th colspan=3><LABEL for=select_all_ckbox id=select_all_label><?php echo hsc($_['Select_All']) ?></LABEL></th>
 	<th><div class=ckbox>
-			<INPUT id=select_all_ckbox tabindex=<?php echo $TABINDEX++ ?> TYPE=checkbox NAME=select_all VALUE=select_all>
+			<INPUT id=select_all_ckbox tabindex=<?php echo $TABINDEX + 0 ?> TYPE=checkbox NAME=select_all VALUE=select_all>
 		</div>
 	</th>
 	
@@ -1977,38 +1997,37 @@ function Create_Table_for_Listing() {//*****************************************
 	
 	<th class=file_name>
 		<div id=ff_ckbox_div class=ckbox>
-			<INPUT tabindex=<?php echo $TABINDEX++?> TYPE=checkbox id=folders_first_ckbox NAME=folders_first VALUE=folders_first checked>
+			<INPUT tabindex=<?php echo $TABINDEX + 1?> TYPE=checkbox id=folders_first_ckbox NAME=folders_first VALUE=folders_first checked>
 		</div>
 		<label for=folders_first_ckbox id=folders_first_label title="<?php  echo hsc($_['folders_first_info']) ?>">
 			(<?php echo hsc($_['folders_first']) ?>)
 		</label>
-		<a tabindex=<?php echo ($TABINDEX + 1)?> href="#" id=header_sorttype>(<?php echo hsc($_['ext']) ?>)</a>
-		<a tabindex=<?php echo $TABINDEX++?>     href="#" id=header_filename><?php echo hsc($_['Name']) ?></a>
-		<?php $TABINDEX++ // ?>
+		<a tabindex=<?php echo $TABINDEX + 3 ?> href="#" id=header_sorttype>(<?php echo hsc($_['ext']) ?>)</a>
+		<a tabindex=<?php echo $TABINDEX + 2 ?>     href="#" id=header_filename><?php echo hsc($_['Name']) ?></a>
 	</th>
-	<th class=file_size><a tabindex=<?php echo $TABINDEX++?> href="#" id=header_filesize><?php echo hsc($_['Size']." (".$_['bytes'].")") ?></a></th>
-	<th class=file_time><a tabindex=<?php echo $TABINDEX++?> href="#" id=header_filedate><?php echo hsc($_['Date']) ?></a></th>
+
+	<th class=file_size><a tabindex=<?php echo $TABINDEX + 4 ?> href="#" id=header_filesize><?php echo hsc($_['Size']." (".$_['bytes'].")") ?></a></th>
+	<th class=file_time><a tabindex=<?php echo $TABINDEX + 5 ?> href="#" id=header_filedate><?php echo hsc($_['Date']) ?></a></th>
+
+	<th><?php echo $file_owner_header ?></th>
+	<th><?php echo $file_group_header ?></th>
 	</tr>
 
 	<tr><?php // "../" directory entry ?>
 		<td colspan=5 id=header_msg></td>
-		<td>
-<?php		if ($ipath == $ACCESS_ROOT) {
-				echo '<a id=f0c5 tabindex='.$TABINDEX++.'>&nbsp;</a>';
-			}
-			else {
-				echo '<a id=f0c5 tabindex='.$TABINDEX++.' href="'.$ONEFILECMS.'?i='.$new_path.'">'.$ICONS['up_dir'].' <b>..</b> /</a>';
-			}
-?>		</td>
-		<td></td>
-		<td></td>
+		<td><?php echo $file_0 ?></td>
+		<td></td><?php //file size  ?>
+		<td></td><?php //date time  ?>
+		<td></td><?php //file owner  ?>
+		<td></td><?php //file group  ?>
 	<tr>
 
 	<?php //Directory & footer content will be inserted later. ?>
 	<tbody id=DIRECTORY_LISTING></tbody>
-	<tr><td id=DIRECTORY_FOOTER colspan=8></td></tr>
+	<tr><td id=DIRECTORY_FOOTER colspan=10></td></tr> <?php //##### Abstract out the 10, and define/determine by??? ##### ?>
 	</table>
 <?php
+	$TABINDEX += 7;
 }//Create_Table_for_Listing() //************************************************
 
 
@@ -2064,52 +2083,37 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 		//Get file size & date.
 		$file_size_raw = filesize($filename_OS);
 		$file_time_raw = filemtime($filename_OS);
+		
+		//Some systems, like Windows, don't have this function/info (posix_getpwuid).
+		$fileowner_name = "";
+		$filegroup_name = "";
+		if (function_exists('posix_getpwuid')) {
+			$fileowner_uid  = fileowner($filename_OS);
+			$fileowner_info = posix_getpwuid($fileowner_uid);
+			$fileowner_name = $fileowner_info['name'];
 			
+			$filegroup_uid	= filegroup($filename_OS);
+			$filegroup_info = posix_getgrgid($filegroup_uid);
+			$filegroup_name = $filegroup_info['name'];
+		}
+
 		//Store data
-		$DIRECTORY_DATA[$DIRECTORY_COUNT] = array('', '', 0, 0, 0, '', '');
+		$DIRECTORY_DATA[$DIRECTORY_COUNT] = array('', '', 0, 0, 0, '', '', '', '');
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][0] = $type;  //used to determine icon & f_or_f
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][1] = $filename;
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][2] = $file_size_raw;
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][3] = $file_time_raw;
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][4] = $is_ofcms; //If = 1, Don't show ren, del, ckbox.
-		$DIRECTORY_DATA[$DIRECTORY_COUNT][5] = $ext;
+		$DIRECTORY_DATA[$DIRECTORY_COUNT][5] = $ext; //##### Is this used?
 		$DIRECTORY_DATA[$DIRECTORY_COUNT][6] = decoct(fileperms($filename_OS) & 07777);
+		$DIRECTORY_DATA[$DIRECTORY_COUNT][7] = $fileowner_name;
+		$DIRECTORY_DATA[$DIRECTORY_COUNT][8] = $filegroup_name;
+
 		$DIRECTORY_COUNT++;
 	}//end foreach file
 
 	return $DIRECTORY_COUNT;
 }//end Get_DIRECTORY_DATA() //**************************************************
-
-
-
- 
-function Send_directory_data_to_js() {//****************************************
-	global $DIRECTORY_DATA, $DIRECTORY_COUNT;
-	//"send" DIRECTORY_DATA to javascript.
-	$data_for_js = "<script>\n";
-
-	$row = 0; //index after filter of . & ..
-	for ($x = 0; $x < $DIRECTORY_COUNT; $x++) {
-		$filename = $DIRECTORY_DATA[$x][1];
-		if ( ($filename != '.') && ($filename != '..') ) {; // skip . & ..
-			$data_for_js .= 'DIRECTORY_DATA['.$row++.'] = [';
-			$data_for_js .= '"'  .$DIRECTORY_DATA[$x][0].'"';				// "type"
-			$data_for_js .= ', "'.addslashes($DIRECTORY_DATA[$x][1]).'"';	// "file name"
-			$data_for_js .= ', ' .$DIRECTORY_DATA[$x][2];					// filesize
-			$data_for_js .= ', ' .$DIRECTORY_DATA[$x][3];					// timestamp
-			$data_for_js .= ', ' .$DIRECTORY_DATA[$x][4];					// is_ofcms
-			$data_for_js .= ', "'.addslashes($DIRECTORY_DATA[$x][5]).'"';	// "ext"
-			$data_for_js .= ', ' .$DIRECTORY_DATA[$x][6];					// file permissions
-			$data_for_js .= "];\n";
-		}//end skip . & ..
-	}//end for x
-
-	$data_for_js .= "var DIRECTORY_ITEMS = DIRECTORY_DATA.length;\n";
-
-	$data_for_js .= "</script>\n\n";
-	echo $data_for_js;
-
-}//end Send_directory_data_to_js() {//******************************************
 
 
 
@@ -2139,28 +2143,36 @@ function Index_Page_buttons_top($file_count) {//********************************
 
 
 
- 
-function Index_Page() {//*******************************************************
-	global  $ONESCRIPT, $ipath_OS, $param1, $INPUT_NUONCE;
 
-	init_ICONS_js();
+function Index_Page() {//*******************************************************
+	global  $ONESCRIPT, $ipath_OS, $param1, $INPUT_NUONCE, $DIRECTORY_DATA, $DIRECTORY_COUNT;
 
 	$raw_list = scandir('./'.$ipath_OS);  //Get current directory list  (unsorted)
 	$file_count = Get_DIRECTORY_DATA($raw_list);
 
 	//<form> to contain directory, including buttons at top.
-	echo '<form method="post" id="mcdselect" action="'.$ONESCRIPT.$param1.'&amp;p=mcdaction">';
-	echo '<input type="hidden" name="mcdaction" value="">'; //along with $page, affects response
+	echo "<form method=post id=mcdselect action='{$ONESCRIPT}{$param1}&amp;p=mcdaction'>\n";
+	echo "<input type=hidden name=mcdaction value=''>\n"; //along with $page, affects response
 	echo $INPUT_NUONCE; //Needed for file permission updates.
 
 	Index_Page_buttons_top($file_count);
 
 	Create_Table_for_Listing(); //sets up table with empty <tbody></tbody>
 
-	echo "</form>\n";
+	echo "</form>\n\n\n";
 
+	//  DIRECTORY_DATA[x] = ['type', 'file name', filesize, timestamp, is_ofcms, 'ext', permissions, file owner, file group]
+
+	if ($DIRECTORY_COUNT < 1) { $json_parse_encoded_data = "[]"; }
+	else { $json_parse_encoded_data = "JSON.parse('". json_encode($DIRECTORY_DATA)."')"; }
+
+	echo "<script>\n";
+	echo "var DIRECTORY_DATA = $json_parse_encoded_data;\n";
+	echo "var DIRECTORY_ITEMS = DIRECTORY_DATA.length;\n";
+	echo "</script>\n";
+	
+	init_ICONS_js();
 	Index_Page_scripts();
-	Send_directory_data_to_js();
 	Index_Page_events();
 }//end Index_Page() //**********************************************************
 
@@ -2171,7 +2183,7 @@ function Edit_Page_buttons_top($text_editable,$file_ENC) {//********************
 	global $_, $ONESCRIPT, $param1, $param2, $filename, $filename_OS, $IS_OFCMS, 
 				$WYSIWYG_VALID, $EDIT_WYSIWYG, $WYSIWYG_label, $MESSAGE;
 
-	clearstatcache ();
+	clearstatcache();
 
 	//[View Raw] button.
 	if ($text_editable) {
@@ -2907,7 +2919,7 @@ function Format_Perms($perms_oct) {//*******************************************
     //bits                  8 4 2 1 | 8 4 2 1 | 8 4 2 1 | 8 4 2 1
 	//hex                      F         F         F         F
 
-	$ugt = ['---', '--t', '-g-', '-gt', 'u--', 'u-t', 'ug-', 'ugt']; //SetUid SetGid sTicky
+	$ugt = ['...', '..t', '.g.', '.gt', 'u..', 'u.t', 'ug.', 'ugt']; //SetUid SetGid sTicky
 	$rwx = ['---', '--x', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'];
 
 	if (strlen($perms_oct) > 3) { $ugidsticky = substr($perms_oct, -4, 1); }
@@ -2953,7 +2965,7 @@ function Update_File_Permissions() {//******************************************
 			$MESSAGE .= "class=mono>chmod(\"$filename_OS\", octdec($new_perms))</span>";
 		}
 	}
-	clearstatcache ();
+	clearstatcache();
 	$new_perms = decoct((fileperms($filename_OS) & 07777)); //May not actually be new, if update failed.
 	$new_perms = str_pad($new_perms, 3, "0", STR_PAD_LEFT); //Always at least three digits:  000
 
@@ -2967,7 +2979,7 @@ function Update_File_Permissions() {//******************************************
 	$new_perms_response['new_perms'] 	  = $new_perms;
 	$new_perms_response['perms_filename'] = $ipath.$filename;
 	$new_perms_response['nuonce']		  = $_SESSION['nuonce'];
-	$new_perms_response['early_output']   = hsc(ob_get_clean()); //Should always be empty unless error or trouble-shooting.
+	$new_perms_response['early_output']   = ob_get_clean(); //Should always be empty unless error or trouble-shooting.
 	$new_perms_response['errors']		  = $errors."";
 	$new_perms_response['MESSAGE']		  = $MESSAGE;
 	echo json_encode($new_perms_response);
@@ -3081,6 +3093,7 @@ function init_ICONS_js() {//****************************************************
 
 	//Currently, only icons for dir listing are needed in js
 ?>
+
 <script>
 var ICONS = [];
 ICONS['bin']	 = '<?php echo $ICONS["bin"]	 ?>';
@@ -3099,6 +3112,7 @@ ICONS['move']    = '<?php echo $ICONS["move"]    ?>';
 ICONS['copy']    = '<?php echo $ICONS["copy"]    ?>';
 ICONS['delete']  = '<?php echo $ICONS["delete"]  ?>';
 </script>
+
 <?php
 }//end init_ICONS_js() //*******************************************************
 
@@ -3372,7 +3386,8 @@ E("main").onkeydown = function(event) { //*****************************
 
 	//Ignore any other key presses...
 	if ((key != AU) && (key != AD) && (key != AL) && (key != AR) && (key != PU) && (key != PD) && 
-		(key != HOME) && (key != END) && (key != ESC) && (key != TAB) && (key != ENTER)) { return }
+		(key != HOME) && (key != END) && (key != ESC) && (key != TAB) && (key != ENTER) 
+	) { return }
 
 	//File Rows. For these events, "../" is 0, and files are indexed from 1 to DIRECTORY_ITEMS.
 	var FROWS     = DIRECTORY_ITEMS;
@@ -3418,6 +3433,14 @@ E("main").onkeydown = function(event) { //*****************************
 		}
 	}
 
+
+	//For when focus is in the /current/path/header (x_focus == "p").
+	if ((key == HOME) || (key == END)) {
+		//path_items[0].id = path_header, then path_0, path_1, ..., path_(length-2)
+		var path_items = document.querySelectorAll('[id^="p"]');
+	}
+
+
 	//PROCESS THE KEYDOWN EVENT... /////////////////////////////////////////////
 	//In general:
 	//  ENTER - enabled to check/unckeck checkboxes, and respond as needed.
@@ -3429,8 +3452,14 @@ E("main").onkeydown = function(event) { //*****************************
 	//  Page Up/Down will likewise loop thru page, with soft-stops at first/last filenames.
 	//  Arrow Left/Right will function similarly to Tab/Shift-Tab, but hard stop at first/last link on page.
 
-	if (key == ENTER) {	
-		
+	if 		((key == HOME) && (x_focus == "p")) { ID = "path_0"; }
+	else if ((key ==  END) && (x_focus == "p")) { ID = "path_" + (path_items.length - 2); }
+	else if (key == TAB)  { return; }
+	else if (key == ESC)  { document.activeElement.blur();   return; }
+	else if (key == END)  { ID = LAST_FILE;  }
+	else if (key == HOME) {	ID = FIRST_FILE; } 
+
+	else if (key == ENTER) {	
 		if (ID == "select_all_ckbox") {
 			E('mcdselect').select_all.checked = !E('mcdselect').select_all.checked
 			Select_All();
@@ -3453,10 +3482,6 @@ E("main").onkeydown = function(event) { //*****************************
 		if (has_focus.tagName == 'INPUT') { event.preventDefault(); }
 		return;
 	}
-	else if (key == TAB)  { return; }
-	else if (key == ESC)  { document.activeElement.blur();   return; }
-	else if (key == END)  { ID = LAST_FILE;  }
-	else if (key == HOME) {	ID = FIRST_FILE; } 
 	else if (key == AL) {
 		//Find first tab-able element to the left (usually just (focus_tabindex - 1))
 		for (var new_index = (focus_tabindex - 1); new_index > 0; new_index--) {
@@ -3609,9 +3634,7 @@ function Cancel_Perm_Changes($perms) {//******************************
 
 function Directory_Events($ckbox, $perms, $file, filename) {//********
 
-	//If $ckbox events changed, also change in Insert_mdx()
-	$ckbox.onfocus   = function() { this.parentNode.classList.add("ckbox_parent_focus");    }
-	$ckbox.onblur    = function() { this.parentNode.classList.remove("ckbox_parent_focus"); }
+	//$ckbox events are assigned in Insert_mdx()
 
 	$perms.onblur	 = function(event) { Cancel_Perm_Changes($perms) }
 
@@ -3712,14 +3735,14 @@ function Perms_Update_Response(request, $perms) { //******************
 	var msg = update_response.MESSAGE;
 
 	//Should always be blank unless troubleshooting, or an error server side.
-	if (update_response.early_output != "") { msg += "<hr>" + hsc(update_response.early_output); }
+	if (update_response.early_output != "") { msg += "<hr>" + update_response.early_output; }
 
 	//#####	msg += "<hr>" + hsc(request.responseText); //For trouble-shooting...
 
 	E('nuonce').value = update_response.nuonce; //For the next post...
 
 	var frow = $perms.id.split('c')[0].substr(1); //id = "fNNcN", frow = the NN after the "f"
-	var drow = frow - 1; //See frow & drow notes in Assemble_Insert_row()
+	var drow = frow - 1; //See Assemble_Insert_row() for description/explanation.
 
 	DIRECTORY_DATA[drow][6] = $perms.value;
 
@@ -3766,9 +3789,6 @@ function Index_Page_scripts() {//***********************************************
 	global $_, $ONESCRIPT, $param1, $ipath, $MESSAGE, $DELAY_Sort_and_Show_msgs, $MIN_DIR_ITEMS, $TABINDEX;
 ?>
 <script>
-//  DIRECTORY_DATA[x] = ("type", "file name", filesize, timestamp, is_ofcms, "ext", permissions)
-var DIRECTORY_DATA	  = [];
-
 var ONESCRIPT	= "<?php echo $ONESCRIPT ?>";
 var PARAM1		= "<?php echo $param1 ?>";  //capitalized here as it is used as a constant.
 var TABINDEX    = <?php echo $TABINDEX ?>;  //TABINDEX only used by js from this point on...
@@ -3785,14 +3805,15 @@ var SORT_order       = true;  // Default to "normal" sort orders (ascending). Se
 var SORT_folders_1st = true;  // Initially set to true. false = did not consider folders during prior sort.
 
 //Used to either show or hide [Mov][Del]  [X] options depending on if file is readonly or not.
-//Made 2D & set in Assemble_mdx().
-//Need to be global as used Insert_mdx(), which is called from two other functions.
+//Made 2D & assigned values in Assemble_mdx().
+//These need to be global as they're used in Insert_mdx(), which is called from two different functions.
 var MOV_rw = []; //Move/Rename
 var DEL_rw = []; //Delete
 var CBX_rw = []; //checkbox
 
 
 function Sort_Folders_First() {//*************************************
+	//Maintain existing sort order (by name, ext, date, etc.), but place all folders first.
 
 	//DIRECTORY_DATA[x] = ("type", "file name", filesize, timestamp, is_ofcms)	
 
@@ -3800,8 +3821,9 @@ function Sort_Folders_First() {//*************************************
 	var files    = [];
 	var folders  = [];
 	var row_data = [];
-	var F = D = row = 0;  //indexes
+	var F = 0, D = 0, row = 0;  //indexes
 
+	//Seperate folders & files into two seperate arrays...
 	for (row = 0; row < DIRECTORY_DATA.length; row++) {;
 		row_data = DIRECTORY_DATA[row];
 		type     = row_data[0];
@@ -3809,11 +3831,8 @@ function Sort_Folders_First() {//*************************************
 		else 			   { files[F++]   = row_data; }
 	}//end for
 
-	//Replace contents of DIRECTORY_DATA[] with a "merged" folders[] & files[].
-	DIRECTORY_DATA = [];
-	row = 0
-	for (D = 0; D < folders.length; D++) { DIRECTORY_DATA[row++] = folders[D]; }
-	for (F = 0; F < files.length;   F++) { DIRECTORY_DATA[row++] = files[F];   }
+	//Merge folders[] & files[] back together.
+	DIRECTORY_DATA = folders.concat(files);
 
 	SORT_folders_1st = true;
 
@@ -3874,11 +3893,12 @@ function sort_DIRECTORY(col, direction) {//***************************
 
 function Init_Dir_table_rows() {//************************************
 	//initialize <tr>'s with empty <td>'s
-	
-	var drow, cell, cells, tr, td;
-	
-	var last_cell = 8; // number of columns in directory listing.
 
+	var drow, cell, cells, tr, td;
+
+	//Number of columns in directory listing.
+	var last_cell = 10; //##### DEFINE/DETERMINE THIS ELSEWHERE??
+	
 	for (drow = 0; drow < DIRECTORY_ITEMS; drow++){
 		tr = E("DIRECTORY_LISTING").insertRow(-1); //-1 adds row after last row.
 		for (cell = 0; cell < last_cell; cell++) { td = tr.insertCell(-1); }
@@ -3890,6 +3910,8 @@ function Init_Dir_table_rows() {//************************************
 		cells[c++].className = 'file_name';
 		cells[c++].className = 'file_size meta_T';
 		cells[c++].className = 'file_time meta_T';
+		cells[c++].className = 'meta_T'; //file owner
+		cells[c++].className = 'meta_T'; //file group
 	}
 }//end Init_Dir_table_rows() {//**************************************
 
@@ -3897,14 +3919,14 @@ function Init_Dir_table_rows() {//************************************
 
 
 //********************************************************************
-function Assemble_mdx(drow, cells, href, f_or_f, filename, tabindex) {
+function Assemble_mdx(drow, href, f_or_f, filename, tabindex) {
 
 	//Assemble [mov], [del], & [x](checkbox)
 	//[mov], [del], and [x] are not available for OFCMS or readonly files.
 	//([copy] & [perms] are always available)
 	//The empty <a>'s are to accommodate keyboard nav via onkeydown() in Index_Page_events()...
 
-	var frow = drow + 1;
+	var frow = drow + 1; //See Assemble_Insert_row() for description/explanation.
 
 	var ren_id   = 'f' + frow + 'c0';
 	var del_id	 = 'f' + frow + 'c2';
@@ -3912,20 +3934,22 @@ function Assemble_mdx(drow, cells, href, f_or_f, filename, tabindex) {
 
 	var IS_OFCMS = DIRECTORY_DATA[drow][4]; 
 	var sogw = parseInt(DIRECTORY_DATA[drow][6] + "",8); //File permissions (suid sgid sticky)(owner)(group)(world)
-	var read_write = (((sogw & 0o200)/0o200) && !IS_OFCMS) * 1 ;  //Check file owner write bit, or if IS_OFCMS.
+	var writable = (((sogw & 0o200)/0o200) && !IS_OFCMS) * 1 ;  //Check file owner write bit, or if IS_OFCMS.
 
-	//Store both verions of these options for each file.
-	//[0] empty placeholder <a> (needed for keyboard nav), & [1] actual working option.
+	//Declared earlier in global scope (near top of Index_Page_scripts()).
+	//For storing both sets of html below.  For a given file, only one set used at a time, depending on write bit.
+	//[0] = file is not writable, contains empty placeholder <a> (needed for keyboard nav),
+	//[1] = file is writable, (write bit is set),contains working <a> or <input>
 	MOV_rw[frow] = [];
 	DEL_rw[frow] = [];
 	CBX_rw[frow] = [];
 
-	//Used when file is read only, or IS_OFCMS.  ([M], [D], & [X],  are unavailable.)
+	//Used when file is not writable, or IS_OFCMS.  ([M], [D], & [X],  are unavailable.)
 	MOV_rw[frow][0] = '<a id=' + ren_id   + ' tabindex='+ (tabindex + 0) +'>&nbsp;</a>';
 	DEL_rw[frow][0] = '<a id=' + del_id   + ' tabindex='+ (tabindex + 2) +'>&nbsp;</a>';
 	CBX_rw[frow][0] = '<a id=' + ckbox_id + ' tabindex='+ (tabindex + 3) +'>&nbsp;</a>';
 
-	//Used when file is read_write.
+	//Used when file is writable.
 	MOV_rw[frow][1]  = '<a id=' + ren_id + ' tabindex='+ (tabindex + 0) +' class=MCD href="' + href + '&amp;p=rename' + f_or_f;
 	MOV_rw[frow][1] += '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
 	DEL_rw[frow][1]  = '<a id=' + del_id + ' tabindex='+ (tabindex + 2) +' class=MCD href="' + href + '&amp;p=delete' + f_or_f;
@@ -3942,16 +3966,16 @@ function Insert_mdx(drow, cells) {//**********************************
 
 	var IS_OFCMS = DIRECTORY_DATA[drow][4]; 
 	var sogw = parseInt(DIRECTORY_DATA[drow][6] + "",8); //File permissions (suid sgid sticky)(owner)(group)(world)
-	var read_write = (((sogw & 0o200)/0o200) && !IS_OFCMS) * 1 ;  //Check file owner write bit, or if IS_OFCMS.
-	
-	var frow = drow + 1;
+	var writable = (((sogw & 0o200)/0o200) && !IS_OFCMS) * 1 ;  //Check file owner write bit, or if IS_OFCMS.
+
+	var frow = drow + 1; //See Assemble_Insert_row() for description/explanation.
 
 	//MOV_rw, DEL_rw, & CBX_rw, are globals, with values set in Assemble_mdx()
-	cells[0].innerHTML = MOV_rw[frow][read_write];
-	cells[2].innerHTML = DEL_rw[frow][read_write];
-	cells[3].innerHTML = CBX_rw[frow][read_write];
+	cells[0].innerHTML = MOV_rw[frow][writable];
+	cells[2].innerHTML = DEL_rw[frow][writable];
+	cells[3].innerHTML = CBX_rw[frow][writable];
 
-	//Re-assign checkbox events. (Initially assigned in Directory_Events()).
+	//Assign checkbox events. (See Directory_Events() for other directory events.)
 	$ckbox = E('f' + frow + 'c' + 3);
 	$ckbox.onfocus   = function() { this.parentNode.classList.add("ckbox_parent_focus");    }
 	$ckbox.onblur    = function() { this.parentNode.classList.remove("ckbox_parent_focus"); }
@@ -3974,12 +3998,17 @@ function Assemble_Insert_row(drow, href, filename, file_name, file_time){
 	var filetype = DIRECTORY_DATA[drow][0];
 	var filesize = DIRECTORY_DATA[drow][2];
 
-	//folder or file?
-	if (filetype == "dir") { var f_or_f = 'folder';	var file_size = ''; }
-	else 				   { var f_or_f = 'file';   var file_size = format_number(filesize); }
+	if (filetype == "dir") {
+		var f_or_f = 'folder';
+		var file_size = '';
+	}
+	else {
+		var f_or_f = 'file';
+		var file_size = format_number(filesize);
+	}
 
-	//While DIRECTORY_DATA, and the table rows created to list the data, are indexed from 0 (zero),
-	//the id's of files in the directory list are indexed from 1 (f1, f2...), as "../" is listed first with id=f0 (f-zero).
+	//While DIRECTORY_DATA[], and the table <tbody> rows created to list the data, are indexed from 0 (zero),
+	//the id's of files in the directory list are indexed from 1 (f1, f2...), as "../" is listed first with id=f0c5 (f-zero).
 	//The id's are used in Index_Page_events() "cursor" control.
 	var frow = drow + 1;
 
@@ -3992,13 +4021,13 @@ function Assemble_Insert_row(drow, href, filename, file_name, file_time){
 
 	//[copy] & [perms] are always available.
 	copy  = '<a id=' + copy_id + ' tabindex='+ (TABINDEX + 1) +' class=MCD href="' + href + '&amp;p=copy'   + f_or_f;
-	copy += '" title="<?php echo hsc($_['Copy'])     ?>">' + ICONS['copy']    + '</a>';
+	copy += '" title="<?php echo hsc($_['Copy']) ?>">' + ICONS['copy'] + '</a>';
 
 	perms  = '<input id=' + perms_id + ' tabindex=' + (TABINDEX + 4) + ' class=perms';
 	perms += ' value="' + DIRECTORY_DATA[drow][6]+ '" maxlength=4 readonly>';
 
 	//Assemble & Insert contents for cells[0], [2], & [3]  ([Mov], [Del], [ckbox])
-	Assemble_mdx(drow, cells, href, f_or_f, filename, TABINDEX);
+	Assemble_mdx(drow, href, f_or_f, filename, TABINDEX);
 	Insert_mdx(drow, cells);
 	TABINDEX = TABINDEX + 5;
 
@@ -4008,6 +4037,8 @@ function Assemble_Insert_row(drow, href, filename, file_name, file_time){
 	cells[5].innerHTML = file_name;
 	cells[6].innerHTML = file_size;
 	cells[7].innerHTML = file_time;
+	cells[8].innerHTML = DIRECTORY_DATA[drow][7]; //File owner. Will be blank on Windows machines.
+	cells[9].innerHTML = DIRECTORY_DATA[drow][8]; //File group. Will be blank on Windows machines.
 
 	Directory_Events(E(ckbox_id), E(perms_id), E(file_id), filename);
 
@@ -4020,19 +4051,30 @@ function Build_Directory() {//****************************************
 
 	TABINDEX    = <?php echo $TABINDEX ?>;  //Rest TABINDEX
 
-	//Has the directory table been init'd yet?
-	if (E("DIRECTORY_LISTING").rows.length < 1)	{ Init_Dir_table_rows(E("DIRECTORY_LISTING")); }
+	//Has the directory table been init'd yet?  (<tbody id=DIRECTORY_LISTING></tbody>)
+	if (E("DIRECTORY_LISTING").rows.length < 1)	{ Init_Dir_table_rows(); }
+
+	//If directory is empty (no files or folders, but still has header & footer rows),
+	//then the bottm, L, & R, directory <table> borders do not show.  I don't know why.
+	//Inserting a blank row solves this. (Even without inserting any cells.)
+	if (DIRECTORY_ITEMS < 1) {
+		var tr = E("DIRECTORY_LISTING").insertRow(-1);
+		return;
+	}
+
 
 	//Fill 'er up!
-	for (var row = 0; row < DIRECTORY_ITEMS; row++) {
+	for (var drow = 0; drow < DIRECTORY_ITEMS; drow++) {
 		
-		var filetype = DIRECTORY_DATA[row][0];
-		var filename = DIRECTORY_DATA[row][1];
-		var filesize = DIRECTORY_DATA[row][2];
-		var filetime = DIRECTORY_DATA[row][3];
+		var frow = drow + 1; //See Assemble_Insert_row() for description/explanation.
+		
+		var filetype = DIRECTORY_DATA[drow][0];
+		var filename = DIRECTORY_DATA[drow][1];
+		var filesize = DIRECTORY_DATA[drow][2];
+		var filetime = DIRECTORY_DATA[drow][3];
 		
 		//folder or file?
-		if (filetype == "dir"){
+		if (filetype == "dir") {
 			var DS        = ' /';
 			var href      = ONESCRIPT + PARAM1 + encodeURIComponent(filename);
 		} else {
@@ -4043,15 +4085,15 @@ function Build_Directory() {//****************************************
 		var file_col = 5; //column of file names
 		
 		//The (TABINDEX + 5) accounts for the [m][c][d][x][perms] links which are added in Assemble_Insert_Row().
-		var file_name  = '<a id=f'+(row + 1)+'c'+ file_col + ' tabindex='+ (TABINDEX + 5) +' href="' + href  + '"'; 
+		var file_name  = '<a id=f'+ frow +'c'+ file_col + ' tabindex='+ (TABINDEX + 5) +' href="' + href  + '"'; 
 			file_name += ' title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
 			file_name += ICONS[filetype] + '&nbsp;' + hsc(filename) + DS + '</a>';
 		var file_time  = FileTimeStamp(filetime, 1, 0, 0);
 		
-		Assemble_Insert_row(row, href, filename, file_name, file_time);
+		Assemble_Insert_row(drow, href, filename, file_name, file_time);
 		
-		TABINDEX++; //To accuont for file_name above
-	}//end for (row...
+		TABINDEX++; //For the next item after file_name.
+	}//end for (drow...
 }//end Build_Directory() //*******************************************
 
 
@@ -4096,7 +4138,7 @@ function Sort_and_Show(col, direction) {//****************************
 	}
 
 	//setTimeout() needed so 'Working' message will actually get displayed *before* the sort.
-	setTimeout( function () {
+	setTimeout( function () { 
 		sort_DIRECTORY(col, direction); //Sort DIRECTORY_DATA
 		Build_Directory();
 		E('DIRECTORY_FOOTER').innerHTML = Directory_Summary();
@@ -5483,9 +5525,6 @@ if ($_SESSION['valid']) {
 }//end footer
 
 echo "\n</div>\n"; //end main/login_page
-echo "</html>\n";  //***********************************************************
-
-
 
 
 if ( ($page == "edit") && $WYSIWYG_VALID && $EDIT_WYSIWYG ) { include($WYSIWYG_PLUGIN_OS); }
@@ -5504,7 +5543,7 @@ if ($page == "index") {	echo "Sort_and_Show();\n\n"; }
 
 //The setTimeout() delay should be greater than what is set for the Sort_and_Show() "working..." message.
 echo 'setTimeout("Display_Messages($MESSAGE, take_focus)", '.$DELAY_final_messages.');';
-echo "</script>\n\n";
+echo "\n</script>\n\n";
 
 	//##### ACTUAL COUNTDOWN STARTS ON THE SERVER.
 	//##### DO I NEED TO ACCOUNT FOR TIME RECEIVING & LOADING PAGE CLIENT SIDE?
@@ -5514,6 +5553,7 @@ if ($_SESSION['valid']) { echo Timeout_Timer($MAX_IDLE_TIME, 'timer0', 'LOGOUT')
 if ($page == 'edit')    { echo Timeout_Timer($MAX_IDLE_TIME, 'timer1', 'LOGOUT'); }
 if ($LOGIN_DELAYED > 0) { echo Timeout_Timer($LOGIN_DELAYED, 'timer0', ''); }
 
+echo "</html>\n";  //***********************************************************
 //##### Header (UTF-8) for [View Raw] incorrect or not getting sent??
 //##### If file has non-ascii characters, browers display in ISO-8859-1/Windows-1252,
 //##### Except IE, which asks to download the file...
