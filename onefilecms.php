@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.6.09';
+$OFCMS_version = '3.6.10';
 
 //If language values changed, don't forget the Language Settings version.
 
@@ -197,7 +197,8 @@ global $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS, $LOGIN_DELAYED,
 	$ONESCRIPT,  $ONESCRIPT_file, $ONESCRIPT_backup, $ONESCRIPT_file_backup, 
 	$CONFIG_backup, $CONFIG_FILE, $CONFIG_FILE_backup, $VALID_CONFIG_FILE, 
 	$DOC_ROOT, $WEBSITE, $PRE_ITERATIONS, $EX, $MESSAGE, $ENC_OS, $DEFAULT_PATH,
-	$DELAY_Expired_Reload, $DELAY_Sort_and_Show_msgs, $DELAY_Start_Countdown, $DELAY_final_messages, $MIN_DIR_ITEMS;
+	$DELAY_Expired_Reload, $DELAY_Sort_and_Show_msgs, $DELAY_Start_Countdown, $DELAY_final_messages,
+	$MIN_DIR_ITEMS, $DIRECTORY_COLUMNS;
 
 //Requires PHP 5.1 or newer, due to changes in explode() (and maybe others).
 define('PHP_VERSION_ID_REQUIRED',50100);   //Ex: 5.1.23 is 50123
@@ -368,6 +369,11 @@ $MIN_DIR_ITEMS			  = 25; //Minimum number of directory items before "Working..."
 if ( !isset($_COOKIE['wide_view']) || ($_COOKIE['wide_view'] !== "on") ) {
 	$_COOKIE['wide_view'] = "off";
 }
+
+
+//This will probably never change, again...
+//Value deterimined in Create_Table_for_Listing(), and used in Assemble_Insert_row() & Init_Dir_table_rows().
+$DIRECTORY_COLUMNS = 10; 
 
 
 //Used in hashit() and js_hash_scripts().  IE<9 is WAY slow, so keep it low.
@@ -1957,7 +1963,7 @@ function Login_response() {//***************************************************
 
 
 function Create_Table_for_Listing() {//*****************************************
-	global $_, $ONEFILECMS, $ipath, $ipath_OS, $ICONS, $TABINDEX, $ACCESS_ROOT;
+	global $_, $ONEFILECMS, $ipath, $ipath_OS, $ICONS, $TABINDEX, $ACCESS_ROOT, $DIRECTORY_COLUMNS;
 
 	//Header row: | Select All|[ ]|[X](folders first)      Name      (ext) |   Size   |    Date    |
 
@@ -2024,7 +2030,7 @@ function Create_Table_for_Listing() {//*****************************************
 
 	<?php //Directory & footer content will be inserted later. ?>
 	<tbody id=DIRECTORY_LISTING></tbody>
-	<tr><td id=DIRECTORY_FOOTER colspan=10></td></tr> <?php //##### Abstract out the 10, and define/determine by??? ##### ?>
+	<tr><td id=DIRECTORY_FOOTER colspan="<?php echo $DIRECTORY_COLUMNS ?>"></td></tr>
 	</table>
 <?php
 	$TABINDEX += 7;
@@ -2036,12 +2042,12 @@ function Create_Table_for_Listing() {//*****************************************
 function Get_DIRECTORY_DATA($raw_list) {//**************************************
 	global $_, $ONESCRIPT, $ipath, $ipath_OS, $param1, $ICONS, $MESSAGE, 
 			$FTYPES, $FCLASSES, $EXCLUDED_LIST, $STYPES, $SHOWALLFILES, 
-			$DIRECTORY_COUNT, $DIRECTORY_DATA, $ENC_OS;
+			$DIRECTORY_DATA, $ENC_OS;
 
 	//Doesn't use global $filename or $filename_OS in this function (because they shouldn't exist on the Index page)
 	//$filename below is JUST the file's name.  In other functions, it's the full/path/filename
 
-	$DIRECTORY_COUNT = 0; //final count to exclude . & .., and possibly $excluded file names
+	$file_count = 0; //final count to exclude . & .., and any $excluded file names
 	foreach ($raw_list as $raw_filename) { //$raw_list is in server's File System encoding
 		
 		if ( ($raw_filename == '.') || ($raw_filename == '..') ) {continue;}
@@ -2068,9 +2074,6 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 			if ( !$SHOWTYPE || in_array($filename, $EXCLUDED_LIST) ) { continue; }
 		}
 			
-		//Used to hide rename & delete options for active copy of OneFileCMS.
-		$is_ofcms = Set_IS_OFCMS($ipath.$filename);
-		
 		//Set icon type based on if dir, or file type ($ext).
 		if (is_dir($filename_OS)) { $type = 'dir'; }
 		else					  { $type = $FCLASSES[array_search($ext, $FTYPES)]; }
@@ -2079,40 +2082,60 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 		if (in_array($type,$FCLASSES)) { $icon = $ICONS[$type];}
 		elseif ($type == 'dir')        { $icon = $ICONS['folder']; }
 		else                           { $icon = $ICONS['bin']; } //default
-			
-		//Get file size & date.
-		$file_size_raw = filesize($filename_OS);
-		$file_time_raw = filemtime($filename_OS);
 		
-		//Some systems, like Windows, don't have this function/info (posix_getpwuid).
-		$fileowner_name = "";
-		$filegroup_name = "";
-		if (function_exists('posix_getpwuid')) {
-			$fileowner_uid  = fileowner($filename_OS);
+		//Get file size, date, mode (permissions), etc.
+		$file_stats = lstat($filename_OS);
+		
+		if ($file_stats) {
+			$file_perms = decoct($file_stats['mode'] & 07777);
+			$file_size  = $file_stats['size'];
+			$file_mtime = $file_stats['mtime'];
+		}
+		else {
+			$file_perms = "";
+			$file_size  = "";
+			$file_mtime = "";
+		}
+		
+		//Get file owner & group names. Some systems, like Windows, don't have posix_getpwuid().
+		if ($file_stats && function_exists('posix_getpwuid')) {
+			$fileowner_uid  = $file_stats['uid'];
 			$fileowner_info = posix_getpwuid($fileowner_uid);
 			$fileowner_name = $fileowner_info['name'];
 			
-			$filegroup_uid	= filegroup($filename_OS);
+			$filegroup_uid	= $file_stats['gid'];
 			$filegroup_info = posix_getgrgid($filegroup_uid);
 			$filegroup_name = $filegroup_info['name'];
 		}
-
+		else {
+			$fileowner_name = "";
+			$filegroup_name = "";
+		}
+		
+		if (is_link($filename_OS)) {
+			$link_target = " -> ".readlink($filename_OS);
+		}
+		else {
+			$link_target = "";
+		}
+		
 		//Store data
-		$DIRECTORY_DATA[$DIRECTORY_COUNT] = array('', '', 0, 0, 0, '', '', '', '');
-		$DIRECTORY_DATA[$DIRECTORY_COUNT][0] = $type;  //used to determine icon & f_or_f
-		$DIRECTORY_DATA[$DIRECTORY_COUNT][1] = $filename;
-		$DIRECTORY_DATA[$DIRECTORY_COUNT][2] = $file_size_raw;
-		$DIRECTORY_DATA[$DIRECTORY_COUNT][3] = $file_time_raw;
-		$DIRECTORY_DATA[$DIRECTORY_COUNT][4] = $is_ofcms; //If = 1, Don't show ren, del, ckbox.
-		$DIRECTORY_DATA[$DIRECTORY_COUNT][5] = $ext; //##### Is this used?
-		$DIRECTORY_DATA[$DIRECTORY_COUNT][6] = decoct(fileperms($filename_OS) & 07777);
-		$DIRECTORY_DATA[$DIRECTORY_COUNT][7] = $fileowner_name;
-		$DIRECTORY_DATA[$DIRECTORY_COUNT][8] = $filegroup_name;
+		$DIRECTORY_DATA[$file_count] = array('', '', 0, 0, 0, '', '', '', '', '');
+		$DIRECTORY_DATA[$file_count][0] = $type;  //used to determine icon & f_or_f
+		$DIRECTORY_DATA[$file_count][1] = $filename;
+		$DIRECTORY_DATA[$file_count][2] = $file_size;
+		$DIRECTORY_DATA[$file_count][3] = $file_mtime;
+		$DIRECTORY_DATA[$file_count][4] = Set_IS_OFCMS($ipath.$filename); //If = 1, Don't show ren, del, ckbox.
+		$DIRECTORY_DATA[$file_count][5] = $ext; //##### Is this used?
+		$DIRECTORY_DATA[$file_count][6] = $file_perms;
+		$DIRECTORY_DATA[$file_count][7] = $fileowner_name;
+		$DIRECTORY_DATA[$file_count][8] = $filegroup_name;
+		$DIRECTORY_DATA[$file_count][9] = $link_target;
 
-		$DIRECTORY_COUNT++;
+		$file_count++;
 	}//end foreach file
 
-	return $DIRECTORY_COUNT;
+	return $file_count; 
 }//end Get_DIRECTORY_DATA() //**************************************************
 
 
@@ -2148,26 +2171,26 @@ function Index_Page() {//*******************************************************
 	global  $ONESCRIPT, $ipath_OS, $param1, $INPUT_NUONCE, $DIRECTORY_DATA, $DIRECTORY_COUNT;
 
 	$raw_list = scandir('./'.$ipath_OS);  //Get current directory list  (unsorted)
-	$file_count = Get_DIRECTORY_DATA($raw_list);
+	$DIRECTORY_COUNT = Get_DIRECTORY_DATA($raw_list);
 
 	//<form> to contain directory, including buttons at top.
 	echo "<form method=post id=mcdselect action='{$ONESCRIPT}{$param1}&amp;p=mcdaction'>\n";
 	echo "<input type=hidden name=mcdaction value=''>\n"; //along with $page, affects response
 	echo $INPUT_NUONCE; //Needed for file permission updates.
 
-	Index_Page_buttons_top($file_count);
+	Index_Page_buttons_top($DIRECTORY_COUNT);
 
 	Create_Table_for_Listing(); //sets up table with empty <tbody></tbody>
 
 	echo "</form>\n\n\n";
 
-	//  DIRECTORY_DATA[x] = ['type', 'file name', filesize, timestamp, is_ofcms, 'ext', permissions, file owner, file group]
+	//  DIRECTORY_DATA[x] = ['type', 'file name', filesize, timestamp, is_ofcms, 'ext', permissions, file owner, file group, link target]
 
-	if ($DIRECTORY_COUNT < 1) { $json_parse_encoded_data = "[]"; }
-	else { $json_parse_encoded_data = "JSON.parse('". json_encode($DIRECTORY_DATA)."')"; }
+	if ($DIRECTORY_COUNT < 1) { $json_encoded_DIRECTORY_DATA = "[]"; }
+	else { $json_encoded_DIRECTORY_DATA = json_encode($DIRECTORY_DATA); }
 
 	echo "<script>\n";
-	echo "var DIRECTORY_DATA = $json_parse_encoded_data;\n";
+	echo "var DIRECTORY_DATA = $json_encoded_DIRECTORY_DATA;\n";
 	echo "var DIRECTORY_ITEMS = DIRECTORY_DATA.length;\n";
 	echo "</script>\n";
 	
@@ -2192,7 +2215,7 @@ function Edit_Page_buttons_top($text_editable,$file_ENC) {//********************
 
 	//[Wide View] / [Normal View] button.  Label is what button will do, not an indicator the current state.
 	$wide_view_button = "";
-	if ($text_editable) { //#####  && !$EDIT_WYSIWYG  ??
+	if ($text_editable && !$EDIT_WYSIWYG) {
 		if ($_COOKIE['wide_view'] === "on") { $wv_label = hsc($_['Normal_View']); }
 		else 								{ $wv_label = hsc($_['Wide_View']); }
 		$wide_view_button = "<button type=button id=wide_view class=button value={$_COOKIE['wide_view']}>$wv_label</button>\n";
@@ -2908,16 +2931,16 @@ function MCD_response($action, $msg1, $success_msg = '') {//********************
 
 
 function Format_Perms($perms_oct) {//*******************************************
-	//$pemrs_oct is a 3 or 4 digit octal string (7777).
+	//$perms_oct is a 3 or 4 digit octal string (7777).
 
-    //file                 file   | s s s | owner | group | world  
-    //permissions         t y p e | u g t | r w x | r w x | r w x
-	//                    
-    //bits        | 0 0 1 | 4 2 1 | 4 2 1 | 4 2 1 | 4 2 1 | 4 2 1
-	//octal             1     7       7       7       7       7
+    //file           file  |s s s|owner|group|world
+    //permissions   t y p e|u g t|r w x|r w x|r w x
 	//
-    //bits                  8 4 2 1 | 8 4 2 1 | 8 4 2 1 | 8 4 2 1
-	//hex                      F         F         F         F
+    //bits          1|4 2 1|4 2 1|4 2 1|4 2 1|4 2 1
+	//octal         1   7     7     7     7     7
+	//
+    //bits          8 4 2 1|8 4 2 1|8 4 2 1|8 4 2 1
+	//hex              F       F       F       F
 
 	$ugt = ['...', '..t', '.g.', '.gt', 'u..', 'u.t', 'ug.', 'ugt']; //SetUid SetGid sTicky
 	$rwx = ['---', '--x', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'];
@@ -3373,6 +3396,8 @@ E('header_sorttype').onclick = function () {Sort_and_Show(5, FLIP_IF); this.focu
 
 
 E("main").onkeydown = function(event) { //*****************************
+	//Halt and be warned! For this be no lore, that here truly be, the dragons of yore!!!
+	//It won't look back, if you enter this Abyss, it'll only swallow you hole, then [redacted]!
 	//Control cursor keys to navigate index page. (Arrows, Page, Home, End)
 
 	var jump = <?php echo $PAGEUPDOWN ?>;//# of rows to jump with Page Up/Page Down.
@@ -3382,18 +3407,19 @@ E("main").onkeydown = function(event) { //*****************************
 	var key = event.keyCode;
 
 	//Assign a few handy "constants": Arrow U/D/L/R, Page Up/Down, etc... 
-	var AU = 38, AD = 40, AL = 37, AR = 39, PU = 33, PD = 34; END = 35, HOME = 36, ESC = 27, TAB = 9, ENTER = 13;
+	var AU = 38, AD = 40, AL = 37, AR = 39, PU = 33, PD = 34, END = 35, HOME = 36, ESC = 27, ENTER = 13;
 
 	//Ignore any other key presses...
 	if ((key != AU) && (key != AD) && (key != AL) && (key != AR) && (key != PU) && (key != PD) && 
-		(key != HOME) && (key != END) && (key != ESC) && (key != TAB) && (key != ENTER) 
+		(key != HOME) && (key != END) && (key != ESC) && (key != ENTER) 
 	) { return }
 
-	//File Rows. For these events, "../" is 0, and files are indexed from 1 to DIRECTORY_ITEMS.
-	var FROWS     = DIRECTORY_ITEMS;
+	//File Rows. "../" is 0, and files are indexed from 1 to DIRECTORY_ITEMS.
+	var FROWS        = DIRECTORY_ITEMS;
 	var FILENAME_COL = 5;
-	var LAST_FILE = "f" + FROWS + "c" + FILENAME_COL;
-	var FIRST_FILE = "f0c" + FILENAME_COL;
+	var LAST_FILE    = "f" + FROWS + "c" + FILENAME_COL;
+	var FIRST_FILE   = "f1c" + FILENAME_COL;
+	var FILE_ZERO    = "f0c" + FILENAME_COL;
 
 	//Get id of current focus (before this event). If focus is in file list, ID = 'fn', or 'fnn', etc.
 	var ID      = document.activeElement.id;
@@ -3410,7 +3436,7 @@ E("main").onkeydown = function(event) { //*****************************
 	if (E("b2")) {var button_row = "b2"} else {var button_row = "b4"}
 
 	//Indicate if current focus is on one of the elements of the table header row. (true / false)
-	//Select All[ ] | [x](folders first) Name  (.ext) | Size |  Date  |
+	//Select All[ ] | [x](folders first) Name  (.ext) | Size |  Date  | Owner | Group 
 	var focus_header = ((ID == "select_all_ckbox") || (ID == "folders_first_ckbox") || (ID == "header_filename") || 
 						(ID == "header_sorttype")  || (ID == "header_filesize")     || (ID == "header_filedate"));
 
@@ -3434,10 +3460,15 @@ E("main").onkeydown = function(event) { //*****************************
 	}
 
 
-	//For when focus is in the /current/path/header (x_focus == "p").
-	if ((key == HOME) || (key == END)) {
-		//path_items[0].id = path_header, then path_0, path_1, ..., path_(length-2)
-		var path_items = document.querySelectorAll('[id^="p"]');
+	//Get ID of current directory (path_END).
+	//For example: <h2 id=path_header>/  home / [user] / [www1] / [some] / [path] / </h2>
+	//path_items[x]:         [0]      /(no id)/  [1]   /  [2]   /  [3]   /   [4]
+	//path_items.length = 5
+	//path_items[x] id's: path_header /(no id)/ path_0 / path_1 / path_2 / path_3
+	//   So, path_END id = path_(5 - 2) = path_3.
+	if ( (key == PU) || (key == PD) || (key == AU) || (key == AD) || ((x_focus == "p") && (key == HOME || key == END)) ) {
+		var path_items = document.querySelectorAll('[id^="path_"]');
+		var path_END   = "path_" + (path_items.length - 2);
 	}
 
 
@@ -3446,18 +3477,18 @@ E("main").onkeydown = function(event) { //*****************************
 	//  ENTER - enabled to check/unckeck checkboxes, and respond as needed.
 	//  Tab- handle checkbox's (parent <div>'s & <label>'s), otherwise allow default action.
 	//  Esc simply removes focus from active element.
-	//	Home goes to the first row in list - (../)
-	//	End goes only to last file in list.
+	//  If focus in path_header, Home & End stay in path_header. Otherwise,
+	//	Home goes to the first row in list (first acutal file, not the .../), and 
+	//	End goes to last file in list.
 	//	Arrow Up/Down will loop from (top to bottom)/(bottom to top) of page (no hard stops).
 	//  Page Up/Down will likewise loop thru page, with soft-stops at first/last filenames.
 	//  Arrow Left/Right will function similarly to Tab/Shift-Tab, but hard stop at first/last link on page.
 
 	if 		((key == HOME) && (x_focus == "p")) { ID = "path_0"; }
-	else if ((key ==  END) && (x_focus == "p")) { ID = "path_" + (path_items.length - 2); }
-	else if (key == TAB)  { return; }
-	else if (key == ESC)  { document.activeElement.blur();   return; }
-	else if (key == END)  { ID = LAST_FILE;  }
+	else if ((key ==  END) && (x_focus == "p")) { ID = path_END; }
 	else if (key == HOME) {	ID = FIRST_FILE; } 
+	else if (key == END)  { ID = LAST_FILE;  }
+	else if (key == ESC)  { document.activeElement.blur(); return; }
 
 	else if (key == ENTER) {	
 		if (ID == "select_all_ckbox") {
@@ -3483,13 +3514,13 @@ E("main").onkeydown = function(event) { //*****************************
 		return;
 	}
 	else if (key == AL) {
-		//Find first tab-able element to the left (usually just (focus_tabindex - 1))
+		//Find first tab-able element to the Left (usually just (focus_tabindex - 1))
 		for (var new_index = (focus_tabindex - 1); new_index > 0; new_index--) {
 			if (tabindex_IDs[new_index]) { ID = tabindex_IDs[new_index]; break; }
 		}
 	}
 	else if (key == AR) {
-		//Find first tab-able element to the right (usually just (focus_tabindex + 1))
+		//Find first tab-able element to the Right (usually just (focus_tabindex + 1))
 		for (var new_index = (focus_tabindex + 1); new_index < tabindex_IDs.length; new_index++) {
 			if (tabindex_IDs[new_index]) { ID = tabindex_IDs[new_index]; break; }
 		}
@@ -3500,65 +3531,94 @@ E("main").onkeydown = function(event) { //*****************************
 		else if (key == AD) {ID = "logo"}
 		else if (key == PD) {ID = "logo"}
 	}
-	else if ((ID == "logo")|| (ID == "on_php") || (ID == "website") || (ID == "logout")) {
+	else if (ID == "logo") {
 		if      (key == AU) {ID = "admin"}
 		else if (key == PU) {ID = "admin"}
 		else if (key == AD) {ID = "path_0"}
-		else if (key == PD) {ID = "path_0"}
+		else if (key == PD) {ID = path_END}
+	}
+	else if ((ID == "website") || (ID == "logout")) {
+		if      (key == AU) {ID = "admin"}
+		else if (key == PU) {ID = "admin"}
+		else if (key == AD) {ID = path_END}
+		else if (key == PD) {ID = path_END}
 	}
 	else if (ID == "X_box") {
 		if      (key == AU)   {ID = "path_0"}
 		else if (key == PU)   {ID = "logo"}
 		else if (key == AD)   {ID = button_row}
-		else if (key == PD)   {ID = FIRST_FILE}
+		else if (key == PD)   {ID = FILE_ZERO}
 	}
 	else if (x_focus == 'p') { //In path_header: webroot/current/path/
 		if      (key == AU)   {ID = "logo"}
 		else if (key == PU)   {ID = "logo"}
 		else if (key == AD)   {ID = button_row}
-		else if (key == PD)   {ID = FIRST_FILE}
+		else if (key == PD && FROWS  > 0)   {ID = FIRST_FILE}
+		else if (key == PD && FROWS == 0)   {ID = FILE_ZERO}
 	}
 	else if (x_focus == "b") { //[Move][Copy][Delete]  [New Folder][New File][Upload File]
-		if 		(key == AU) {ID = "path_0"		   }
-		else if (key == PU) {ID = "path_0"		   }
+		if      (ID == "b1" && key == AD) {ID = "select_all_ckbox"} //[Move]
+		else if (ID == "b4" && key == AU) {ID = path_END;}          //[New Folder]
+		else if (FROWS == 0 && key == PD) {ID = FILE_ZERO}
+		else if (key == AU) {ID = "path_0"		   }
+		else if (key == PU) {ID = path_END		   }
 		else if (key == AD) {ID = "header_filename"}
 		else if (key == PD) {ID = FIRST_FILE	   }
 	}
+	else if (ID == 'select_all_ckbox') {
+		if		(E('b1')    && key == AU) {ID = 'b1'}
+		else if (FROWS == 0 && key == AD) {ID = FILE_ZERO}
+		else if (FROWS == 0 && key == PD) {ID = FILE_ZERO}
+		else if (key == AU) {ID = button_row}
+		else if	(key == PU) {ID = path_END}
+		else if (key == AD) {ID = "f1c3"}
+		else if (key == PD) { FR = jump; if (FR < FROWS) {ID = "f" + FR + "c3"} else {ID = "f" + FROWS + "c3";}}
+	}
 	else if (focus_header) { //Table header row
 		if      (key == AU) {ID = button_row}
-		else if (key == PU) {ID = "path_0"}
-		else if	(key == AD) {ID = FIRST_FILE}
+		else if (key == PU) {ID = path_END}
+		else if	(key == AD) {ID = FILE_ZERO}
 		else if	(key == PD) {FR += jump; if (FR < FROWS) {ID = "f" + FR + "c" + FILENAME_COL} else {ID = LAST_FILE}}
 	}
-	else if ((FR == 0) && (FROWS == 0)) { //empty folder
+	else if ((FROWS == 0) && (FR == 0)) { //empty folder
 		if		(key == AU) {ID = "header_filename"}
-		else if	(key == PU) {ID = "path_0"}
+		else if	(key == PU) {ID = path_END}
 		else if (key == AD) {ID = "admin";}
 		else if (key == PD) {ID = "admin";}
 	}
 	else if ((FROWS == 1) && (FR == 1)) {
-		if		(key == AU) { ID = FIRST_FILE; }
-		else if	(key == PU) { FR -= jump; if (FR >= 0) {ID = "f" + FR + "c" + FC} else {ID = FIRST_FILE} }
-		else if (key == AD) { ID = "admin" }
-		else if (key == PD) { ID = "admin" }
+		if		(ID == FIRST_FILE && key == AU) { ID = FILE_ZERO }
+		else if	(key == AU) { ID = "select_all_ckbox" }
+		else if	(key == PU) { ID = path_END  }
+		else if (key == AD) { ID = "admin"   }
+		else if (key == PD) { ID = "admin"   }
 	}
 	else if (FR == FROWS) { //Last row (FROWS is the number of files listed)
-		if		(key == AU) { FR--      ; if (FR >= 0) {ID = "f" + FR + "c" + FC} else {ID = "header_filename" } }
-		else if	(key == PU) { FR -= jump; if (FR >= 0) {ID = "f" + FR + "c" + FC} else {ID = FIRST_FILE} }
+		if		(key == AU) { FR--      ; if (FR >= 1) {ID = "f" + FR + "c" + FC} else {ID = "header_filename" } }
+		else if	(key == PU) { FR -= jump; if (FR >= 1) {ID = "f" + FR + "c" + FC} else {ID = "f1c" + FC} }
 		else if (key == AD) { ID = "admin" }
 		else if (key == PD) { ID = "admin" }
 	}
-	else if (FR == 0) { //FR (File Row) is in the first row of files
-		if		(key == AU) {ID = "header_filename"}
-		else if	(key == PU) {ID = "path_0"}
-		else if (key == AD) {FR++      ; if (FR <= FROWS) {ID = "f" + FR + "c" + FC} else {ID = "path_0";}  }
-		else if (key == PD) {FR += jump; if (FR <= FROWS) {ID = "f" + FR + "c" + FC} else {ID = LAST_FILE;} }
+	else if (FR == 0) { // [ ../ ] 
+		if		(key == AU) { ID = "header_filename" }
+		else if	(key == PU) { ID = path_END}
+		else if (key == AD) { FR++      ; if (FR <= FROWS) {ID = "f" + FR + "c" + FC} else {ID = "path_0";}  }
+		else if (key == PD) { FR += jump; if (FR <= FROWS) {ID = "f" + FR + "c" + FC} else {ID = LAST_FILE;} }
+	}
+	else if (FR == 1) { // The first actual file(or folder) in the dir list.
+		if      (ID == FIRST_FILE && key == AU) { ID = FILE_ZERO }
+		else if (FROWS == 1 && key == AD) { ID = "admin" }
+		else if (FROWS == 1 && key == PD) { ID = "admin" }
+		else if (key == AU) { ID = "select_all_ckbox" }
+		else if	(key == PU) { ID = path_END }
+		else if	(key == AD) { ID = "f2c" + FC }
+		else if (key == PD) { FR += jump; if (FR <= FROWS)  {ID = "f" + FR + "c" + FC} else {ID = "f" + FROWS + "c" + FC;} }
 	}
 	else if (FR > 0){ //Middle rows...
-		if		(key == AU) { FR--      ; if (FR == 0) {FC=FILENAME_COL} ID = "f" + FR + "c" + FC;	}
-		else if	(key == PU) { FR -= jump; if (FR >= 0)      { ID = "f" + FR + "c" + FC} else {ID = FIRST_FILE}	 }
+		if		(key == AU) { FR--      ; ID = "f" + FR + "c" + FC;	}
+		else if	(key == PU) { FR -= jump; if (FR > 1)       { ID = "f" + FR + "c" + FC} else {ID = "f1c" + FC} }
 		else if (key == AD) { FR++; 	  if (FR <= FROWS)  { ID = "f" + FR + "c" + FC} else {ID = "path_0"; } }
-		else if (key == PD) { FR += jump; if (FR <= FROWS)  { ID = "f" + FR + "c" + FC} else {ID = LAST_FILE;} }
+		else if (key == PD) { FR += jump; if (FR <= FROWS)  { ID = "f" + FR + "c" + FC} else {ID = "f" + FROWS + "c" + FC;} }
 	}
 	else if (FR == -1) {ID = "path_0"}     //Anyplace other than path_header, buttons, table
 	else {
@@ -3608,10 +3668,9 @@ function Perms_onkeydown(event, $perms, filename) {//*****************
 
 	if ($perms.readOnly) { return; }
 
-	event.stopPropagation();
+	event.stopPropagation(); //Should precede if(ESC or TAB)
 
-	//if ESC or TAB...
-	if ((key == 27) || (key == TAB)) { Cancel_Perm_Changes($perms) }
+	if ((key == ESC) || (key == TAB)) { Cancel_Perm_Changes($perms) }
 
 	Octal_Input_Only(event);
 
@@ -3786,12 +3845,13 @@ function Post_New_File_Perms($perms, filename) { //*******************
 
 
 function Index_Page_scripts() {//***********************************************
-	global $_, $ONESCRIPT, $param1, $ipath, $MESSAGE, $DELAY_Sort_and_Show_msgs, $MIN_DIR_ITEMS, $TABINDEX;
+	global $_, $ONESCRIPT, $param1, $ipath, $MESSAGE, $DELAY_Sort_and_Show_msgs, $MIN_DIR_ITEMS, $TABINDEX, $DIRECTORY_COLUMNS;
 ?>
 <script>
 var ONESCRIPT	= "<?php echo $ONESCRIPT ?>";
 var PARAM1		= "<?php echo $param1 ?>";  //capitalized here as it is used as a constant.
-var TABINDEX    = <?php echo $TABINDEX ?>;  //TABINDEX only used by js from this point on...
+var TABINDEX	= <?php echo $TABINDEX ?>;  //TABINDEX only used by js from this point on...
+var DIRECTORY_COLUMNS = <?php echo $DIRECTORY_COLUMNS ?>;
 
 //a few usefull constants for using sort_DIRECTORY()
 var DESCENDING	= 0;
@@ -3897,7 +3957,7 @@ function Init_Dir_table_rows() {//************************************
 	var drow, cell, cells, tr, td;
 
 	//Number of columns in directory listing.
-	var last_cell = 10; //##### DEFINE/DETERMINE THIS ELSEWHERE??
+	var last_cell = DIRECTORY_COLUMNS;
 	
 	for (drow = 0; drow < DIRECTORY_ITEMS; drow++){
 		tr = E("DIRECTORY_LISTING").insertRow(-1); //-1 adds row after last row.
@@ -3910,8 +3970,10 @@ function Init_Dir_table_rows() {//************************************
 		cells[c++].className = 'file_name';
 		cells[c++].className = 'file_size meta_T';
 		cells[c++].className = 'file_time meta_T';
-		cells[c++].className = 'meta_T'; //file owner
-		cells[c++].className = 'meta_T'; //file group
+		<?php if (function_exists('posix_getpwuid')) { ?>
+			cells[c++].className = 'meta_T'; //file owner
+			cells[c++].className = 'meta_T'; //file group
+		<?php } ?>
 	}
 }//end Init_Dir_table_rows() {//**************************************
 
@@ -3993,7 +4055,7 @@ function Assemble_Insert_row(drow, href, filename, file_name, file_time){
 	//There are currently 6 tab-able items per (file) row:  [m] [c] [d] [x] [sogw] [file name]
 	//[m][c][d][x][sogw] tabindexes are set below.  [filename]'s tabinex is set in Build_Directory().
 
-	var cells = E("DIRECTORY_LISTING").rows[drow].cells; //Must come before the row++ a little later in this function.
+	var cells = E("DIRECTORY_LISTING").rows[drow].cells;
 
 	var filetype = DIRECTORY_DATA[drow][0];
 	var filesize = DIRECTORY_DATA[drow][2];
@@ -4008,7 +4070,7 @@ function Assemble_Insert_row(drow, href, filename, file_name, file_time){
 	}
 
 	//While DIRECTORY_DATA[], and the table <tbody> rows created to list the data, are indexed from 0 (zero),
-	//the id's of files in the directory list are indexed from 1 (f1, f2...), as "../" is listed first with id=f0c5 (f-zero).
+	//the id's of files in the directory list are indexed from 1 (f1c5, f2c5...), as "../" is listed first with id=f0c5.
 	//The id's are used in Index_Page_events() "cursor" control.
 	var frow = drow + 1;
 
@@ -4028,11 +4090,12 @@ function Assemble_Insert_row(drow, href, filename, file_name, file_time){
 
 	//Assemble & Insert contents for cells[0], [2], & [3]  ([Mov], [Del], [ckbox])
 	Assemble_mdx(drow, href, f_or_f, filename, TABINDEX);
-	Insert_mdx(drow, cells);
+	Insert_mdx(drow, cells);//cells[0],[2],[3]
 	TABINDEX = TABINDEX + 5;
 
 	//Insert contents for the remaining cells...
 	cells[1].innerHTML = copy;
+
 	cells[4].innerHTML = perms;
 	cells[5].innerHTML = file_name;
 	cells[6].innerHTML = file_size;
@@ -4049,7 +4112,7 @@ function Assemble_Insert_row(drow, href, filename, file_name, file_time){
 
 function Build_Directory() {//****************************************
 
-	TABINDEX    = <?php echo $TABINDEX ?>;  //Rest TABINDEX
+	TABINDEX = <?php echo $TABINDEX ?>;  //Reset global TABINDEX
 
 	//Has the directory table been init'd yet?  (<tbody id=DIRECTORY_LISTING></tbody>)
 	if (E("DIRECTORY_LISTING").rows.length < 1)	{ Init_Dir_table_rows(); }
@@ -4072,6 +4135,7 @@ function Build_Directory() {//****************************************
 		var filename = DIRECTORY_DATA[drow][1];
 		var filesize = DIRECTORY_DATA[drow][2];
 		var filetime = DIRECTORY_DATA[drow][3];
+		var link_target = DIRECTORY_DATA[drow][9]; //empty unless file is a symlink.
 		
 		//folder or file?
 		if (filetype == "dir") {
@@ -4087,7 +4151,7 @@ function Build_Directory() {//****************************************
 		//The (TABINDEX + 5) accounts for the [m][c][d][x][perms] links which are added in Assemble_Insert_Row().
 		var file_name  = '<a id=f'+ frow +'c'+ file_col + ' tabindex='+ (TABINDEX + 5) +' href="' + href  + '"'; 
 			file_name += ' title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
-			file_name += ICONS[filetype] + '&nbsp;' + hsc(filename) + DS + '</a>';
+			file_name += ICONS[filetype] + '&nbsp;' + hsc(filename + DS + link_target) + '</a>';
 		var file_time  = FileTimeStamp(filetime, 1, 0, 0);
 		
 		Assemble_Insert_row(drow, href, filename, file_name, file_time);
@@ -4200,16 +4264,16 @@ function Format_Perms(perms_oct) {//**********************************
 	//##### Not used yet. Had grand ideas, but now not sure...
 	//returns [7777][ugt rwx rwx rwx]
 
-	//$pemrs_oct is a 3 or 4 digit octal string (7777).
+	//$perms_oct is a 3 or 4 digit octal string (7777).
 	
-    //file                 file   | s s s | owner | group | world  
-    //permissions         t y p e | u g t | r w x | r w x | r w x
-	//                    
-    //bits        | 0 0 1 | 4 2 1 | 4 2 1 | 4 2 1 | 4 2 1 | 4 2 1
-	//octal             1     7       7       7       7       7
+    //file           file   s s s owner group world
+    //permissions   t y p e u g t r w x r w x r w x
 	//
-    //bits                  8 4 2 1 | 8 4 2 1 | 8 4 2 1 | 8 4 2 1
-	//hex                      F         F         F         F
+    //bits          1 4 2 1 4 2 1 4 2 1 4 2 1 4 2 1
+	//octal         1   7     7     7     7     7
+	//
+    //bits          8 4 2 1 8 4 2 1 8 4 2 1 8 4 2 1
+	//hex              F       F       F       F
 
 	var ugt = ['---', '--t', '-g-', '-gt', 'u--', 'u-t', 'ug-', 'ugt']; //setUid setGid sTicky
 	var rwx = ['---', '--x', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'];
@@ -5026,7 +5090,7 @@ table.index_T th:hover { background-color: white;}
 .index_T td a {	display: block; height: 1.42rem; border: none; padding: 2px 4px 2px 4px; overflow : hidden; }
 .index_T th a { padding: 1px 0 1px 0; border-width: 0px;}
 
-th.file_name {min-width: 15em}
+th.file_name {min-width: 15em; font-family: arial; font-weight: normal; }
 
 .index_T th.file_name a {
 	display: inline-block;
