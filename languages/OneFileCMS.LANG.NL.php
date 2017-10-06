@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.6.08
+// OneFileCMS Language Settings v3.6.09
 
 $_['LANGUAGE'] = 'Nederlands (Dutch)';
 $_['LANG'] = 'NL';
@@ -52,6 +52,7 @@ $_['files']      = 'bestanden';
 $_['Folder']     = 'Map';
 $_['folders']    = 'mappen';
 $_['From']       = 'Van';
+$_['Group']      = 'Group';   //## NT ##
 $_['Hash']       = 'Hash';    //## NT ##
 $_['Invalid']    = 'Invalid'; //## NT ##
 $_['Move']       = 'Verplaats';
@@ -59,6 +60,7 @@ $_['Moved']      = 'Verplaatst';
 $_['Name']       = 'Naam';
 $_['on']         = 'aan';
 $_['off']        = 'uit';
+$_['Owner']      = 'Owner';   //## NT ##
 $_['Password']   = 'Wachtwoord';
 $_['Rename']     = 'Hernoemen';
 $_['reset']      = 'Reset';   //## NT ##

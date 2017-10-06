@@ -1,6 +1,23 @@
 # OneFileCMS Change Log
 
-### v3.6.07 (2017-09-30)
+### v3.6.10 (2017-10-06)
+
+- Fixed a minor bug introduced by prior commit's code "improvements".
+- Directory list now shows link targets:  some_symlink -> /target/of/symlink
+- Reworked keyboard nav a bit.
+- Some misc code improvements.
+
+### v3.6.09 (2017-10-04)
+
+- Some minor keyboard nav improvements on index page.
+- Some misc code improvements.
+
+### v3.6.08 (2017-09-30)
+
+- [Mov], [Del], & [X] are unavailable if file is readonly.
+- Some misc code improvements.
+
+### v3.6.07 (2017-09-29)
 
 - Fixed minor issue where if perms changed, new value not always displayed.
 - A bit of restructure/refactor of perm & Assemble_Insert_Row() related functions.

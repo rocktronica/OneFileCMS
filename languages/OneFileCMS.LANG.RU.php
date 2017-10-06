@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.6.08
+// OneFileCMS Language Settings v3.6.09
 
 $_['LANGUAGE'] = 'Russian';
 $_['LANG'] = 'RU';
@@ -52,6 +52,7 @@ $_['files']      = 'файлы';
 $_['Folder']     = 'Папка';
 $_['folders']    = 'папки';
 $_['From']       = 'из';
+$_['Group']      = 'Group';   //## NT ##
 $_['Hash']       = 'Хэш';
 $_['Invalid']    = 'Invalid'; //## NT ##
 $_['Move']       = 'Переместить';
@@ -59,6 +60,7 @@ $_['Moved']      = 'Перемещено';
 $_['Name']       = 'имя';
 $_['on']         = 'в';
 $_['off']        = 'от';
+$_['Owner']      = 'Owner';   //## NT ##
 $_['Password']   = 'Пароль';
 $_['Rename']     = 'Rename';  //## NT ##
 $_['reset']      = 'Сбросить';

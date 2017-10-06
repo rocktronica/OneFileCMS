@@ -1,5 +1,5 @@
 <?php
-// OneFileCMS Language Settings v3.6.08
+// OneFileCMS Language Settings v3.6.09
 
 $_['LANGUAGE'] = 'Espanõla';
 $_['LANG'] = 'ES';
@@ -52,6 +52,7 @@ $_['files']      = 'archivos';
 $_['Folder']     = 'Carpeta';
 $_['folders']    = 'carpetas';
 $_['From']       = 'de';
+$_['Group']      = 'Group';   //## NT ##
 $_['Hash']       = 'Cadena';
 $_['Invalid']    = 'Invalid'; //## NT ##
 $_['Move']       = 'Mover';
@@ -59,6 +60,7 @@ $_['Moved']      = 'Movido';
 $_['Name']       = 'Nombre ';
 $_['on']         = 'activado';
 $_['off']        = 'apagar';
+$_['Owner']      = 'Owner';   //## NT ##
 $_['Password']   = 'contraseña';
 $_['Rename']     = 'Renombrar';
 $_['reset']      = 'Reiniciar';
