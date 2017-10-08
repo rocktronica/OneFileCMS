@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.6.11';
+$OFCMS_version = '3.6.12';
 
 
 
@@ -110,7 +110,7 @@ $MAIN_WIDTH    = '810px'; //Width of main <div> defining page layout.          C
 $WIDE_VIEW_WIDTH = '97%'; //Width to set Edit page if [Wide View] is clicked.  Can be px, pt, em, or %.  Assumes px otherwise.
 
 $LINE_WRAP = "on"; //"on",  anything else = "off".  Default for edit page. Once on page, line-wrap can toggle on/off.
-$TAB_SIZE  = 8;    //Some browsers recognize a css tab-size. Some don't (IE/Edge, as of mid-2016).
+$TAB_SIZE  = 4;    //Some browsers recognize a css tab-size. Some don't (IE/Edge, as of mid-2016).
 
 $MAX_EDIT_SIZE = 250000;  // Edit gets flaky with large files in some browsers.  Trial and error your's.
 $MAX_VIEW_SIZE = 1000000; // If file > $MAX_EDIT_SIZE, don't even view in OneFileCMS.
@@ -125,7 +125,7 @@ $FAVICON  = "favicon.ico"; //Path is relative to root of website.
 
 $EXCLUDED_FILES  = ""; //csv list of filenames to exclude from directory listings- CaSe sEnsiTive!
 
-$EDIT_FILES = "svg,asp,cfg,conf,csv,css,dtd,htm,html,xhtml,htaccess,ini,js,log,markdown,md,php,pl,txt,text"; //Editable file types.
+$EDIT_FILES = "svg,asp,cfg,conf,csv,css,dtd,htm,html,xhtml,htaccess,ini,js,log,markdown,md,php,pl,txt,text,types"; //Editable file types.
 $SHOW_FILES = "*"; // Shown types; only files of the given types should show up in the file-listing
 	// Use $SHOW_FILES exactly like $EDIT_FILES: a list of extensions separated by commas.
 	// If $SHOW_FILES is set to null - by intention or by error - only folders will be shown.
@@ -147,14 +147,14 @@ $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copi
 //Optional: restrict access to a particular sub folder from root.
 //$ACCESS_ROOT = '/some/path';
 //If blank or invalid, default is $_SERVER['DOCUMENT_ROOT'].
-//$ACCESS_ROOT = '/home/user';
+//$ACCESS_ROOT = '/home/user'; //$DEFAULT_PATH = '/home/'.get_current_user();
 
 
 //Optional: specify a default start path on login.
 //$DEFAULT_PATH = 'some/path/deeper/'
 //Must be a decendant of $ACCESS_ROOT.
 //If blank or invalid, defaults to $ACCESS_ROOT.
-//$DEFAULT_PATH = '/home/user/public_html';
+//$DEFAULT_PATH = '/home/'.get_current_user().'/public_html';
 
 
 //URL of optional external style sheet.  Used as an href in <link ...>
@@ -1639,6 +1639,9 @@ function Admin_Page() {//*******************************************************
 
 	List_Backups_and_Logs();
 
+	echo '<p><b>'.hsc($_['Username']).': </b>';
+	echo '<span class="meta_T meta_T2">'.get_current_user()."</span><br>\n";
+
 	echo '<p><b>'.hsc($_['admin_txt_03']).': </b>';
 	echo '<span class="meta_T meta_T2">'.session_save_path()."</span><br>\n";
 
@@ -2039,6 +2042,47 @@ function Create_Table_for_Listing() {//*****************************************
 
 
 
+function Get_File_Stats($filename_OS) {//***************************************
+	//Get file size, date, mode (permissions), etc.
+
+	$file_stats = lstat($filename_OS); //returns [file size, mtime, uid, guid, etc...]
+
+	$file_stats['is_writable'] = is_writable($filename_OS) * 1; //1 or 0  (true or false)
+
+	if ($file_stats) {
+		$file_stats['perms'] = decoct($file_stats['mode'] & 07777);
+	}
+	else {
+		$file_stats['perms'] = "";
+		$file_stats['size']  = "";
+		$file_stats['mtime'] = "";
+	}
+
+	//Get file owner & group names. Some systems, like Windows, don't have posix_getpwuid().
+	if ($file_stats && function_exists('posix_getpwuid')) {
+		$fileowner_uid  		  = $file_stats['uid'];
+		$fileowner_info 		  = posix_getpwuid($fileowner_uid);
+		$file_stats['owner'] = $fileowner_info['name'];
+		
+		$filegroup_uid			  = $file_stats['gid'];
+		$filegroup_info			  = posix_getgrgid($filegroup_uid);
+		$file_stats['group'] = $filegroup_info['name'];
+	}
+	else {
+		$file_stats['owner'] = "";
+		$file_stats['group'] = "";
+	}
+
+	if (is_link($filename_OS)) { $file_stats['link_target'] = " -> ".readlink($filename_OS); }
+	else 					   { $file_stats['link_target'] = ""; }
+
+	return $file_stats;
+
+}//end Get_File_Stats() {//*****************************************************
+
+
+
+
 function Get_DIRECTORY_DATA($raw_list) {//**************************************
 	global $_, $ONESCRIPT, $ipath, $ipath_OS, $param1, $ICONS, $MESSAGE, 
 			$FTYPES, $FCLASSES, $EXCLUDED_LIST, $STYPES, $SHOWALLFILES, 
@@ -2047,12 +2091,16 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 	//Doesn't use global $filename or $filename_OS in this function (because they shouldn't exist on the Index page)
 	//$filename below is JUST the file's name.  In other functions, it's the full/path/filename
 
+	clearstatcache();
+
 	$file_count = 0; //final count to exclude . & .., and any $excluded file names
 	foreach ($raw_list as $raw_filename) { //$raw_list is in server's File System encoding
 		
 		if ( ($raw_filename == '.') || ($raw_filename == '..') ) {continue;}
 		
-		$filename_OS = $ipath_OS.$raw_filename; //for is_dir() & file_exists() below
+		$filename_OS = $ipath_OS.$raw_filename;
+		
+		$file_stats = Get_File_Stats($filename_OS);
 		
 		//Normalize filename encoding for general use & display. (UTF-8, which may not be same as the server's File System)
 		if ($ENC_OS == 'UTF-8') {$filename = $raw_filename;}
@@ -2083,54 +2131,19 @@ function Get_DIRECTORY_DATA($raw_list) {//**************************************
 		elseif ($type == 'dir')        { $icon = $ICONS['folder']; }
 		else                           { $icon = $ICONS['bin']; } //default
 		
-		//Get file size, date, mode (permissions), etc.
-		$file_stats = lstat($filename_OS);
-		
-		if ($file_stats) {
-			$file_perms = decoct($file_stats['mode'] & 07777);
-			$file_size  = $file_stats['size'];
-			$file_mtime = $file_stats['mtime'];
-		}
-		else {
-			$file_perms = "";
-			$file_size  = "";
-			$file_mtime = "";
-		}
-		
-		//Get file owner & group names. Some systems, like Windows, don't have posix_getpwuid().
-		if ($file_stats && function_exists('posix_getpwuid')) {
-			$fileowner_uid  = $file_stats['uid'];
-			$fileowner_info = posix_getpwuid($fileowner_uid);
-			$fileowner_name = $fileowner_info['name'];
-			
-			$filegroup_uid	= $file_stats['gid'];
-			$filegroup_info = posix_getgrgid($filegroup_uid);
-			$filegroup_name = $filegroup_info['name'];
-		}
-		else {
-			$fileowner_name = "";
-			$filegroup_name = "";
-		}
-		
-		if (is_link($filename_OS)) {
-			$link_target = " -> ".readlink($filename_OS);
-		}
-		else {
-			$link_target = "";
-		}
-		
 		//Store data
 		$DIRECTORY_DATA[$file_count] = array('', '', 0, 0, 0, '', '', '', '', '');
-		$DIRECTORY_DATA[$file_count][0] = $type;  //used to determine icon & f_or_f
-		$DIRECTORY_DATA[$file_count][1] = $filename;
-		$DIRECTORY_DATA[$file_count][2] = $file_size;
-		$DIRECTORY_DATA[$file_count][3] = $file_mtime;
-		$DIRECTORY_DATA[$file_count][4] = Set_IS_OFCMS($ipath.$filename); //If = 1, Don't show ren, del, ckbox.
-		$DIRECTORY_DATA[$file_count][5] = $ext; //##### Is this used?
-		$DIRECTORY_DATA[$file_count][6] = $file_perms;
-		$DIRECTORY_DATA[$file_count][7] = $fileowner_name;
-		$DIRECTORY_DATA[$file_count][8] = $filegroup_name;
-		$DIRECTORY_DATA[$file_count][9] = $link_target;
+		$DIRECTORY_DATA[$file_count][ 0] = $type;  //used to determine icon & f_or_f
+		$DIRECTORY_DATA[$file_count][ 1] = $filename;
+		$DIRECTORY_DATA[$file_count][ 2] = $file_stats['size'];
+		$DIRECTORY_DATA[$file_count][ 3] = $file_stats['mtime'];
+		$DIRECTORY_DATA[$file_count][ 4] = Set_IS_OFCMS($ipath.$filename); //If = 1, Don't show ren, del, ckbox.
+		$DIRECTORY_DATA[$file_count][ 5] = $ext; //##### Is this used?
+		$DIRECTORY_DATA[$file_count][ 6] = $file_stats['perms'];
+		$DIRECTORY_DATA[$file_count][ 7] = $file_stats['owner'];
+		$DIRECTORY_DATA[$file_count][ 8] = $file_stats['group'];
+		$DIRECTORY_DATA[$file_count][ 9] = $file_stats['link_target'];
+		$DIRECTORY_DATA[$file_count][10] = $file_stats['is_writable'];  //1 or 0 (true or false)
 
 		$file_count++;
 	}//end foreach file
@@ -2170,8 +2183,12 @@ function Index_Page_buttons_top($file_count) {//********************************
 function Index_Page() {//*******************************************************
 	global  $ONESCRIPT, $ipath_OS, $param1, $INPUT_NUONCE, $DIRECTORY_DATA, $DIRECTORY_COUNT;
 
-	$raw_list = scandir('./'.$ipath_OS);  //Get current directory list  (unsorted)
+	//Get current directory list  (unsorted)
+	$raw_list = scandir('./'.$ipath_OS);
 	$DIRECTORY_COUNT = Get_DIRECTORY_DATA($raw_list);
+
+	if ($DIRECTORY_COUNT < 1) { $json_encoded_DIRECTORY_DATA = "[]"; }
+	else 					  { $json_encoded_DIRECTORY_DATA = json_encode($DIRECTORY_DATA); }
 
 	//<form> to contain directory, including buttons at top.
 	echo "<form method=post id=mcdselect action='{$ONESCRIPT}{$param1}&amp;p=mcdaction'>\n";
@@ -2183,12 +2200,6 @@ function Index_Page() {//*******************************************************
 	Create_Table_for_Listing(); //sets up table with empty <tbody></tbody>
 
 	echo "</form>\n\n\n";
-
-	//  DIRECTORY_DATA[x] = ['type', 'file name', filesize, timestamp, is_ofcms, 'ext', permissions, file owner, file group, link target]
-
-	if ($DIRECTORY_COUNT < 1) { $json_encoded_DIRECTORY_DATA = "[]"; }
-	else { $json_encoded_DIRECTORY_DATA = json_encode($DIRECTORY_DATA); }
-
 	echo "<script>\n";
 	echo "var DIRECTORY_DATA = $json_encoded_DIRECTORY_DATA;\n";
 	echo "var DIRECTORY_ITEMS = DIRECTORY_DATA.length;\n";
@@ -2202,7 +2213,7 @@ function Index_Page() {//*******************************************************
 
 
 
-function Edit_Page_buttons_top($text_editable,$file_ENC) {//********************
+function Edit_Page_buttons_top($text_editable,$file_ENC, $file_stats) {//*******
 	global $_, $ONESCRIPT, $param1, $param2, $filename, $filename_OS, $IS_OFCMS, 
 				$WYSIWYG_VALID, $EDIT_WYSIWYG, $WYSIWYG_label, $MESSAGE;
 
@@ -2240,10 +2251,10 @@ function Edit_Page_buttons_top($text_editable,$file_ENC) {//********************
 	<div class="edit_btns_top">
 		<div class="file_meta">
 			<span class="file_size">
-				<?= hsc($_['meta_txt_01']).' '.number_format(filesize($filename_OS)).' '.hsc($_['bytes']); ?>
+				<?= hsc($_['meta_txt_01']).' '.number_format($file_stats['size']).' '.hsc($_['bytes']); ?>
 			</span>	&nbsp;
 			<span class="file_time">
-				<?= hsc($_['meta_txt_03']).' <script>FileTimeStamp('.filemtime($filename_OS).', 1, 1, 1);</script>'; ?>
+				<?= hsc($_['meta_txt_03']).' <script>FileTimeStamp('.$file_stats['mtime'].', 1, 1, 1);</script>'; ?>
 				<?= '&nbsp; '.$file_ENC; ?>
 			</span><br>
 		</div>
@@ -2315,23 +2326,30 @@ function Edit_Page_form($ext, $text_editable, $too_large_to_edit, $too_large_to_
 		'<b>'.hsc($_['too_large_to_view_01']).' '.number_format($MAX_VIEW_SIZE).' '.hsc($_['bytes']).'</b><br>'.
 		hsc($_['too_large_to_view_02']).'<br>'.hsc($_['too_large_to_view_03']).'<br>';
 
-	$writable = (fileperms($filename_OS) & 0200)/0200;
-	$file_perms = decoct(fileperms($filename_OS) & 07777);
+	clearstatcache();
 
-	if (!$writable) { $MESSAGE .= $file_perms." : ".$_['edit_txt_05']." ".$_['edit_txt_00']."<br>"; }
+	$file_stats = Get_File_Stats($filename_OS);
+	$file_perms = Format_Perms($file_stats['perms']);
+	$writable   = $file_stats['is_writable'];
+
+	if (!$writable) {
+		$MESSAGE .= "<span class=mono>";
+		$MESSAGE .= $file_perms." ".$file_stats['owner']." ".$file_stats['group']." :".get_current_user().":</span> ";
+		$MESSAGE .= $_['edit_txt_05']." ".$_['edit_txt_00']."<br>";
+	}
 
 	echo "\n".'<form id=edit_form name=edit_form method=post action="'.$ONESCRIPT.$param1.$param2.$param3.'">'."\n";
 		
 		echo $INPUT_NUONCE;
 		
-		Edit_Page_buttons_top($text_editable, $file_ENC);
+		Edit_Page_buttons_top($text_editable, $file_ENC, $file_stats);
 		
 		if ( !in_array( mb_strtolower($ext), $ITYPES) ) { //If non-image...
 			
 			//Did htmlspecialchars return an empty string from a non-empty file?
-			$bad_chars = ( ($FILECONTENTS == "") && (filesize($filename_OS) > 0) );
+			$bad_chars = ( ($FILECONTENTS == "") && ($file_stats['size'] > 0) );
 			
-			if     (!$text_editable) { $MESSAGE .= hsc($_['edit_txt_01']).'<br><br>'; }
+			if     (!$text_editable) { $MESSAGE .= hsc($_['edit_txt_01']).'<br>'; }
 			elseif ( $text_editable && $too_large_to_view ) {
 				echo '<p class="message_box_contents">'.$too_large_to_view_message.'</p>';
 			} else {
@@ -2989,9 +3007,8 @@ function Update_File_Permissions() {//******************************************
 		}
 	}
 	clearstatcache();
-	$new_perms = decoct((fileperms($filename_OS) & 07777)); //May not actually be new, if update failed.
+	$new_perms = decoct((fileperms($filename_OS) & 07777)); //May not actually be new, if chmod() failed.
 	$new_perms = str_pad($new_perms, 3, "0", STR_PAD_LEFT); //Always at least three digits:  000
-
 
 	if ($errors == 0) {
 		$MESSAGE .= "<b>".hsc($_['meta_txt_03'])."</b> ";
@@ -3005,6 +3022,7 @@ function Update_File_Permissions() {//******************************************
 	$new_perms_response['early_output']   = ob_get_clean(); //Should always be empty unless error or trouble-shooting.
 	$new_perms_response['errors']		  = $errors."";
 	$new_perms_response['MESSAGE']		  = $MESSAGE;
+	$new_perms_response['writable']		  = is_writable($filename_OS) * 1; //1 or 0 (true or false)
 	echo json_encode($new_perms_response);
 }//end Update_File_Permissions() //*********************************************
 
@@ -3741,6 +3759,7 @@ function Validate_and_Post($perms, filename) { //*********************
 function Enable_Edit_Perms($perms) {//********************************
 
 	var msg = hsc(" <?= $_['Press_Enter'] ?>");
+	msg += "<br><span class=mono>" + Format_Perms($perms.value) + "</span>";
 	Display_Messages(msg);
 	$perms.readOnly = false;
 	$perms.setSelectionRange(0, 0); //Just for consistency.
@@ -3791,6 +3810,18 @@ function Perms_Update_Response(request, $perms) { //******************
 
 	$perms.prior_value = $perms.value;
 
+	E('nuonce').value = update_response.nuonce; //For the next post...
+
+	var frow = $perms.id.split('c')[0].substr(1); //id = "fNNcN", frow = the NN after the "f"
+	var drow = frow - 1; //See Assemble_Insert_row() for description/explanation.
+
+	DIRECTORY_DATA[drow][6]  = $perms.value;
+	DIRECTORY_DATA[drow][10] = update_response.writable;
+
+	var cells = E("DIRECTORY_LISTING").rows[drow].cells;
+	Insert_mdx(drow, cells); //Show/Hide [M]    [D][X]   file options
+
+
 	var msg = update_response.MESSAGE;
 
 	//Should always be blank unless troubleshooting, or an error server side.
@@ -3798,17 +3829,8 @@ function Perms_Update_Response(request, $perms) { //******************
 
 	//#####	msg += "<hr>" + hsc(request.responseText); //For trouble-shooting...
 
-	E('nuonce').value = update_response.nuonce; //For the next post...
-
-	var frow = $perms.id.split('c')[0].substr(1); //id = "fNNcN", frow = the NN after the "f"
-	var drow = frow - 1; //See Assemble_Insert_row() for description/explanation.
-
-	DIRECTORY_DATA[drow][6] = $perms.value;
-
-	var cells = E("DIRECTORY_LISTING").rows[drow].cells;
-	Insert_mdx(drow, cells); //Show/Hide [M]    [D][X]   file options
-
 	Display_Messages(msg);
+	window.scroll(0,0); //Leave focus on perms of file, but scroll message box into view if needed.
 
 }//end Perms_Update_Response() //*************************************
 
@@ -4028,7 +4050,8 @@ function Insert_mdx(drow, cells) {//**********************************
 
 	var IS_OFCMS = DIRECTORY_DATA[drow][4]; 
 	var sogw = parseInt(DIRECTORY_DATA[drow][6] + "",8); //File permissions (suid sgid sticky)(owner)(group)(world)
-	var writable = (((sogw & 0o200)/0o200) && !IS_OFCMS) * 1 ;  //Check file owner write bit, or if IS_OFCMS.
+	var writable = DIRECTORY_DATA[drow][10];     //1 or 0 (true or false)
+	    writable = (writable && !IS_OFCMS) * 1;  //1 or 0 (true or false)
 
 	var frow = drow + 1; //See Assemble_Insert_row() for description/explanation.
 
@@ -4261,8 +4284,7 @@ function Confirm_Submit(action) {//***********************************
 
 
 function Format_Perms(perms_oct) {//**********************************
-	//##### Not used yet. Had grand ideas, but now not sure...
-	//returns [7777][ugt rwx rwx rwx]
+	//returns them formatted as [7777][ugt rwx rwx rwx]
 
 	//$perms_oct is a 3 or 4 digit octal string (7777).
 	
