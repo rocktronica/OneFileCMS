@@ -1,9 +1,20 @@
 # OneFileCMS Change Log
 
+### v3.6.12 (2017-10-08)
+
+- Admin page now shows username OneFileCMS is running as.
+- Index & Edit pages now indicate files that are not writable (rather than just responding with an error message after trying to edit/delete said files).
+- When editing file permissions, message box shows current expanded perms [rwxrwxrwx] owner group :current user:  
+    (But, can still only edit the octal form by the file name.)
+
+### v3.6.11 (2017-10-06)
+
+- Switched to php short tags: `<?= ?>`&nbsp; &nbsp; (from `<?php echo ?>`) &nbsp; &nbsp; Because I felt like it.  I wanted to years ago, in my beginning of this project, but my web host was still on some 5.3 version of php, and didn't always have 'em enabled. But now, as php is up to v7.something, and most hosts have, at least, php 5.4, it seems like a safe move at this point.  If not, oh well!
+
 ### v3.6.10 (2017-10-06)
 
 - Fixed a minor bug introduced by prior commit's code "improvements".
-- Directory list now shows link targets:  some_symlink -> /target/of/symlink
+- Directory list now shows link targets:  some\_symlink -> /target/of/symlink
 - Reworked keyboard nav a bit.
 - Some misc code improvements.
 
@@ -15,12 +26,8 @@
 ### v3.6.08 (2017-09-30)
 
 - [Mov], [Del], & [X] are unavailable if file is readonly.
-- Some misc code improvements.
-
-### v3.6.07 (2017-09-29)
-
 - Fixed minor issue where if perms changed, new value not always displayed.
-- A bit of restructure/refactor of perm & Assemble_Insert_Row() related functions.
+- A bit of restructure/refactor of perm & Assemble\_Insert\_Row() related functions.
 - "(on php 5.x.x)" version, and link to phpinfo, now only shows on Admin page.
 - Andd some css...
 
