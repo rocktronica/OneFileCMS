@@ -2,9 +2,9 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.6.10';
+$OFCMS_version = '3.6.11';
 
-//If language values changed, don't forget the Language Settings version.
+
 
 
 //******************************************************************************
@@ -1382,9 +1382,9 @@ function Cancel_Submit_Buttons($submit_label) {//*******************************
 	$params = $param1.$param2.'&amp;p='. $_SESSION['recent_pages'][1]; //.'&amp;m='.hsc($_['cancelled']) not sure I like this.
 ?>
 	<p>
-	<button type="button" class="button" id="cancel" onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
-		<?php echo hsc($_['Cancel']) ?></button>
-	<button type="submit" class="button" id="submitty"><?php echo hsc($submit_label);?></button>
+	<button type="button" class="button" id="cancel" onclick="parent.location = '<?= $ONESCRIPT.$params ?>'">
+		<?= hsc($_['Cancel']) ?></button>
+	<button type="submit" class="button" id="submitty"><?= hsc($submit_label);?></button>
 	<script>E("cancel").focus();</script>
 <?php
 }//end Cancel_Submit_Buttons() //***********************************************
@@ -1563,11 +1563,11 @@ function List_File($file, $file_url) {//****************************************
 	$edit_link = '<a href="'.$href.'&amp;p=edit'.'" id="old_backup">'.hsc(basename($file)).'</a>';
 ?>
 	<tr>
-	<td><a href="<?php echo $href.'&amp;p=deletefile' ?>" class="button" id="del_backup">
-	<?php echo $ICONS['delete'].'&nbsp;'.hsc($_['Delete']) ?></a></td>
-	<td class="file_name"><?php echo $edit_link; ?></td>
-	<td class="meta_T file_size">&nbsp;	<?php echo number_format(filesize($file_OS)); ?> B	</td>  
-	<td class="meta_T file_time"> &nbsp;<script>FileTimeStamp(<?php echo filemtime($file_OS); ?>, 1, 0, 1);</script></td>
+	<td><a href="<?= $href.'&amp;p=deletefile' ?>" class="button" id="del_backup">
+	<?= $ICONS['delete'].'&nbsp;'.hsc($_['Delete']) ?></a></td>
+	<td class="file_name"><?= $edit_link; ?></td>
+	<td class="meta_T file_size">&nbsp;	<?= number_format(filesize($file_OS)); ?> B	</td>  
+	<td class="meta_T file_time"> &nbsp;<script>FileTimeStamp(<?= filemtime($file_OS); ?>, 1, 0, 1);</script></td>
 	</tr>
 <?php
 }//end List_File() //***********************************************************
@@ -1663,26 +1663,26 @@ function Hash_Page() {//********************************************************
 ?>
 	<style>#message_box {font-family: courier; min-height: 3.1em;}</style>
 
-	<h2><?php echo hsc($_['Generate_Hash']) ?></h2>
+	<h2><?= hsc($_['Generate_Hash']) ?></h2>
 
-	<form id="hash" name="hash" method="post" action="<?php echo $ONESCRIPT.$param1.$param3; ?>">
-		<?php echo $INPUT_NUONCE; ?>
-		<?php echo hsc($_['pass_to_hash']) ?>
-		<input type="text" name="whattohash" id="whattohash" value="<?php echo hsc($_POST['whattohash']) ?>">
+	<form id="hash" name="hash" method="post" action="<?= $ONESCRIPT.$param1.$param3; ?>">
+		<?= $INPUT_NUONCE; ?>
+		<?= hsc($_['pass_to_hash']) ?>
+		<input type="text" name="whattohash" id="whattohash" value="<?= hsc($_POST['whattohash']) ?>">
 		<p><?php Cancel_Submit_Buttons($_['Generate_Hash']) ?>
 		<script>E('whattohash').focus()</script>
 	</form>
 
 	<div class="info">
-		<p><?php echo hsc($_['hash_txt_01']) ?><br>
-		<ol><li><?php echo hsc($_['hash_txt_06']) ?><br>
-				<?php echo hsc($_['hash_txt_07']) ?>
-			<li><?php echo hsc($_['hash_txt_08']) ?><br>
-				<?php echo hsc($_['hash_txt_09']) ?><br>
-				<?php echo hsc($_['hash_txt_10']) ?><br>
-			<li><?php echo hsc($_['hash_txt_12']) ?>
+		<p><?= hsc($_['hash_txt_01']) ?><br>
+		<ol><li><?= hsc($_['hash_txt_06']) ?><br>
+				<?= hsc($_['hash_txt_07']) ?>
+			<li><?= hsc($_['hash_txt_08']) ?><br>
+				<?= hsc($_['hash_txt_09']) ?><br>
+				<?= hsc($_['hash_txt_10']) ?><br>
+			<li><?= hsc($_['hash_txt_12']) ?>
 		</ol>
-		<?php echo $PWUN_RULES ?>
+		<?= $PWUN_RULES ?>
 	</div>
 <?php
 }//end Hash_Page() //***********************************************************
@@ -1716,33 +1716,33 @@ function Change_PWUN_Page($pwun, $type, $page_title, $label_new, $label_confirm)
 	<?php //preserve space for message_box even when there's no message. ?>
 	<style>#message_box {min-height: 2em;}</style>
 
-	<h2><?php echo hsc($page_title) ?></h2>
+	<h2><?= hsc($page_title) ?></h2>
 
-	<form id="change" method="post" action="<?php echo $ONESCRIPT.$param1.$param3; ?>">
-		<input type="hidden" name="<?php echo $pwun ?>" value="">
+	<form id="change" method="post" action="<?= $ONESCRIPT.$param1.$param3; ?>">
+		<input type="hidden" name="<?= $pwun ?>" value="">
 		
-		<?php echo $INPUT_NUONCE; ?>
+		<?= $INPUT_NUONCE; ?>
 		
-		<p><?php echo hsc($_['pw_current']) ?><br>
+		<p><?= hsc($_['pw_current']) ?><br>
 		<input type="password" name="password" id="password" value="">
 		
-		<p><?php echo hsc($label_new) ?><br>
-		<input type="<?php echo $type ?>" name="new1" id="new1" value="">
+		<p><?= hsc($label_new) ?><br>
+		<input type="<?= $type ?>" name="new1" id="new1" value="">
 		
-		<p><?php echo hsc($label_confirm) ?><br>
-		<input type="<?php echo $type ?>" name="new2" id="new2" value="">
+		<p><?= hsc($label_confirm) ?><br>
+		<input type="<?= $type ?>" name="new2" id="new2" value="">
 		
-		<p><input type="button" class="button" id="cancel" value="<?php echo hsc($_['Cancel']) ?>"
-			onclick="parent.location = '<?php echo $ONESCRIPT.$params ?>'">
-		<input type="button" class="button"    id="submitty" value="<?php echo hsc($_['Submit']) ?>">
+		<p><input type="button" class="button" id="cancel" value="<?= hsc($_['Cancel']) ?>"
+			onclick="parent.location = '<?= $ONESCRIPT.$params ?>'">
+		<input type="button" class="button"    id="submitty" value="<?= hsc($_['Submit']) ?>">
 		
 		<script>E('password').focus()</script>
 	</form>
 
 	<div class="info">
-	<?php echo $PWUN_RULES ?>
-	<p><?php echo hsc($_['pw_txt_12']) ?>
-	<p><?php echo hsc($_['pw_txt_14']) ?>
+	<?= $PWUN_RULES ?>
+	<p><?= hsc($_['pw_txt_12']) ?>
+	<p><?= hsc($_['pw_txt_14']) ?>
 	</div>
 <?php
 	//Note: The button with id="submitty" above must NOT be of type="submit",
@@ -1879,13 +1879,13 @@ function Login_Page() {//*******************************************************
 	<?php //preserve space for message_box even when there's no message. ?>
 	<style>#message_box {height: 3.1em;}</style>
 
-	<h2><?php echo hsc($_['Log_In']) ?></h2>
-	<form method="post" id="login_form" name="login_form" action="<?php echo $ONESCRIPT; ?>">
-		<label for ="username"><?php echo hsc($_['Username']) ?>:</label>
+	<h2><?= hsc($_['Log_In']) ?></h2>
+	<form method="post" id="login_form" name="login_form" action="<?= $ONESCRIPT; ?>">
+		<label for ="username"><?= hsc($_['Username']) ?>:</label>
 		<input name="username" type="text"     id="username">
-		<label for ="password"><?php echo hsc($_['Password']) ?>:</label>
+		<label for ="password"><?= hsc($_['Password']) ?>:</label>
 		<input name="password" type="password" id="password">
-		<input type="button"  class="button"   id="login" value="<?php echo hsc($_['Enter']) ?>">
+		<input type="button"  class="button"   id="login" value="<?= hsc($_['Enter']) ?>">
 	</form>
 	<script>E('username').focus();</script>
 <?php
@@ -1993,9 +1993,9 @@ function Create_Table_for_Listing() {//*****************************************
 
 	<table class="index_T">
 	<tr>
-	<th colspan=3><LABEL for=select_all_ckbox id=select_all_label><?php echo hsc($_['Select_All']) ?></LABEL></th>
+	<th colspan=3><LABEL for=select_all_ckbox id=select_all_label><?= hsc($_['Select_All']) ?></LABEL></th>
 	<th><div class=ckbox>
-			<INPUT id=select_all_ckbox tabindex=<?php echo $TABINDEX + 0 ?> TYPE=checkbox NAME=select_all VALUE=select_all>
+			<INPUT id=select_all_ckbox tabindex=<?= $TABINDEX + 0 ?> TYPE=checkbox NAME=select_all VALUE=select_all>
 		</div>
 	</th>
 	
@@ -2003,25 +2003,25 @@ function Create_Table_for_Listing() {//*****************************************
 	
 	<th class=file_name>
 		<div id=ff_ckbox_div class=ckbox>
-			<INPUT tabindex=<?php echo $TABINDEX + 1?> TYPE=checkbox id=folders_first_ckbox NAME=folders_first VALUE=folders_first checked>
+			<INPUT tabindex=<?= $TABINDEX + 1?> TYPE=checkbox id=folders_first_ckbox NAME=folders_first VALUE=folders_first checked>
 		</div>
 		<label for=folders_first_ckbox id=folders_first_label title="<?php  echo hsc($_['folders_first_info']) ?>">
-			(<?php echo hsc($_['folders_first']) ?>)
+			(<?= hsc($_['folders_first']) ?>)
 		</label>
-		<a tabindex=<?php echo $TABINDEX + 3 ?> href="#" id=header_sorttype>(<?php echo hsc($_['ext']) ?>)</a>
-		<a tabindex=<?php echo $TABINDEX + 2 ?>     href="#" id=header_filename><?php echo hsc($_['Name']) ?></a>
+		<a tabindex=<?= $TABINDEX + 3 ?> href="#" id=header_sorttype>(<?= hsc($_['ext']) ?>)</a>
+		<a tabindex=<?= $TABINDEX + 2 ?>     href="#" id=header_filename><?= hsc($_['Name']) ?></a>
 	</th>
 
-	<th class=file_size><a tabindex=<?php echo $TABINDEX + 4 ?> href="#" id=header_filesize><?php echo hsc($_['Size']." (".$_['bytes'].")") ?></a></th>
-	<th class=file_time><a tabindex=<?php echo $TABINDEX + 5 ?> href="#" id=header_filedate><?php echo hsc($_['Date']) ?></a></th>
+	<th class=file_size><a tabindex=<?= $TABINDEX + 4 ?> href="#" id=header_filesize><?= hsc($_['Size']." (".$_['bytes'].")") ?></a></th>
+	<th class=file_time><a tabindex=<?= $TABINDEX + 5 ?> href="#" id=header_filedate><?= hsc($_['Date']) ?></a></th>
 
-	<th><?php echo $file_owner_header ?></th>
-	<th><?php echo $file_group_header ?></th>
+	<th><?= $file_owner_header ?></th>
+	<th><?= $file_group_header ?></th>
 	</tr>
 
 	<tr><?php // "../" directory entry ?>
 		<td colspan=5 id=header_msg></td>
-		<td><?php echo $file_0 ?></td>
+		<td><?= $file_0 ?></td>
 		<td></td><?php //file size  ?>
 		<td></td><?php //date time  ?>
 		<td></td><?php //file owner  ?>
@@ -2030,7 +2030,7 @@ function Create_Table_for_Listing() {//*****************************************
 
 	<?php //Directory & footer content will be inserted later. ?>
 	<tbody id=DIRECTORY_LISTING></tbody>
-	<tr><td id=DIRECTORY_FOOTER colspan="<?php echo $DIRECTORY_COLUMNS ?>"></td></tr>
+	<tr><td id=DIRECTORY_FOOTER colspan="<?= $DIRECTORY_COLUMNS ?>"></td></tr>
 	</table>
 <?php
 	$TABINDEX += 7;
@@ -2240,19 +2240,19 @@ function Edit_Page_buttons_top($text_editable,$file_ENC) {//********************
 	<div class="edit_btns_top">
 		<div class="file_meta">
 			<span class="file_size">
-				<?php echo hsc($_['meta_txt_01']).' '.number_format(filesize($filename_OS)).' '.hsc($_['bytes']); ?>
+				<?= hsc($_['meta_txt_01']).' '.number_format(filesize($filename_OS)).' '.hsc($_['bytes']); ?>
 			</span>	&nbsp;
 			<span class="file_time">
-				<?php echo hsc($_['meta_txt_03']).' <script>FileTimeStamp('.filemtime($filename_OS).', 1, 1, 1);</script>'; ?>
-				<?php echo '&nbsp; '.$file_ENC; ?>
+				<?= hsc($_['meta_txt_03']).' <script>FileTimeStamp('.filemtime($filename_OS).', 1, 1, 1);</script>'; ?>
+				<?= '&nbsp; '.$file_ENC; ?>
 			</span><br>
 		</div>
 		
 		<div class="buttons_right">
-			<?php echo $view_raw_button  ?>
-			<?php echo $wide_view_button ?>
-			<?php echo $WYSIWYG_button   ?>
-			<?php echo $close_button     ?>
+			<?= $view_raw_button  ?>
+			<?= $wide_view_button ?>
+			<?= $WYSIWYG_button   ?>
+			<?= $close_button     ?>
 		</div>
 		<div class=clear></div>
 	</div>
@@ -2385,12 +2385,12 @@ function Edit_Page_Notes() {//**************************************************
 			$HRS_MIN_SEC = $HRS.':'.$MIN.':'.$SEC;
 ?>
 			<div id="edit_notes">
-				<div class="notes"><?php echo hsc($_['edit_note_00']) ?></div>
+				<div class="notes"><?= hsc($_['edit_note_00']) ?></div>
 				<div class="notes"><b>1)
-					<?php echo hsc($_['edit_note_01a']).' $MAX_IDLE_TIME '.hsc($_['edit_note_01b']) ?>
-					<?php echo ' '.$HRS_MIN_SEC.'. '.hsc($_['edit_note_02']) ?></b>
+					<?= hsc($_['edit_note_01a']).' $MAX_IDLE_TIME '.hsc($_['edit_note_01b']) ?>
+					<?= ' '.$HRS_MIN_SEC.'. '.hsc($_['edit_note_02']) ?></b>
 				</div>
-				<div class="notes"><b>2) </b> <?php echo hsc($_['edit_note_03']) ?></div>
+				<div class="notes"><b>2) </b> <?= hsc($_['edit_note_03']) ?></div>
 			</div>
 <?php
 }//end Edit_Page_Notes() //*****************************************************
@@ -3119,21 +3119,21 @@ function init_ICONS_js() {//****************************************************
 
 <script>
 var ICONS = [];
-ICONS['bin']	 = '<?php echo $ICONS["bin"]	 ?>';
-ICONS['z']		 = '<?php echo $ICONS["z"]		 ?>';
-ICONS['img']	 = '<?php echo $ICONS["img"]	 ?>';
-ICONS['svg']	 = '<?php echo $ICONS["svg"]	 ?>';
-ICONS['txt']	 = '<?php echo $ICONS["txt"]	 ?>';
-ICONS['htm']	 = '<?php echo $ICONS["htm"]	 ?>';
-ICONS['php']	 = '<?php echo $ICONS["php"]	 ?>';
-ICONS['css']	 = '<?php echo $ICONS["css"]	 ?>';
-ICONS['cfg']	 = '<?php echo $ICONS["cfg"]	 ?>';
-ICONS['dir']     = '<?php echo $ICONS["dir"]     ?>';
-ICONS['folder']  = '<?php echo $ICONS["folder"]  ?>';
-ICONS['ren_mov'] = '<?php echo $ICONS["ren_mov"] ?>';
-ICONS['move']    = '<?php echo $ICONS["move"]    ?>';
-ICONS['copy']    = '<?php echo $ICONS["copy"]    ?>';
-ICONS['delete']  = '<?php echo $ICONS["delete"]  ?>';
+ICONS['bin']	 = '<?= $ICONS["bin"]	 ?>';
+ICONS['z']		 = '<?= $ICONS["z"]		 ?>';
+ICONS['img']	 = '<?= $ICONS["img"]	 ?>';
+ICONS['svg']	 = '<?= $ICONS["svg"]	 ?>';
+ICONS['txt']	 = '<?= $ICONS["txt"]	 ?>';
+ICONS['htm']	 = '<?= $ICONS["htm"]	 ?>';
+ICONS['php']	 = '<?= $ICONS["php"]	 ?>';
+ICONS['css']	 = '<?= $ICONS["css"]	 ?>';
+ICONS['cfg']	 = '<?= $ICONS["cfg"]	 ?>';
+ICONS['dir']     = '<?= $ICONS["dir"]     ?>';
+ICONS['folder']  = '<?= $ICONS["folder"]  ?>';
+ICONS['ren_mov'] = '<?= $ICONS["ren_mov"] ?>';
+ICONS['move']    = '<?= $ICONS["move"]    ?>';
+ICONS['copy']    = '<?= $ICONS["copy"]    ?>';
+ICONS['delete']  = '<?= $ICONS["delete"]  ?>';
 </script>
 
 <?php
@@ -3232,9 +3232,9 @@ function Countdown(count, End_Time, Timer_ID, Action){
 
 	Timer.innerHTML = FormatTime(count);
 
-	if ((count == <?php echo $TO_WARNING ?>) && (Action != "")) { //Two minute warning...
+	if ((count == <?= $TO_WARNING ?>) && (Action != "")) { //Two minute warning...
 		
-		var timeout_warning  = '<div class="message_box_contents"><b><?php echo hsc($_['session_warning']) ?></b> ';
+		var timeout_warning  = '<div class="message_box_contents"><b><?= hsc($_['session_warning']) ?></b> ';
 			timeout_warning += '<b><span id=timer2>:--</span></b></div>';
 		$msg_box.innerHTML  = timeout_warning;
 		setTimeout('Start_Countdown(' + count + ',"timer2","")',25);
@@ -3247,10 +3247,10 @@ function Countdown(count, End_Time, Timer_ID, Action){
 
 	if ( count < 1 ) {
 		if ( Action == 'LOGOUT') {
-			Timer.innerHTML        = '<?php echo hsc($_['session_expired']) ?>';
-			$msg_box.innerHTML = '<div class=message_box_contents><b><?php echo hsc($_['session_expired']) ?></b></div>';
+			Timer.innerHTML        = '<?= hsc($_['session_expired']) ?>';
+			$msg_box.innerHTML = '<div class=message_box_contents><b><?= hsc($_['session_expired']) ?></b></div>';
 			//Load login screen, but delay first to make sure really expired:
-			setTimeout('window.location = window.location.pathname', <?php echo $DELAY_Expired_Reload ?>);
+			setTimeout('window.location = window.location.pathname', <?= $DELAY_Expired_Reload ?>);
 		}
 		return;
 	}
@@ -3314,7 +3314,7 @@ function Display_Messages($msg, take_focus) {//***********************
 
 	if (typeof $tabindex_xbox === 'undefined') {$tabindex_xbox = 0;}
 
-	var $page     = '<?php echo $page ?>';
+	var $page     = '<?= $page ?>';
 	var new_focus = '';
 
 	if      ($page == 'index') { new_focus = 'header_filename'; }
@@ -3400,7 +3400,7 @@ E("main").onkeydown = function(event) { //*****************************
 	//It won't look back, if you enter this Abyss, it'll only swallow you hole, then [redacted]!
 	//Control cursor keys to navigate index page. (Arrows, Page, Home, End)
 
-	var jump = <?php echo $PAGEUPDOWN ?>;//# of rows to jump with Page Up/Page Down.
+	var jump = <?= $PAGEUPDOWN ?>;//# of rows to jump with Page Up/Page Down.
 
 	//Get key pressed...
 	if (!event) {var event = window.event;} //for IE
@@ -3623,7 +3623,7 @@ E("main").onkeydown = function(event) { //*****************************
 	else if (FR == -1) {ID = "path_0"}     //Anyplace other than path_header, buttons, table
 	else {
 		//just in case I missed something...
-		var error_message  = '<?php echo __LINE__.$EX.'<b>'.hsc($_['Error']).'</b> onkeydown(): ' ?>';
+		var error_message  = '<?= __LINE__.$EX.'<b>'.hsc($_['Error']).'</b> onkeydown(): ' ?>';
 		    error_message += "key = " + key + ", FR = " + FR + ", ID = " + ID + ",x_focus = " + x_focus
 		Display_Messages(error_message);
 		return;
@@ -3723,8 +3723,8 @@ function Validate_and_Post($perms, filename) { //*********************
 	var valid =  octal.test($perms.value); 
 
 	if (!valid) {
-		var msg  = "<b>" + hsc("<?php echo $_['Invalid'] ?>: [" + $perms.value + "]") + "</b> ";
-		    msg += hsc("<?php echo $_['Permissions_msg_1'] ?>.");
+		var msg  = "<b>" + hsc("<?= $_['Invalid'] ?>: [" + $perms.value + "]") + "</b> ";
+		    msg += hsc("<?= $_['Permissions_msg_1'] ?>.");
 		$perms.value = $perms.prior_value;
 		Display_Messages(msg);
 		return false;
@@ -3740,7 +3740,7 @@ function Validate_and_Post($perms, filename) { //*********************
 
 function Enable_Edit_Perms($perms) {//********************************
 
-	var msg = hsc(" <?php echo $_['Press_Enter'] ?>");
+	var msg = hsc(" <?= $_['Press_Enter'] ?>");
 	Display_Messages(msg);
 	$perms.readOnly = false;
 	$perms.setSelectionRange(0, 0); //Just for consistency.
@@ -3818,18 +3818,18 @@ function Perms_Update_Response(request, $perms) { //******************
 function Post_New_File_Perms($perms, filename) { //*******************
 	//key input restricted to 0-7 client-side, and validated both client & server-side.
 
-	Display_Messages("<?php echo $_['Working'] ?>");
+	Display_Messages("<?= $_['Working'] ?>");
 
 	var request_update = new XMLHttpRequest();
 
 	request_update.onreadystatechange = function() { Perms_Update_Response(this, $perms); }
 
-	request_update.open("POST", "<?php echo $ONESCRIPT ?>", true);
+	request_update.open("POST", "<?= $ONESCRIPT ?>", true);
 
 	request_update.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
 	var post_data  = "new_perms=" + $perms.value;
-		post_data += "&ipath=<?php echo $ipath ?>";
+		post_data += "&ipath=<?= $ipath ?>";
 	    post_data += "&perms_filename=" + filename;
 		post_data += "&nuonce=" + E('nuonce').value;  //Needed to confirm $VALID_POST
 
@@ -3848,10 +3848,10 @@ function Index_Page_scripts() {//***********************************************
 	global $_, $ONESCRIPT, $param1, $ipath, $MESSAGE, $DELAY_Sort_and_Show_msgs, $MIN_DIR_ITEMS, $TABINDEX, $DIRECTORY_COLUMNS;
 ?>
 <script>
-var ONESCRIPT	= "<?php echo $ONESCRIPT ?>";
-var PARAM1		= "<?php echo $param1 ?>";  //capitalized here as it is used as a constant.
-var TABINDEX	= <?php echo $TABINDEX ?>;  //TABINDEX only used by js from this point on...
-var DIRECTORY_COLUMNS = <?php echo $DIRECTORY_COLUMNS ?>;
+var ONESCRIPT	= "<?= $ONESCRIPT ?>";
+var PARAM1		= "<?= $param1 ?>";  //capitalized here as it is used as a constant.
+var TABINDEX	= <?= $TABINDEX ?>;  //TABINDEX only used by js from this point on...
+var DIRECTORY_COLUMNS = <?= $DIRECTORY_COLUMNS ?>;
 
 //a few usefull constants for using sort_DIRECTORY()
 var DESCENDING	= 0;
@@ -4013,9 +4013,9 @@ function Assemble_mdx(drow, href, f_or_f, filename, tabindex) {
 
 	//Used when file is writable.
 	MOV_rw[frow][1]  = '<a id=' + ren_id + ' tabindex='+ (tabindex + 0) +' class=MCD href="' + href + '&amp;p=rename' + f_or_f;
-	MOV_rw[frow][1] += '" title="<?php echo hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
+	MOV_rw[frow][1] += '" title="<?= hsc($_['Ren_Move']) ?>">' + ICONS['ren_mov'] + '</a>';
 	DEL_rw[frow][1]  = '<a id=' + del_id + ' tabindex='+ (tabindex + 2) +' class=MCD href="' + href + '&amp;p=delete' + f_or_f;
-	DEL_rw[frow][1] += '" title="<?php echo hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
+	DEL_rw[frow][1] += '" title="<?= hsc($_['Delete'])   ?>">' + ICONS['delete']  + '</a>';
 	CBX_rw[frow][1]  = '<div class=ckbox><INPUT id=' + ckbox_id + ' tabindex='+ (tabindex + 3);
 	CBX_rw[frow][1] += ' TYPE=checkbox class=select_file NAME="files[]"  VALUE="'+ hsc(filename) +'"></div>';
 
@@ -4083,7 +4083,7 @@ function Assemble_Insert_row(drow, href, filename, file_name, file_time){
 
 	//[copy] & [perms] are always available.
 	copy  = '<a id=' + copy_id + ' tabindex='+ (TABINDEX + 1) +' class=MCD href="' + href + '&amp;p=copy'   + f_or_f;
-	copy += '" title="<?php echo hsc($_['Copy']) ?>">' + ICONS['copy'] + '</a>';
+	copy += '" title="<?= hsc($_['Copy']) ?>">' + ICONS['copy'] + '</a>';
 
 	perms  = '<input id=' + perms_id + ' tabindex=' + (TABINDEX + 4) + ' class=perms';
 	perms += ' value="' + DIRECTORY_DATA[drow][6]+ '" maxlength=4 readonly>';
@@ -4112,7 +4112,7 @@ function Assemble_Insert_row(drow, href, filename, file_name, file_time){
 
 function Build_Directory() {//****************************************
 
-	TABINDEX = <?php echo $TABINDEX ?>;  //Reset global TABINDEX
+	TABINDEX = <?= $TABINDEX ?>;  //Reset global TABINDEX
 
 	//Has the directory table been init'd yet?  (<tbody id=DIRECTORY_LISTING></tbody>)
 	if (E("DIRECTORY_LISTING").rows.length < 1)	{ Init_Dir_table_rows(); }
@@ -4150,7 +4150,7 @@ function Build_Directory() {//****************************************
 		
 		//The (TABINDEX + 5) accounts for the [m][c][d][x][perms] links which are added in Assemble_Insert_Row().
 		var file_name  = '<a id=f'+ frow +'c'+ file_col + ' tabindex='+ (TABINDEX + 5) +' href="' + href  + '"'; 
-			file_name += ' title="<?php echo hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
+			file_name += ' title="<?= hsc($_['Edit_View']) ?>: ' + hsc(filename) + '" >';
 			file_name += ICONS[filetype] + '&nbsp;' + hsc(filename + DS + link_target) + '</a>';
 		var file_time  = FileTimeStamp(filetime, 1, 0, 0);
 		
@@ -4179,9 +4179,9 @@ function Directory_Summary() {//**************************************
 	}
 
 	//Directory Summary
-	SUMMARY += folder_count + " <?php echo hsc($_['folders']) ?>, &nbsp; ";
-	SUMMARY += total_items - folder_count + ' <?php echo hsc($_['files']) ?>, ';
-	SUMMARY += '&nbsp; ' + format_number(total_bytes) + " <?php echo hsc($_['bytes']) ?>";
+	SUMMARY += folder_count + " <?= hsc($_['folders']) ?>, &nbsp; ";
+	SUMMARY += total_items - folder_count + ' <?= hsc($_['files']) ?>, ';
+	SUMMARY += '&nbsp; ' + format_number(total_bytes) + " <?= hsc($_['bytes']) ?>";
 
 	return SUMMARY;
 
@@ -4194,11 +4194,11 @@ function Sort_and_Show(col, direction) {//****************************
 
 	var DELAY = 0;
 
-	if (DIRECTORY_ITEMS > <?php echo $MIN_DIR_ITEMS ?>) { //
+	if (DIRECTORY_ITEMS > <?= $MIN_DIR_ITEMS ?>) { //
 		//(Any pre-existing $MESSAGE will be displayed after directory is displayed.)
-		Display_Messages('<b><?php echo $_['Working'] ?></b>');
+		Display_Messages('<b><?= $_['Working'] ?></b>');
 		
-		DELAY = <?php echo $DELAY_Sort_and_Show_msgs ?>;
+		DELAY = <?= $DELAY_Sort_and_Show_msgs ?>;
 	}
 
 	//setTimeout() needed so 'Working' message will actually get displayed *before* the sort.
@@ -4225,9 +4225,9 @@ function Select_All() {//********************************************
 	var select_all = E('mcdselect').select_all;
 
 	if (select_all.checked) {
-		$select_all_label.innerHTML = '<?php echo hsc($_['Clear_All']) ?>';
+		$select_all_label.innerHTML = '<?= hsc($_['Clear_All']) ?>';
 	}else{
-		$select_all_label.innerHTML = '<?php echo hsc($_['Select_All']) ?>';
+		$select_all_label.innerHTML = '<?= hsc($_['Select_All']) ?>';
 	}
 
 	//Start x at 1 as files[0] is a dummy <input> used to force an array even if only one file is in a folder.
@@ -4242,7 +4242,7 @@ function Confirm_Submit(action) {//***********************************
 	var files = E('mcdselect').elements['files[]'];
 	var last  = files.length;   //number of files
 	var no_files = true;
-	var f_msg    = "<?php echo hsc($_['No_files']) ?>";	
+	var f_msg    = "<?= hsc($_['No_files']) ?>";	
 
 	E('mcdselect').mcdaction.value = action; 
 
@@ -4351,20 +4351,20 @@ function Correct_Word_Wrapping(text_area) {
 
 function Wide_View() {
 
-	var normal_view_width = '<?php echo $MAIN_WIDTH ?>';
-	var wide_view_width	  = '<?php echo $WIDE_VIEW_WIDTH ?>';
+	var normal_view_width = '<?= $MAIN_WIDTH ?>';
+	var wide_view_width	  = '<?= $WIDE_VIEW_WIDTH ?>';
 
 	//Toggle view width
 	if (Wide_View_button.value == "on") {
 		Main_div.style.width       = normal_view_width;
 		Set_File_Textarea_Width();
-		Wide_View_button.innerHTML = "<?php echo hsc($_['Wide_View'])?>"; //Button label is what to do next click, not current state.
+		Wide_View_button.innerHTML = "<?= hsc($_['Wide_View'])?>"; //Button label is what to do next click, not current state.
 		document.cookie            = 'wide_view=off';
 		Wide_View_button.value 	   = "off"
 	}else{
 		Main_div.style.width       = wide_view_width;
 		Set_File_Textarea_Width();
-		Wide_View_button.innerHTML = '<?php echo hsc($_['Normal_View']) ?>';
+		Wide_View_button.innerHTML = '<?= hsc($_['Normal_View']) ?>';
 		document.cookie            = 'wide_view=on';
 		Wide_View_button.value 	   = "on"
 	}
@@ -4407,7 +4407,7 @@ function Reset_file_status_indicators() {
 	changed = false;
 	File_textarea.style.backgroundColor = "#F5FFF5";  //light green
 	Save_File_button.style.borderColor  = "";
-	Save_File_button.innerHTML          = "<?php echo hsc($_['save_1'])?>";
+	Save_File_button.innerHTML          = "<?= hsc($_['save_1'])?>";
 	Reset_button.disabled               = "disabled";
 }
 
@@ -4423,7 +4423,7 @@ function Check_for_changes(event){
 		E('message_box').innerHTML = " "; //Must have a space, or it won't clear the msg.
 		File_textarea.style.backgroundColor    = "white";
 		Save_File_button.style.borderColor	   = "#F33";
-		Save_File_button.innerHTML			   = "<?php echo hsc($_['save_2'])?>";
+		Save_File_button.innerHTML			   = "<?= hsc($_['save_2'])?>";
 		Reset_button.disabled				   = "";
 	}else{
 		Reset_file_status_indicators()
@@ -4441,7 +4441,7 @@ function Check_for_changes(event){
 function Reset_File() {
 
     <?php //use addslashes() because this is for a js alert() or confirm(), not HTML ?>
-	if (changed) { if ( !(confirm("<?php echo addslashes($_['confirm_reset']) ?>")) ) { return false; } }
+	if (changed) { if ( !(confirm("<?= addslashes($_['confirm_reset']) ?>")) ) { return false; } }
 
 	File_textarea.value = start_value;
 	Reset_file_status_indicators();
@@ -4580,15 +4580,15 @@ function Line_Numbering(wrapper_id, line_numbers_id, listing_id, line0_id, line1
 	var TAB_SIZE = 8;
 	
 	if ("tabSize" in document.body.style){
-		TAB_SIZE = <?php echo $TAB_SIZE ?>;
+		TAB_SIZE = <?= $TAB_SIZE ?>;
 		listing.style.tabSize = TAB_SIZE;
 	}
 	else if ("MozTabSize" in document.body.style) {
-		TAB_SIZE = <?php echo $TAB_SIZE ?>;
+		TAB_SIZE = <?= $TAB_SIZE ?>;
 		listing.style.MozTabSize = TAB_SIZE;
 	}
 	else if ("OTabSize" in document.body.style) {
-		TAB_SIZE = <?php echo $TAB_SIZE ?>;
+		TAB_SIZE = <?= $TAB_SIZE ?>;
 		listing.style.OTabSize = TAB_SIZE;
 	}
 
@@ -4648,17 +4648,17 @@ var changed    = false;
 
 if (File_textarea) { var start_value = File_textarea.value; }
 
-var onclick_params = '<?php echo $ONESCRIPT.$param1.'&f='.rawurlencode(basename($filename)).'&p=' ?>';
+var onclick_params = '<?= $ONESCRIPT.$param1.'&f='.rawurlencode(basename($filename)).'&p=' ?>';
 
 //Wide View / Normal View init...
-Main_div.style.width = "<?php echo $current_view ?>"; //Set current width
+Main_div.style.width = "<?= $current_view ?>"; //Set current width
 //***** end Global variables *****************************************
 
 
 
 //***** Events assignments *******************************************
 //[Close], and [Copy], should always be present on Edit Page.
-Close_button.onclick     = function () { parent.location = '<?php echo $close_params ?>'; }
+Close_button.onclick     = function () { parent.location = '<?= $close_params ?>'; }
 Copy_File_button.onclick = function () { parent.location = onclick_params + 'copyfile';   }
 
 
@@ -4666,7 +4666,7 @@ Copy_File_button.onclick = function () { parent.location = onclick_params + 'cop
 if (View_Raw_button)    { View_Raw_button.onclick 	 = function () {window.open(onclick_params + 'raw_view'); } }
 if (Wide_View_button)   { Wide_View_button.onclick 	 = function () {Wide_View();}    }
 if (Save_File_button)   { Save_File_button.onclick 	 = function () {submitted=true;} }
-if (WYSIWYG_button  )   { WYSIWYG_button.onclick 	 = function () {<?php echo $WYSIWYG_onclick ?>} }
+if (WYSIWYG_button  )   { WYSIWYG_button.onclick 	 = function () {<?= $WYSIWYG_onclick ?>} }
 if (Rename_File_button) { Rename_File_button.onclick = function () {parent.location = onclick_params + 'renamefile';} }
 if (Delete_File_button) { Delete_File_button.onclick = function () {parent.location = onclick_params + 'deletefile';} }
 if (File_textarea)      { File_textarea.addEventListener("keyup", function(event) {Check_for_changes(event);}) }
@@ -4677,7 +4677,7 @@ window.onbeforeunload = function() {
 	if ( changed && !submitted ) {
 		//FF4+ Ingores the supplied msg below & only uses a system msg for the prompt.
 		<?php //use addslashes(), not hsc(), because this is for a js alert() / confirm(), not HTML ?>
-		return "<?php echo addslashes($_['unload_unsaved']) ?>";
+		return "<?= addslashes($_['unload_unsaved']) ?>";
 	}
 }
 
@@ -4732,8 +4732,8 @@ function pwun_event_scripts($form_id, $button_id, $pwun='') {//*****************
 ?>
 
 <script>
-var $form          = E('<?php echo $form_id ?>');
-var $submit_button = E('<?php echo $button_id ?>');
+var $form          = E('<?= $form_id ?>');
+var $submit_button = E('<?= $button_id ?>');
 var $pwun_msg_box   = E('message_box');
 var $thispage      = false; //Used to ignore keyup if keydown started on prior page.
 var $submitdown    = false; //Used in document.mouseup event
@@ -4754,7 +4754,7 @@ function events_down(event, capture_key) {
 	if (!event) {var event = window.event;} //if IE
 	$thispage = true; //Make sure keydown was on this page.
 	if ((event.type.substr(0,3) == 'key') && (event.keyCode != capture_key)) {return true;}
-	$pwun_msg_box.innerHTML = '<div class="message_box_contents"><b><?php echo hsc($_['Working']) ?></b>';
+	$pwun_msg_box.innerHTML = '<div class="message_box_contents"><b><?= hsc($_['Working']) ?></b>';
 }
 
 
@@ -4765,7 +4765,7 @@ function events_up(event, capture_key) {
 	if (!pre_validate_pwun()) {return false};
 	$submit_button.disabled = "disabled";  //Prevent extra clicks
 	hash('password');
-	<?php echo $hash_new_new ?>
+	<?= $hash_new_new ?>
 	$form.submit();
 }
 
@@ -4798,12 +4798,12 @@ function pre_validate_pwun() {
 
 	//If any field is blank..
 	if (($username.value == '') || ($pw.value == '') || ($new1.value == '') || ($new2.value == '')) {
-		$pwun_msg_box.innerHTML = '<div class="message_box_contents"><b><?php echo hsc($_['change_pw_07']) ?></b>';
+		$pwun_msg_box.innerHTML = '<div class="message_box_contents"><b><?= hsc($_['change_pw_07']) ?></b>';
 		return false;
 	}
 	//If new & confirm new values do not match...
 	if (trim($new1.value) != trim($new2.value)) {
-		$pwun_msg_box.innerHTML = '<div class="message_box_contents"><b><?php echo hsc($_['change_pw_04']) ?></b>';
+		$pwun_msg_box.innerHTML = '<div class="message_box_contents"><b><?= hsc($_['change_pw_04']) ?></b>';
 		return false;
 	}
 	return true;
@@ -4845,8 +4845,8 @@ var hexcase=0;function hex_sha256(a){return rstr2hex(rstr_sha256(str2rstr_utf8(a
 function hash($element_id) {
 	var $input = E($element_id);
 	var $hash = trim($input.value); //trim() defined in Common_Scripts()
-	var $SALT = '<?php echo $SALT ?>';
-	var $PRE_ITERATIONS = <?php echo $PRE_ITERATIONS ?>; //$PRE_ITERATIONS also used in hashit()
+	var $SALT = '<?= $SALT ?>';
+	var $PRE_ITERATIONS = <?= $PRE_ITERATIONS ?>; //$PRE_ITERATIONS also used in hashit()
 	if ($hash.length < 1) {$input.value = $hash; return;} //Don't hash nothing.
 	for ( $x=0; $x < $PRE_ITERATIONS; $x++ ) { $hash = hex_sha256($hash + $SALT); }
 	$input.value = $hash;
@@ -5425,35 +5425,35 @@ function Language_and_config_adjusted_styles() {//******************************
 ?>
 
 <style>
-#main { width: <?php echo $MAIN_WIDTH ?>; } /*Default 810px*/
+#main { width: <?= $MAIN_WIDTH ?>; } /*Default 810px*/
 
 .tab_size {
-	tab-size     : <?php echo $TAB_SIZE ?>;
-	-o-tab-size  : <?php echo $TAB_SIZE ?>;
-	-moz-tab-size: <?php echo $TAB_SIZE ?>;
+	tab-size     : <?= $TAB_SIZE ?>;
+	-o-tab-size  : <?= $TAB_SIZE ?>;
+	-moz-tab-size: <?= $TAB_SIZE ?>;
 }
 
 .button {
-	padding  : <?php echo $_['button_padding']   ?>; /*Default 4px 7px 4px 7px */
-	font-size: <?php echo $_['button_font_size'] ?>; /*Default .9em */
+	padding  : <?= $_['button_padding']   ?>; /*Default 4px 7px 4px 7px */
+	font-size: <?= $_['button_font_size'] ?>; /*Default .9em */
 	}
 
 .front_links a {
-	font-size  : <?php echo $_['front_links_font_size'] ?>; /*Default 1em */
-	margin-left: <?php echo $_['front_links_margin_L']  ?>; /*Default 1em */
+	font-size  : <?= $_['front_links_font_size'] ?>; /*Default 1em */
+	margin-left: <?= $_['front_links_margin_L']  ?>; /*Default 1em */
 	}
 
-#mcd_submit button{ margin-right: <?php echo $_['MCD_margin_R']  ?>;}  /*Default 1em*/
+#mcd_submit button{ margin-right: <?= $_['MCD_margin_R']  ?>;}  /*Default 1em*/
 
-.image_info { font-size: <?php echo $_['image_info_font_size'] ?>; }   /*Default 1em*/
+.image_info { font-size: <?= $_['image_info_font_size'] ?>; }   /*Default 1em*/
 
 .edit_btns_bottom .button {
-	margin-left: <?php echo $_['button_margin_L'] ?>; /*Default .7em*/
+	margin-left: <?= $_['button_margin_L'] ?>; /*Default .7em*/
 	}
 
 
-#select_all_label { font-size: <?php echo $_['select_all_label_size']?>; } /*Default .84em */
-#select_all_label { width: <?php echo $_['select_all_label_width']?>; }    /*Default 72px  */
+#select_all_label { font-size: <?= $_['select_all_label_size']?>; } /*Default .84em */
+#select_all_label { width: <?= $_['select_all_label_width']?>; }    /*Default 72px  */
 </style>
 
 <?php
