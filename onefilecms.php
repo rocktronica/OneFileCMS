@@ -2,7 +2,7 @@
 
 // OneFileCMS - github.com/Self-Evident/OneFileCMS
 
-$OFCMS_version = '3.6.12';
+$OFCMS_version = '3.6.13';
 
 
 
@@ -147,7 +147,7 @@ $SESSION_NAME = 'OFCMS'; //Name of session cookie. Change if using multiple copi
 //Optional: restrict access to a particular sub folder from root.
 //$ACCESS_ROOT = '/some/path';
 //If blank or invalid, default is $_SERVER['DOCUMENT_ROOT'].
-//$ACCESS_ROOT = '/home/user'; //$DEFAULT_PATH = '/home/'.get_current_user();
+//$ACCESS_ROOT = '/home/'.get_current_user();
 
 
 //Optional: specify a default start path on login.
@@ -200,6 +200,10 @@ global $_, $MAX_IDLE_TIME, $LOGIN_ATTEMPTS, $LOGIN_DELAYED,
 	$DELAY_Expired_Reload, $DELAY_Sort_and_Show_msgs, $DELAY_Start_Countdown, $DELAY_final_messages,
 	$MIN_DIR_ITEMS, $DIRECTORY_COLUMNS;
 
+//Used to pass & display any setup $MESSAGES only if $_SESSION['valid'].
+//(So they don't display on the Login screen.)
+$setup_messages = "";
+
 //Requires PHP 5.1 or newer, due to changes in explode() (and maybe others).
 define('PHP_VERSION_ID_REQUIRED',50100);   //Ex: 5.1.23 is 50123
 define('PHP_VERSION_REQUIRED'  ,'5.1 + '); //Used in exit() message.
@@ -233,9 +237,9 @@ $INVALID_CHARS = '< > ? * : " | / \\'; //Illegal characters for file & folder na
 $WHSPC_SLASH = "\x00..\x20/";  //Whitespace & forward slash. For trimming file & folder name inputs.
 
 
-//$DOC_ROOT is normalized to always be (for ex:) "/server/doc/root/", instead of "C:/server/doc/root/" if on Windows.
+//$DOC_ROOT is normalized to always be (for ex:) "server/doc/root/", instead of "C:/server/doc/root/" if on Windows.
 $ds_pos   = strpos($_SERVER['DOCUMENT_ROOT'], "/") * 1;
-$DOC_ROOT = substr($_SERVER['DOCUMENT_ROOT'], $ds_pos).'/';
+$DOC_ROOT = trim(substr($_SERVER['DOCUMENT_ROOT'], $ds_pos), '/').'/';
 
 
 $WEBSITE   = $_SERVER['HTTP_HOST'].'/';
@@ -254,7 +258,7 @@ if (isset($LANGUAGE_FILE)) {
 	$LANGUAGE_FILE_OS = Convert_encoding($LANGUAGE_FILE);
 	
 	if (is_file($LANGUAGE_FILE_OS)) { include($LANGUAGE_FILE_OS); }  
-	else { $MESSAGE .= '<b>$LANGUAGE_FILE '.hsc($_['Not_found']).":</b> ".hsc($LANGUAGE_FILE)."<br>"; }
+	else { $setup_messages .= '<b>$LANGUAGE_FILE '.hsc($_['Not_found']).":</b> ".hsc($LANGUAGE_FILE)."<br>"; }
 	
 }
 
@@ -265,7 +269,7 @@ if (isset($WYSIWYG_PLUGIN)) {
 	$WYSIWYG_PLUGIN_OS = Convert_encoding($WYSIWYG_PLUGIN); //Also used for include()
 
 	if (is_file($WYSIWYG_PLUGIN_OS)) { $WYSIWYG_VALID = 1; }
-	else { $MESSAGE .= '<b>$WYSIWYG_PLUGIN '.hsc($_['Not_found']).':</b> '.hsc($WYSIWYG_PLUGIN)."<br>"; }
+	else { $setup_messages .= '<b>$WYSIWYG_PLUGIN '.hsc($_['Not_found']).':</b> '.hsc($WYSIWYG_PLUGIN)."<br>"; }
 }
 
 
@@ -280,7 +284,7 @@ if (isset($CONFIG_FILE)) {
 		$CONFIG_FILE_backup = $CONFIG_FILE.'-BACKUP.txt';                 //used for p/w & u/n updates.
 	}
 	else {
-		$MESSAGE .= $EX.'<b>$CONFIG_FILE '.hsc($_['Not_found']).':</b> '.hsc($CONFIG_FILE).'<br>';
+		$setup_messages .= $EX.'<b>$CONFIG_FILE '.hsc($_['Not_found']).':</b> '.hsc($CONFIG_FILE).'<br>';
 		$CONFIG_FILE = $CONFIG_FILE_OS = '';
 	}
 }
@@ -288,13 +292,13 @@ if (isset($CONFIG_FILE)) {
 
 
 //Clean up & validate $ACCESS_ROOT
-if (!isset($ACCESS_ROOT)) { $ACCESS_ROOT = $DOC_ROOT; } //Make sure it's set.
+if (!isset($ACCESS_ROOT) || $ACCESS_ROOT == '') { $ACCESS_ROOT = $DOC_ROOT; } //Make sure it's set.
 $ACCESS_ROOT = trim($ACCESS_ROOT, ' /'); //Trim to '' or 'some/path'
 if ($ACCESS_ROOT != '') { $ACCESS_ROOT = $ACCESS_ROOT.'/'; }
 $ACCESS_ROOT_OS = Convert_encoding($ACCESS_ROOT);
 
 if (!is_dir('/'.$ACCESS_ROOT_OS)) {
-	$MESSAGE .= $EX.'<b>$ACCESS_ROOT '.hsc($_['Invalid']).":</b> $ACCESS_ROOT<br>";
+	$setup_messages .= $EX.'<b>$ACCESS_ROOT '.hsc($_['Invalid']).":</b> $ACCESS_ROOT<br>";
 	$ACCESS_ROOT	= $DOC_ROOT;
 	$ACCESS_ROOT_OS = Convert_encoding($ACCESS_ROOT);
 }
@@ -305,26 +309,26 @@ $ACCESS_ROOT_len = mb_strlen($ACCESS_ROOT, $ACCESS_ROOT_enc);
 
 //Clean up & validate $DEFAULT_PATH
 //It must either be = $ACCESS_ROOT, or $ACCESS_ROOT."some/valid/path/"
-if (!isset($DEFAULT_PATH)) { $DEFAULT_PATH = $ACCESS_ROOT; } //Make sure it's set.
+if (!isset($DEFAULT_PATH) || $DEFAULT_PATH == '') { $DEFAULT_PATH = $ACCESS_ROOT; } //Make sure it's set.
 $DEFAULT_PATH = trim($DEFAULT_PATH, ' /');  //Trim to 'some/path'
 if ($DEFAULT_PATH != '') {$DEFAULT_PATH .= '/'; } 
 $DEFAULT_PATH_OS = Convert_encoding($DEFAULT_PATH);
 
-//Verify that $DEFAULT_PATH is equal to, or is a decendant of, $ACCESS_ROOT.
+//Verify that $DEFAULT_PATH is equal to, or a decendant of, $ACCESS_ROOT.
 $needle        = realpath($ACCESS_ROOT);  //ex: /some/access/root
 $haystack      = realpath($DEFAULT_PATH); //ex: /some/access/root/some/default/path
 $needle_len    = strlen($needle);
 $valid_subpath = (substr($haystack, 0, $needle_len) === $needle);
 
 if (!is_dir('/'.$DEFAULT_PATH_OS)) {
-	$MESSAGE .= $EX.'<b>$DEFAULT_PATH '.$_['Invalid'].":</b> $DEFAULT_PATH<br>";
+	$setup_messages .= $EX.'<b>$DEFAULT_PATH '.$_['Invalid'].":</b> $DEFAULT_PATH<br>";
 	$DEFAULT_PATH	 = $ACCESS_ROOT;
 	$DEFAULT_PATH_OS = Convert_encoding($DEFAULT_PATH);
 } 
 else if (!$valid_subpath) {
-	$MESSAGE .= $EX.'<b>'.$_['must_be_decendant'].'</b><br>';
-	$MESSAGE .= "\$ACCESS_ROOT = $ACCESS_ROOT<br>";
-	$MESSAGE .= "\$DEFAULT_PATH = $DEFAULT_PATH<br>";
+	$setup_messages .= $EX.'<b>'.$_['must_be_decendant'].'</b><br>';
+	$setup_messages .= "\$ACCESS_ROOT = $ACCESS_ROOT<br>";
+	$setup_messages .= "\$DEFAULT_PATH = $DEFAULT_PATH<br>";
 	$DEFAULT_PATH	 = $ACCESS_ROOT;
 	$DEFAULT_PATH_OS = Convert_encoding($DEFAULT_PATH);
 }
@@ -381,6 +385,8 @@ $DIRECTORY_COLUMNS = 10;
 //If you change this, or any other aspect of either hashit() or js_hash_scripts(), do so while logged in.
 //Then, manually update your password as instructed on the Admin/Generate Hash page.
 $PRE_ITERATIONS = 10000;
+
+return $setup_messages;
 }//end  System_Setup() //*******************************************************
 
 
@@ -707,16 +713,15 @@ function Session_Startup() {//**************************************************
 	session_name($SESSION_NAME);
 	session_start();
 
-	//Set initial defaults...
-	$page = 'login';
-	$VALID_POST = 0;
-	if ( !isset($_SESSION['valid']) ) { $_SESSION['valid'] = 0; }
-
 	//Logging in?
+	$page = 'login'; //Changed later in Login_response() or Get_GET() as appropriate.
 	if ( isset($_POST['username']) && isset($_POST['password']) ) { Login_response(); }
+
+	if ( !isset($_SESSION['valid']) ) { $_SESSION['valid'] = 0; }
 
 	session_regenerate_id(true); //Helps prevent session fixation & hijacking.
 
+	$VALID_POST = 0;
 	if ( $_SESSION['valid'] ) { Verify_IDLE_POST_etc(); }
 
 	$_SESSION['nuonce'] = sha1(mt_rand().microtime()); //provided in <forms> to verify POST
@@ -881,7 +886,7 @@ function Set_IS_OFCMS($fullpath_filename) {//***********************************
 	global $MESSAGE, $DOC_ROOT;
 	
 	$is_ofcms = 0;
-	$ofcms = ltrim($DOC_ROOT, '/').trim($_SERVER['SCRIPT_NAME'], '/');
+	$ofcms = trim($DOC_ROOT, '/').'/'.trim($_SERVER['SCRIPT_NAME'], '/');
 	if ($fullpath_filename == $ofcms) { $is_ofcms = true; }
 	
 	return $is_ofcms;
@@ -2044,7 +2049,7 @@ function Create_Table_for_Listing() {//*****************************************
 
 function Get_File_Stats($filename_OS) {//***************************************
 	//Get file size, date, mode (permissions), etc.
-
+	
 	$file_stats = lstat($filename_OS); //returns [file size, mtime, uid, guid, etc...]
 
 	$file_stats['is_writable'] = is_writable($filename_OS) * 1; //1 or 0  (true or false)
@@ -5506,7 +5511,7 @@ function Load_style_sheet() {//*************************************************
 
 Default_Language();
 
-System_Setup();
+$setup_messages = System_Setup();
 
 Session_Startup();
 
@@ -5541,6 +5546,8 @@ if ($_SESSION['valid']) {
 	Respond_to_POST();
 
 	Verify_Page_Conditions(); //Must come after Respond_to_POST()
+
+	if ($page != "login") { $MESSAGE .= $setup_messages; } //Must come after Verify_Page_Conditions()
 
 	if (isset($_POST['new_perms'])) { die(); } //die() here just for clarity.
 
